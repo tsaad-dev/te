@@ -1,0 +1,254 @@
+// module ietf-mpls-te-base {
+module ietf-mpls-te {
+
+    namespace "urn:ietf:params:xml:ns:yang:ietf-mpls-te";
+
+    /* Replace with IANA when assigned */
+    prefix "mpls-te";
+
+    // import ietf-inet-types { prefix inet; }
+    import ietf-mpls-te-types { prefix mpls-te-types; }
+
+    organization
+      "IETF MPLS Working Group";
+
+    contact
+      "Fill me";
+
+    description
+        "YANG data module for MPLS-TE configuration, 
+         state, RPC and notifications.";
+
+    revision 2014-12-10 {
+        description
+            "Initial revision.";
+    }
+
+    grouping auto-backup {
+        description
+            "Auto-tunnel backup properties.";
+        container auto-backup {
+            presence "Enable auto-tunnel backup on the node.";
+            /* uses tunnel-template-leaf; */
+            leaf link-protection-only {
+                 description
+                     "Limit tunnel to link protection only.";
+                 type boolean;
+            }
+            leaf backup-path-computation {
+                 type mpls-te-types:path-computation-srlg-type;
+            }
+        }
+    }
+
+    grouping link-attributes {
+        leaf te-metric {
+            description "Link te metric.";
+            type uint32 {
+                 range "0..4294967295";
+            }
+        }
+        uses affinities;
+        uses srlgs;    
+    }
+
+    /* MPLS-TE link IGP flooding parameters */
+    grouping flooding-parameters {
+        description "Link flooding properties.";
+        container thresholds {
+            description "Flooding threshold values.";
+            choice type {
+                case single-step {
+                    leaf up-step {
+                         type uint8 {
+                              range "0..100";
+                         }
+                    }
+                    leaf down-step {
+                         type uint8 {
+                              range "0..100";
+                         }
+                    }
+                }
+                case multiple-steps {
+                    list up-steps {
+                        key "value";
+                        description "Percentage bandwidth exceeded 
+                                     that causes flooding.";
+                        leaf value {
+                             type uint8 {
+                                  range "0..100";
+                             }
+                        }
+                    }
+                    list down-steps {
+                        key "value";
+                        description "Percentage bandwidth crossed 
+                                     that causes flooding.";
+                        leaf value {
+                             type uint8 {
+                                  range "0..100";
+                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    grouping bandwidth-constraints {
+        description "Bandwidth constraints.";
+        container bandwidth-constraints {
+            leaf maximum-reservable {
+                type uint32 {
+                     range "0..4294967295";
+                }
+            }
+            leaf-list bc-value {
+                type uint32 {
+                    range "0..4294967295";
+                }
+                max-elements 8;
+            }
+        }
+    }
+
+    container globals {
+        description
+            "Configuration data model for Global System-wide 
+             MPLS Traffic Engineering.";
+        presence "Enable MPLS-TE Global mode.";
+
+        list link-templates {
+            description "MPLS-TE templates for links.";
+            key "name";
+            leaf name {
+                description "MPLS-TE link template name.";
+                type string;
+            } 
+        }
+
+        list tunnel-templates {
+            description "MPLS-TE templates for tunnels.";
+            key "name";
+            leaf name {
+                description "MPLS-TE tunnel template name.";
+                type string;
+            } 
+        }
+    }
+
+    grouping srlgs {
+        container srlgs {
+            choice type {
+                case srlg-name {
+                    list names {
+                        key "name";
+                        description "List of SRLG names that 
+                            this link is part of.";
+                        leaf name {
+                             type string;
+                        }
+                    }
+                }
+                case srlg-value {
+                    list values {
+                        key "value";
+                        description "List of SRLG values that 
+                            this link is part of.";
+                        leaf value {
+                             type uint32 {
+                                  range "0..4294967295";
+                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    grouping affinities {
+        container affinities {
+            choice type {
+                case bitmap {
+                    leaf bitmap { 
+                         type uint32; 
+                    }
+                }
+                case bitmap-extended {
+                    leaf-list bit-indexed {
+                        type uint8;
+                    }
+                }
+                case names {
+                    list names {
+                        key "name";
+                        description "List of affinity names.";
+                        leaf name { 
+                             type string; 
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    grouping fast-reroute-backups {
+        container fast-reroute-backups {
+            choice type {
+                case static-tunnel {
+                    list configured-backups {
+                        key "name";
+                        description "List of backup tunnels to 
+                                     protect this link.";
+                        leaf name {
+                             type string;
+                        }
+                    }
+                }
+                case auto-tunnel {
+                    uses auto-backup;
+                }
+            }
+        }
+    }
+
+    /* MPLS-TE Link Configuration Data */
+    container links {
+        description
+            "Configuration data model for MPLS-TE links.";
+
+        leaf global-template {
+            description
+                "Name of the template to use for 
+                 TE link properties.";
+            type leafref {
+                path "/globals/link-templates/name";
+            }
+        }
+
+        list link {
+            key "name";
+            description "MPLS-TE links.";
+
+            leaf name {
+                 description "MPLS-TE link name.";
+                 type string;
+            }
+
+            leaf link-template {
+                description
+                    "Name of the template to use for 
+                     TE link properties.";
+                type leafref {
+                    path "/globals/link-templates/name";
+                }
+            }
+
+            /* Link IGP flooding properties */
+            uses link-attributes;
+            uses flooding-parameters;
+            uses fast-reroute-backups;
+        }
+    }
+}

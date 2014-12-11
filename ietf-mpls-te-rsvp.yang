@@ -1,0 +1,232 @@
+module ietf-mpls-te-rsvp {
+
+    namespace "urn:ietf:params:xml:ns:yang:ietf-mpls-te-rsvp";
+
+    prefix "rsvp-te";
+
+    import ietf-mpls-te {
+        prefix mpls-te;
+    }
+
+    import ietf-mpls-te-types {
+       prefix mpls-te-types;
+    }
+
+    /* groupings for rsvp */
+    grouping rsvp-graceful-restart {
+        description "Configure RSVP Graceful-Restart parameters.";
+        container graceful-restart {
+            presence "Enable RSVP graceful restart on the node.";
+
+            leaf restart-time {
+                description "Graceful restart time (seconds).";
+                type uint32 {
+                     range "60..3600";
+                }
+            }
+            leaf hello-interval {
+                description "Configure interval between successive 
+                             Hello messages in milliseconds.";
+                type uint32 {
+                     range "3000..30000";
+                }
+            }
+            leaf hello-misses {
+                description "Configure max number of consecutive 
+                             missed Hello messages.";
+                type uint32 {
+                     range "1..10";
+                }
+            }
+        }
+    }
+
+    grouping rsvp-authentication {
+        container authentication {
+            description "Configure RSVP authentication.";
+            leaf key-chain {
+                description "Key chain name to authenticate RSVP 
+                             signaling messages.";
+                type string {
+                     length "1..32";
+                }
+            }
+            leaf life-time {
+                description "Life time for each security association";
+                type uint32 {
+                     range "30..86400";
+                }
+            }
+            leaf window-size {
+                description "Window-size to limit number of 
+                             out-of-order messages.";
+                type uint32 {
+                     range "1..64";
+                }
+            }
+            leaf challenge {
+                 description "Enable challenge messages.";
+                 type boolean;
+            }
+            leaf retransmits {
+                 description "Number of retransmits when 
+                             messages are dropped.";
+                 type uint32 {
+                      range "1..10000";
+                 }
+            }
+        }
+    }
+
+    grouping rsvp-refresh-reduction {
+        container refresh-reduction {
+             description "Configure RSVP Refresh Reduction parameters.";
+             leaf bundle-message-max-size {
+                  description "Configure maximum size (bytes) of a 
+                               single RSVP Bundle message.";
+                      type uint32 {
+                           range "512..65000";
+                      }
+                  }
+                  leaf disable {
+                       description "Disable refresh reduction.";
+                       type boolean;
+                  }
+                  leaf reliable-ack-hold-time {
+                       description "Configure hold time in milliseconds 
+                                    for sending RSVP ACK message(s).";
+                       type uint32 {
+                            range "100..5000";
+                       }
+                  }
+                  leaf reliable-ack-max-size {
+                        description "Configure max size of a 
+                                     single RSVP ACK message.";
+                        type uint32 {
+                             range "20..65000";
+                       }
+                  }
+                  leaf reliable-retransmit-time {
+                        description "Configure min delay in 
+                                     milliseconds 
+                                     to wait for an ACK 
+                                     before a retransmit.";
+                        type uint32 {
+                             range "100..10000";
+                        }
+                  }
+                  leaf reliable-srefresh {
+                        description "Configure use of reliable 
+                                     messaging for summary refresh.";
+                        type boolean;
+                  }
+                  leaf summary-max-size {
+                         description "Configure max size (bytes) 
+                                      of a single RSVP 
+                                      summary refresh message.";
+                         type uint32 {
+                              range "20..65000";
+                         }
+                  }
+          }
+    }
+
+    grouping rsvp-signaling {
+        container signaling {
+            uses rsvp-graceful-restart;
+            uses rsvp-authentication;
+            description "Configure RSVP signaling properties.";
+            leaf dscp {
+                description "DSCP for RSVP signaling messages.";
+                type uint32 {
+                     range "0..63";
+                }
+            }
+            container hello-parameters {
+                description "Configure Hello parameters.";
+                leaf graceful-restart-interface-based {
+                     description "Enable interface-based 
+                                  Hello adjacency.";
+                     type boolean;
+                }
+            }
+            container rate-limiting-parameters {
+                description "Configure rate limiting parameters.";
+                leaf limit-messages-per-interval {
+                     description "Number of messages to be 
+                                  sent per interval.";
+                     type uint32 {
+                          range "1..500";
+                     }
+                }
+                leaf limit-interval-size {
+                    description "Size of an interval (milliseconds).";
+                    type uint32 {
+                         range "250..2000";
+                    }
+                }
+            }
+            container refresh-parameters {
+                leaf refresh-interval {
+                    description "Configure interval in seconds 
+                                 between successive refreshes.";
+                    type uint32 {
+                         range "10..180";
+                    }
+                }
+                leaf refresh-missed-messages {
+                    description "Configure max number of consecutive 
+                                 missed messages for state expiry.";
+                    type uint32 {
+                         range "1..8";
+                    }
+                }
+                uses rsvp-refresh-reduction; 
+                leaf disable {
+                    description "Sending Path Error with 
+                                 Path State Removal flag.";
+                     type boolean;
+                }
+            }
+        }
+    }
+
+    /* TE link RSVP parameters */
+    grouping rsvp-parameters {
+        container rsvp {
+            description "RSVP global configuration.";
+            uses rsvp-signaling;
+    
+            container reservable-bandwidth-percentages {
+                description "Reservable bandwidth percentage 
+                             capacity values.";
+                container rdm-bc {
+                    description "Russian Doll Model Bandwidth 
+                                 Constraints.";
+                    uses  mpls-te-types:bandwidth-constraints;
+                }
+                container mam-bc {
+                    description "Maximum Allocation Model 
+                                 Bandwidth Constraints.";
+                    uses  mpls-te-types:bandwidth-constraints;
+                }
+                container mar-bc {
+                    description "Maximum Allocation with Reservation 
+                                 Model Bandwidth Constraints.";
+                    uses  mpls-te-types:bandwidth-constraints;
+                }
+            }
+        }
+    }
+
+    /* Linkage to the base MPLS TE globals container */
+    augment "/mpls-te:links" {
+        uses rsvp-parameters;
+    }
+
+    /* Linkage to the base MPLS TE links container */
+    augment "/mpls-te:links/mpls-te:link" {
+        uses rsvp-parameters;
+        
+    }
+}
