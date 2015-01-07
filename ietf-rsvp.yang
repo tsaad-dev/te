@@ -1,0 +1,83 @@
+module ietf-rsvp {
+
+    namespace "urn:ietf:params:xml:ns:yang:rsvp";
+
+    /* Replace with IANA when assigned */
+    prefix "rsvp";
+
+    import ietf-inet-types { prefix inet; }
+
+    organization "TBA";
+
+    contact "TBA";
+
+    description
+        "This module contains the RSVP YANG data model.";
+
+    revision 2014-12-17 {
+        description "Initial revision.";
+    }
+
+    grouping authentication {
+        container authentication {
+            description "Configure RSVP authentication.";
+            leaf key-chain {
+                description "Key chain name to authenticate RSVP 
+                             signaling messages.";
+                type string {
+                     length "1..32";
+                }
+            }
+            leaf life-time {
+                description "Life time for each security association";
+                type uint32 {
+                     range "30..86400";
+                }
+            }
+            leaf window-size {
+                description "Window-size to limit number of 
+                             out-of-order messages.";
+                type uint32 {
+                     range "1..64";
+                }
+            }
+            leaf challenge {
+                 description "Enable challenge messages.";
+                 type boolean;
+            }
+            leaf retransmits {
+                 description "Number of retransmits when 
+                             messages are dropped.";
+                 type uint32 {
+                      range "1..10000";
+                 }
+            }
+        }
+    }
+
+    grouping signaling {
+        container signaling {
+            leaf dscp {
+                description "DSCP for RSVP signaling messages.";
+                type uint32 {
+                     range "0..63";
+                }
+            }
+        }
+    }
+
+    container links {
+        uses authentication; 
+        uses signaling;
+        list link {
+            key "name";
+            description "RSVP links.";
+
+            leaf name {
+                 description "RSVP link name.";
+                 type string;
+            }
+            uses signaling;
+        }
+    }
+}
