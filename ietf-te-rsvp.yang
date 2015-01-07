@@ -2,14 +2,14 @@ module ietf-mpls-te-rsvp {
 
     namespace "urn:ietf:params:xml:ns:yang:ietf-mpls-te-rsvp";
 
-    prefix "rsvp-te";
-
-    import ietf-mpls-te {
-        prefix mpls-te;
-    }
+    prefix "te-rsvp";
 
     import ietf-mpls-te-types {
        prefix mpls-te-types;
+    }
+
+    import ietf-rsvp {
+        prefix rsvp;
     }
 
     /* groupings for rsvp */
@@ -37,43 +37,6 @@ module ietf-mpls-te-rsvp {
                 type uint32 {
                      range "1..10";
                 }
-            }
-        }
-    }
-
-    grouping rsvp-authentication {
-        container authentication {
-            description "Configure RSVP authentication.";
-            leaf key-chain {
-                description "Key chain name to authenticate RSVP 
-                             signaling messages.";
-                type string {
-                     length "1..32";
-                }
-            }
-            leaf life-time {
-                description "Life time for each security association";
-                type uint32 {
-                     range "30..86400";
-                }
-            }
-            leaf window-size {
-                description "Window-size to limit number of 
-                             out-of-order messages.";
-                type uint32 {
-                     range "1..64";
-                }
-            }
-            leaf challenge {
-                 description "Enable challenge messages.";
-                 type boolean;
-            }
-            leaf retransmits {
-                 description "Number of retransmits when 
-                             messages are dropped.";
-                 type uint32 {
-                      range "1..10000";
-                 }
             }
         }
     }
@@ -134,7 +97,6 @@ module ietf-mpls-te-rsvp {
     grouping rsvp-signaling {
         container signaling {
             uses rsvp-graceful-restart;
-            uses rsvp-authentication;
             description "Configure RSVP signaling properties.";
             leaf dscp {
                 description "DSCP for RSVP signaling messages.";
@@ -193,40 +155,53 @@ module ietf-mpls-te-rsvp {
 
     /* TE link RSVP parameters */
     grouping rsvp-parameters {
-        container rsvp {
-            description "RSVP global configuration.";
-            uses rsvp-signaling;
-    
-            container reservable-bandwidth-percentages {
-                description "Reservable bandwidth percentage 
-                             capacity values.";
-                container rdm-bc {
-                    description "Russian Doll Model Bandwidth 
-                                 Constraints.";
-                    uses  mpls-te-types:bandwidth-constraints;
-                }
-                container mam-bc {
-                    description "Maximum Allocation Model 
-                                 Bandwidth Constraints.";
-                    uses  mpls-te-types:bandwidth-constraints;
-                }
-                container mar-bc {
-                    description "Maximum Allocation with Reservation 
-                                 Model Bandwidth Constraints.";
-                    uses  mpls-te-types:bandwidth-constraints;
-                }
+        uses rsvp-signaling;
+        container reservable-bandwidth-percentages {
+            description "Reservable bandwidth percentage 
+                         capacity values.";
+            container rdm-bc {
+                description "Russian Doll Model Bandwidth 
+                             Constraints.";
+                uses  mpls-te-types:bandwidth-constraints;
+            }
+            container mam-bc {
+                description "Maximum Allocation Model 
+                             Bandwidth Constraints.";
+                uses  mpls-te-types:bandwidth-constraints;
+            }
+            container mar-bc {
+                description "Maximum Allocation with Reservation 
+                             Model Bandwidth Constraints.";
+                uses  mpls-te-types:bandwidth-constraints;
             }
         }
     }
 
+    container globals {
+        list link-templates {
+            description "RSVP-TE templates for links.";
+            key "name";
+            leaf name {
+                description "RSVP-TE link template name.";
+                type string;
+            } 
+        }
+    }
+
     /* Linkage to the base MPLS TE globals container */
-    augment "/mpls-te:links" {
-        uses rsvp-parameters;
+    augment "/rsvp:links" {
+        leaf link-template {
+            description
+                "Name of the template to use for RSVP
+                 TE link properties.";
+            type leafref {
+                path "/globals/link-templates/name";
+            }
+        }
     }
 
     /* Linkage to the base MPLS TE links container */
-    augment "/mpls-te:links/mpls-te:link" {
+    augment "/rsvp:links/rsvp:link" {
         uses rsvp-parameters;
-        
     }
 }
