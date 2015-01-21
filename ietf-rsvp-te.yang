@@ -1,11 +1,11 @@
-module ietf-te-rsvp {
+module ietf-rsvp-te {
 
-    namespace "urn:ietf:params:xml:ns:yang:ietf-te-rsvp";
+    namespace "urn:ietf:params:xml:ns:yang:ietf-rsvp-te";
 
-    prefix "te-rsvp";
+    prefix "rsvp-te";
 
-    import ietf-mpls-te-types {
-       prefix mpls-te-types;
+    import ietf-te-types {
+       prefix te-types;
     }
 
     import ietf-rsvp {
@@ -13,7 +13,7 @@ module ietf-te-rsvp {
     }
 
     /* groupings for rsvp */
-    grouping rsvp-graceful-restart {
+    grouping graceful-restart {
         description "Configure RSVP Graceful-Restart parameters.";
         container graceful-restart {
             presence "Enable RSVP graceful restart on the node.";
@@ -94,85 +94,33 @@ module ietf-te-rsvp {
           }
     }
 
-    grouping rsvp-signaling {
+    grouping signaling {
         container signaling {
-            uses rsvp-graceful-restart;
             description "Configure RSVP signaling properties.";
-            leaf dscp {
-                description "DSCP for RSVP signaling messages.";
-                type uint32 {
-                     range "0..63";
-                }
-            }
-            container hello-parameters {
-                description "Configure Hello parameters.";
-                leaf graceful-restart-interface-based {
-                     description "Enable interface-based 
-                                  Hello adjacency.";
-                     type boolean;
-                }
-            }
-            container rate-limiting-parameters {
-                description "Configure rate limiting parameters.";
-                leaf limit-messages-per-interval {
-                     description "Number of messages to be 
-                                  sent per interval.";
-                     type uint32 {
-                          range "1..500";
-                     }
-                }
-                leaf limit-interval-size {
-                    description "Size of an interval (milliseconds).";
-                    type uint32 {
-                         range "250..2000";
-                    }
-                }
-            }
-            container refresh-parameters {
-                leaf refresh-interval {
-                    description "Configure interval in seconds 
-                                 between successive refreshes.";
-                    type uint32 {
-                         range "10..180";
-                    }
-                }
-                leaf refresh-missed-messages {
-                    description "Configure max number of consecutive 
-                                 missed messages for state expiry.";
-                    type uint32 {
-                         range "1..8";
-                    }
-                }
-                uses rsvp-refresh-reduction; 
-                leaf disable {
-                    description "Sending Path Error with 
-                                 Path State Removal flag.";
-                     type boolean;
-                }
-            }
+            uses graceful-restart;
         }
     }
 
     /* TE link RSVP parameters */
-    grouping rsvp-parameters {
-        uses rsvp-signaling;
+    grouping parameters {
+        uses signaling;
         container reservable-bandwidth-percentages {
             description "Reservable bandwidth percentage 
                          capacity values.";
             container rdm-bc {
                 description "Russian Doll Model Bandwidth 
                              Constraints.";
-                uses  mpls-te-types:bandwidth-constraints;
+                uses  te-types:bandwidth-constraints;
             }
             container mam-bc {
                 description "Maximum Allocation Model 
                              Bandwidth Constraints.";
-                uses  mpls-te-types:bandwidth-constraints;
+                uses  te-types:bandwidth-constraints;
             }
             container mar-bc {
                 description "Maximum Allocation with Reservation 
                              Model Bandwidth Constraints.";
-                uses  mpls-te-types:bandwidth-constraints;
+                uses  te-types:bandwidth-constraints;
             }
         }
     }
@@ -190,9 +138,10 @@ module ietf-te-rsvp {
 
     /* Linkage to the base RSVP all links */
     augment "/rsvp:links" {
-        leaf link-template {
+        uses parameters;
+        leaf template {
             description
-                "Name of the template to use for RSVP
+                "Name of the global template to use for RSVP
                  TE link properties.";
             type leafref {
                 path "/globals/link-templates/name";
@@ -202,6 +151,14 @@ module ietf-te-rsvp {
 
     /* Linkage to per RSVP link */
     augment "/rsvp:links/rsvp:link" {
-        uses rsvp-parameters;
+        uses parameters;
+        leaf template {
+            description
+                "Name of the per link template to use for RSVP
+                 TE link properties.";
+            type leafref {
+                path "/globals/link-templates/name";
+            }
+        }
     }
 }
