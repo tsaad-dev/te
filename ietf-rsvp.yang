@@ -5,7 +5,7 @@ module ietf-rsvp {
     /* Replace with IANA when assigned */
     prefix "rsvp";
 
-    import ietf-inet-types { prefix inet; }
+    /* import ietf-inet-types { prefix inet; } */
 
     organization "TBA";
 
@@ -63,6 +63,99 @@ module ietf-rsvp {
                      range "0..63";
                 }
             }
+
+            container path-err {
+                leaf state-removal {
+                    description "State-Removal flag in Path Error message";
+                    type boolean;
+                }
+            }
+
+            container hello {
+                description "Configure Hello parameters.";
+                leaf graceful-restart-interface-based {
+                     description "Enable interface-based 
+                                  Hello adjacency.";
+                     type boolean;
+                }
+            }
+
+            container refresh {
+                leaf interval {
+                    description "Set interval between successive refreshes";
+                    type uint32;
+                }
+                leaf missed {
+                    description "Set max number of consecutive missed messages for state expiry";
+                    type uint32;
+                }
+                container reduction {
+                     description "Configure RSVP Refresh Reduction parameters.";
+                     leaf bundle-message-max-size {
+                          description "Configure maximum size (bytes) of a 
+                                       single RSVP Bundle message.";
+                              type uint32 {
+                                   range "512..65000";
+                              }
+                          }
+                          leaf disable {
+                               description "Disable refresh reduction.";
+                               type boolean;
+                          }
+                          leaf reliable-ack-hold-time {
+                               description "Configure hold time in milliseconds 
+                                            for sending RSVP ACK message(s).";
+                               type uint32 {
+                                    range "100..5000";
+                               }
+                          }
+                          leaf reliable-ack-max-size {
+                                description "Configure max size of a 
+                                             single RSVP ACK message.";
+                                type uint32 {
+                                     range "20..65000";
+                               }
+                          }
+                          leaf reliable-retransmit-time {
+                                description "Configure min delay in 
+                                             milliseconds 
+                                             to wait for an ACK 
+                                             before a retransmit.";
+                                type uint32 {
+                                     range "100..10000";
+                                }
+                          }
+                          leaf reliable-srefresh {
+                                description "Configure use of reliable 
+                                             messaging for summary refresh.";
+                                type boolean;
+                          }
+                          leaf summary-max-size {
+                                 description "Configure max size (bytes) 
+                                              of a single RSVP 
+                                              summary refresh message.";
+                                 type uint32 {
+                                      range "20..65000";
+                                 }
+                          }
+                    }
+            }
+
+            container rate-limit {
+                description "Msssage rate limit (pacing) options";
+                leaf rate {
+                    description "Number of messages to be sent per interval";
+                    type uint32 {
+                         range "1..500";
+                    }
+                }
+                leaf interval {
+                    description "Size of an interval (milliseconds)";
+                    type uint32 {
+                         range "1..2000";
+                    }
+                }
+            }
         }
     }
 
@@ -77,6 +170,7 @@ module ietf-rsvp {
                  description "RSVP link name.";
                  type string;
             }
+            uses authentication; 
             uses signaling;
         }
     }
