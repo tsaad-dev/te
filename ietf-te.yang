@@ -1,12 +1,12 @@
-module ietf-mpls-te-base {
+module ietf-te {
 
     namespace "urn:ietf:params:xml:ns:yang:ietf-mpls-te-base";
 
     /* Replace with IANA when assigned */
-    prefix "mpls-te";
+    prefix "te";
 
     // import ietf-inet-types { prefix inet; }
-    import ietf-mpls-te-types { prefix mpls-te-types; }
+    import ietf-te-types { prefix te-types; }
 
     organization
       "IETF MPLS Working Group";
@@ -34,8 +34,8 @@ module ietf-mpls-te-base {
                      "Limit tunnel to link protection only.";
                  type boolean;
             }
-            leaf backup-path-computation {
-                 type mpls-te-types:path-computation-srlg-type;
+            leaf path-computation {
+                 type te-types:path-computation-srlg-type;
             }
         }
     }
@@ -43,10 +43,7 @@ module ietf-mpls-te-base {
     grouping link-attributes {
         leaf te-metric {
             description "Link te metric.";
-            type mpls-te-types:te-metric;
-            /*type uint32 {
-                 range "0..4294967295";
-            }*/
+            type te-types:te-metric;
         }
         uses affinities;
         uses srlgs;    
@@ -60,31 +57,42 @@ module ietf-mpls-te-base {
             choice type {
                 case single-step {
                     leaf up-step {
-                         type uint8 {
-                              range "0..100";
-                         }
+                        description "Set single threshold for increasing
+                                     resource allocation in percent";
+                        type uint8 {
+                            range "0..100";
+                        }
                     }
                     leaf down-step {
-                         type uint8 {
-                              range "0..100";
-                         }
+                        description "Set single threshold for decreasing
+                                     resource allocation in percent";
+                        type uint8 {
+                            range "0..100";
+                        }
+                    }
+                    leaf up-down-step {
+                        description "Set single threshold for increasing and
+                                     decreasing resource allocation in percent";
+                        type uint8 {
+                            range "0..100";
+                        }
                     }
                 }
                 case multiple-steps {
                     list up-steps {
                         key "value";
-                        description "Percentage bandwidth exceeded 
-                                     that causes flooding.";
+                        description "Set nultuple threshold for increasing
+                                     resource allocation in percent";
                         leaf value {
-                             type uint8 {
-                                  range "0..100";
-                             }
+                            type uint8 {
+                                range "0..100";
+                            }
                         }
                     }
                     list down-steps {
                         key "value";
-                        description "Percentage bandwidth crossed 
-                                     that causes flooding.";
+                        description "Set nultuple threshold for decreasing 
+                                     resource allocation in percent";
                         leaf value {
                              type uint8 {
                                   range "0..100";
@@ -250,7 +258,7 @@ module ietf-mpls-te-base {
                 description
                     "List of interface capabilities for this interface";
                 leaf switching-capability {
-                  type mpls-te-types:switching-capabilities;
+                  type te-types:switching-capabilities;
                   description
                     "Switching Capability for this interface";
                 }
