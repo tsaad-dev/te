@@ -6,7 +6,7 @@ module ietf-te {
     prefix "te";
 
     // import ietf-inet-types { prefix inet; }
-    import ietf-te-types { prefix te-types; }
+    import ietf-te-types { prefix ietf-te-types; }
 
     organization
       "IETF MPLS Working Group";
@@ -35,7 +35,7 @@ module ietf-te {
                  type boolean;
             }
             leaf path-computation {
-                 type te-types:path-computation-srlg-type;
+                 type ietf-te-types:path-computation-srlg-type;
             }
         }
     }
@@ -43,10 +43,10 @@ module ietf-te {
     grouping link-attributes {
         leaf te-metric {
             description "Link te metric.";
-            type te-types:te-metric;
+            type ietf-te-types:te-metric;
         }
-        uses affinities;
-        uses srlgs;    
+        uses link-affinities;
+        uses link-srlgs;
     }
 
     /* MPLS-TE link IGP flooding parameters */
@@ -146,7 +146,7 @@ module ietf-te {
         }
     }
 
-    grouping srlgs {
+    grouping link-srlgs {
         container srlgs {
             choice type {
                 case srlg-name {
@@ -175,7 +175,7 @@ module ietf-te {
         }
     }
     
-    grouping affinities {
+    grouping link-affinities {
         container affinities {
             choice type {
                 case admin-groups {
@@ -223,6 +223,7 @@ module ietf-te {
 
     /* MPLS-TE Link Configuration Data */
     container links {
+    /* interfaces */
         description
             "Configuration data model for MPLS-TE links.";
 
@@ -252,27 +253,63 @@ module ietf-te {
                     path "/globals/link-templates/name";
                 }
             }
-
-            list switching-capabilities {
-                key "switching-capability";
-                description
-                    "List of interface capabilities for this interface";
-                leaf switching-capability {
-                  type te-types:switching-capabilities;
-                  description
-                    "Switching Capability for this interface";
-                }
-/*                leaf encoding {
-                  type mpls-te:encoding-type;
-                  description
-                    "Encoding supported by this interface";
-                } */
-            }
-
-            /* Link IGP flooding properties */
+            uses ietf-te-types:link-switching-cap;
             uses link-attributes;
+            /* Link IGP flooding properties */
             uses flooding-parameters;
             uses fast-reroute-backups;
+        }
+    }
+
+    /* MPLS-TE Tunnel Configuration Data */
+    container tunnels-cfg {
+        description
+            "Configuration, operational, notification and RPC data model
+             for MPLS-TE tunnels.";
+        presence "Enable MPLS-TE Global mode.";
+
+        leaf tunnel-template {
+            description
+                "Name of the template to use for 
+                 tunnel properties.";
+            type leafref {
+                path "/global-cfg/tunnel-templates/name";
+            }
+        }
+
+        list tunnel {
+            key "name type";
+            unique "identifier";
+            description "MPLS-TE tunnel.";
+            leaf name {
+                type string;
+                description "MPLS-TE tunnel name.";
+            }
+            leaf type {
+                description "MPLS-TE tunnel type.";
+                type ietf-te-types:tunnel-type;
+            }
+            leaf identifier {
+                description
+                    "MPLS-TE tunnel Identifier.";
+                type uint16;
+            }
+            leaf description {
+                description
+                    "MPLS-TE tunnel description.";
+                type string;
+            }
+            leaf admin-status {
+                description "MPLS-TE tunnel administrative state.";
+                type enumeration {
+                     enum up;
+                     enum down;
+                }
+                default up;
+            }
+            uses ietf-te-types:path-selection;
+            uses ietf-te-types:tunnel-affinity;
+            uses ietf-te-types:tunnel-routing-properties;
         }
     }
 }
