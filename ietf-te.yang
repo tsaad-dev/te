@@ -40,13 +40,14 @@ module ietf-te {
         }
     }
 
-    grouping link-attributes {
+    grouping interface-attributes {
         leaf te-metric {
             description "Link te metric.";
             type ietf-te-types:te-metric;
         }
-        uses link-affinities;
-        uses link-srlgs;
+        uses ietf-te-types:affinities;
+        uses ietf-te-types:srlgs;
+        uses ietf-te-types:reservable-bandwidths;
     }
 
     /* MPLS-TE link IGP flooding parameters */
@@ -127,11 +128,11 @@ module ietf-te {
              MPLS Traffic Engineering.";
         presence "Enable MPLS-TE Global mode.";
 
-        list link-templates {
-            description "MPLS-TE templates for links.";
+        list interface-templates {
+            description "MPLS-TE templates for interfaces.";
             key "name";
             leaf name {
-                description "MPLS-TE link template name.";
+                description "MPLS-TE interface template name.";
                 type string;
             }
         }
@@ -145,62 +146,7 @@ module ietf-te {
             } 
         }
     }
-
-    grouping link-srlgs {
-        container srlgs {
-            choice type {
-                case srlg-name {
-                    list names {
-                        key "name";
-                        description "List of SRLG names that 
-                            this link is part of.";
-                        leaf name {
-                             type string;
-                        }
-                    }
-                }
-                case srlg-value {
-                    list values {
-                        key "value";
-                        description "List of SRLG values that 
-                            this link is part of.";
-                        leaf value {
-                             type uint32 {
-                                  range "0..4294967295";
-                             }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    grouping link-affinities {
-        container affinities {
-            choice type {
-                case admin-groups {
-                    leaf color {
-                        type uint32; 
-                    }
-                }
-                case extended-admin-group {
-                    leaf-list extended-color {
-                        type uint32;
-                    }
-                }
-                case names {
-                    list names {
-                        key "name";
-                        description "List of affinity names.";
-                        leaf name {
-                            type string; 
-                        }
-                    }
-                }
-            }
-        }
-    }
-
+ 
     grouping fast-reroute-backups {
         container fast-reroute-backups {
             choice type {
@@ -222,39 +168,39 @@ module ietf-te {
     }
 
     /* MPLS-TE Link Configuration Data */
-    container links {
+    container interfaces {
     /* interfaces */
         description
             "Configuration data model for MPLS-TE links.";
 
-        leaf link-template {
+        leaf interface-template {
             description
                 "Name of the template to use for 
                  TE link properties.";
             type leafref {
-                path "/globals/link-templates/name";
+                path "/globals/interface-templates/name";
             }
         }
 
-        list link {
+        list interface {
             key "name";
-            description "MPLS-TE links.";
+            description "MPLS-TE interfaces.";
 
             leaf name {
-                 description "MPLS-TE link name.";
+                 description "MPLS-TE interface name.";
                  type string;
             }
 
-            leaf link-template {
+            leaf interface-template {
                 description
                     "Name of the template to use for 
                      TE link properties.";
                 type leafref {
-                    path "/globals/link-templates/name";
+                    path "/globals/interface-templates/name";
                 }
             }
             uses ietf-te-types:link-switching-cap;
-            uses link-attributes;
+            uses interface-attributes;
             /* Link IGP flooding properties */
             uses flooding-parameters;
             uses fast-reroute-backups;
@@ -262,7 +208,7 @@ module ietf-te {
     }
 
     /* MPLS-TE Tunnel Configuration Data */
-    container tunnels-cfg {
+    container tunnels {
         description
             "Configuration, operational, notification and RPC data model
              for MPLS-TE tunnels.";
@@ -273,7 +219,7 @@ module ietf-te {
                 "Name of the template to use for 
                  tunnel properties.";
             type leafref {
-                path "/global-cfg/tunnel-templates/name";
+                path "/globals/tunnel-templates/name";
             }
         }
 
