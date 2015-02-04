@@ -4,8 +4,20 @@ module ietf-rsvp-te {
 
     prefix "rsvp-te";
 
+    import ietf-inet-types {
+        prefix inet;
+    }
+
     import ietf-rsvp {
         prefix rsvp;
+    }
+
+    import ietf-te-types {
+        prefix ietf-te-types;
+    }
+
+    import ietf-te {
+        prefix ietf-te;
     }
 
     /* groupings for rsvp */
@@ -113,14 +125,85 @@ module ietf-rsvp-te {
     grouping signaling {
         container signaling {
             description "Configure RSVP signaling properties.";
+            leaf egress-label {
+                type ietf-te-types:egress-label;
+            }
             uses graceful-restart;
             uses refresh-reduction;
+        }
+
+    }
+
+    grouping lsp-signaling-properties {
+        description "LSP signaling properties.";
+        leaf source {
+            description
+                "LSP source address.";
+            type inet:ip-address;
+        }
+        container fast-reroute {
+            presence "Requests FRR local protection on LSRs.";
+            leaf bandwidth-protection-desired {
+                description
+                    "Request FRR bandwidth protection on LSRs.";
+                type boolean;
+            }
+            leaf node-protection-desired {
+                description
+                    "Request FRR node protection on LSRs.";
+                type boolean;
+            }
+        }
+        leaf record-route {
+            description
+                "Requests path RRO recording in RSVP PATH message.";
+            type boolean;
+        }
+        leaf signaled-name {
+            description
+                "Sets the session name to use in the session attribute
+                 object.";
+            type string;
+        }
+        container priority {
+            description
+                "Sets the setup/hold priority to use in the session
+                 attribute object.";
+            leaf setup {
+                type uint8 {
+                     range "0..7";
+                }
+            }
+            leaf hold {
+                type uint8 {
+                     range "0..7";
+                }
+            }
+        }
+        leaf soft-preemption {
+            description
+                "Requests soft-preemption in session 
+                 attributes object at
+                 at traversed LSR(s).";
+            type boolean;
+        }
+        container signaled-bandwidth {
+            description
+                "Sets the requested bandwidth.";
+            leaf type {
+                 type ietf-te-types:bandwidth-type;
+            }
+            leaf value {
+                type uint32 {
+                     range "0..4294967295";
+                }
+            }
         }
     }
 
 
     /* RSVP-TE global propeerties */
-    container globals {
+    augment "/rsvp:globals" {
         list interface-templates {
             description
                 "RSVP-TE templates for interfaces.";
@@ -130,6 +213,19 @@ module ietf-rsvp-te {
                 type string;
             } 
         }
+        container frr-local-revert {
+            presence "Enable RSVP FRR local revertive recovery mode.";
+            leaf frr-local-revert-delay {
+                description
+                    "Time to wait after primary link is restored
+                    before node attempts local revertive procedures.";
+                type uint32;
+            }
+        }
+    }
+
+    augment "/ietf-te:tunnels/ietf-te:tunnel" {
+        uses lsp-signaling-properties;
     }
 
     /* Linkage to the base RSVP all links */
@@ -140,7 +236,7 @@ module ietf-rsvp-te {
                 "Name of the global template to use for all RSVP
                 interfaces.";
             type leafref {
-                path "/globals/interface-templates/name";
+                path "/rsvp:globals/interface-templates/name";
             }
         }
     }
@@ -153,7 +249,7 @@ module ietf-rsvp-te {
                 "Name of the per link template to use for RSVP
                  TE link properties.";
             type leafref {
-                path "/globals/interface-templates/name";
+                path "/rsvp:globals/interface-templates/name";
             }
         }
     }

@@ -19,6 +19,17 @@ module ietf-te-types {
             "Support for TE link extended admin groups.";
     }
 
+    /* Describes egress label allocation */
+    typedef egress-label {
+        description
+            "Describes egress label allocation";
+        type enumeration {
+            enum "EXPLICIT-NULL";
+            enum "IMPLICIT-NULL";
+            enum "NON-NULL";
+        }
+    }
+
     /* Typedefs for MPLS-TE */
     typedef switching-capabilities {
         description
@@ -406,6 +417,90 @@ module ietf-te-types {
         }
     }
 
+    grouping tunnel-forwarding-properties {
+        description "Properties for using tunnel in forwarding.";
+        container forwarding {
+            leaf load-share {
+                 description "ECMP tunnel forwarding 
+                              load-share factor.";
+                 type uint32 {
+                      range "1..4294967295";
+                 }
+            }
+            choice policy-type {
+                container class {
+                    leaf class {
+                         type uint8 {
+                              range "1..7";
+                         }
+                    }
+                }
+                container group {
+                    leaf-list classes {
+                         type uint8 {
+                              range "1..7";
+                         }
+                    }
+                }
+            }
+        }
+    }
+
+    grouping igp-protocol-def {
+         leaf instance-id {
+              description
+                  "Constrains the computed path to a specific IGP
+                   instance topology.";
+              type string;
+         }
+         leaf igp {
+             description
+                 "Constrains the computed path to a specific IGP.";
+             type enumeration {
+                 enum ospf;
+                 enum isis;
+             }
+         }
+         choice igp-type {
+              description
+                  "Constrains the computed path to a specific IGP
+                   area or level.";
+              container isis {
+                  leaf level {
+                      type uint8 {
+                           range "1..2";
+                      }
+                  }
+              }
+              container ospf {
+                  leaf area {
+                       type uint32 {
+                            range "0..4294967295";
+                       }
+                  }
+              }
+         }
+    }
+
+    grouping igp-te-domains {
+        container igp-te-domains {
+            description "MPLS-TE enabled IGPs.";
+            list igp-te-domain {
+                key "instance-id";
+                description "MPLS-TE enabled IGP instance.";
+                uses igp-protocol-def;
+
+                leaf te-router-id {
+                    description "MPLS-TE Router ID.";
+                    type inet:ip-address;
+                }
+                leaf-list routing-afs {
+                    type inet:ip-version;
+                }
+            }
+        }
+    }
+
     grouping tunnel-routing-properties {
         choice routing-choice {
             description
@@ -490,6 +585,129 @@ module ietf-te-types {
             }
         }
     }
+
+    grouping tunnel-bidir-assoc-properties {
+        container bidirectional {
+            description
+                "MPLS-TE associated bidirectional tunnel attributes.";
+            container association {
+                leaf id {
+                     description
+                         "The MPLS-TE tunnel association identifier.";
+                     type uint16;
+                }
+                leaf source {
+                     description
+                            "The MPLS-TE tunnel association source.";
+                     type inet:ip-address;
+                }
+                leaf global-source {
+                     description
+                            "The MPLS-TE tunnel association global
+                             source.";
+                     type inet:ip-address;
+                }
+                leaf type {
+                     description "The MPLS-TE tunnel association type.";
+                     type mtt:bidir-association-type;
+                }
+            }
+        }
+    }
+
+    grouping tunnel-lsp-properties {
+        choice lsp-type {
+            /* Point-to-point LSP properties */
+            case p2p {
+                list p2p-properties {
+                    key "po-index";
+                    description "An index identifying a set of LSP
+                                 properties, p2p path-option index.";
+                    /* definition of the destination 
+                       and associated path */
+//                    uses path-option-reference;
+//                    uses tunnel-template-leaf;
+                }
+            }
+    
+            /* Point-to-multipoint LSP properties */
+            case p2mp {
+                list p2mp-properties {
+                    key "lsp-index";
+                    leaf lsp-index {
+                        description "An index identifying a set of LSP
+                                     properties and their paths.";
+                        type uint8 {
+                             range "0..255";
+                        }
+                    }
+
+                    /* definition of the destination 
+                       and associated path */
+                    list p2mp-path-group {
+                        key "destination";
+                        description "List of destinations 
+                                     and their paths.";
+//                        uses path-option-reference;
+//                        uses tunnel-template-leaf;
+                    }
+                }
+            }
+        }
+    }
+
+    grouping tunnel-path-properties {
+        choice type {
+            case dynamic {
+                leaf dynamic {
+                    description
+                        "A CSPF dynamically computed path";
+                    type boolean;
+                }
+            }
+            case explicit {
+                description
+                    "An operator specified explicit path.";
+                list hops {
+                    key "hop-index";
+                    leaf hop-index {
+                        type uint8 {
+                             range "0..255";
+                        }
+                    }
+                    leaf hop-address {
+                        description
+                            "An IP hop address.";
+                        type hop-address-type;
+                    }
+                    leaf hop-action {
+                        description
+                            "An IP hop action.";
+                        type hop-action-type;
+                    }
+                }
+            }
+        }
+
+        container igp-constraint {
+            uses igp-protocol-def;
+        }
+
+        leaf no-validation {
+            description
+                "Indicates no validation checks to be attempted on this
+                 path.";
+            type boolean;
+        }
+        leaf lockdown {
+            description
+                "Indicates no reoptimization to be attempted for this
+                 path.";
+            type boolean;
+        }
+    }
+
+
 
     /* TE link attribute properties */
     grouping affinities {
