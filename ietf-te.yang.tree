@@ -1,0 +1,160 @@
+module: ietf-te
+   +--rw globals!
+   |  +--rw interface-templates* [name]
+   |  |  +--rw name    string
+   |  +--rw tunnel-templates* [name]
+   |  |  +--rw name    string
+   |  +--rw interface-named-admin-groups* [name]
+   |  |  +--rw name     string
+   |  |  +--rw group?   ietf-te-types:admin-groups
+   |  +--rw interface-named-srlgs* [name]
+   |     +--rw name     string
+   |     +--rw group?   ietf-te-types:srlg
+   +--rw interfaces
+   |  +--rw interface-template?   leafref
+   |  +--rw interface* [interface]
+   |     +--rw interface                           if:interface-ref
+   |     +--rw interface-template?                 leafref
+   |     +--rw named-admin-groups* [named-admin-group]
+   |     |  +--rw named-admin-group    leafref
+   |     +--rw named-srlgs* [named-srlg]
+   |     |  +--rw named-srlg    leafref
+   |     +--rw switching-capabilities* [switching-capability]
+   |     |  +--rw capability?   te-types:switching-capabilities
+   |     +--rw te-metric?                          ietf-te-types:te-metric
+   |     +--rw affinities
+   |     |  +--rw (type)?
+   |     |     +--:(admin-groups)
+   |     |     |  +--rw admin-group?            admin-group
+   |     |     +--:(extended-admin-groups) {extended-admin-groups}?
+   |     |        +--rw extended-admin-group?   extended-admin-group
+   |     +--rw srlgs
+   |     |  +--rw (type)?
+   |     |     +--:(srlg-name)
+   |     |     |  +--rw names* [name]
+   |     |     |     +--rw name    string
+   |     |     +--:(srlg-value)
+   |     |        +--rw values* [value]
+   |     |           +--rw value    uint32
+   |     +--rw reservable-bandwidth-percentages
+   |     |  +--rw rdm-bc
+   |     |  |  +--rw bandwidth-constraints
+   |     |  |     +--rw maximum-reservable?   uint32
+   |     |  |     +--rw bc-value*             uint32
+   |     |  +--rw mam-bc
+   |     |  |  +--rw bandwidth-constraints
+   |     |  |     +--rw maximum-reservable?   uint32
+   |     |  |     +--rw bc-value*             uint32
+   |     |  +--rw mar-bc
+   |     |     +--rw bandwidth-constraints
+   |     |        +--rw maximum-reservable?   uint32
+   |     |        +--rw bc-value*             uint32
+   |     +--rw thresholds
+   |     |  +--rw (type)?
+   |     |     +--:(equal-steps)
+   |     |     |  +--rw (equal-step-type)?
+   |     |     |     +--:(up-down-different-step)
+   |     |     |     |  +--rw up-step?      uint8
+   |     |     |     |  +--rw down-step?    uint8
+   |     |     |     +--:(up-down-same-step)
+   |     |     |        +--rw step?         uint8
+   |     |     +--:(unequal-steps)
+   |     |        +--rw up-steps* [value]
+   |     |        |  +--rw value    uint8
+   |     |        +--rw down-steps* [value]
+   |     |           +--rw value    uint8
+   |     +--rw fast-reroute-backups
+   |        +--rw (type)?
+   |           +--:(static-tunnel)
+   |           |  +--rw configured-backups* [name]
+   |           |     +--rw name    string
+   |           +--:(auto-tunnel)
+   |              +--rw auto-backup!
+   |                 +--rw link-protection-only?   boolean
+   |                 +--rw path-computation?       ietf-te-types:path-computation-srlg-type
+   +--rw tunnels!
+      +--rw tunnel-template?   leafref
+      +--rw tunnel* [name type]
+         +--rw name                    string
+         +--rw type                    ietf-te-types:tunnel-type
+         +--rw identifier?             uint16
+         +--rw description?            string
+         +--rw admin-status?           enumeration
+         +--rw path-selection
+         |  +--rw cost-limit?        uint32
+         |  +--rw hop-limit?         uint8
+         |  +--rw metric-type?       path-metric-type
+         |  +--rw tiebreaker-type?   path-tiebreaker-type
+         |  +--rw ignore-overload?   boolean
+         +--rw affinity
+         |  +--rw (style)?
+         |     +--:(values)
+         |     |  +--rw value?         uint32
+         |     |  +--rw mask?          uint32
+         |     +--:(named)
+         |        +--rw constraints* [action]
+         |           +--rw action        affinity-action-type
+         |           +--rw constraint
+         |              +--rw affinity-list* [name]
+         |                 +--rw name    string
+         +--rw (routing-choice)?
+         |  +--:(autoroute)
+         |  |  +--rw autoroute-announce!
+         |  |     +--rw routing-afs*       inet:ip-version
+         |  |     +--rw (metric-type)?
+         |  |        +--:(metric)
+         |  |        |  +--rw metric?            uint32
+         |  |        +--:(relative-metric)
+         |  |        |  +--rw relative-metric?   int32
+         |  |        +--:(absolute-metric)
+         |  |           +--rw absolute-metric?   uint32
+         |  +--:(forwarding-adjacency)
+         |     +--rw forwarding-adjacency!
+         |        +--rw holdtime?      uint32
+         |        +--rw routing-afs*   inet:ip-version
+         +--rw forwarding
+         |  +--rw load-share?   uint32
+         |  +--rw (policy-type)?
+         |     +--:(class)
+         |     |  +--rw class
+         |     |     +--rw class?   uint8
+         |     +--:(group)
+         |        +--rw group
+         |           +--rw classes*   uint8
+         +--rw (lsp-type)?
+         |  +--:(p2p)
+         |  |  +--rw p2p-properties* [po-index]
+         |  +--:(p2mp)
+         |     +--rw p2mp-properties* [lsp-index]
+         |        +--rw lsp-index          uint8
+         |        +--rw p2mp-path-group* [destination]
+         +--rw bidirectional
+         |  +--rw association
+         |     +--rw id?              uint16
+         |     +--rw source?          inet:ip-address
+         |     +--rw global-source?   inet:ip-address
+         |     +--rw type?            mtt:bidir-association-type
+         +--rw destination* [address]
+            +--rw address    inet:ip-address
+            +--rw paths* [po-index]
+               +--rw po-index          uint8
+               +--rw (type)?
+               |  +--:(dynamic)
+               |  |  +--rw dynamic?          boolean
+               |  +--:(explicit)
+               |     +--rw hops* [hop-index]
+               |        +--rw hop-index      uint8
+               |        +--rw hop-address?   hop-address-type
+               |        +--rw hop-action?    hop-action-type
+               +--rw igp-constraint
+               |  +--rw instance-id?   string
+               |  +--rw igp?           enumeration
+               |  +--rw (igp-type)?
+               |     +--:(isis)
+               |     |  +--rw isis
+               |     |     +--rw level?   uint8
+               |     +--:(ospf)
+               |        +--rw ospf
+               |           +--rw area?   uint32
+               +--rw no-validation?    boolean
+               +--rw lockdown?         boolean
