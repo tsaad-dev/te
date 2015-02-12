@@ -8,8 +8,16 @@ module: ietf-te
    |  |  +--rw name     string
    |  |  +--rw group?   ietf-te-types:admin-groups
    |  +--rw interface-named-srlgs* [name]
-   |     +--rw name     string
-   |     +--rw group?   ietf-te-types:srlg
+   |  |  +--rw name     string
+   |  |  +--rw group?   ietf-te-types:srlg
+   |  +--rw explicit-paths* [name]
+   |     +--rw name    string
+   |     +--rw hops* [index]
+   |        +--rw index         uint8
+   |        +--rw hop
+   |        |  +--rw address?   inet:ip-address
+   |        |  +--rw type?      ietf-te-types:hop-address-type
+   |        +--rw hop-action?   ietf-te-types:hop-action-type
    +--rw interfaces
    |  +--rw interface-template?   leafref
    |  +--rw interface* [interface]
@@ -121,40 +129,28 @@ module: ietf-te
          |     +--:(group)
          |        +--rw group
          |           +--rw classes*   uint8
-         +--rw (lsp-type)?
-         |  +--:(p2p)
-         |  |  +--rw p2p-properties* [po-index]
-         |  +--:(p2mp)
-         |     +--rw p2mp-properties* [lsp-index]
-         |        +--rw lsp-index          uint8
-         |        +--rw p2mp-path-group* [destination]
          +--rw bidirectional
          |  +--rw association
          |     +--rw id?              uint16
          |     +--rw source?          inet:ip-address
          |     +--rw global-source?   inet:ip-address
          |     +--rw type?            mtt:bidir-association-type
-         +--rw destination* [address]
-            +--rw address    inet:ip-address
-            +--rw paths* [po-index]
-               +--rw po-index          uint8
-               +--rw (type)?
-               |  +--:(dynamic)
-               |  |  +--rw dynamic?          boolean
-               |  +--:(explicit)
-               |     +--rw hops* [hop-index]
-               |        +--rw hop-index      uint8
-               |        +--rw hop-address?   hop-address-type
-               |        +--rw hop-action?    hop-action-type
-               +--rw igp-constraint
-               |  +--rw instance-id?   string
-               |  +--rw igp?           enumeration
-               |  +--rw (igp-type)?
-               |     +--:(isis)
-               |     |  +--rw isis
-               |     |     +--rw level?   uint8
-               |     +--:(ospf)
-               |        +--rw ospf
-               |           +--rw area?   uint32
-               +--rw no-validation?    boolean
-               +--rw lockdown?         boolean
+         +--rw paths* [preference]
+            +--rw preference            uint8
+            +--rw (type)?
+            |  +--:(dynamic)
+            |  |  +--rw dynamic?              boolean
+            |  +--:(explicit)
+            |     +--rw explicit-path-name?   string
+            +--rw igp-constraint
+            |  +--rw instance-id?   string
+            |  +--rw igp?           enumeration
+            |  +--rw (igp-type)?
+            |     +--:(isis)
+            |     |  +--rw isis
+            |     |     +--rw level?   uint8
+            |     +--:(ospf)
+            |        +--rw ospf
+            |           +--rw area?   uint32
+            +--rw no-cspf?              boolean
+            +--rw lockdown?             boolean

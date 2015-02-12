@@ -30,6 +30,27 @@ module ietf-te-types {
         }
     }
 
+    typedef backup-type {
+        description
+            "Describes the backup LSP protection method";
+        reference
+            "RFC49090: RSVP-TE Fast Reroute";
+        type enumeration {
+            enum "facility";
+            enum "1-for-1";
+        }
+    }
+
+    typedef backup-protection-type {
+        description
+            "Describes what faults can the backup protect against";
+        type enumeration {
+            enum "link";
+            enum "node";
+            enum "either";
+        }
+    }
+
     /* Typedefs for MPLS-TE */
     typedef switching-capabilities {
         description
@@ -178,23 +199,89 @@ module ietf-te-types {
             "Possible MPLS-TE tunnel types, default is point-to-point.";
     }
 
-    typedef hop-address-type {
-        type inet:ip-address;
+
+    grouping path-element {
+        description
+            "A group of attributes defining an element in a TE path
+            such as TE node, TE link, TE aotomic resource or label.";
+        leaf loose {
+            type boolean;
+            description "true if the element is loose.";
+        }
+        choice element-type {
+            description
+                "Attributes for various element types.";
+            case link {
+                choice identifier {
+                    case numbered {
+                        leaf link-ip-address {
+                            type inet:ip-address;
+                            description "IPv4 or IPv6 address.";
+                        }
+                    }
+                    case unnumbered {
+                        leaf link-node-id {
+                            type uint32;
+                            description
+                                "Node ID of the node where the link end point resides.";
+                        }
+                        leaf link-id {
+                          type uint32;
+                          description "Identifies the link end point.";
+                        }
+                    }
+                }
+            }
+            case node {
+                choice identity {
+                    leaf identifier {
+                        type uint32;
+                        description "Identifies the node.";
+                    }
+                    case address {
+                        leaf address {
+                            type inet:ip-address;
+                            description
+                                "Address of the node";
+                        }
+                    }
+                }
+            }
+            case label {
+                leaf label {
+                    type uint32;
+                    description
+                        "Identifies atomic TE resource or label.";
+                }
+            }
+        }
     }
 
-    typedef hop-action-type {
+    typedef path-element-usage {
         type enumeration {
             enum include-strict {
-                description "Include strict hop.";
+                description "Include strict path-element.";
             }
             enum include-loose {
-                description "Include loose hop.";
+                description "Include loose path-element.";
             }
             enum exclude {
-                description "Exclude strict hop.";
+                description "Exclude strict path-element.";
+            }
+            enum exclude-srlg {
+                description
+                    "Excludes the SRLGs associated with
+                    the path-element";
             }
         }
         default "include-strict";
+    }
+
+    typedef hop-address-type {
+        type enumeration {
+            enum strict;
+            enum loose;
+        }
     }
 
     typedef bfd-type {
@@ -250,7 +337,7 @@ module ietf-te-types {
              LSPs.";
     }
 
-    typedef affinity-action-type {
+    typedef affinity-usage-type {
         type enumeration {
             enum include;
             enum exclude;
@@ -296,6 +383,13 @@ module ietf-te-types {
 
     typedef te-metric {
         type uint32;
+    }
+
+    typedef bidir-association-provisioning {
+        type enumeration {
+            enum single-sided;
+            enum double-sided;
+        }
     }
 
     grouping bandwidth-constraints {
@@ -348,7 +442,7 @@ module ietf-te-types {
         }
     }
 
-    grouping path-selection {
+    grouping tunnel-path-selection {
         container path-selection {
             leaf cost-limit {
                 description
@@ -399,9 +493,9 @@ module ietf-te-types {
                 }
                 case named {
                     list constraints {
-                        key "action";
-                        leaf action {
-                             type affinity-action-type;
+                        key "usage";
+                        leaf usage {
+                             type affinity-usage-type;
                         }
                         container constraint {
                             list affinity-list {
@@ -609,8 +703,26 @@ module ietf-te-types {
                 }
                 leaf type {
                      description "The MPLS-TE tunnel association type.";
-                     type mtt:bidir-association-type;
+                     type bidir-association-type;
                 }
+                leaf provisioing {
+                    description
+                        "Describes the provisioning model of the associated
+                        bidirection LSP";
+                    reference
+                        "draft-ietf-teas-mpls-tp-rsvpte-ext-associated-lsp,
+                        section-3.2";
+                    type bidir-association-provisioning;
+                }
+            }
+        }
+    }
+
+    grouping tunnel-path-option {
+        leaf path-option {
+            description "A reference to an MPLS-TE tunnel path-option.";
+            type leafref {
+                path "/tunnels/tunnel/path-options/index";
             }
         }
     }
@@ -623,10 +735,7 @@ module ietf-te-types {
                     key "po-index";
                     description "An index identifying a set of LSP
                                  properties, p2p path-option index.";
-                    /* definition of the destination 
-                       and associated path */
-//                    uses path-option-reference;
-//                    uses tunnel-template-leaf;
+                    uses tunnel-path-option;
                 }
             }
     
@@ -666,25 +775,8 @@ module ietf-te-types {
                 }
             }
             case explicit {
-                description
-                    "An operator specified explicit path.";
-                list hops {
-                    key "hop-index";
-                    leaf hop-index {
-                        type uint8 {
-                             range "0..255";
-                        }
-                    }
-                    leaf hop-address {
-                        description
-                            "An IP hop address.";
-                        type hop-address-type;
-                    }
-                    leaf hop-action {
-                        description
-                            "An IP hop action.";
-                        type hop-action-type;
-                    }
+                leaf explicit-path-name {
+                    type string;
                 }
             }
         }
@@ -693,9 +785,9 @@ module ietf-te-types {
             uses igp-protocol-def;
         }
 
-        leaf no-validation {
+        leaf no-cspf {
             description
-                "Indicates no validation checks to be attempted on this
+                "Indicates no CSPF is to be attempted on this
                  path.";
             type boolean;
         }

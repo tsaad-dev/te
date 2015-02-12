@@ -5,10 +5,6 @@ module ietf-te {
     /* Replace with IANA when assigned */
     prefix "te";
 
-    import ietf-inet-types {
-        prefix inet; 
-    }
-
     import ietf-te-types {
         prefix "ietf-te-types";
     }
@@ -37,11 +33,18 @@ module ietf-te {
             "Auto-tunnel backup properties.";
         container auto-backup {
             presence "Enable auto-tunnel backup on the node.";
+            leaf method {
+                description
+                    "Describes whether facility backup or 1-for-1
+                    backup should be used";
+                type ietf-te-types:backup-type;
+            }
             /* uses tunnel-template-leaf; */
-            leaf link-protection-only {
-                 description
-                     "Limit tunnel to link protection only.";
-                 type boolean;
+            leaf protection {
+                description
+                    "Describes whether the backup should offer
+                    protection against link, node, or either";
+                type ietf-te-types:backup-protection-type;
             }
             leaf path-computation {
                  type ietf-te-types:path-computation-srlg-type;
@@ -136,6 +139,15 @@ module ietf-te {
             }
         }
     }
+    
+    grouping path-constraints {
+        description
+            "Grouping of possible TE path constraints";
+        container path-constraints {
+            uses ietf-te-types:tunnel-path-selection;
+            uses ietf-te-types:tunnel-affinity;
+        }
+    }
 
     container globals {
         description
@@ -178,6 +190,27 @@ module ietf-te {
             }
             leaf group {
                 type ietf-te-types:srlg;
+            }
+        }
+
+        list explicit-paths {
+            key "name";
+            leaf name {
+                type string;
+            }
+            list hops {
+                key "index";
+                leaf index {
+                    type uint8 {
+                         range "0..255";
+                    }
+                }
+                uses ietf-te-types:path-element;
+                leaf path-element-usage {
+                    description
+                        "An IP hop action.";
+                    type ietf-te-types:path-element-usage;
+                }
             }
         }
     }
@@ -307,30 +340,20 @@ module ietf-te {
                 }
                 default up;
             }
-            uses ietf-te-types:path-selection;
-            uses ietf-te-types:tunnel-affinity;
+            uses path-constraints;
             uses ietf-te-types:tunnel-routing-properties;
             uses ietf-te-types:tunnel-forwarding-properties;
-            uses ietf-te-types:tunnel-lsp-properties;
             uses ietf-te-types:tunnel-bidir-assoc-properties;
 
-            /* List of destinations and path(s) */
-            list destination {
-                key "address";
-                description
-                    "The MPLS-TE tunnel destination address.";
-                leaf address {
-                    type inet:ip-address;
+            /* P2P list of path(s) */
+            list paths {
+                key "preference";
+                leaf preference {
+                     type uint8 {
+                          range "1..255";
+                     }
                 }
-                list paths {
-                    key "po-index";
-                    leaf po-index {
-                         type uint8 {
-                              range "1..255";
-                         }
-                    }
-                    uses ietf-te-types:tunnel-path-properties;
-                }
+                uses ietf-te-types:tunnel-path-properties;
             }
         }
     }
