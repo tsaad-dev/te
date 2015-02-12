@@ -11,13 +11,26 @@ module: ietf-te
    |  |  +--rw name     string
    |  |  +--rw group?   ietf-te-types:srlg
    |  +--rw explicit-paths* [name]
-   |     +--rw name    string
-   |     +--rw hops* [index]
-   |        +--rw index         uint8
-   |        +--rw hop
-   |        |  +--rw address?   inet:ip-address
-   |        |  +--rw type?      ietf-te-types:hop-address-type
-   |        +--rw hop-action?   ietf-te-types:hop-action-type
+   |     +--rw name            string
+   |     +--rw element-hops* [index]
+   |        +--rw index              uint8
+   |        +--rw (element-type)?
+   |        |  +--:(link)
+   |        |  |  +--rw (identifier)?
+   |        |  |     +--:(numbered)
+   |        |  |     |  +--rw link-ip-address?   inet:ip-address
+   |        |  |     +--:(unnumbered)
+   |        |  |        +--rw link-node-id?      uint32
+   |        |  |        +--rw link-id?           uint32
+   |        |  +--:(node)
+   |        |  |  +--rw (identity)?
+   |        |  |     +--:(identifier)
+   |        |  |     |  +--rw identifier?        uint32
+   |        |  |     +--:(address)
+   |        |  |        +--rw address?           inet:ip-address
+   |        |  +--:(label)
+   |        |     +--rw label?             uint32
+   |        +--rw element-usage?     ietf-te-types:path-element-usage
    +--rw interfaces
    |  +--rw interface-template?   leafref
    |  +--rw interface* [interface]
@@ -78,8 +91,9 @@ module: ietf-te
    |           |     +--rw name    string
    |           +--:(auto-tunnel)
    |              +--rw auto-backup!
-   |                 +--rw link-protection-only?   boolean
-   |                 +--rw path-computation?       ietf-te-types:path-computation-srlg-type
+   |                 +--rw method?             ietf-te-types:backup-type
+   |                 +--rw protection?         ietf-te-types:backup-protection-type
+   |                 +--rw path-computation?   ietf-te-types:path-computation-srlg-type
    +--rw tunnels!
       +--rw tunnel-template?   leafref
       +--rw tunnel* [name type]
@@ -88,23 +102,24 @@ module: ietf-te
          +--rw identifier?             uint16
          +--rw description?            string
          +--rw admin-status?           enumeration
-         +--rw path-selection
-         |  +--rw cost-limit?        uint32
-         |  +--rw hop-limit?         uint8
-         |  +--rw metric-type?       path-metric-type
-         |  +--rw tiebreaker-type?   path-tiebreaker-type
-         |  +--rw ignore-overload?   boolean
-         +--rw affinity
-         |  +--rw (style)?
-         |     +--:(values)
-         |     |  +--rw value?         uint32
-         |     |  +--rw mask?          uint32
-         |     +--:(named)
-         |        +--rw constraints* [action]
-         |           +--rw action        affinity-action-type
-         |           +--rw constraint
-         |              +--rw affinity-list* [name]
-         |                 +--rw name    string
+         +--rw path-constraints
+         |  +--rw path-selection
+         |  |  +--rw cost-limit?        uint32
+         |  |  +--rw hop-limit?         uint8
+         |  |  +--rw metric-type?       path-metric-type
+         |  |  +--rw tiebreaker-type?   path-tiebreaker-type
+         |  |  +--rw ignore-overload?   boolean
+         |  +--rw affinity
+         |     +--rw (style)?
+         |        +--:(values)
+         |        |  +--rw value?         uint32
+         |        |  +--rw mask?          uint32
+         |        +--:(named)
+         |           +--rw constraints* [usage]
+         |              +--rw usage         affinity-usage-type
+         |              +--rw constraint
+         |                 +--rw affinity-list* [name]
+         |                    +--rw name    string
          +--rw (routing-choice)?
          |  +--:(autoroute)
          |  |  +--rw autoroute-announce!
@@ -134,7 +149,8 @@ module: ietf-te
          |     +--rw id?              uint16
          |     +--rw source?          inet:ip-address
          |     +--rw global-source?   inet:ip-address
-         |     +--rw type?            mtt:bidir-association-type
+         |     +--rw type?            bidir-association-type
+         |     +--rw provisioing?     bidir-association-provisioning
          +--rw paths* [preference]
             +--rw preference            uint8
             +--rw (type)?

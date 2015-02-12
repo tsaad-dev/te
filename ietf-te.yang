@@ -54,7 +54,7 @@ module ietf-te {
 
     grouping interface-attributes {
         leaf te-metric {
-            description "Link te metric.";
+            description "Interface TE link metric.";
             type ietf-te-types:te-metric;
         }
         uses ietf-te-types:affinities;
@@ -64,7 +64,7 @@ module ietf-te {
 
     /* MPLS-TE link IGP flooding parameters */
     grouping flooding-parameters {
-        description "Link flooding properties.";
+        description "Interface TE link flooding properties.";
         container thresholds {
             description "Flooding threshold values.";
             choice type {
@@ -149,6 +149,28 @@ module ietf-te {
         }
     }
 
+    grouping fast-reroute-backups {
+        container fast-reroute-backups {
+            choice type {
+                case static-tunnel {
+                    list configured-backups {
+                        key "name";
+                        description "List of backup tunnels to 
+                                     protect this link.";
+                        leaf name {
+                             type string;
+                        }
+                    }
+                }
+                case auto-tunnel {
+                    uses auto-backup;
+                }
+            }
+        }
+    }
+
+    /*** End of Groupings ***/
+
     container globals {
         description
             "Configuration data model for Global System-wide 
@@ -198,7 +220,7 @@ module ietf-te {
             leaf name {
                 type string;
             }
-            list hops {
+            list element-hops {
                 key "index";
                 leaf index {
                     type uint8 {
@@ -206,7 +228,7 @@ module ietf-te {
                     }
                 }
                 uses ietf-te-types:path-element;
-                leaf path-element-usage {
+                leaf element-usage {
                     description
                         "An IP hop action.";
                     type ietf-te-types:path-element-usage;
@@ -215,26 +237,6 @@ module ietf-te {
         }
     }
  
-    grouping fast-reroute-backups {
-        container fast-reroute-backups {
-            choice type {
-                case static-tunnel {
-                    list configured-backups {
-                        key "name";
-                        description "List of backup tunnels to 
-                                     protect this link.";
-                        leaf name {
-                             type string;
-                        }
-                    }
-                }
-                case auto-tunnel {
-                    uses auto-backup;
-                }
-            }
-        }
-    }
-
     /* MPLS-TE Link Configuration Data */
     container interfaces {
         description
