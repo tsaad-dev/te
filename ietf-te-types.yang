@@ -24,9 +24,21 @@ module ietf-te-types {
         description
             "Describes egress label allocation";
         type enumeration {
-            enum "EXPLICIT-NULL";
-            enum "IMPLICIT-NULL";
+            enum "IPv4-EXPLICIT-NULL" {
+                description
+                    "Use IPv4 explicit-NULL MPLS label at the egress";
+            }
+            enum "IPv6-EXPLICIT-NULL" {
+                description
+                    "Use IPv6 explicit-NULL MPLS label at the egress";
+            }
+            enum "IMPLICIT-NULL" {
+                description
+                    "Use implicit-NULL MPLS label at the egress";
+            }
             enum "NON-NULL";
+                description
+                    "Use a non NULL MPLS label at the egress";
         }
     }
 
@@ -36,8 +48,15 @@ module ietf-te-types {
         reference
             "RFC49090: RSVP-TE Fast Reroute";
         type enumeration {
-            enum "facility";
-            enum "1-for-1";
+            enum "facility" {
+                description
+                    "Use facility backup to protect LSPs traversing
+                    protected TE interface";
+            }
+            enum "detour" {
+                description
+                    "Use detour or 1-for-1 protection";
+            }
         }
     }
 
@@ -45,9 +64,14 @@ module ietf-te-types {
         description
             "Describes what faults can the backup protect against";
         type enumeration {
-            enum "link";
-            enum "node";
-            enum "either";
+            enum "link" {
+                description
+                    "backup provides link protection only";
+            }
+            enum "node-link" {
+                description
+                    "backup offers node (preferred) or link protection";
+            }
         }
     }
 
@@ -199,78 +223,147 @@ module ietf-te-types {
             "Possible MPLS-TE tunnel types, default is point-to-point.";
     }
 
-
-    grouping path-element {
-        description
-            "A group of attributes defining an element in a TE path
-            such as TE node, TE link, TE aotomic resource or label.";
-        choice element-type {
+    grouping explicit-route-object {
+        container explicit-route-object {
             description
-                "Attributes for various element types.";
-            case link {
-                choice identifier {
-                    case numbered {
-                        leaf link-ip-address {
-                            type inet:ip-address;
-                            description "IPv4 or IPv6 address.";
-                        }
-                    }
-                    case unnumbered {
-                        leaf link-node-id {
-                            type uint32;
-                            description
-                                "Node ID of the node where the link end point resides.";
-                        }
-                        leaf link-id {
-                          type uint32;
-                          description "Identifies the link end point.";
-                        }
-                    }
-                }
-            }
-            case node {
-                choice identity {
-                    leaf identifier {
-                        type uint32;
-                        description "Identifies the node.";
-                    }
-                    case address {
-                        leaf address {
-                            type inet:ip-address;
-                            description
-                                "Address of the node";
-                        }
-                    }
-                }
-            }
-            case label {
-                leaf label {
-                    type uint32;
+                "An explicit route describes as a list of groups of
+                nodes along the explicit route.";
+            reference "RFC3209: Extensions to RSVP for LSP Tunnels";
+
+            choice type {
+                case ipv4-address {
                     description
-                        "Identifies atomic TE resource or label.";
+                        "IPv4 address Explicit Route Object";
+                    leaf v4-address {
+                        description
+                            "An IPv4 address.  This address is treated as
+                            a prefix based on the prefix length value below.
+                            Bits beyond the prefix are ignored on receipt and
+                            SHOULD be set to zero on transmission.";
+                        type inet:ipv4-address;
+                    }
+                    leaf v4-prefix-length {
+                        description
+                            "Length in bits of the IPv4 prefix";
+                        type uint8;
+                    }
+                    leaf v4-loose {
+                        description
+                            "Describes whether the object is loose if set,
+                            or otherwise strict";
+                        type boolean;
+                    }
+                }
+                case ipv6-address {
+                    description
+                        "IPv6 address Explicit Route Object";
+                    leaf v6-address {
+                        description
+                            "An IPv6 address.  This address is treated as
+                            a prefix based on the prefix length value below.
+                            Bits beyond the prefix are ignored on receipt and
+                            SHOULD be set to zero on transmission.";
+                        type inet:ipv6-address;
+                    }
+                    leaf v6-prefix-length {
+                        description
+                            "Length in bits of the IPv4 prefix";
+                        type uint8;
+                    }
+                    leaf v6-loose {
+                        description
+                            "Describes whether the object is loose if set,
+                            or otherwise strict";
+                        type boolean;
+                    }
+                }
+                case as-number {
+                    description
+                        "Autonomous System Explicit Route Object";
+                    leaf as-number {
+                        type uint16;
+                    }
+                }
+                case unnumbered-link {
+                    description
+                        "Unnumbered link Explicit Route Object";
+                    reference
+                        "RFC3477: Signalling Unnumbered Links in RSVP-TE";
+                    leaf router-id {
+                        type inet:ip-address;
+                    }
+                    leaf interface-id {
+                        type uint32;
+                    }
+                }
+                case label {
+                    description
+                        "The Label ERO subobject";
+                    leaf label_value {
+                        type uint32;
+                    }
                 }
             }
         }
     }
 
-    typedef path-element-usage {
-        type enumeration {
-            enum include-strict {
-                description "Include strict path-element.";
+    grouping record-route-object {
+        container record-route-object {
+            description
+                "Describes a record route object";
+            choice type {
+                case ipv4-address {
+                    leaf address {
+                        description
+                            "An IPv4 address.  This address is treated as
+                            a prefix based on the prefix length value below.
+                            Bits beyond the prefix are ignored on receipt and
+                            SHOULD be set to zero on transmission.";
+                        type inet:ipv4-address;
+                    }
+                    leaf prefix-length {
+                        description
+                            "Length in bits of the IPv4 prefix";
+                        type uint8;
+                    }
+                }
+                case ipv6-address {
+                    leaf address {
+                        description
+                            "An IPv6 address.  This address is treated as
+                            a prefix based on the prefix length value below.
+                            Bits beyond the prefix are ignored on receipt and
+                            SHOULD be set to zero on transmission.";
+                        type inet:ipv6-address;
+                    }
+                    leaf prefix-length {
+                        description
+                            "Length in bits of the IPv4 prefix";
+                        type uint8;
+                    }
+                }
+                case label {
+                }
             }
-            enum include-loose {
-                description "Include loose path-element.";
+        }
+    }
+
+    typedef explicit-route-usage-type {
+        type enumeration {
+            enum include {
+                description
+                    "Include the explicit-route-object in the path.";
             }
             enum exclude {
-                description "Exclude strict path-element.";
+                description
+                    "Exclude the explicit-route-object from the path.";
             }
             enum exclude-srlg {
                 description
-                    "Excludes the SRLGs associated with
-                    the path-element";
+                    "Excludes the SRLGs associated with the path";
             }
         }
-        default "include-strict";
+        default "include";
     }
 
     typedef hop-address-type {
@@ -353,7 +446,7 @@ module ietf-te-types {
     typedef extended-admin-group {
         description
             "Extended administrative group/Resource class/Color.";
-        type string; // Add pattern
+        type binary;
     }
 
     typedef admin-groups {
@@ -761,44 +854,8 @@ module ietf-te-types {
         }
     }
 
-    grouping tunnel-path-properties {
-        choice type {
-            case dynamic {
-                leaf dynamic {
-                    description
-                        "A CSPF dynamically computed path";
-                    type boolean;
-                }
-            }
-            case explicit {
-                leaf explicit-path-name {
-                    type string;
-                }
-            }
-        }
-
-        container igp-constraint {
-            uses igp-protocol-def;
-        }
-
-        leaf no-cspf {
-            description
-                "Indicates no CSPF is to be attempted on this
-                 path.";
-            type boolean;
-        }
-        leaf lockdown {
-            description
-                "Indicates no reoptimization to be attempted for this
-                 path.";
-            type boolean;
-        }
-    }
-
-
-
     /* TE link attribute properties */
-    grouping affinities {
+    grouping interface-affinities {
         container affinities {
             choice type {
                 case admin-groups {
@@ -820,7 +877,7 @@ module ietf-te-types {
         }
     }
 
-    grouping srlgs {
+    grouping interface-srlgs {
         container srlgs {
             choice type {
                 case srlg-name {
@@ -849,7 +906,7 @@ module ietf-te-types {
         }
     }
 
-    grouping reservable-bandwidths {
+    grouping interface-reservable-bandwidths {
         container reservable-bandwidth-percentages {
             description
                 "Reservable bandwidth percentage capacity

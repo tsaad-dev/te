@@ -6,11 +6,15 @@ module ietf-te {
     prefix "te";
 
     import ietf-te-types {
-        prefix "ietf-te-types";
+        prefix ietf-te-types;
+    }
+
+    import ietf-inet-types { 
+        prefix inet;
     }
 
     import ietf-interfaces {
-        prefix "if";
+        prefix if;
     }
 
     organization
@@ -26,6 +30,93 @@ module ietf-te {
     revision 2014-12-10 {
         description
             "Initial revision.";
+    }
+
+    grouping interface-attributes {
+        leaf te-metric {
+            description "Interface TE link metric.";
+            type ietf-te-types:te-metric;
+        }
+        uses ietf-te-types:interface-affinities;
+        uses ietf-te-types:interface-srlgs;
+        uses ietf-te-types:interface-reservable-bandwidths;
+    }
+
+    /* MPLS-TE link IGP flooding parameters */
+    grouping flooding-parameters {
+        description "Interface TE link flooding properties.";
+        container thresholds {
+            description "Flooding threshold values.";
+            choice type {
+                case equal-steps {
+                    choice equal-step-type {
+                        case up-down-different-step {
+                            leaf up-step {
+                                description
+                                    "Set single percentage threshold
+                                    for increasing resource allocation
+                                    in percent";
+                                type uint8 {
+                                    range "0..100";
+                                }
+                            }
+                            leaf down-step {
+                                description
+                                    "Set single percentage threshold for
+                                    decreasing resource allocation in percent";
+                                type uint8 {
+                                    range "0..100";
+                                }
+                            }
+                        }
+                        case up-down-same-step {
+                            leaf step {
+                                description
+                                    "Set single percentage threshold for
+                                    increasing and decreasing resource
+                                    allocation in percent";
+                                type uint8 {
+                                    range "0..100";
+                                }
+                            }
+                        }
+                    }
+                }
+                case unequal-steps {
+                    list up-steps {
+                        key "value";
+                        description
+                            "Set nultuple percentage thresholds for increasing
+                            resource allocation in percent";
+                        leaf value {
+                            type uint8 {
+                                range "0..100";
+                            }
+                        }
+                    }
+                    list down-steps {
+                        key "value";
+                        description
+                            "Set nultuple percentage thresholds for decreasing
+                            resource allocation in percent";
+                        leaf value {
+                             type uint8 {
+                                  range "0..100";
+                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    grouping path-constraints {
+        description
+            "Grouping of possible TE path constraints";
+        container path-constraints {
+            uses ietf-te-types:tunnel-path-selection;
+            uses ietf-te-types:tunnel-affinity;
+        }
     }
 
     grouping auto-backup {
@@ -52,119 +143,75 @@ module ietf-te {
         }
     }
 
-    grouping interface-attributes {
-        leaf te-metric {
-            description "Interface TE link metric.";
-            type ietf-te-types:te-metric;
-        }
-        uses ietf-te-types:affinities;
-        uses ietf-te-types:srlgs;
-        uses ietf-te-types:reservable-bandwidths;
-    }
-
-    /* MPLS-TE link IGP flooding parameters */
-    grouping flooding-parameters {
-        description "Interface TE link flooding properties.";
-        container thresholds {
-            description "Flooding threshold values.";
-            choice type {
-                case equal-steps {
-                    choice equal-step-type {
-                        case up-down-different-step {
-                            leaf up-step {
-                                description "Set single threshold for increasing
-                                             resource allocation in percent";
-                                type uint8 {
-                                    range "0..100";
-                                }
-                            }
-                            leaf down-step {
-                                description "Set single threshold for decreasing
-                                             resource allocation in percent";
-                                type uint8 {
-                                    range "0..100";
-                                }
-                            }
-                        }
-                        case up-down-same-step {
-                            leaf step {
-                                description "Set single threshold for increasing and
-                                             decreasing resource allocation in percent";
-                                type uint8 {
-                                    range "0..100";
-                                }
-                            }
-                        }
-                    }
-                }
-                case unequal-steps {
-                    list up-steps {
-                        key "value";
-                        description "Set nultuple threshold for increasing
-                                     resource allocation in percent";
-                        leaf value {
-                            type uint8 {
-                                range "0..100";
-                            }
-                        }
-                    }
-                    list down-steps {
-                        key "value";
-                        description "Set nultuple threshold for decreasing 
-                                     resource allocation in percent";
-                        leaf value {
-                             type uint8 {
-                                  range "0..100";
-                             }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    grouping bandwidth-constraints {
-        description "Bandwidth constraints.";
-        container bandwidth-constraints {
-            leaf maximum-reservable {
-                type uint32 {
-                     range "0..4294967295";
-                }
-            }
-            leaf-list bc-value {
-                type uint32 {
-                    range "0..4294967295";
-                }
-                max-elements 8;
-            }
-        }
-    }
-    
-    grouping path-constraints {
-        description
-            "Grouping of possible TE path constraints";
-        container path-constraints {
-            uses ietf-te-types:tunnel-path-selection;
-            uses ietf-te-types:tunnel-affinity;
-        }
-    }
-
     grouping fast-reroute-backups {
         container fast-reroute-backups {
+            leaf tunnelref {
+                type leafref {
+                    path "/tunnels/tunnel/name";
+                }
+            }
             choice type {
                 case static-tunnel {
-                    list configured-backups {
-                        key "name";
-                        description "List of backup tunnels to 
-                                     protect this link.";
-                        leaf name {
-                             type string;
+                    list static-backups {
+                        key "backup-name";
+                        description
+                            "List of static backup tunnels that
+                            protect the TE interface.";
+                        leaf backup-name {
+                            type leafref {
+                                path "/tunnels/tunnel[name = current()/../../tunnelref]/type";
+                            }
+                        }
+                        leaf foo {
+                            type uint32;
                         }
                     }
                 }
                 case auto-tunnel {
                     uses auto-backup;
                 }
+            }
+        }
+    }
+
+
+    grouping tunnel-path-properties {
+        container path-properties {
+            choice type {
+                case dynamic {
+                    leaf dynamic {
+                        description
+                            "A CSPF dynamically computed path";
+                        type boolean;
+                    }
+                    uses path-constraints;
+                }
+                case explicit {
+                    leaf explicit-path-name {
+                        description
+                            "Reference to the explicit-path defined globally";
+                        type leafref {
+                            path "/globals/explicit-paths/name";
+                        }
+                    }
+                }
+            }
+
+            container igp-constraint {
+                uses ietf-te-types:igp-protocol-def;
+            }
+
+            leaf no-cspf {
+                description
+                    "Indicates no CSPF is to be attempted on this
+                     path.";
+                type boolean;
+            }
+            leaf lockdown {
+                description
+                    "Indicates no reoptimization to be attempted for this
+                     path.";
+                type boolean;
             }
         }
     }
@@ -220,18 +267,18 @@ module ietf-te {
             leaf name {
                 type string;
             }
-            list element-hops {
+            list explicit-route-objects {
                 key "index";
                 leaf index {
                     type uint8 {
                          range "0..255";
                     }
                 }
-                uses ietf-te-types:path-element;
-                leaf element-usage {
+                uses ietf-te-types:explicit-route-object;
+                leaf explicit-route-usage {
                     description
                         "An IP hop action.";
-                    type ietf-te-types:path-element-usage;
+                    type ietf-te-types:explicit-route-usage-type;
                 }
             }
         }
@@ -347,15 +394,56 @@ module ietf-te {
             uses ietf-te-types:tunnel-forwarding-properties;
             uses ietf-te-types:tunnel-bidir-assoc-properties;
 
-            /* P2P list of path(s) */
-            list paths {
-                key "preference";
-                leaf preference {
-                     type uint8 {
-                          range "1..255";
-                     }
+            choice path-type {
+                case p2p {
+                    /* P2P list of path(s) */
+                    list primary-paths {
+                        key "preference";
+                        leaf preference {
+                             type uint8 {
+                                  range "1..255";
+                             }
+                        }
+                        uses tunnel-path-properties;
+                        list seondary-paths {
+                            key "preference";
+                            leaf preference {
+                                 type uint8 {
+                                      range "1..255";
+                                 }
+                            }
+                            uses tunnel-path-properties;
+                        }
+                    }
                 }
-                uses ietf-te-types:tunnel-path-properties;
+                case p2mp {
+                    list p2mp-paths {
+                        key "destination";
+                        description
+                            "List of destinations and their paths.";
+                        leaf destination {
+                            type inet:ip-address;
+                        }
+                        list primary-paths {
+                            key "preference";
+                            leaf preference {
+                                 type uint8 {
+                                      range "1..255";
+                                 }
+                            }
+                            uses tunnel-path-properties;
+                            list seondary-paths {
+                                key "preference";
+                                leaf preference {
+                                     type uint8 {
+                                          range "1..255";
+                                     }
+                                }
+                                uses tunnel-path-properties;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
