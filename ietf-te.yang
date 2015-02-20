@@ -1,0 +1,450 @@
+module ietf-te {
+
+    namespace "urn:ietf:params:xml:ns:yang:ietf-mpls-te-base";
+
+    /* Replace with IANA when assigned */
+    prefix "te";
+
+    import ietf-te-types {
+        prefix ietf-te-types;
+    }
+
+    import ietf-inet-types { 
+        prefix inet;
+    }
+
+    import ietf-interfaces {
+        prefix if;
+    }
+
+    organization
+      "IETF MPLS Working Group";
+
+    contact
+      "Fill me";
+
+    description
+        "YANG data module for MPLS-TE configuration, 
+         state, RPC and notifications.";
+
+    revision 2014-12-10 {
+        description
+            "Initial revision.";
+    }
+
+    grouping interface-attributes {
+        leaf te-metric {
+            description "Interface TE link metric.";
+            type ietf-te-types:te-metric;
+        }
+        uses ietf-te-types:interface-affinities;
+        uses ietf-te-types:interface-srlgs;
+        uses ietf-te-types:interface-reservable-bandwidths;
+    }
+
+    /* MPLS-TE link IGP flooding parameters */
+    grouping flooding-parameters {
+        description "Interface TE link flooding properties.";
+        container thresholds {
+            description "Flooding threshold values.";
+            choice type {
+                case equal-steps {
+                    choice equal-step-type {
+                        case up-down-different-step {
+                            leaf up-step {
+                                description
+                                    "Set single percentage threshold
+                                    for increasing resource allocation
+                                    in percent";
+                                type uint8 {
+                                    range "0..100";
+                                }
+                            }
+                            leaf down-step {
+                                description
+                                    "Set single percentage threshold for
+                                    decreasing resource allocation in percent";
+                                type uint8 {
+                                    range "0..100";
+                                }
+                            }
+                        }
+                        case up-down-same-step {
+                            leaf step {
+                                description
+                                    "Set single percentage threshold for
+                                    increasing and decreasing resource
+                                    allocation in percent";
+                                type uint8 {
+                                    range "0..100";
+                                }
+                            }
+                        }
+                    }
+                }
+                case unequal-steps {
+                    list up-steps {
+                        key "value";
+                        description
+                            "Set nultuple percentage thresholds for increasing
+                            resource allocation in percent";
+                        leaf value {
+                            type uint8 {
+                                range "0..100";
+                            }
+                        }
+                    }
+                    list down-steps {
+                        key "value";
+                        description
+                            "Set nultuple percentage thresholds for decreasing
+                            resource allocation in percent";
+                        leaf value {
+                             type uint8 {
+                                  range "0..100";
+                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    grouping path-constraints {
+        description
+            "Grouping of possible TE path constraints";
+        container path-constraints {
+            uses ietf-te-types:tunnel-path-selection;
+            uses ietf-te-types:tunnel-affinity;
+        }
+    }
+
+    grouping auto-backup {
+        description
+            "Auto-tunnel backup properties.";
+        container auto-backup {
+            presence "Enable auto-tunnel backup on the node.";
+            leaf method {
+                description
+                    "Describes whether facility backup or 1-for-1
+                    backup should be used";
+                type ietf-te-types:backup-type;
+            }
+            /* uses tunnel-template-leaf; */
+            leaf protection {
+                description
+                    "Describes whether the backup should offer
+                    protection against link, node, or either";
+                type ietf-te-types:backup-protection-type;
+            }
+            leaf path-computation {
+                 type ietf-te-types:path-computation-srlg-type;
+            }
+        }
+    }
+
+    grouping fast-reroute-backups {
+        container fast-reroute-backups {
+            leaf tunnelref {
+                type leafref {
+                    path "/tunnels/tunnel/name";
+                }
+            }
+            choice type {
+                case static-tunnel {
+                    list static-backups {
+                        key "backup-name";
+                        description
+                            "List of static backup tunnels that
+                            protect the TE interface.";
+                        leaf backup-name {
+                            type leafref {
+                                path "/tunnels/tunnel[name = current()/../../tunnelref]/type";
+                            }
+                        }
+                        leaf foo {
+                            type uint32;
+                        }
+                    }
+                }
+                case auto-tunnel {
+                    uses auto-backup;
+                }
+            }
+        }
+    }
+
+
+    grouping tunnel-path-properties {
+        container path-properties {
+            choice type {
+                case dynamic {
+                    leaf dynamic {
+                        description
+                            "A CSPF dynamically computed path";
+                        type boolean;
+                    }
+                    uses path-constraints;
+                }
+                case explicit {
+                    leaf explicit-path-name {
+                        description
+                            "Reference to the explicit-path defined globally";
+                        type leafref {
+                            path "/globals/explicit-paths/name";
+                        }
+                    }
+                }
+            }
+
+            container igp-constraint {
+                uses ietf-te-types:igp-protocol-def;
+            }
+
+            leaf no-cspf {
+                description
+                    "Indicates no CSPF is to be attempted on this
+                     path.";
+                type boolean;
+            }
+            leaf lockdown {
+                description
+                    "Indicates no reoptimization to be attempted for this
+                     path.";
+                type boolean;
+            }
+        }
+    }
+
+    /*** End of Groupings ***/
+
+    container globals {
+        description
+            "Configuration data model for Global System-wide 
+             MPLS Traffic Engineering.";
+        presence "Enable MPLS-TE Global mode.";
+
+        list interface-templates {
+            description "MPLS-TE templates for interfaces.";
+            key "name";
+            leaf name {
+                description "MPLS-TE interface template name.";
+                type string;
+            }
+        }
+
+        list tunnel-templates {
+            description "MPLS-TE templates for tunnels.";
+            key "name";
+            leaf name {
+                description "MPLS-TE tunnel template name.";
+                type string;
+            } 
+        }
+
+        list interface-named-admin-groups {
+            key "name";
+            leaf name {
+                type string;
+            }
+            leaf group {
+                type ietf-te-types:admin-groups;
+            }
+        }
+
+        list interface-named-srlgs {
+            key "name";
+            leaf name {
+                type string;
+            }
+            leaf group {
+                type ietf-te-types:srlg;
+            }
+        }
+
+        list explicit-paths {
+            key "name";
+            leaf name {
+                type string;
+            }
+            list explicit-route-objects {
+                key "index";
+                leaf index {
+                    type uint8 {
+                         range "0..255";
+                    }
+                }
+                uses ietf-te-types:explicit-route-object;
+                leaf explicit-route-usage {
+                    description
+                        "An IP hop action.";
+                    type ietf-te-types:explicit-route-usage-type;
+                }
+            }
+        }
+    }
+ 
+    /* MPLS-TE Link Configuration Data */
+    container interfaces {
+        description
+            "Configuration data model for MPLS-TE interfaces.";
+
+        leaf interface-template {
+            description
+                "Name of the template to use for 
+                 TE link properties.";
+            type leafref {
+                path "/globals/interface-templates/name";
+            }
+        }
+
+        list interface {
+            key "interface";
+            description
+                "MPLS-TE interfaces.";
+            leaf interface {
+                 description
+                    "MPLS-TE interface name.";
+                 type if:interface-ref;
+            }
+
+            leaf interface-template {
+                description
+                    "Name of the template to use for TE interface
+                    properties.";
+                type leafref {
+                    path "/globals/interface-templates/name";
+                }
+            }
+
+            list named-admin-groups {
+                key named-admin-group;
+                leaf named-admin-group {
+                    type leafref {
+                        path "/globals/interface-named-admin-groups/name";
+                    }
+                }
+            }
+
+            list named-srlgs {
+                key named-srlg;
+                leaf named-srlg {
+                    type leafref {
+                        path "/globals/interface-named-srlgs/name";
+                    }
+                }
+            }
+
+            uses ietf-te-types:interface-switching-cap;
+            uses interface-attributes;
+            /* Link IGP flooding properties */
+            uses flooding-parameters;
+            uses fast-reroute-backups;
+        }
+    }
+
+    /* MPLS-TE Tunnel Configuration Data */
+    container tunnels {
+        description
+            "Configuration, operational, notification and RPC data model
+             for MPLS-TE tunnels.";
+        presence "Enable MPLS-TE Global mode.";
+
+        leaf tunnel-template {
+            description
+                "Name of the template to use for 
+                 tunnel properties.";
+            type leafref {
+                path "/globals/tunnel-templates/name";
+            }
+        }
+
+        list tunnel {
+            key "name type";
+            unique "identifier";
+            description "MPLS-TE tunnel.";
+            leaf name {
+                type string;
+                description "MPLS-TE tunnel name.";
+            }
+            leaf type {
+                description "MPLS-TE tunnel type.";
+                type ietf-te-types:tunnel-type;
+            }
+            leaf identifier {
+                description
+                    "MPLS-TE tunnel Identifier.";
+                type uint16;
+            }
+            leaf description {
+                description
+                    "MPLS-TE tunnel description.";
+                type string;
+            }
+            leaf admin-status {
+                description "MPLS-TE tunnel administrative state.";
+                type enumeration {
+                     enum up;
+                     enum down;
+                }
+                default up;
+            }
+            uses path-constraints;
+            uses ietf-te-types:tunnel-routing-properties;
+            uses ietf-te-types:tunnel-forwarding-properties;
+            uses ietf-te-types:tunnel-bidir-assoc-properties;
+
+            choice path-type {
+                case p2p {
+                    /* P2P list of path(s) */
+                    list primary-paths {
+                        key "preference";
+                        leaf preference {
+                             type uint8 {
+                                  range "1..255";
+                             }
+                        }
+                        uses tunnel-path-properties;
+                        list seondary-paths {
+                            key "preference";
+                            leaf preference {
+                                 type uint8 {
+                                      range "1..255";
+                                 }
+                            }
+                            uses tunnel-path-properties;
+                        }
+                    }
+                }
+                case p2mp {
+                    list p2mp-paths {
+                        key "destination";
+                        description
+                            "List of destinations and their paths.";
+                        leaf destination {
+                            type inet:ip-address;
+                        }
+                        list primary-paths {
+                            key "preference";
+                            leaf preference {
+                                 type uint8 {
+                                      range "1..255";
+                                 }
+                            }
+                            uses tunnel-path-properties;
+                            list seondary-paths {
+                                key "preference";
+                                leaf preference {
+                                     type uint8 {
+                                          range "1..255";
+                                     }
+                                }
+                                uses tunnel-path-properties;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

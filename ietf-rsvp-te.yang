@@ -1,0 +1,256 @@
+module ietf-rsvp-te {
+
+    namespace "urn:ietf:params:xml:ns:yang:ietf-rsvp-te";
+
+    prefix "rsvp-te";
+
+    import ietf-inet-types {
+        prefix inet;
+    }
+
+    import ietf-rsvp {
+        prefix rsvp;
+    }
+
+    import ietf-te-types {
+        prefix ietf-te-types;
+    }
+
+    import ietf-te {
+        prefix ietf-te;
+    }
+
+    /* groupings for rsvp */
+    grouping graceful-restart {
+        description "Configure RSVP Graceful-Restart parameters.";
+        container graceful-restart {
+            presence "Enable RSVP graceful restart on the node.";
+
+            leaf restart-time {
+                description
+                    "Graceful restart time (seconds).";
+                reference
+                    "RFC 5495: Description of the Resource
+                    Reservation Protocol - Traffic-Engineered (RSVP-TE)
+                    Graceful Restart Procedures";
+                type uint32 {
+                     range "60..3600";
+                }
+            }
+            leaf hello-interval {
+                description
+                    "Configure interval between successive Hello messages
+                    in milliseconds.";
+                reference
+                    "RFC 3209: RSVP-TE: Extensions to RSVP for LSP Tunnels
+                    RFC 5495: Description of the Resource
+                    Reservation Protocol - Traffic-Engineered (RSVP-TE)
+                    Graceful Restart Procedures";
+                type uint32 {
+                    range "3000..30000";
+                }
+            }
+            leaf hello-misses {
+                description
+                    "Configure max number of consecutive missed Hello
+                    messages.";
+                reference
+                    "RFC 3209: RSVP-TE: Extensions to RSVP for LSP Tunnels
+                    RFC 5495: Description of the Resource
+                    Reservation Protocol - Traffic-Engineered (RSVP-TE)
+                    Graceful Restart Procedures";
+                type uint32 {
+                     range "1..10";
+                }
+            }
+        }
+    }
+
+    grouping refresh-reduction {
+        container refresh-reduction {
+            description
+                "Configure RSVP Refresh Reduction parameters.";
+            leaf bundle-message-max-size {
+                description
+                    "Configure maximum size (bytes) of a single RSVP Bundle
+                    message.";
+                type uint32 {
+                    range "512..65000";
+                    }
+                }
+                leaf disable {
+                    description "Disable refresh reduction.";
+                    type boolean;
+                }
+                leaf reliable-ack-hold-time {
+                description
+                    "Configure hold time in milliseconds 
+                    for sending RSVP ACK message(s).";
+                type uint32 {
+                    range "100..5000";
+                }
+            }
+            leaf reliable-ack-max-size {
+                description
+                    "Configure max size of a single RSVP ACK message.";
+                type uint32 {
+                    range "20..65000";
+                }
+            }
+            leaf reliable-retransmit-time {
+                description
+                    "Configure min delay in milliseconds to wait for an ACK 
+                    before a retransmit.";
+                type uint32 {
+                    range "100..10000";
+                }
+            }
+            leaf reliable-srefresh {
+                description
+                    "Configure use of reliable messaging for summary
+                    refresh.";
+                type boolean;
+            }
+            leaf summary-max-size {
+                description
+                    "Configure max size (bytes) of a single RSVP summary
+                    refresh message.";
+                type uint32 {
+                    range "20..65000";
+                }
+            }
+        }
+    }
+
+    grouping signaling {
+        container signaling {
+            description "Configure RSVP signaling properties.";
+            leaf egress-label {
+                type ietf-te-types:egress-label;
+            }
+            uses graceful-restart;
+            uses refresh-reduction;
+        }
+
+    }
+
+    grouping lsp-signaling-properties {
+        description "LSP signaling properties.";
+        leaf source {
+            description
+                "LSP source address.";
+            type inet:ip-address;
+        }
+        container fast-reroute {
+            presence "Requests FRR local protection on LSRs.";
+            leaf bandwidth-protection-desired {
+                description
+                    "Request FRR bandwidth protection on LSRs.";
+                type boolean;
+            }
+            leaf node-protection-desired {
+                description
+                    "Request FRR node protection on LSRs.";
+                type boolean;
+            }
+        }
+        leaf record-route {
+            description
+                "Requests path RRO recording in RSVP PATH message.";
+            type boolean;
+        }
+        leaf signaled-name {
+            description
+                "Sets the session name to use in the session attribute
+                 object.";
+            type string;
+        }
+        container priority {
+            description
+                "Sets the setup/hold priority to use in the session
+                 attribute object.";
+            leaf setup {
+                type uint8 {
+                     range "0..7";
+                }
+            }
+            leaf hold {
+                type uint8 {
+                     range "0..7";
+                }
+            }
+        }
+        leaf soft-preemption {
+            description
+                "Requests soft-preemption in session 
+                 attributes object at
+                 at traversed LSR(s).";
+            type boolean;
+        }
+        container signaled-bandwidth {
+            description
+                "Sets the requested bandwidth.";
+            leaf type {
+                 type ietf-te-types:bandwidth-type;
+            }
+            leaf value {
+                type uint32 {
+                     range "0..4294967295";
+                }
+            }
+        }
+    }
+
+
+    /* RSVP-TE global propeerties */
+    augment "/rsvp:globals" {
+        list interface-templates {
+            description
+                "RSVP-TE templates for interfaces.";
+            key "name";
+            leaf name {
+                description "RSVP-TE interface template name.";
+                type string;
+            } 
+        }
+        container frr-local-revert {
+            presence "Enable RSVP FRR local revertive recovery mode.";
+            leaf frr-local-revert-delay {
+                description
+                    "Time to wait after primary link is restored
+                    before node attempts local revertive procedures.";
+                type uint32;
+            }
+        }
+    }
+
+    augment "/ietf-te:tunnels/ietf-te:tunnel" {
+        uses lsp-signaling-properties;
+    }
+
+    /* Linkage to the base RSVP all links */
+    augment "/rsvp:interfaces" {
+        uses signaling;
+        leaf template {
+            description
+                "Name of the global template to use for all RSVP
+                interfaces.";
+            type leafref {
+                path "/rsvp:globals/interface-templates/name";
+            }
+        }
+    }
+
+    /* Linkage to per RSVP link */
+    augment "/rsvp:interfaces/rsvp:interface" {
+        uses signaling;
+        leaf template {
+            description
+                "Name of the per link template to use for RSVP
+                 TE link properties.";
+            type leafref {
+                path "/rsvp:globals/interface-templates/name";
+            }
+        }
+    }
+}

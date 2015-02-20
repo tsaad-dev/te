@@ -1,0 +1,213 @@
+module ietf-rsvp {
+
+    namespace "urn:ietf:params:xml:ns:yang:rsvp";
+
+    /* Replace with IANA when assigned */
+    prefix "rsvp";
+
+    /* import ietf-inet-types { prefix inet; } */
+    import ietf-interfaces {
+        prefix "if";
+    }
+
+    organization "TBA";
+
+    contact "TBA";
+
+    description
+        "This module contains the RSVP YANG data model.";
+
+    revision 2014-12-17 {
+        description "Initial revision.";
+    }
+
+    grouping authentication {
+        container authentication {
+            description
+                "Configure RSVP authentication.";
+            leaf key-chain {
+                description
+                    "Key chain name to authenticate RSVP signaling
+                    messages.";
+                reference
+                    "RFC 2747: RSVP Cryptographic Authentication";
+                type string {
+                     length "1..32";
+                }
+            }
+            leaf lifetime {
+                description 
+                    "Life time for each security association";
+                reference
+                    "RFC 2747: RSVP Cryptographic Authentication";
+                type uint32 {
+                     range "30..86400";
+                }
+            }
+            leaf window-size {
+                description
+                    "Window-size to limit number of out-of-order
+                    messages.";
+                reference
+                    "RFC 2747: RSVP Cryptographic Authentication";
+                type uint32 {
+                    range "1..64";
+                }
+            }
+            leaf challenge {
+                description
+                    "Enable challenge messages.";
+                reference
+                    "RFC 2747: RSVP Cryptographic Authentication";
+                type boolean;
+            }
+            leaf retransmits {
+                description
+                    "Number of retransmits when messages are dropped.";
+                reference
+                    "RFC 2747: RSVP Cryptographic Authentication";
+                 type uint32 {
+                    range "1..10000";
+                 }
+            }
+        }
+    }
+
+    grouping signaling {
+        container signaling {
+            leaf dscp {
+                description
+                    "DSCP for RSVP signaling messages.";
+                type uint32 {
+                     range "0..63";
+                }
+            }
+
+            container path-err {
+                leaf state-removal {
+                    description
+                        "State-Removal flag in Path Error message";
+                    type boolean;
+                }
+            }
+
+            container hello {
+                description "Configure Hello parameters.";
+                leaf interface-based {
+                     description "Enable interface-based 
+                                  Hello adjacency.";
+                     type boolean;
+                }
+            }
+
+            container refresh {
+                leaf interval {
+                    description
+                        "Set interval between successive refreshes";
+                    type uint32;
+                }
+                leaf missed {
+                    description
+                        "Set max number of consecutive missed messages
+                        for state expiry";
+                    type uint32;
+                }
+                container reduction {
+                    description
+                        "Configure RSVP Refresh Reduction parameters.";
+                    leaf bundle-message-max-size {
+                        description
+                            "Configure maximum size (bytes) of a single
+                            RSVP Bundle message.";
+                        type uint32 {
+                            range "512..65000";
+                        }
+                    }
+                    leaf disable {
+                        description
+                            "Disable refresh reduction.";
+                        type boolean;
+                    }
+                    leaf reliable-ack-hold-time {
+                        description
+                            "Configure hold time in milliseconds for
+                            sending RSVP ACK message(s).";
+                        type uint32 {
+                            range "100..5000";
+                        }
+                    }
+                    leaf reliable-ack-max-size {
+                        description
+                            "Configure max size of a single RSVP ACK
+                            message.";
+                        type uint32 {
+                            range "20..65000";
+                        }
+                    }
+                    leaf reliable-retransmit-time {
+                        description
+                            "Configure min delay in milliseconds to wait
+                            for an ACK before a retransmit.";
+                        type uint32 {
+                            range "100..10000";
+                        }
+                    }
+                    leaf reliable-srefresh {
+                        description
+                            "Configure use of reliable messaging for summary
+                            refresh.";
+                        type boolean;
+                    }
+                    leaf summary-max-size {
+                        description
+                            "Configure max size (bytes) of a single RSVP
+                            summary refresh message.";
+                        type uint32 {
+                            range "20..65000";
+                        }
+                    }
+                }
+            }
+
+            container rate-limit {
+                description
+                    "Msssage rate limit (pacing) options";
+                leaf rate {
+                    description
+                        "Number of messages to be sent per interval";
+                    type uint32 {
+                         range "1..500";
+                    }
+                }
+                leaf interval {
+                    description
+                        "Size of an interval (milliseconds)";
+                    type uint32 {
+                         range "1..2000";
+                    }
+                }
+            }
+        }
+    }
+
+    container globals {
+        description "RSVP-TE global properties.";
+    }
+
+    container interfaces {
+        uses authentication; 
+        uses signaling;
+        list interface {
+            key "interface";
+            description
+                "RSVP interfaces.";
+            leaf interface {
+                 description
+                    "RSVP interface.";
+                 type if:interface-ref;
+            }
+            uses authentication; 
+            uses signaling;
+        }
+    }
+}
