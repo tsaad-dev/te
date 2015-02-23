@@ -4,20 +4,21 @@ module ietf-rsvp-te {
 
     prefix "rsvp-te";
 
-    import ietf-inet-types {
-        prefix inet;
-    }
-
     import ietf-rsvp {
         prefix rsvp;
     }
 
-    import ietf-te-types {
-        prefix ietf-te-types;
+    /* Import TE packet specific types */
+    import ietf-te-psc-types {
+        prefix ietf-te-psc-types;
     }
 
     import ietf-te {
         prefix ietf-te;
+    }
+
+    import ietf-inet-types {
+        prefix inet;
     }
 
     /* groupings for rsvp */
@@ -126,7 +127,7 @@ module ietf-rsvp-te {
         container signaling {
             description "Configure RSVP signaling properties.";
             leaf egress-label {
-                type ietf-te-types:egress-label;
+                type ietf-te-psc-types:egress-label;
             }
             uses graceful-restart;
             uses refresh-reduction;
@@ -134,15 +135,69 @@ module ietf-rsvp-te {
 
     }
 
+    grouping lsp-attributes {
+        leaf end-to-end-routing {
+            reference "RFC4920, RFC5420";
+            type boolean;
+        }
+        leaf boundary-rerouting {
+            reference "RFC4920, RFC5420";
+            type boolean;
+        }
+        leaf segment-based-rerouting {
+            reference "RFC4920, RFC5420";
+            type boolean;
+        }
+        leaf lsp-integrety-required {
+            reference "RFC4875";
+            type boolean;
+        }
+        leaf contiguous-lsp {
+            reference "RFC5151";
+            type boolean;
+        }
+        leaf lsp-stitching-desired {
+            reference "RFC5150";
+            type boolean;
+        }
+        leaf preplanned-lsp {
+            reference "RFC6001";
+            type boolean;
+        }
+        leaf non-php-desired {
+            reference "RFC6511";
+            type boolean;
+        }
+        leaf oob-mapping {
+            reference "RFC6511";
+            type boolean;
+        }
+        leaf entropy-label-cap {
+            reference "RFC6790";
+            type boolean;
+        }
+        leaf oam-mep-entities-desired {
+            reference "RFC7260";
+            type boolean;
+        }
+        leaf oam-mip-entities-desired {
+            reference "RFC7260";
+            type boolean;
+        }
+    }
+
     grouping lsp-signaling-properties {
         description "LSP signaling properties.";
+        uses lsp-attributes;
         leaf source {
             description
                 "LSP source address.";
             type inet:ip-address;
         }
         container fast-reroute {
-            presence "Requests FRR local protection on LSRs.";
+            presence "FRR local protection is desired.";
+            reference
+                "RFC4859: Registry for RSVP-TE Session Flags";
             leaf bandwidth-protection-desired {
                 description
                     "Request FRR bandwidth protection on LSRs.";
@@ -154,9 +209,19 @@ module ietf-rsvp-te {
                 type boolean;
             }
         }
-        leaf record-route {
-            description
-                "Requests path RRO recording in RSVP PATH message.";
+        leaf se-style-desired {
+            description "SE Style desired";
+            reference "RFC3209";
+            type boolean;
+        }
+        leaf soft-preemption-desired {
+            description "Soft-preemption is desired";
+            reference "RFC5712";
+            type boolean;
+        }
+        leaf record-route-desired {
+            description "Path recording is desired.";
+            reference "RFC3209";
             type boolean;
         }
         leaf signaled-name {
@@ -191,7 +256,7 @@ module ietf-rsvp-te {
             description
                 "Sets the requested bandwidth.";
             leaf type {
-                 type ietf-te-types:bandwidth-type;
+                 type ietf-te-psc-types:bandwidth-type;
             }
             leaf value {
                 type uint32 {

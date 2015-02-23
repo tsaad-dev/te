@@ -1,0 +1,332 @@
+module ietf-te-psc-types {
+
+    namespace "urn:cisco:params:xml:ns:yang:ietf-psc-te-types";
+
+    /* Replace with IANA when assigned */
+    prefix "te-psc-types";
+
+    import ietf-inet-types { prefix inet; }
+
+    organization
+      "IETF MPLS Working Group";
+
+    description
+        "This module contains a collection of generally
+         useful MPLS-TE specific YANG data type defintions.";
+
+    feature extended-admin-groups {
+        description
+            "Support for TE link extended admin groups.";
+    }
+
+    /* Describes egress LSP label allocation */
+    typedef egress-label {
+        description
+            "Describes egress label allocation";
+        type enumeration {
+            enum "IPv4-EXPLICIT-NULL" {
+                description
+                    "Use IPv4 explicit-NULL MPLS label at the egress";
+            }
+            enum "IPv6-EXPLICIT-NULL" {
+                description
+                    "Use IPv6 explicit-NULL MPLS label at the egress";
+            }
+            enum "IMPLICIT-NULL" {
+                description
+                    "Use implicit-NULL MPLS label at the egress";
+            }
+            enum "NON-NULL";
+                description
+                    "Use a non NULL MPLS label at the egress";
+        }
+    }
+
+    typedef backup-type {
+        description
+            "Describes the backup LSP protection method";
+        reference
+            "RFC49090: RSVP-TE Fast Reroute";
+        type enumeration {
+            enum "facility" {
+                description
+                    "Use facility backup to protect LSPs traversing
+                    protected TE interface";
+            }
+            enum "detour" {
+                description
+                    "Use detour or 1-for-1 protection";
+            }
+        }
+    }
+
+    typedef backup-protection-type {
+        description
+            "Describes what faults can the backup protect against";
+        type enumeration {
+            enum "link" {
+                description
+                    "backup provides link protection only";
+            }
+            enum "node-link" {
+                description
+                    "backup offers node (preferred) or link protection";
+            }
+        }
+    }
+
+    typedef bc-model-type {
+        description
+           "Diff-Serve TE Bandwidth Constraint model type.";
+        type enumeration {
+            enum rdm {
+                description
+                    "Russian Doll bandwidth constraint
+                    model type.";
+            }
+            enum mam {
+                description
+                    "Maximum Allocation bandwidth constraint
+                    model type.";
+            }
+            enum mar {
+                description
+                    "Maximum Allocation with Reservation
+                    bandwidth constraint model type.";
+            }
+        }
+        default rdm;
+    }
+
+    typedef bandwidth-type {
+        description "MPLS-TE tunnel bandwidth type";
+        type enumeration {
+            enum CT0;
+            enum CT1;
+            enum CT2;
+            enum CT3;
+            enum CT4;
+            enum CT5;
+            enum CT6;
+            enum CT7;
+        }
+        default CT0;
+    }
+
+    typedef bandwidth-unit-type {
+        description "Bandwidth unit type.";
+        type enumeration {
+            enum Gbps;
+            enum Mbps;
+            enum Kbps;
+        }
+        default Kbps;
+    }
+
+    grouping bandwidth-constraints {
+        description "Bandwidth constraints.";
+        container bandwidth-constraints {
+            leaf maximum-reservable {
+                type bandwidth-unit-type {
+                     range "0..4294967295";
+                }
+            }
+            leaf-list bc-value {
+                type bandwidth-unit-type {
+                    range "0..4294967295";
+                }
+                max-elements 8;
+            }
+        }
+    }
+
+    grouping bandwidth-constraint-values {
+        choice value-type {
+             case percentages {
+                 container perc-values {
+                     uses bandwidth-constraints;
+                 }
+             }
+             case absolutes {
+                 container abs-values {
+                     uses bandwidth-constraints;
+                 }
+             }
+        }
+    }
+
+    typedef backup-bandwidth-type {
+        description "FRR backup tunnel bandwidth protection type.";
+        type enumeration {
+            enum BC0;
+            enum BC1;
+            enum BC2;
+            enum BC3;
+            enum BC4;
+            enum BC5;
+            enum BC6;
+            enum BC7;
+            enum BC-any;
+        }
+        default BC-any;
+    }
+
+    grouping interface-reservable-bandwidths {
+        container reservable-bandwidth-percentages {
+            description
+                "Reservable bandwidth percentage capacity
+                values.";
+            container rdm-bc {
+                description
+                    "Russian Doll Model Bandwidth Constraints.";
+                uses bandwidth-constraints;
+            }
+            container mam-bc {
+                description
+                    "Maximum Allocation Model Bandwidth Constraints.";
+                uses bandwidth-constraints;
+            }
+            container mar-bc {
+                description
+                    "Maximum Allocation with Reservation Model
+                    Bandwidth Constraints.";
+                uses bandwidth-constraints;
+            }
+        }
+    }
+
+    typedef bfd-type {
+        type enumeration {
+            enum classical {
+                description "BFD classical session type.";
+            }
+            enum seamless {
+                description "BFD seamless session type.";
+            }
+        }
+        default "classical";
+    }
+
+    typedef bfd-encap-mode-type {
+        type enumeration {
+            enum gal;
+            enum ip;
+        }
+        default ip;
+        description
+            "Possible BFD transport modes when running over MPLS-TE
+             LSPs.";
+    }
+
+    grouping bandwidth-constraints {
+        description "Bandwidth constraints.";
+        container bandwidth-constraints {
+            leaf maximum-reservable {
+                type uint32 {
+                     range "0..4294967295";
+                }
+            }
+            leaf-list bc-value {
+                type uint32 {
+                    range "0..4294967295";
+                }
+                max-elements 8;
+            }
+        }
+    }
+
+    grouping bandwidth-constraint-values {
+        choice value-type {
+             case percentages {
+                 container perc-values {
+                     uses bandwidth-constraints;
+                 }
+             }
+             case absolutes {
+                 container abs-values {
+                     uses bandwidth-constraints;
+                 }
+             }
+        }
+    }
+
+    grouping tunnel-routing-properties {
+        choice routing-choice {
+            description
+                "Announces the tunnel to IGP as either
+                 autoroute or forwarding adjacency.";
+            case autoroute {
+                container autoroute-announce {
+                    presence "Enable autoroute announce.";
+                    description
+                        "Announce the MPLS-TE tunnel as autoroute to
+                         IGP for use as IGP shortcut.";
+                    leaf-list routing-afs {
+                         type inet:ip-version;
+                    }
+                    choice metric-type {
+                        leaf metric {
+                            type uint32 {
+                                 range "1..2147483647";
+                            }
+                        }
+                        leaf relative-metric {
+                            type int32 {
+                                 range "-10..10";
+                            }
+                        }
+                        leaf absolute-metric {
+                            type uint32 {
+                                 range "1..2147483647";
+                            }
+                        }
+                    }
+                }
+            }
+            case forwarding-adjacency {
+                container forwarding-adjacency {
+                    presence "Enable forwarding adjacency
+                              on the tunnel.";
+                    description
+                        "Announce the MPLS-TE tunnel
+                         as forwarding adjacency.";
+                    leaf holdtime {
+                        description
+                            "Holdtime in seconds after
+                             tunnel becomes UP.";
+                        type uint32 {
+                             range "0..4294967295";
+                        }
+                    }
+                    leaf-list routing-afs {
+                         type inet:ip-version;
+                    }
+                }
+            }
+        }
+    }
+
+    grouping interface-reservable-bandwidths {
+        container reservable-bandwidth-percentages {
+            description
+                "Reservable bandwidth percentage capacity
+                values.";
+            container rdm-bc {
+                description
+                    "Russian Doll Model Bandwidth Constraints.";
+                uses bandwidth-constraints;
+            }
+            container mam-bc {
+                description
+                    "Maximum Allocation Model Bandwidth Constraints.";
+                uses bandwidth-constraints;
+            }
+            container mar-bc {
+                description
+                    "Maximum Allocation with Reservation Model
+                    Bandwidth Constraints.";
+                uses bandwidth-constraints;
+            }
+        }
+    }
+}

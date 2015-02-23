@@ -5,16 +5,22 @@ module ietf-te {
     /* Replace with IANA when assigned */
     prefix "te";
 
+    /* Import TE generic types */
     import ietf-te-types {
         prefix ietf-te-types;
     }
 
-    import ietf-inet-types { 
-        prefix inet;
+    /* Import TE packet specific types */
+    import ietf-te-psc-types {
+        prefix ietf-te-psc-types;
     }
 
     import ietf-interfaces {
         prefix if;
+    }
+
+    import ietf-inet-types {
+        prefix inet;
     }
 
     organization
@@ -24,7 +30,7 @@ module ietf-te {
       "Fill me";
 
     description
-        "YANG data module for MPLS-TE configuration, 
+        "YANG data module for MPLS-TE configuration,
          state, RPC and notifications.";
 
     revision 2014-12-10 {
@@ -33,20 +39,21 @@ module ietf-te {
     }
 
     grouping interface-attributes {
+        description "Interface TE properties grouping.";
         leaf te-metric {
             description "Interface TE link metric.";
             type ietf-te-types:te-metric;
         }
         uses ietf-te-types:interface-affinities;
         uses ietf-te-types:interface-srlgs;
-        uses ietf-te-types:interface-reservable-bandwidths;
+        uses ietf-te-psc-types:interface-reservable-bandwidths;
     }
 
     /* MPLS-TE link IGP flooding parameters */
     grouping flooding-parameters {
-        description "Interface TE link flooding properties.";
+        description "Interface TE flooding properties.";
         container thresholds {
-            description "Flooding threshold values.";
+            description "Flooding threshold values in percentages.";
             choice type {
                 case equal-steps {
                     choice equal-step-type {
@@ -54,8 +61,7 @@ module ietf-te {
                             leaf up-step {
                                 description
                                     "Set single percentage threshold
-                                    for increasing resource allocation
-                                    in percent";
+                                    for increasing resource allocation";
                                 type uint8 {
                                     range "0..100";
                                 }
@@ -63,7 +69,7 @@ module ietf-te {
                             leaf down-step {
                                 description
                                     "Set single percentage threshold for
-                                    decreasing resource allocation in percent";
+                                    decreasing resource allocation";
                                 type uint8 {
                                     range "0..100";
                                 }
@@ -74,7 +80,7 @@ module ietf-te {
                                 description
                                     "Set single percentage threshold for
                                     increasing and decreasing resource
-                                    allocation in percent";
+                                    allocation";
                                 type uint8 {
                                     range "0..100";
                                 }
@@ -87,7 +93,7 @@ module ietf-te {
                         key "value";
                         description
                             "Set nultuple percentage thresholds for increasing
-                            resource allocation in percent";
+                            resource allocation";
                         leaf value {
                             type uint8 {
                                 range "0..100";
@@ -98,13 +104,83 @@ module ietf-te {
                         key "value";
                         description
                             "Set nultuple percentage thresholds for decreasing
-                            resource allocation in percent";
+                            resource allocation";
                         leaf value {
                              type uint8 {
                                   range "0..100";
                              }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    grouping auto-backup {
+        description
+            "Auto-tunnel backup properties grouping.";
+        container auto-backup {
+            presence "Enable auto-tunnel backup feature.";
+            leaf method {
+                description
+                    "Describes whether facility backup or 1-for-1
+                    backup should be used";
+                type ietf-te-psc-types:backup-type;
+            }
+            /* uses tunnel-template-leaf; */
+            leaf protection {
+                description
+                    "Describes whether the backup should offer
+                    protection against link, node, or either";
+                type ietf-te-psc-types:backup-protection-type;
+            }
+            leaf path-computation {
+                 type ietf-te-types:path-computation-srlg-type;
+            }
+        }
+    }
+
+    grouping fast-reroute-backups {
+        container fast-reroute-backups {
+            container backup-bandwidth {
+                description
+                    "Limits the aggregate amount of primary
+                     protected LSP bandwidth that this backup
+                     tunnel may protect";
+                leaf bandwidth {
+                    description
+                        "Maximum primary LSP bandwidth the
+                         backup is allowed to protect";
+                    type ietf-te-psc-types:bandwidth-unit-type;
+                }
+                leaf type {
+                    description
+                        "Type of primary LSP bandwidth that the
+                         backup is allowed to protect.";
+                    type ietf-te-psc-types:bandwidth-type;
+                }
+            }
+            choice type {
+                 case static-tunnel {
+                    leaf tunnelref {
+                        type leafref {
+                            path "/tunnels/tunnel/name";
+                        }
+                    }
+                    list static-backups {
+                        key "backup-name";
+                        description
+                            "List of static backup tunnels that
+                            protect the TE interface.";
+                        leaf backup-name {
+                            type leafref {
+                                path "/tunnels/tunnel[name = current()/../../tunnelref]/type";
+                            }
+                        }
+                    }
+                }
+                case auto-tunnel {
+                    uses auto-backup;
                 }
             }
         }
@@ -119,64 +195,19 @@ module ietf-te {
         }
     }
 
-    grouping auto-backup {
-        description
-            "Auto-tunnel backup properties.";
-        container auto-backup {
-            presence "Enable auto-tunnel backup on the node.";
-            leaf method {
-                description
-                    "Describes whether facility backup or 1-for-1
-                    backup should be used";
-                type ietf-te-types:backup-type;
-            }
-            /* uses tunnel-template-leaf; */
-            leaf protection {
-                description
-                    "Describes whether the backup should offer
-                    protection against link, node, or either";
-                type ietf-te-types:backup-protection-type;
-            }
-            leaf path-computation {
-                 type ietf-te-types:path-computation-srlg-type;
-            }
-        }
-    }
-
-    grouping fast-reroute-backups {
-        container fast-reroute-backups {
-            leaf tunnelref {
-                type leafref {
-                    path "/tunnels/tunnel/name";
-                }
-            }
-            choice type {
-                case static-tunnel {
-                    list static-backups {
-                        key "backup-name";
-                        description
-                            "List of static backup tunnels that
-                            protect the TE interface.";
-                        leaf backup-name {
-                            type leafref {
-                                path "/tunnels/tunnel[name = current()/../../tunnelref]/type";
-                            }
-                        }
-                        leaf foo {
-                            type uint32;
-                        }
-                    }
-                }
-                case auto-tunnel {
-                    uses auto-backup;
-                }
-            }
-        }
-    }
-
-
     grouping tunnel-path-properties {
         container path-properties {
+            description
+                "Defines a TE tunnel path properties";
+            leaf path-named-constraint {
+                description
+                    "Reference to a globally defined named path constraint
+                     set";
+                type leafref {
+                    path "/globals/path-named-constraints/name";
+                }
+            }
+            uses path-constraints;
             choice type {
                 case dynamic {
                     leaf dynamic {
@@ -184,21 +215,16 @@ module ietf-te {
                             "A CSPF dynamically computed path";
                         type boolean;
                     }
-                    uses path-constraints;
                 }
                 case explicit {
                     leaf explicit-path-name {
                         description
-                            "Reference to the explicit-path defined globally";
+                            "Reference to a globally defined explicit-path";
                         type leafref {
                             path "/globals/explicit-paths/name";
                         }
                     }
                 }
-            }
-
-            container igp-constraint {
-                uses ietf-te-types:igp-protocol-def;
             }
 
             leaf no-cspf {
@@ -217,34 +243,36 @@ module ietf-te {
     }
 
     /*** End of Groupings ***/
-
     container globals {
         description
-            "Configuration data model for Global System-wide 
+            "Configuration data model for Global System-wide
              MPLS Traffic Engineering.";
         presence "Enable MPLS-TE Global mode.";
 
         list interface-templates {
-            description "MPLS-TE templates for interfaces.";
+            description "TE templates for interfaces.";
             key "name";
             leaf name {
-                description "MPLS-TE interface template name.";
+                description "A TE interface template name.";
                 type string;
             }
         }
 
         list tunnel-templates {
-            description "MPLS-TE templates for tunnels.";
+            description "TE templates for tunnels.";
             key "name";
             leaf name {
-                description "MPLS-TE tunnel template name.";
+                description "A TE tunnel template name.";
                 type string;
-            } 
+            }
         }
 
         list interface-named-admin-groups {
             key "name";
             leaf name {
+                description
+                    "A string name that uniquely identifies a TE
+                     interface named admin-group";
                 type string;
             }
             leaf group {
@@ -255,6 +283,9 @@ module ietf-te {
         list interface-named-srlgs {
             key "name";
             leaf name {
+                description
+                    "A string name that uniquely identifies a TE
+                     interface named srlg";
                 type string;
             }
             leaf group {
@@ -265,6 +296,9 @@ module ietf-te {
         list explicit-paths {
             key "name";
             leaf name {
+                description
+                    "A string name that uniquely identifies an explicit
+                     path";
                 type string;
             }
             list explicit-route-objects {
@@ -282,8 +316,19 @@ module ietf-te {
                 }
             }
         }
+
+        list path-named-constraints {
+            key "name";
+            leaf name {
+                description
+                    "A string name that uniquely identifies a path
+                     constraint set";
+                type string;
+            }
+            uses path-constraints;
+        }
     }
- 
+
     /* MPLS-TE Link Configuration Data */
     container interfaces {
         description
@@ -291,7 +336,7 @@ module ietf-te {
 
         leaf interface-template {
             description
-                "Name of the template to use for 
+                "Name of the template to use for
                  TE link properties.";
             type leafref {
                 path "/globals/interface-templates/name";
@@ -352,7 +397,7 @@ module ietf-te {
 
         leaf tunnel-template {
             description
-                "Name of the template to use for 
+                "Name of the template to use for
                  tunnel properties.";
             type leafref {
                 path "/globals/tunnel-templates/name";
@@ -389,7 +434,6 @@ module ietf-te {
                 }
                 default up;
             }
-            uses path-constraints;
             uses ietf-te-types:tunnel-routing-properties;
             uses ietf-te-types:tunnel-forwarding-properties;
             uses ietf-te-types:tunnel-bidir-assoc-properties;
