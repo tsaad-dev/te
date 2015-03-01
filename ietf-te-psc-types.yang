@@ -8,11 +8,11 @@ module ietf-te-psc-types {
     import ietf-inet-types { prefix inet; }
 
     organization
-      "IETF MPLS Working Group";
+      "IETF TEAS Working Group";
 
     description
         "This module contains a collection of generally
-         useful MPLS-TE specific YANG data type defintions.";
+         useful TE specific YANG data type defintions.";
 
     feature extended-admin-groups {
         description
@@ -98,8 +98,8 @@ module ietf-te-psc-types {
         default rdm;
     }
 
-    typedef bandwidth-type {
-        description "MPLS-TE tunnel bandwidth type";
+    typedef bandwidth-psc-class-type {
+        description "TE tunnel bandwidth class type";
         type enumeration {
             enum CT0;
             enum CT1;
@@ -113,7 +113,7 @@ module ietf-te-psc-types {
         default CT0;
     }
 
-    typedef bandwidth-unit-type {
+    typedef bandwidth-psc-unit-type {
         description "Bandwidth unit type.";
         type enumeration {
             enum Gbps;
@@ -123,19 +123,13 @@ module ietf-te-psc-types {
         default Kbps;
     }
 
-    grouping bandwidth-constraints {
-        description "Bandwidth constraints.";
-        container bandwidth-constraints {
-            leaf maximum-reservable {
-                type bandwidth-unit-type {
-                     range "0..4294967295";
-                }
+    grouping bandwidth-psc-type {
+        container bandwidth-psc-type {
+            leaf bandwidth-psc-value {
+                type uint32;
             }
-            leaf-list bc-value {
-                type bandwidth-unit-type {
-                    range "0..4294967295";
-                }
-                max-elements 8;
+            leaf bandwidth-psc-unit {
+                type bandwidth-psc-unit-type;
             }
         }
     }
@@ -144,12 +138,12 @@ module ietf-te-psc-types {
         choice value-type {
              case percentages {
                  container perc-values {
-                     uses bandwidth-constraints;
+                     uses bandwidth-psc-constraints;
                  }
              }
              case absolutes {
                  container abs-values {
-                     uses bandwidth-constraints;
+                     uses bandwidth-psc-constraints;
                  }
              }
         }
@@ -171,26 +165,26 @@ module ietf-te-psc-types {
         default BC-any;
     }
 
-    grouping interface-reservable-bandwidths {
-        container reservable-bandwidth-percentages {
+    grouping bandwidth-psc-reservable {
+        container bandwidth-psc-reservable {
             description
                 "Reservable bandwidth percentage capacity
                 values.";
             container rdm-bc {
                 description
                     "Russian Doll Model Bandwidth Constraints.";
-                uses bandwidth-constraints;
+                uses bandwidth-psc-constraints;
             }
             container mam-bc {
                 description
                     "Maximum Allocation Model Bandwidth Constraints.";
-                uses bandwidth-constraints;
+                uses bandwidth-psc-constraints;
             }
             container mar-bc {
                 description
                     "Maximum Allocation with Reservation Model
                     Bandwidth Constraints.";
-                uses bandwidth-constraints;
+                uses bandwidth-psc-constraints;
             }
         }
     }
@@ -214,13 +208,13 @@ module ietf-te-psc-types {
         }
         default ip;
         description
-            "Possible BFD transport modes when running over MPLS-TE
+            "Possible BFD transport modes when running over TE
              LSPs.";
     }
 
-    grouping bandwidth-constraints {
+    grouping bandwidth-psc-constraints {
         description "Bandwidth constraints.";
-        container bandwidth-constraints {
+        container bandwidth-psc-constraints {
             leaf maximum-reservable {
                 type uint32 {
                      range "0..4294967295";
@@ -239,12 +233,12 @@ module ietf-te-psc-types {
         choice value-type {
              case percentages {
                  container perc-values {
-                     uses bandwidth-constraints;
+                     uses bandwidth-psc-constraints;
                  }
              }
              case absolutes {
                  container abs-values {
-                     uses bandwidth-constraints;
+                     uses bandwidth-psc-constraints;
                  }
              }
         }
@@ -259,7 +253,7 @@ module ietf-te-psc-types {
                 container autoroute-announce {
                     presence "Enable autoroute announce.";
                     description
-                        "Announce the MPLS-TE tunnel as autoroute to
+                        "Announce the TE tunnel as autoroute to
                          IGP for use as IGP shortcut.";
                     leaf-list routing-afs {
                          type inet:ip-version;
@@ -288,7 +282,7 @@ module ietf-te-psc-types {
                     presence "Enable forwarding adjacency
                               on the tunnel.";
                     description
-                        "Announce the MPLS-TE tunnel
+                        "Announce the TE tunnel
                          as forwarding adjacency.";
                     leaf holdtime {
                         description
@@ -302,30 +296,6 @@ module ietf-te-psc-types {
                          type inet:ip-version;
                     }
                 }
-            }
-        }
-    }
-
-    grouping interface-reservable-bandwidths {
-        container reservable-bandwidth-percentages {
-            description
-                "Reservable bandwidth percentage capacity
-                values.";
-            container rdm-bc {
-                description
-                    "Russian Doll Model Bandwidth Constraints.";
-                uses bandwidth-constraints;
-            }
-            container mam-bc {
-                description
-                    "Maximum Allocation Model Bandwidth Constraints.";
-                uses bandwidth-constraints;
-            }
-            container mar-bc {
-                description
-                    "Maximum Allocation with Reservation Model
-                    Bandwidth Constraints.";
-                uses bandwidth-constraints;
             }
         }
     }
