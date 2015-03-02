@@ -1,316 +1,354 @@
 module: ietf-te
-   +--rw globals!
-   |  +--rw interface-templates* [name]
-   |  |  +--rw name    string
-   |  +--rw tunnel-templates* [name]
-   |  |  +--rw name    string
-   |  +--rw interface-named-admin-groups* [name]
-   |  |  +--rw name     string
-   |  |  +--rw group?   ietf-te-types:admin-groups
-   |  +--rw interface-named-srlgs* [name]
-   |  |  +--rw name     string
-   |  |  +--rw group?   ietf-te-types:srlg
-   |  +--rw explicit-paths* [name]
-   |  |  +--rw name                      string
-   |  |  +--rw explicit-route-objects* [index]
-   |  |     +--rw index                    uint8
-   |  |     +--rw explicit-route-object
+   +--rw te!
+   |  +--rw globals
+   |  |  +--rw interface-templates* [name]
+   |  |  |  +--rw name    string
+   |  |  +--rw tunnel-templates* [name]
+   |  |  |  +--rw name    string
+   |  |  +--rw interface-named-admin-groups* [name]
+   |  |  |  +--rw name     string
+   |  |  |  +--rw group?   ietf-te-types:admin-groups
+   |  |  +--rw interface-named-srlgs* [name]
+   |  |  |  +--rw name     string
+   |  |  |  +--rw group?   ietf-te-types:srlg
+   |  |  +--rw explicit-paths* [name]
+   |  |  |  +--rw name                      string
+   |  |  |  +--rw explicit-route-objects* [index]
+   |  |  |     +--rw index                    uint8
+   |  |  |     +--rw explicit-route-object
+   |  |  |     |  +--rw (type)?
+   |  |  |     |     +--:(ipv4-address)
+   |  |  |     |     |  +--rw v4-address?         inet:ipv4-address
+   |  |  |     |     |  +--rw v4-prefix-length?   uint8
+   |  |  |     |     |  +--rw v4-loose?           boolean
+   |  |  |     |     +--:(ipv6-address)
+   |  |  |     |     |  +--rw v6-address?         inet:ipv6-address
+   |  |  |     |     |  +--rw v6-prefix-length?   uint8
+   |  |  |     |     |  +--rw v6-loose?           boolean
+   |  |  |     |     +--:(as-number)
+   |  |  |     |     |  +--rw as-number?          uint16
+   |  |  |     |     +--:(unnumbered-link)
+   |  |  |     |     |  +--rw router-id?          inet:ip-address
+   |  |  |     |     |  +--rw interface-id?       uint32
+   |  |  |     |     +--:(label)
+   |  |  |     |        +--rw label_value?        uint32
+   |  |  |     +--rw explicit-route-usage?    ietf-te-types:explicit-route-usage-type
+   |  |  +--rw path-named-constraints* [name]
+   |  |     +--rw name                string
+   |  |     +--rw path-constraints
+   |  |        +--rw path-selection
+   |  |           +--rw topology?          topology-id
+   |  |           +--rw cost-limit?        uint32
+   |  |           +--rw hop-limit?         uint8
+   |  |           +--rw metric-type?       path-metric-type
+   |  |           +--rw tiebreaker-type?   path-tiebreaker-type
+   |  |           +--rw ignore-overload?   boolean
+   |  |           +--rw path-affinities
+   |  |           |  +--rw (style)?
+   |  |           |     +--:(values)
+   |  |           |     |  +--rw value?         uint32
+   |  |           |     |  +--rw mask?          uint32
+   |  |           |     +--:(named)
+   |  |           |        +--rw constraints* [usage]
+   |  |           |           +--rw usage         constraint-usage-type
+   |  |           |           +--rw constraint
+   |  |           |              +--rw affinity-names* [name]
+   |  |           |                 +--rw name    string
+   |  |           +--rw path-srlgs
+   |  |              +--rw (style)?
+   |  |                 +--:(values)
+   |  |                 |  +--rw usage?         constraint-usage-type
+   |  |                 |  +--rw values*        srlg
+   |  |                 +--:(named)
+   |  |                    +--rw constraints* [usage]
+   |  |                       +--rw usage         constraint-usage-type
+   |  |                       +--rw constraint
+   |  |                          +--rw srlg-names* [name]
+   |  |                             +--rw name    string
+   |  +--rw interfaces
+   |  |  +--rw interface-template?   leafref
+   |  |  +--rw interface* [interface]
+   |  |     +--rw interface                   if:interface-ref
+   |  |     +--rw interface-template?         leafref
+   |  |     +--rw named-admin-groups* [named-admin-group]
+   |  |     |  +--rw named-admin-group    leafref
+   |  |     +--rw named-srlgs* [named-srlg]
+   |  |     |  +--rw named-srlg    leafref
+   |  |     +--rw switching-capabilities* [switching-capability]
+   |  |     |  +--rw capability?   te-types:switching-capabilities
+   |  |     |  +--rw encoding?     encoding-type
+   |  |     +--rw te-metric?                  ietf-te-types:te-metric
+   |  |     +--rw affinities
    |  |     |  +--rw (type)?
-   |  |     |     +--:(ipv4-address)
-   |  |     |     |  +--rw v4-address?         inet:ipv4-address
-   |  |     |     |  +--rw v4-prefix-length?   uint8
-   |  |     |     |  +--rw v4-loose?           boolean
-   |  |     |     +--:(ipv6-address)
-   |  |     |     |  +--rw v6-address?         inet:ipv6-address
-   |  |     |     |  +--rw v6-prefix-length?   uint8
-   |  |     |     |  +--rw v6-loose?           boolean
-   |  |     |     +--:(as-number)
-   |  |     |     |  +--rw as-number?          uint16
-   |  |     |     +--:(unnumbered-link)
-   |  |     |     |  +--rw router-id?          inet:ip-address
-   |  |     |     |  +--rw interface-id?       uint32
-   |  |     |     +--:(label)
-   |  |     |        +--rw label_value?        uint32
-   |  |     +--rw explicit-route-usage?    ietf-te-types:explicit-route-usage-type
-   |  +--rw path-named-constraints* [name]
-   |     +--rw name                string
-   |     +--rw path-constraints
-   |        +--rw path-selection
-   |        |  +--rw cost-limit?        uint32
-   |        |  +--rw hop-limit?         uint8
-   |        |  +--rw metric-type?       path-metric-type
-   |        |  +--rw tiebreaker-type?   path-tiebreaker-type
-   |        |  +--rw ignore-overload?   boolean
-   |        |  +--rw igp-type?          enumeration
-   |        |  +--rw instance-id?       string
-   |        |  +--rw (area-level)?
-   |        |     +--:(isis)
-   |        |     |  +--rw level?             uint8
-   |        |     +--:(ospf)
-   |        |        +--rw area?              uint32
-   |        +--rw tunnel-affinity
-   |           +--rw (style)?
-   |              +--:(values)
-   |              |  +--rw value?         uint32
-   |              |  +--rw mask?          uint32
-   |              +--:(named)
-   |                 +--rw constraints* [usage]
-   |                    +--rw usage         affinity-usage-type
-   |                    +--rw constraint
-   |                       +--rw affinity-list* [name]
-   |                          +--rw name    string
-   +--rw interfaces
-   |  +--rw interface-template?   leafref
-   |  +--rw interface* [interface]
-   |     +--rw interface                           if:interface-ref
-   |     +--rw interface-template?                 leafref
-   |     +--rw named-admin-groups* [named-admin-group]
-   |     |  +--rw named-admin-group    leafref
-   |     +--rw named-srlgs* [named-srlg]
-   |     |  +--rw named-srlg    leafref
-   |     +--rw switching-capabilities* [switching-capability]
-   |     |  +--rw capability?   te-types:switching-capabilities
-   |     +--rw te-metric?                          ietf-te-types:te-metric
-   |     +--rw affinities
-   |     |  +--rw (type)?
-   |     |     +--:(admin-groups)
-   |     |     |  +--rw admin-group?            admin-group
-   |     |     +--:(extended-admin-groups) {extended-admin-groups}?
-   |     |        +--rw extended-admin-group?   extended-admin-group
-   |     +--rw srlgs
-   |     |  +--rw (type)?
-   |     |     +--:(srlg-name)
-   |     |     |  +--rw names* [name]
-   |     |     |     +--rw name    string
-   |     |     +--:(srlg-value)
-   |     |        +--rw values* [value]
-   |     |           +--rw value    uint32
-   |     +--rw reservable-bandwidth-percentages
-   |     |  +--rw rdm-bc
-   |     |  |  +--rw bandwidth-constraints
-   |     |  |     +--rw maximum-reservable?   bandwidth-unit-type
-   |     |  |     +--rw bc-value*             bandwidth-unit-type
-   |     |  +--rw mam-bc
-   |     |  |  +--rw bandwidth-constraints
-   |     |  |     +--rw maximum-reservable?   bandwidth-unit-type
-   |     |  |     +--rw bc-value*             bandwidth-unit-type
-   |     |  +--rw mar-bc
-   |     |     +--rw bandwidth-constraints
-   |     |        +--rw maximum-reservable?   bandwidth-unit-type
-   |     |        +--rw bc-value*             bandwidth-unit-type
-   |     +--rw thresholds
-   |     |  +--rw (type)?
-   |     |     +--:(equal-steps)
-   |     |     |  +--rw (equal-step-type)?
-   |     |     |     +--:(up-down-different-step)
-   |     |     |     |  +--rw up-step?      uint8
-   |     |     |     |  +--rw down-step?    uint8
-   |     |     |     +--:(up-down-same-step)
-   |     |     |        +--rw step?         uint8
-   |     |     +--:(unequal-steps)
-   |     |        +--rw up-steps* [value]
-   |     |        |  +--rw value    uint8
-   |     |        +--rw down-steps* [value]
-   |     |           +--rw value    uint8
-   |     +--rw fast-reroute-backups
-   |        +--rw backup-bandwidth
-   |        |  +--rw bandwidth?   ietf-te-psc-types:bandwidth-unit-type
-   |        |  +--rw type?        ietf-te-psc-types:bandwidth-type
-   |        +--rw (type)?
-   |           +--:(static-tunnel)
-   |           |  +--rw tunnelref?          leafref
-   |           |  +--rw static-backups* [backup-name]
-   |           |     +--rw backup-name    leafref
-   |           +--:(auto-tunnel)
-   |              +--rw auto-backup!
-   |                 +--rw method?             ietf-te-psc-types:backup-type
-   |                 +--rw protection?         ietf-te-psc-types:backup-protection-type
-   |                 +--rw path-computation?   ietf-te-types:path-computation-srlg-type
-   +--rw tunnels!
-      +--rw tunnel-template?   leafref
-      +--rw tunnel* [name type]
-         +--rw name                    string
-         +--rw type                    ietf-te-types:tunnel-type
-         +--rw identifier?             uint16
-         +--rw description?            string
-         +--rw admin-status?           enumeration
-         +--rw (routing-choice)?
-         |  +--:(autoroute)
-         |  |  +--rw autoroute-announce!
-         |  |     +--rw routing-afs*       inet:ip-version
-         |  |     +--rw (metric-type)?
-         |  |        +--:(metric)
-         |  |        |  +--rw metric?            uint32
-         |  |        +--:(relative-metric)
-         |  |        |  +--rw relative-metric?   int32
-         |  |        +--:(absolute-metric)
-         |  |           +--rw absolute-metric?   uint32
-         |  +--:(forwarding-adjacency)
-         |     +--rw forwarding-adjacency!
-         |        +--rw holdtime?      uint32
-         |        +--rw routing-afs*   inet:ip-version
-         +--rw forwarding
-         |  +--rw load-share?   uint32
-         |  +--rw (policy-type)?
-         |     +--:(class)
-         |     |  +--rw class
-         |     |     +--rw class?   uint8
-         |     +--:(group)
-         |        +--rw group
-         |           +--rw classes*   uint8
-         +--rw bidirectional
-         |  +--rw association
-         |     +--rw id?              uint16
-         |     +--rw source?          inet:ip-address
-         |     +--rw global-source?   inet:ip-address
-         |     +--rw type?            bidir-association-type
-         |     +--rw provisioing?     bidir-provisioning
-         +--rw (path-type)?
-            +--:(p2p)
-            |  +--rw primary-paths* [preference]
-            |     +--rw preference         uint8
-            |     +--rw path-properties
-            |     |  +--rw path-named-constraint?   leafref
-            |     |  +--rw path-constraints
-            |     |  |  +--rw path-selection
-            |     |  |  |  +--rw cost-limit?        uint32
-            |     |  |  |  +--rw hop-limit?         uint8
-            |     |  |  |  +--rw metric-type?       path-metric-type
-            |     |  |  |  +--rw tiebreaker-type?   path-tiebreaker-type
-            |     |  |  |  +--rw ignore-overload?   boolean
-            |     |  |  |  +--rw igp-type?          enumeration
-            |     |  |  |  +--rw instance-id?       string
-            |     |  |  |  +--rw (area-level)?
-            |     |  |  |     +--:(isis)
-            |     |  |  |     |  +--rw level?             uint8
-            |     |  |  |     +--:(ospf)
-            |     |  |  |        +--rw area?              uint32
-            |     |  |  +--rw tunnel-affinity
-            |     |  |     +--rw (style)?
-            |     |  |        +--:(values)
-            |     |  |        |  +--rw value?         uint32
-            |     |  |        |  +--rw mask?          uint32
-            |     |  |        +--:(named)
-            |     |  |           +--rw constraints* [usage]
-            |     |  |              +--rw usage         affinity-usage-type
-            |     |  |              +--rw constraint
-            |     |  |                 +--rw affinity-list* [name]
-            |     |  |                    +--rw name    string
-            |     |  +--rw (type)?
-            |     |  |  +--:(dynamic)
-            |     |  |  |  +--rw dynamic?                 boolean
-            |     |  |  +--:(explicit)
-            |     |  |     +--rw explicit-path-name?      leafref
-            |     |  +--rw no-cspf?                 boolean
-            |     |  +--rw lockdown?                boolean
-            |     +--rw seondary-paths* [preference]
-            |        +--rw preference         uint8
-            |        +--rw path-properties
-            |           +--rw path-named-constraint?   leafref
-            |           +--rw path-constraints
-            |           |  +--rw path-selection
-            |           |  |  +--rw cost-limit?        uint32
-            |           |  |  +--rw hop-limit?         uint8
-            |           |  |  +--rw metric-type?       path-metric-type
-            |           |  |  +--rw tiebreaker-type?   path-tiebreaker-type
-            |           |  |  +--rw ignore-overload?   boolean
-            |           |  |  +--rw igp-type?          enumeration
-            |           |  |  +--rw instance-id?       string
-            |           |  |  +--rw (area-level)?
-            |           |  |     +--:(isis)
-            |           |  |     |  +--rw level?             uint8
-            |           |  |     +--:(ospf)
-            |           |  |        +--rw area?              uint32
-            |           |  +--rw tunnel-affinity
-            |           |     +--rw (style)?
-            |           |        +--:(values)
-            |           |        |  +--rw value?         uint32
-            |           |        |  +--rw mask?          uint32
-            |           |        +--:(named)
-            |           |           +--rw constraints* [usage]
-            |           |              +--rw usage         affinity-usage-type
-            |           |              +--rw constraint
-            |           |                 +--rw affinity-list* [name]
-            |           |                    +--rw name    string
-            |           +--rw (type)?
-            |           |  +--:(dynamic)
-            |           |  |  +--rw dynamic?                 boolean
-            |           |  +--:(explicit)
-            |           |     +--rw explicit-path-name?      leafref
-            |           +--rw no-cspf?                 boolean
-            |           +--rw lockdown?                boolean
-            +--:(p2mp)
-               +--rw p2mp-paths* [destination]
-                  +--rw destination      inet:ip-address
-                  +--rw primary-paths* [preference]
-                     +--rw preference         uint8
-                     +--rw path-properties
-                     |  +--rw path-named-constraint?   leafref
-                     |  +--rw path-constraints
-                     |  |  +--rw path-selection
-                     |  |  |  +--rw cost-limit?        uint32
-                     |  |  |  +--rw hop-limit?         uint8
-                     |  |  |  +--rw metric-type?       path-metric-type
-                     |  |  |  +--rw tiebreaker-type?   path-tiebreaker-type
-                     |  |  |  +--rw ignore-overload?   boolean
-                     |  |  |  +--rw igp-type?          enumeration
-                     |  |  |  +--rw instance-id?       string
-                     |  |  |  +--rw (area-level)?
-                     |  |  |     +--:(isis)
-                     |  |  |     |  +--rw level?             uint8
-                     |  |  |     +--:(ospf)
-                     |  |  |        +--rw area?              uint32
-                     |  |  +--rw tunnel-affinity
-                     |  |     +--rw (style)?
-                     |  |        +--:(values)
-                     |  |        |  +--rw value?         uint32
-                     |  |        |  +--rw mask?          uint32
-                     |  |        +--:(named)
-                     |  |           +--rw constraints* [usage]
-                     |  |              +--rw usage         affinity-usage-type
-                     |  |              +--rw constraint
-                     |  |                 +--rw affinity-list* [name]
-                     |  |                    +--rw name    string
-                     |  +--rw (type)?
-                     |  |  +--:(dynamic)
-                     |  |  |  +--rw dynamic?                 boolean
-                     |  |  +--:(explicit)
-                     |  |     +--rw explicit-path-name?      leafref
-                     |  +--rw no-cspf?                 boolean
-                     |  +--rw lockdown?                boolean
-                     +--rw seondary-paths* [preference]
-                        +--rw preference         uint8
-                        +--rw path-properties
-                           +--rw path-named-constraint?   leafref
-                           +--rw path-constraints
-                           |  +--rw path-selection
-                           |  |  +--rw cost-limit?        uint32
-                           |  |  +--rw hop-limit?         uint8
-                           |  |  +--rw metric-type?       path-metric-type
-                           |  |  +--rw tiebreaker-type?   path-tiebreaker-type
-                           |  |  +--rw ignore-overload?   boolean
-                           |  |  +--rw igp-type?          enumeration
-                           |  |  +--rw instance-id?       string
-                           |  |  +--rw (area-level)?
-                           |  |     +--:(isis)
-                           |  |     |  +--rw level?             uint8
-                           |  |     +--:(ospf)
-                           |  |        +--rw area?              uint32
-                           |  +--rw tunnel-affinity
-                           |     +--rw (style)?
-                           |        +--:(values)
-                           |        |  +--rw value?         uint32
-                           |        |  +--rw mask?          uint32
-                           |        +--:(named)
-                           |           +--rw constraints* [usage]
-                           |              +--rw usage         affinity-usage-type
-                           |              +--rw constraint
-                           |                 +--rw affinity-list* [name]
-                           |                    +--rw name    string
-                           +--rw (type)?
-                           |  +--:(dynamic)
-                           |  |  +--rw dynamic?                 boolean
-                           |  +--:(explicit)
-                           |     +--rw explicit-path-name?      leafref
-                           +--rw no-cspf?                 boolean
-                           +--rw lockdown?                boolean
+   |  |     |     +--:(admin-groups)
+   |  |     |     |  +--rw admin-group?            admin-group
+   |  |     |     +--:(extended-admin-groups) {extended-admin-groups}?
+   |  |     |        +--rw extended-admin-group?   extended-admin-group
+   |  |     +--rw srlgs
+   |  |     |  +--rw (type)?
+   |  |     |     +--:(srlg-name)
+   |  |     |     |  +--rw names* [name]
+   |  |     |     |     +--rw name    string
+   |  |     |     +--:(srlg-value)
+   |  |     |        +--rw values* [value]
+   |  |     |           +--rw value    uint32
+   |  |     +--rw bandwidth-psc-reservable
+   |  |     |  +--rw rdm-bc
+   |  |     |  |  +--rw bandwidth-psc-constraints
+   |  |     |  |     +--rw maximum-reservable?   uint32
+   |  |     |  |     +--rw bc-value*             uint32
+   |  |     |  +--rw mam-bc
+   |  |     |  |  +--rw bandwidth-psc-constraints
+   |  |     |  |     +--rw maximum-reservable?   uint32
+   |  |     |  |     +--rw bc-value*             uint32
+   |  |     |  +--rw mar-bc
+   |  |     |     +--rw bandwidth-psc-constraints
+   |  |     |        +--rw maximum-reservable?   uint32
+   |  |     |        +--rw bc-value*             uint32
+   |  |     +--rw thresholds
+   |  |     |  +--rw (type)?
+   |  |     |     +--:(equal-steps)
+   |  |     |     |  +--rw (equal-step-type)?
+   |  |     |     |     +--:(up-down-different-step)
+   |  |     |     |     |  +--rw up-step?      uint8
+   |  |     |     |     |  +--rw down-step?    uint8
+   |  |     |     |     +--:(up-down-same-step)
+   |  |     |     |        +--rw step?         uint8
+   |  |     |     +--:(unequal-steps)
+   |  |     |        +--rw up-steps* [value]
+   |  |     |        |  +--rw value    uint8
+   |  |     |        +--rw down-steps* [value]
+   |  |     |           +--rw value    uint8
+   |  |     +--rw fast-reroute-backups
+   |  |        +--rw backup-capacity
+   |  |        |  +--rw capacity?   ietf-te-psc-types:bandwidth-psc-unit-type
+   |  |        |  +--rw type?       uint32
+   |  |        +--rw (type)?
+   |  |           +--:(static-tunnel)
+   |  |           |  +--rw name?              leafref
+   |  |           |  +--rw static-backups* [backup-tunnel]
+   |  |           |     +--rw backup-tunnel    leafref
+   |  |           +--:(auto-tunnel)
+   |  |              +--rw auto-backup!
+   |  |                 +--rw method?             ietf-te-psc-types:backup-type
+   |  |                 +--rw protection?         ietf-te-psc-types:backup-protection-type
+   |  |                 +--rw path-computation?   ietf-te-types:path-computation-srlg-type
+   |  +--rw tunnels
+   |     +--rw tunnel-template?   leafref
+   |     +--rw tunnel* [name type]
+   |        +--rw name                    string
+   |        +--rw type                    ietf-te-types:tunnel-type
+   |        +--rw identifier?             uint16
+   |        +--rw description?            string
+   |        +--rw admin-status?           enumeration
+   |        +--rw (routing-choice)?
+   |        |  +--:(autoroute)
+   |        |  |  +--rw autoroute-announce!
+   |        |  |     +--rw routing-afs*       inet:ip-version
+   |        |  |     +--rw (metric-type)?
+   |        |  |        +--:(metric)
+   |        |  |        |  +--rw metric?            uint32
+   |        |  |        +--:(relative-metric)
+   |        |  |        |  +--rw relative-metric?   int32
+   |        |  |        +--:(absolute-metric)
+   |        |  |           +--rw absolute-metric?   uint32
+   |        |  +--:(forwarding-adjacency)
+   |        |     +--rw forwarding-adjacency!
+   |        |        +--rw holdtime?      uint32
+   |        |        +--rw routing-afs*   inet:ip-version
+   |        +--rw forwarding
+   |        |  +--rw load-share?   uint32
+   |        |  +--rw (policy-type)?
+   |        |     +--:(class)
+   |        |     |  +--rw class
+   |        |     |     +--rw class?   uint8
+   |        |     +--:(group)
+   |        |        +--rw group
+   |        |           +--rw classes*   uint8
+   |        +--rw bidirectional
+   |        |  +--rw association
+   |        |     +--rw id?              uint16
+   |        |     +--rw source?          inet:ip-address
+   |        |     +--rw global-source?   inet:ip-address
+   |        |     +--rw type?            bidir-association-type
+   |        |     +--rw provisioing?     bidir-provisioning
+   |        +--rw (path-type)?
+   |           +--:(p2p)
+   |           |  +--rw primary-paths* [preference]
+   |           |     +--rw preference         uint8
+   |           |     +--rw path-properties
+   |           |     |  +--rw path-named-constraint?   leafref
+   |           |     |  +--rw path-constraints
+   |           |     |  |  +--rw path-selection
+   |           |     |  |     +--rw topology?          topology-id
+   |           |     |  |     +--rw cost-limit?        uint32
+   |           |     |  |     +--rw hop-limit?         uint8
+   |           |     |  |     +--rw metric-type?       path-metric-type
+   |           |     |  |     +--rw tiebreaker-type?   path-tiebreaker-type
+   |           |     |  |     +--rw ignore-overload?   boolean
+   |           |     |  |     +--rw path-affinities
+   |           |     |  |     |  +--rw (style)?
+   |           |     |  |     |     +--:(values)
+   |           |     |  |     |     |  +--rw value?         uint32
+   |           |     |  |     |     |  +--rw mask?          uint32
+   |           |     |  |     |     +--:(named)
+   |           |     |  |     |        +--rw constraints* [usage]
+   |           |     |  |     |           +--rw usage         constraint-usage-type
+   |           |     |  |     |           +--rw constraint
+   |           |     |  |     |              +--rw affinity-names* [name]
+   |           |     |  |     |                 +--rw name    string
+   |           |     |  |     +--rw path-srlgs
+   |           |     |  |        +--rw (style)?
+   |           |     |  |           +--:(values)
+   |           |     |  |           |  +--rw usage?         constraint-usage-type
+   |           |     |  |           |  +--rw values*        srlg
+   |           |     |  |           +--:(named)
+   |           |     |  |              +--rw constraints* [usage]
+   |           |     |  |                 +--rw usage         constraint-usage-type
+   |           |     |  |                 +--rw constraint
+   |           |     |  |                    +--rw srlg-names* [name]
+   |           |     |  |                       +--rw name    string
+   |           |     |  +--rw (type)?
+   |           |     |  |  +--:(dynamic)
+   |           |     |  |  |  +--rw dynamic?                 empty
+   |           |     |  |  +--:(explicit)
+   |           |     |  |     +--rw explicit-path-name?      leafref
+   |           |     |  +--rw no-cspf?                 empty
+   |           |     |  +--rw lockdown?                empty
+   |           |     +--rw seondary-paths* [preference]
+   |           |        +--rw preference         uint8
+   |           |        +--rw path-properties
+   |           |           +--rw path-named-constraint?   leafref
+   |           |           +--rw path-constraints
+   |           |           |  +--rw path-selection
+   |           |           |     +--rw topology?          topology-id
+   |           |           |     +--rw cost-limit?        uint32
+   |           |           |     +--rw hop-limit?         uint8
+   |           |           |     +--rw metric-type?       path-metric-type
+   |           |           |     +--rw tiebreaker-type?   path-tiebreaker-type
+   |           |           |     +--rw ignore-overload?   boolean
+   |           |           |     +--rw path-affinities
+   |           |           |     |  +--rw (style)?
+   |           |           |     |     +--:(values)
+   |           |           |     |     |  +--rw value?         uint32
+   |           |           |     |     |  +--rw mask?          uint32
+   |           |           |     |     +--:(named)
+   |           |           |     |        +--rw constraints* [usage]
+   |           |           |     |           +--rw usage         constraint-usage-type
+   |           |           |     |           +--rw constraint
+   |           |           |     |              +--rw affinity-names* [name]
+   |           |           |     |                 +--rw name    string
+   |           |           |     +--rw path-srlgs
+   |           |           |        +--rw (style)?
+   |           |           |           +--:(values)
+   |           |           |           |  +--rw usage?         constraint-usage-type
+   |           |           |           |  +--rw values*        srlg
+   |           |           |           +--:(named)
+   |           |           |              +--rw constraints* [usage]
+   |           |           |                 +--rw usage         constraint-usage-type
+   |           |           |                 +--rw constraint
+   |           |           |                    +--rw srlg-names* [name]
+   |           |           |                       +--rw name    string
+   |           |           +--rw (type)?
+   |           |           |  +--:(dynamic)
+   |           |           |  |  +--rw dynamic?                 empty
+   |           |           |  +--:(explicit)
+   |           |           |     +--rw explicit-path-name?      leafref
+   |           |           +--rw no-cspf?                 empty
+   |           |           +--rw lockdown?                empty
+   |           +--:(p2mp)
+   |              +--rw p2mp-paths* [destination]
+   |                 +--rw destination      inet:ip-address
+   |                 +--rw primary-paths* [preference]
+   |                    +--rw preference         uint8
+   |                    +--rw path-properties
+   |                    |  +--rw path-named-constraint?   leafref
+   |                    |  +--rw path-constraints
+   |                    |  |  +--rw path-selection
+   |                    |  |     +--rw topology?          topology-id
+   |                    |  |     +--rw cost-limit?        uint32
+   |                    |  |     +--rw hop-limit?         uint8
+   |                    |  |     +--rw metric-type?       path-metric-type
+   |                    |  |     +--rw tiebreaker-type?   path-tiebreaker-type
+   |                    |  |     +--rw ignore-overload?   boolean
+   |                    |  |     +--rw path-affinities
+   |                    |  |     |  +--rw (style)?
+   |                    |  |     |     +--:(values)
+   |                    |  |     |     |  +--rw value?         uint32
+   |                    |  |     |     |  +--rw mask?          uint32
+   |                    |  |     |     +--:(named)
+   |                    |  |     |        +--rw constraints* [usage]
+   |                    |  |     |           +--rw usage         constraint-usage-type
+   |                    |  |     |           +--rw constraint
+   |                    |  |     |              +--rw affinity-names* [name]
+   |                    |  |     |                 +--rw name    string
+   |                    |  |     +--rw path-srlgs
+   |                    |  |        +--rw (style)?
+   |                    |  |           +--:(values)
+   |                    |  |           |  +--rw usage?         constraint-usage-type
+   |                    |  |           |  +--rw values*        srlg
+   |                    |  |           +--:(named)
+   |                    |  |              +--rw constraints* [usage]
+   |                    |  |                 +--rw usage         constraint-usage-type
+   |                    |  |                 +--rw constraint
+   |                    |  |                    +--rw srlg-names* [name]
+   |                    |  |                       +--rw name    string
+   |                    |  +--rw (type)?
+   |                    |  |  +--:(dynamic)
+   |                    |  |  |  +--rw dynamic?                 empty
+   |                    |  |  +--:(explicit)
+   |                    |  |     +--rw explicit-path-name?      leafref
+   |                    |  +--rw no-cspf?                 empty
+   |                    |  +--rw lockdown?                empty
+   |                    +--rw seondary-paths* [preference]
+   |                       +--rw preference         uint8
+   |                       +--rw path-properties
+   |                          +--rw path-named-constraint?   leafref
+   |                          +--rw path-constraints
+   |                          |  +--rw path-selection
+   |                          |     +--rw topology?          topology-id
+   |                          |     +--rw cost-limit?        uint32
+   |                          |     +--rw hop-limit?         uint8
+   |                          |     +--rw metric-type?       path-metric-type
+   |                          |     +--rw tiebreaker-type?   path-tiebreaker-type
+   |                          |     +--rw ignore-overload?   boolean
+   |                          |     +--rw path-affinities
+   |                          |     |  +--rw (style)?
+   |                          |     |     +--:(values)
+   |                          |     |     |  +--rw value?         uint32
+   |                          |     |     |  +--rw mask?          uint32
+   |                          |     |     +--:(named)
+   |                          |     |        +--rw constraints* [usage]
+   |                          |     |           +--rw usage         constraint-usage-type
+   |                          |     |           +--rw constraint
+   |                          |     |              +--rw affinity-names* [name]
+   |                          |     |                 +--rw name    string
+   |                          |     +--rw path-srlgs
+   |                          |        +--rw (style)?
+   |                          |           +--:(values)
+   |                          |           |  +--rw usage?         constraint-usage-type
+   |                          |           |  +--rw values*        srlg
+   |                          |           +--:(named)
+   |                          |              +--rw constraints* [usage]
+   |                          |                 +--rw usage         constraint-usage-type
+   |                          |                 +--rw constraint
+   |                          |                    +--rw srlg-names* [name]
+   |                          |                       +--rw name    string
+   |                          +--rw (type)?
+   |                          |  +--:(dynamic)
+   |                          |  |  +--rw dynamic?                 empty
+   |                          |  +--:(explicit)
+   |                          |     +--rw explicit-path-name?      leafref
+   |                          +--rw no-cspf?                 empty
+   |                          +--rw lockdown?                empty
+   +--ro global-state
+   +--ro interface-state
+   +--ro tunnels-state
+rpcs:
+   +---x globals-rpc       
+   +---x interfaces-rpc    
+   +---x tunnels-rpc       
+notifications:
+   +---n globals-notif       
+   +---n interfaces-notif    
+   +---n tunnels-notif       
