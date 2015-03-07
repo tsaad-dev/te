@@ -1,14 +1,10 @@
 module: ietf-te
    +--rw te!
    |  +--rw globals
-   |  |  +--rw interface-templates* [name]
-   |  |  |  +--rw name    string
-   |  |  +--rw tunnel-templates* [name]
-   |  |  |  +--rw name    string
-   |  |  +--rw interface-named-admin-groups* [name]
+   |  |  +--rw interface-named-admin-groups* [name] {ietf-te-types:extended-admin-groups,ietf-te-types:named-extended-admin-groups}?
    |  |  |  +--rw name     string
    |  |  |  +--rw group?   ietf-te-types:admin-groups
-   |  |  +--rw interface-named-srlgs* [name]
+   |  |  +--rw interface-named-srlgs* [name] {ietf-te-types:named-srlg-groups}?
    |  |  |  +--rw name     string
    |  |  |  +--rw group?   ietf-te-types:srlg
    |  |  +--rw explicit-paths* [name]
@@ -32,25 +28,25 @@ module: ietf-te
    |  |  |     |     |  +--rw interface-id?       uint32
    |  |  |     |     +--:(label)
    |  |  |     |        +--rw label_value?        uint32
-   |  |  |     +--rw explicit-route-usage?    ietf-te-types:explicit-route-usage-type
-   |  |  +--rw path-named-constraints* [name]
+   |  |  |     +--rw explicit-route-usage?    identityref
+   |  |  +--rw path-named-constraints* [name] {ietf-te-types:named-path-constraints}?
    |  |     +--rw name                string
    |  |     +--rw path-constraints
    |  |        +--rw path-selection
    |  |           +--rw topology?          topology-id
    |  |           +--rw cost-limit?        uint32
    |  |           +--rw hop-limit?         uint8
-   |  |           +--rw metric-type?       path-metric-type
-   |  |           +--rw tiebreaker-type?   path-tiebreaker-type
+   |  |           +--rw metric-type?       identityref
+   |  |           +--rw tiebreaker-type?   identityref
    |  |           +--rw ignore-overload?   boolean
-   |  |           +--rw path-affinities
+   |  |           +--rw path-affinities {ietf-te-types:named-path-affinities}?
    |  |           |  +--rw (style)?
    |  |           |     +--:(values)
    |  |           |     |  +--rw value?         uint32
    |  |           |     |  +--rw mask?          uint32
    |  |           |     +--:(named)
    |  |           |        +--rw constraints* [usage]
-   |  |           |           +--rw usage         constraint-usage-type
+   |  |           |           +--rw usage         identityref
    |  |           |           +--rw constraint
    |  |           |              +--rw affinity-names* [name]
    |  |           |                 +--rw name    string
@@ -66,18 +62,16 @@ module: ietf-te
    |  |                          +--rw srlg-names* [name]
    |  |                             +--rw name    string
    |  +--rw interfaces
-   |  |  +--rw interface-template?   leafref
    |  |  +--rw interface* [interface]
-   |  |     +--rw interface                   if:interface-ref
-   |  |     +--rw interface-template?         leafref
-   |  |     +--rw named-admin-groups* [named-admin-group]
+   |  |     +--rw interface                 if:interface-ref
+   |  |     +--rw named-admin-groups* [named-admin-group] {ietf-te-types:extended-admin-groups,ietf-te-types:named-extended-admin-groups}?
    |  |     |  +--rw named-admin-group    leafref
-   |  |     +--rw named-srlgs* [named-srlg]
+   |  |     +--rw named-srlgs* [named-srlg] {ietf-te-types:named-srlg-groups}?
    |  |     |  +--rw named-srlg    leafref
    |  |     +--rw switching-capabilities* [switching-capability]
-   |  |     |  +--rw capability?   te-types:switching-capabilities
-   |  |     |  +--rw encoding?     encoding-type
-   |  |     +--rw te-metric?                  ietf-te-types:te-metric
+   |  |     |  +--rw capability?   identityref
+   |  |     |  +--rw encoding?     identityref
+   |  |     +--rw te-metric?                ietf-te-types:te-metric
    |  |     +--rw affinities
    |  |     |  +--rw (type)?
    |  |     |     +--:(admin-groups)
@@ -92,19 +86,22 @@ module: ietf-te
    |  |     |     +--:(srlg-value)
    |  |     |        +--rw values* [value]
    |  |     |           +--rw value    uint32
-   |  |     +--rw bandwidth-psc-reservable
-   |  |     |  +--rw rdm-bc
-   |  |     |  |  +--rw bandwidth-psc-constraints
-   |  |     |  |     +--rw maximum-reservable?   uint32
-   |  |     |  |     +--rw bc-value*             uint32
-   |  |     |  +--rw mam-bc
-   |  |     |  |  +--rw bandwidth-psc-constraints
-   |  |     |  |     +--rw maximum-reservable?   uint32
-   |  |     |  |     +--rw bc-value*             uint32
-   |  |     |  +--rw mar-bc
-   |  |     |     +--rw bandwidth-psc-constraints
-   |  |     |        +--rw maximum-reservable?   uint32
-   |  |     |        +--rw bc-value*             uint32
+   |  |     +--rw (bc-model-type)?
+   |  |     |  +--:(bc-model-rdm)
+   |  |     |  |  +--rw bc-model-rdm
+   |  |     |  |     +--rw bandwidth-psc-constraints
+   |  |     |  |        +--rw maximum-reservable?   uint32
+   |  |     |  |        +--rw bc-value*             uint32
+   |  |     |  +--:(bc-model-mam)
+   |  |     |  |  +--rw bc-model-mam
+   |  |     |  |     +--rw bandwidth-psc-constraints
+   |  |     |  |        +--rw maximum-reservable?   uint32
+   |  |     |  |        +--rw bc-value*             uint32
+   |  |     |  +--:(bc-model-mar)
+   |  |     |     +--rw bc-model-mar
+   |  |     |        +--rw bandwidth-psc-constraints
+   |  |     |           +--rw maximum-reservable?   uint32
+   |  |     |           +--rw bc-value*             uint32
    |  |     +--rw thresholds
    |  |     |  +--rw (type)?
    |  |     |     +--:(equal-steps)
@@ -119,9 +116,9 @@ module: ietf-te
    |  |     |        |  +--rw value    uint8
    |  |     |        +--rw down-steps* [value]
    |  |     |           +--rw value    uint8
-   |  |     +--rw fast-reroute-backups
+   |  |     +--rw fast-reroute-backups {ietf-te-types:frr-te}?
    |  |        +--rw backup-capacity
-   |  |        |  +--rw capacity?   ietf-te-psc-types:bandwidth-psc-unit-type
+   |  |        |  +--rw capacity?   uint32
    |  |        |  +--rw type?       uint32
    |  |        +--rw (type)?
    |  |           +--:(static-tunnel)
@@ -130,17 +127,16 @@ module: ietf-te
    |  |           |     +--rw backup-tunnel    leafref
    |  |           +--:(auto-tunnel)
    |  |              +--rw auto-backup!
-   |  |                 +--rw method?             ietf-te-psc-types:backup-type
-   |  |                 +--rw protection?         ietf-te-psc-types:backup-protection-type
-   |  |                 +--rw path-computation?   ietf-te-types:path-computation-srlg-type
+   |  |                 +--rw method?             identityref
+   |  |                 +--rw protection?         identityref
+   |  |                 +--rw path-computation?   identityref
    |  +--rw tunnels
-   |     +--rw tunnel-template?   leafref
    |     +--rw tunnel* [name type]
    |        +--rw name                    string
-   |        +--rw type                    ietf-te-types:tunnel-type
+   |        +--rw type                    identityref
    |        +--rw identifier?             uint16
    |        +--rw description?            string
-   |        +--rw admin-status?           enumeration
+   |        +--rw admin-status?           identityref
    |        +--rw (routing-choice)?
    |        |  +--:(autoroute)
    |        |  |  +--rw autoroute-announce!
@@ -170,30 +166,31 @@ module: ietf-te
    |        |     +--rw id?              uint16
    |        |     +--rw source?          inet:ip-address
    |        |     +--rw global-source?   inet:ip-address
-   |        |     +--rw type?            bidir-association-type
-   |        |     +--rw provisioing?     bidir-provisioning
+   |        |     +--rw type?            identityref
+   |        |     +--rw provisioing?     identityref
    |        +--rw (path-type)?
    |           +--:(p2p)
+   |           |  +--rw destination?            inet:ip-address
    |           |  +--rw primary-paths* [preference]
    |           |     +--rw preference         uint8
    |           |     +--rw path-properties
-   |           |     |  +--rw path-named-constraint?   leafref
+   |           |     |  +--rw path-named-constraint?   leafref {ietf-te-types:named-path-constraints}?
    |           |     |  +--rw path-constraints
    |           |     |  |  +--rw path-selection
    |           |     |  |     +--rw topology?          topology-id
    |           |     |  |     +--rw cost-limit?        uint32
    |           |     |  |     +--rw hop-limit?         uint8
-   |           |     |  |     +--rw metric-type?       path-metric-type
-   |           |     |  |     +--rw tiebreaker-type?   path-tiebreaker-type
+   |           |     |  |     +--rw metric-type?       identityref
+   |           |     |  |     +--rw tiebreaker-type?   identityref
    |           |     |  |     +--rw ignore-overload?   boolean
-   |           |     |  |     +--rw path-affinities
+   |           |     |  |     +--rw path-affinities {ietf-te-types:named-path-affinities}?
    |           |     |  |     |  +--rw (style)?
    |           |     |  |     |     +--:(values)
    |           |     |  |     |     |  +--rw value?         uint32
    |           |     |  |     |     |  +--rw mask?          uint32
    |           |     |  |     |     +--:(named)
    |           |     |  |     |        +--rw constraints* [usage]
-   |           |     |  |     |           +--rw usage         constraint-usage-type
+   |           |     |  |     |           +--rw usage         identityref
    |           |     |  |     |           +--rw constraint
    |           |     |  |     |              +--rw affinity-names* [name]
    |           |     |  |     |                 +--rw name    string
@@ -218,23 +215,23 @@ module: ietf-te
    |           |     +--rw seondary-paths* [preference]
    |           |        +--rw preference         uint8
    |           |        +--rw path-properties
-   |           |           +--rw path-named-constraint?   leafref
+   |           |           +--rw path-named-constraint?   leafref {ietf-te-types:named-path-constraints}?
    |           |           +--rw path-constraints
    |           |           |  +--rw path-selection
    |           |           |     +--rw topology?          topology-id
    |           |           |     +--rw cost-limit?        uint32
    |           |           |     +--rw hop-limit?         uint8
-   |           |           |     +--rw metric-type?       path-metric-type
-   |           |           |     +--rw tiebreaker-type?   path-tiebreaker-type
+   |           |           |     +--rw metric-type?       identityref
+   |           |           |     +--rw tiebreaker-type?   identityref
    |           |           |     +--rw ignore-overload?   boolean
-   |           |           |     +--rw path-affinities
+   |           |           |     +--rw path-affinities {ietf-te-types:named-path-affinities}?
    |           |           |     |  +--rw (style)?
    |           |           |     |     +--:(values)
    |           |           |     |     |  +--rw value?         uint32
    |           |           |     |     |  +--rw mask?          uint32
    |           |           |     |     +--:(named)
    |           |           |     |        +--rw constraints* [usage]
-   |           |           |     |           +--rw usage         constraint-usage-type
+   |           |           |     |           +--rw usage         identityref
    |           |           |     |           +--rw constraint
    |           |           |     |              +--rw affinity-names* [name]
    |           |           |     |                 +--rw name    string
@@ -262,23 +259,23 @@ module: ietf-te
    |                 +--rw primary-paths* [preference]
    |                    +--rw preference         uint8
    |                    +--rw path-properties
-   |                    |  +--rw path-named-constraint?   leafref
+   |                    |  +--rw path-named-constraint?   leafref {ietf-te-types:named-path-constraints}?
    |                    |  +--rw path-constraints
    |                    |  |  +--rw path-selection
    |                    |  |     +--rw topology?          topology-id
    |                    |  |     +--rw cost-limit?        uint32
    |                    |  |     +--rw hop-limit?         uint8
-   |                    |  |     +--rw metric-type?       path-metric-type
-   |                    |  |     +--rw tiebreaker-type?   path-tiebreaker-type
+   |                    |  |     +--rw metric-type?       identityref
+   |                    |  |     +--rw tiebreaker-type?   identityref
    |                    |  |     +--rw ignore-overload?   boolean
-   |                    |  |     +--rw path-affinities
+   |                    |  |     +--rw path-affinities {ietf-te-types:named-path-affinities}?
    |                    |  |     |  +--rw (style)?
    |                    |  |     |     +--:(values)
    |                    |  |     |     |  +--rw value?         uint32
    |                    |  |     |     |  +--rw mask?          uint32
    |                    |  |     |     +--:(named)
    |                    |  |     |        +--rw constraints* [usage]
-   |                    |  |     |           +--rw usage         constraint-usage-type
+   |                    |  |     |           +--rw usage         identityref
    |                    |  |     |           +--rw constraint
    |                    |  |     |              +--rw affinity-names* [name]
    |                    |  |     |                 +--rw name    string
@@ -303,23 +300,23 @@ module: ietf-te
    |                    +--rw seondary-paths* [preference]
    |                       +--rw preference         uint8
    |                       +--rw path-properties
-   |                          +--rw path-named-constraint?   leafref
+   |                          +--rw path-named-constraint?   leafref {ietf-te-types:named-path-constraints}?
    |                          +--rw path-constraints
    |                          |  +--rw path-selection
    |                          |     +--rw topology?          topology-id
    |                          |     +--rw cost-limit?        uint32
    |                          |     +--rw hop-limit?         uint8
-   |                          |     +--rw metric-type?       path-metric-type
-   |                          |     +--rw tiebreaker-type?   path-tiebreaker-type
+   |                          |     +--rw metric-type?       identityref
+   |                          |     +--rw tiebreaker-type?   identityref
    |                          |     +--rw ignore-overload?   boolean
-   |                          |     +--rw path-affinities
+   |                          |     +--rw path-affinities {ietf-te-types:named-path-affinities}?
    |                          |     |  +--rw (style)?
    |                          |     |     +--:(values)
    |                          |     |     |  +--rw value?         uint32
    |                          |     |     |  +--rw mask?          uint32
    |                          |     |     +--:(named)
    |                          |     |        +--rw constraints* [usage]
-   |                          |     |           +--rw usage         constraint-usage-type
+   |                          |     |           +--rw usage         identityref
    |                          |     |           +--rw constraint
    |                          |     |              +--rw affinity-names* [name]
    |                          |     |                 +--rw name    string
@@ -351,4 +348,4 @@ rpcs:
 notifications:
    +---n globals-notif       
    +---n interfaces-notif    
-   +---n tunnels-notif       
+   +---n tunnels-notif 
