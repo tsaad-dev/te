@@ -10,7 +10,12 @@ module ietf-rsvp {
         prefix "if";
     }
 
-    organization "TBA";
+    import ietf-inet-types {
+        prefix inet;
+    }
+
+    organization
+        "IETF TEAS Working Group";
 
     contact "TBA";
 
@@ -19,6 +24,51 @@ module ietf-rsvp {
 
     revision 2014-12-17 {
         description "Initial revision.";
+    }
+
+    grouping graceful-restart {
+        description "Configure RSVP Graceful-Restart parameters.";
+        container graceful-restart {
+            presence "Enable RSVP graceful restart on the node.";
+
+            leaf restart-time {
+                description
+                    "Graceful restart time (seconds).";
+                reference
+                    "RFC 5495: Description of the Resource
+                    Reservation Protocol - Traffic-Engineered (RSVP-TE)
+                    Graceful Restart Procedures";
+                type uint32 {
+                     range "60..3600";
+                }
+            }
+            leaf hello-interval {
+                description
+                    "Configure interval between successive Hello messages
+                    in milliseconds.";
+                reference
+                    "RFC 3209: RSVP-TE: Extensions to RSVP for LSP Tunnels
+                    RFC 5495: Description of the Resource
+                    Reservation Protocol - Traffic-Engineered (RSVP-TE)
+                    Graceful Restart Procedures";
+                type uint32 {
+                    range "3000..30000";
+                }
+            }
+            leaf hello-misses {
+                description
+                    "Configure max number of consecutive missed Hello
+                    messages.";
+                reference
+                    "RFC 3209: RSVP-TE: Extensions to RSVP for LSP Tunnels
+                    RFC 5495: Description of the Resource
+                    Reservation Protocol - Traffic-Engineered (RSVP-TE)
+                    Graceful Restart Procedures";
+                type uint32 {
+                     range "1..10";
+                }
+            }
+        }
     }
 
     grouping authentication {
@@ -75,11 +125,13 @@ module ietf-rsvp {
 
     grouping signaling {
         container signaling {
-            leaf dscp {
-                description
-                    "DSCP for RSVP signaling messages.";
-                type uint32 {
-                     range "0..63";
+            uses graceful-restart;
+            container hello {
+                description "Configure Hello parameters.";
+                leaf interface-based {
+                     description "Enable interface-based
+                                  Hello adjacency.";
+                     type boolean;
                 }
             }
 
@@ -88,15 +140,6 @@ module ietf-rsvp {
                     description
                         "State-Removal flag in Path Error message";
                     type boolean;
-                }
-            }
-
-            container hello {
-                description "Configure Hello parameters.";
-                leaf interface-based {
-                     description "Enable interface-based
-                                  Hello adjacency.";
-                     type boolean;
                 }
             }
 
@@ -168,25 +211,6 @@ module ietf-rsvp {
                     }
                 }
             }
-
-            container rate-limit {
-                description
-                    "Msssage rate limit (pacing) options";
-                leaf rate {
-                    description
-                        "Number of messages to be sent per interval";
-                    type uint32 {
-                         range "1..500";
-                    }
-                }
-                leaf interval {
-                    description
-                        "Size of an interval (milliseconds)";
-                    type uint32 {
-                         range "1..2000";
-                    }
-                }
-            }
         }
     }
 
@@ -195,6 +219,7 @@ module ietf-rsvp {
 
         container globals {
             description "RSVP global properties.";
+            uses signaling;
         }
 
         container interfaces {
@@ -211,6 +236,92 @@ module ietf-rsvp {
                 }
                 uses authentication;
                 uses signaling;
+            }
+        }
+
+        container sessions {
+            list session {
+                key "src_port dst_port source destination";
+                leaf src_port {
+                    type uint16;
+                    description "RSVP source port";
+                    reference "RFC2205";
+                }
+                leaf dst_port {
+                    type uint16;
+                    description "RSVP destination port";
+                    reference "RFC2205";
+                }
+                leaf source {
+                    type inet:ip-address;
+                    description "RSVP source address";
+                    reference "RFC2205";
+                }
+                leaf destination {
+                    type inet:ip-address;
+                    description "RSVP destination address";
+                    reference "RFC2205";
+                }
+            }
+        }
+
+        container neighbors {
+            list neighbor {
+                key "address";
+                leaf address {
+                    type inet:ip-address;
+                }
+            }
+        }
+
+        container interface-state {
+            config "false";
+            list session {
+                key "interface";
+                description
+                    "RSVP interfaces.";
+                leaf interface {
+                     description
+                        "RSVP interface.";
+                     type if:interface-ref;
+                }
+            }
+        }
+
+        container sessions-state {
+            config "false";
+            list session {
+                key "src_port dst_port source destination";
+                leaf src_port {
+                    type uint16;
+                    description "RSVP source port";
+                    reference "RFC2205";
+                }
+                leaf dst_port {
+                    type uint16;
+                    description "RSVP destination port";
+                    reference "RFC2205";
+                }
+                leaf source {
+                    type inet:ip-address;
+                    description "RSVP source address";
+                    reference "RFC2205";
+                }
+                leaf destination {
+                    type inet:ip-address;
+                    description "RSVP destination address";
+                    reference "RFC2205";
+                }
+            }
+        }
+
+        container neighbors-state {
+            config "false";
+            list neighbor {
+                key "address";
+                leaf address {
+                    type inet:ip-address;
+                }
             }
         }
     }

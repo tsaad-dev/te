@@ -24,10 +24,10 @@ module ietf-te {
     }
 
     organization
-      "IETF TEAS Working Group";
+        "IETF TEAS Working Group";
 
     contact
-      "Fill me";
+        "Fill me";
 
     description
         "YANG data module for TE configuration,
@@ -125,17 +125,23 @@ module ietf-te {
                 description
                     "Describes whether facility backup or 1-for-1
                     backup should be used";
-                type ietf-te-psc-types:backup-type;
+                type identityref {
+                    base ietf-te-psc-types:backup-type;
+                }
             }
-            /* uses tunnel-template-leaf; */
             leaf protection {
                 description
                     "Describes whether the backup should offer
                     protection against link, node, or either";
-                type ietf-te-psc-types:backup-protection-type;
+                type identityref {
+                    base ietf-te-psc-types:backup-protection-type;
+                }
+                default ietf-te-psc-types:backup-protection-node-link;
             }
             leaf path-computation {
-                 type ietf-te-types:path-computation-srlg-type;
+                type identityref {
+                    base ietf-te-types:path-computation-srlg-type;
+                }
             }
         }
     }
@@ -149,9 +155,9 @@ module ietf-te {
                      tunnel may protect";
                 leaf capacity {
                     description
-                        "Maximum primary LSP bandwidth the
-                         backup is allowed to protect";
-                    type ietf-te-psc-types:bandwidth-psc-unit-type;
+                        "Maximum bandwidth this facility backup
+                        is allowed to protect";
+                    type uint32;
                 }
                 leaf type {
                     description
@@ -250,24 +256,6 @@ module ietf-te {
                 "Configuration data model for Global System-wide
                  Traffic Engineering.";
 
-            list interface-templates {
-                description "TE templates for interfaces.";
-                key "name";
-                leaf name {
-                    description "A TE interface template name.";
-                    type string;
-                }
-            }
-
-            list tunnel-templates {
-                description "TE templates for tunnels.";
-                key "name";
-                leaf name {
-                    description "A TE tunnel template name.";
-                    type string;
-                }
-            }
-
             list interface-named-admin-groups {
                 key "name";
                 leaf name {
@@ -313,7 +301,9 @@ module ietf-te {
                     leaf explicit-route-usage {
                         description
                             "An IP hop action.";
-                        type ietf-te-types:explicit-route-usage-type;
+                        type identityref {
+                            base ietf-te-types:route-usage-type;
+                        }
                     }
                 }
             }
@@ -335,15 +325,6 @@ module ietf-te {
             description
                 "Configuration data model for TE interfaces.";
 
-            leaf interface-template {
-                description
-                    "Name of the template to use for
-                     TE link properties.";
-                type leafref {
-                    path "/te/globals/interface-templates/name";
-                }
-            }
-
             list interface {
                 key "interface";
                 description "TE interfaces.";
@@ -351,15 +332,6 @@ module ietf-te {
                      description
                         "TE interface name.";
                      type if:interface-ref;
-                }
-
-                leaf interface-template {
-                    description
-                        "Name of the template to use for TE interface
-                        properties.";
-                    type leafref {
-                        path "/te/globals/interface-templates/name";
-                    }
                 }
 
                 list named-admin-groups {
@@ -394,15 +366,6 @@ module ietf-te {
                 "Configuration, operational, notification and RPC data model
                  for TE tunnels.";
 
-            leaf tunnel-template {
-                description
-                    "Name of the template to use for
-                     tunnel properties.";
-                type leafref {
-                    path "/te/globals/tunnel-templates/name";
-                }
-            }
-
             list tunnel {
                 key "name type";
                 unique "identifier";
@@ -413,7 +376,9 @@ module ietf-te {
                 }
                 leaf type {
                     description "TE tunnel type.";
-                    type ietf-te-types:tunnel-type;
+                    type identityref {
+                        base ietf-te-types:tunnel-type;
+                    }
                 }
                 leaf identifier {
                     description
@@ -427,11 +392,10 @@ module ietf-te {
                 }
                 leaf admin-status {
                     description "TE tunnel administrative state.";
-                    type enumeration {
-                         enum up;
-                         enum down;
+                    type identityref {
+                        base ietf-te-types:state-type;
                     }
-                    default up;
+                    default ietf-te-types:state-up;
                 }
                 uses ietf-te-types:tunnel-routing-properties;
                 uses ietf-te-types:tunnel-forwarding-properties;
@@ -439,6 +403,9 @@ module ietf-te {
 
                 choice path-type {
                     case p2p {
+                        leaf destination {
+                            type inet:ip-address;
+                        }
                         /* P2P list of path(s) */
                         list primary-paths {
                             key "preference";

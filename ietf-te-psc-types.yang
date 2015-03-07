@@ -42,96 +42,69 @@ module ietf-te-psc-types {
         }
     }
 
-    typedef backup-type {
+    identity backup-type {
         description
-            "Describes the backup LSP protection method";
+            "Base identity for backup protection types";
+    }
+
+    identity backup-facility {
+        base backup-type;
+        description
+            "Use facility backup to protect LSPs traversing
+            protected TE interface";
         reference
             "RFC49090: RSVP-TE Fast Reroute";
-        type enumeration {
-            enum "facility" {
-                description
-                    "Use facility backup to protect LSPs traversing
-                    protected TE interface";
-            }
-            enum "detour" {
-                description
-                    "Use detour or 1-for-1 protection";
-            }
-        }
     }
 
-    typedef backup-protection-type {
+    identity backup-detour {
+        base backup-type;
         description
-            "Describes what faults can the backup protect against";
-        type enumeration {
-            enum "link" {
-                description
-                    "backup provides link protection only";
-            }
-            enum "node-link" {
-                description
-                    "backup offers node (preferred) or link protection";
-            }
-        }
+            "Use detour or 1-for-1 protection";
+        reference
+            "RFC49090: RSVP-TE Fast Reroute";
     }
 
-    typedef bc-model-type {
+    identity backup-protection-type {
         description
-           "Diff-Serve TE Bandwidth Constraint model type.";
-        type enumeration {
-            enum rdm {
-                description
-                    "Russian Doll bandwidth constraint
-                    model type.";
-            }
-            enum mam {
-                description
-                    "Maximum Allocation bandwidth constraint
-                    model type.";
-            }
-            enum mar {
-                description
-                    "Maximum Allocation with Reservation
-                    bandwidth constraint model type.";
-            }
-        }
-        default rdm;
+            "Base identity for backup protection type";
     }
 
-    typedef bandwidth-psc-class-type {
-        description "TE tunnel bandwidth class type";
-        type enumeration {
-            enum CT0;
-            enum CT1;
-            enum CT2;
-            enum CT3;
-            enum CT4;
-            enum CT5;
-            enum CT6;
-            enum CT7;
-        }
-        default CT0;
+    identity backup-protection-link {
+        base backup-protection-type;
+        description
+            "backup provides link protection only";
     }
 
-    typedef bandwidth-psc-unit-type {
-        description "Bandwidth unit type.";
-        type enumeration {
-            enum Gbps;
-            enum Mbps;
-            enum Kbps;
-        }
-        default Kbps;
+    identity backup-protection-node-link {
+        base backup-protection-type;
+        description
+            "backup offers node (preferred) or link protection";
     }
 
-    grouping bandwidth-psc-type {
-        container bandwidth-psc-type {
-            leaf bandwidth-psc-value {
-                type uint32;
-            }
-            leaf bandwidth-psc-unit {
-                type bandwidth-psc-unit-type;
-            }
-        }
+    identity bc-model-type {
+        description
+            "Base identity for Diffserv-TE bandwidth constraint
+            model type";
+    }
+
+    identity bc-model-rdm {
+        base bc-model-type;
+        description
+            "Russian Doll bandwidth constraint model type.";
+    }
+
+    identity bc-model-mam {
+        base bc-model-type;
+        description
+            "Maximum Allocation bandwidth constraint
+            model type.";
+    }
+
+    identity bc-model-mar {
+        base bc-model-type;
+        description
+            "Maximum Allocation with Reservation
+            bandwidth constraint model type.";
     }
 
     grouping bandwidth-constraint-values {
@@ -149,43 +122,33 @@ module ietf-te-psc-types {
         }
     }
 
-    typedef backup-bandwidth-type {
-        description "FRR backup tunnel bandwidth protection type.";
-        type enumeration {
-            enum BC0;
-            enum BC1;
-            enum BC2;
-            enum BC3;
-            enum BC4;
-            enum BC5;
-            enum BC6;
-            enum BC7;
-            enum BC-any;
-        }
-        default BC-any;
-    }
-
     grouping bandwidth-psc-reservable {
-        container bandwidth-psc-reservable {
-            description
-                "Reservable bandwidth percentage capacity
-                values.";
-            container rdm-bc {
+        choice bc-model-type {
+        description
+            "Reservable bandwidth percentage capacity
+            values.";
+        case bc-model-rdm {
+            container bc-model-rdm {
                 description
                     "Russian Doll Model Bandwidth Constraints.";
                 uses bandwidth-psc-constraints;
             }
-            container mam-bc {
+        }
+        case bc-model-mam {
+            container bc-model-mam {
                 description
                     "Maximum Allocation Model Bandwidth Constraints.";
                 uses bandwidth-psc-constraints;
             }
-            container mar-bc {
+        }
+        case bc-model-mar {
+            container bc-model-mar {
                 description
                     "Maximum Allocation with Reservation Model
                     Bandwidth Constraints.";
                 uses bandwidth-psc-constraints;
             }
+        }
         }
     }
 
@@ -226,21 +189,6 @@ module ietf-te-psc-types {
                 }
                 max-elements 8;
             }
-        }
-    }
-
-    grouping bandwidth-constraint-values {
-        choice value-type {
-             case percentages {
-                 container perc-values {
-                     uses bandwidth-psc-constraints;
-                 }
-             }
-             case absolutes {
-                 container abs-values {
-                     uses bandwidth-psc-constraints;
-                 }
-             }
         }
     }
 

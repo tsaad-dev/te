@@ -22,51 +22,6 @@ module ietf-rsvp-te {
     }
 
     /* groupings for rsvp */
-    grouping graceful-restart {
-        description "Configure RSVP Graceful-Restart parameters.";
-        container graceful-restart {
-            presence "Enable RSVP graceful restart on the node.";
-
-            leaf restart-time {
-                description
-                    "Graceful restart time (seconds).";
-                reference
-                    "RFC 5495: Description of the Resource
-                    Reservation Protocol - Traffic-Engineered (RSVP-TE)
-                    Graceful Restart Procedures";
-                type uint32 {
-                     range "60..3600";
-                }
-            }
-            leaf hello-interval {
-                description
-                    "Configure interval between successive Hello messages
-                    in milliseconds.";
-                reference
-                    "RFC 3209: RSVP-TE: Extensions to RSVP for LSP Tunnels
-                    RFC 5495: Description of the Resource
-                    Reservation Protocol - Traffic-Engineered (RSVP-TE)
-                    Graceful Restart Procedures";
-                type uint32 {
-                    range "3000..30000";
-                }
-            }
-            leaf hello-misses {
-                description
-                    "Configure max number of consecutive missed Hello
-                    messages.";
-                reference
-                    "RFC 3209: RSVP-TE: Extensions to RSVP for LSP Tunnels
-                    RFC 5495: Description of the Resource
-                    Reservation Protocol - Traffic-Engineered (RSVP-TE)
-                    Graceful Restart Procedures";
-                type uint32 {
-                     range "1..10";
-                }
-            }
-        }
-    }
-
     grouping refresh-reduction {
         container refresh-reduction {
             description
@@ -80,8 +35,9 @@ module ietf-rsvp-te {
                     }
                 }
                 leaf disable {
-                    description "Disable refresh reduction.";
-                    type boolean;
+                    description
+                        "Disables refresh reduction if present.";
+                    type empty;
                 }
                 leaf reliable-ack-hold-time {
                 description
@@ -108,9 +64,9 @@ module ietf-rsvp-te {
             }
             leaf reliable-srefresh {
                 description
-                    "Configure use of reliable messaging for summary
-                    refresh.";
-                type boolean;
+                    "Enables reliable messaging for summary
+                    refresh if present.";
+                type empty;
             }
             leaf summary-max-size {
                 description
@@ -129,7 +85,6 @@ module ietf-rsvp-te {
             leaf egress-label {
                 type ietf-te-psc-types:egress-label;
             }
-            uses graceful-restart;
             uses refresh-reduction;
         }
 
@@ -138,51 +93,51 @@ module ietf-rsvp-te {
     grouping lsp-attributes {
         leaf end-to-end-routing {
             reference "RFC4920, RFC5420";
-            type boolean;
+            type empty;
         }
         leaf boundary-rerouting {
             reference "RFC4920, RFC5420";
-            type boolean;
+            type empty;
         }
         leaf segment-based-rerouting {
             reference "RFC4920, RFC5420";
-            type boolean;
+            type empty;
         }
         leaf lsp-integrety-required {
             reference "RFC4875";
-            type boolean;
+            type empty;
         }
         leaf contiguous-lsp {
             reference "RFC5151";
-            type boolean;
+            type empty;
         }
         leaf lsp-stitching-desired {
             reference "RFC5150";
-            type boolean;
+            type empty;
         }
         leaf preplanned-lsp {
             reference "RFC6001";
-            type boolean;
+            type empty;
         }
         leaf non-php-desired {
             reference "RFC6511";
-            type boolean;
+            type empty;
         }
         leaf oob-mapping {
             reference "RFC6511";
-            type boolean;
+            type empty;
         }
         leaf entropy-label-cap {
             reference "RFC6790";
-            type boolean;
+            type empty;
         }
         leaf oam-mep-entities-desired {
             reference "RFC7260";
-            type boolean;
+            type empty;
         }
         leaf oam-mip-entities-desired {
             reference "RFC7260";
-            type boolean;
+            type empty;
         }
     }
 
@@ -200,29 +155,29 @@ module ietf-rsvp-te {
                 "RFC4859: Registry for RSVP-TE Session Flags";
             leaf bandwidth-protection-desired {
                 description
-                    "Request FRR bandwidth protection on LSRs.";
-                type boolean;
+                    "Request FRR bandwidth protection on LSRs if present.";
+                type empty;
             }
             leaf node-protection-desired {
                 description
-                    "Request FRR node protection on LSRs.";
-                type boolean;
+                    "Request FRR node protection on LSRs if present.";
+                type empty;
             }
         }
         leaf se-style-desired {
             description "SE Style desired";
             reference "RFC3209";
-            type boolean;
+            type empty;
         }
         leaf soft-preemption-desired {
             description "Soft-preemption is desired";
             reference "RFC5712";
-            type boolean;
+            type empty;
         }
         leaf record-route-desired {
             description "Path recording is desired.";
             reference "RFC3209";
-            type boolean;
+            type empty;
         }
         leaf signaled-name {
             description
@@ -250,23 +205,13 @@ module ietf-rsvp-te {
                 "Requests soft-preemption in session
                  attributes object at
                  at traversed LSR(s).";
-            type boolean;
+            type empty;
         }
-        //uses bandwidth-psc-type;
     }
 
 
     /* RSVP-TE global propeerties */
     augment "/rsvp:rsvp/rsvp:globals" {
-        list interface-templates {
-            description
-                "RSVP-TE templates for interfaces.";
-            key "name";
-            leaf name {
-                description "RSVP-TE interface template name.";
-                type string;
-            }
-        }
         container frr-local-revert {
             presence "Enable RSVP FRR local revertive recovery mode.";
             leaf frr-local-revert-delay {
@@ -285,26 +230,10 @@ module ietf-rsvp-te {
     /* Linkage to the base RSVP all links */
     augment "/rsvp:rsvp/rsvp:interfaces" {
         uses signaling;
-        leaf template {
-            description
-                "Name of the global template to use for all RSVP
-                interfaces.";
-            type leafref {
-                path "/rsvp:rsvp/rsvp:globals/interface-templates/name";
-            }
-        }
     }
 
     /* Linkage to per RSVP link */
     augment "/rsvp:rsvp/rsvp:interfaces/rsvp:interface" {
         uses signaling;
-        leaf template {
-            description
-                "Name of the per link template to use for RSVP
-                 TE link properties.";
-            type leafref {
-                path "/rsvp:rsvp/rsvp:globals/interface-templates/name";
-            }
-        }
     }
 }
