@@ -26,9 +26,31 @@ module ietf-rsvp {
         description "Initial revision.";
     }
 
+    /* RSVP features */
+    feature authentication {
+        description
+            "Indicates support for RSVP authentication";
+    }
+
+    feature graceful-restart {
+        description
+            "Indicates support for RSVP graceful restart";
+    }
+
+    feature refresh-reduction {
+        description
+            "Indicates support for RSVP refresh reduction";
+    }
+
+    feature hellos {
+        description
+            "Indicates support for RSVP hellos";
+    }
+
     grouping graceful-restart {
         description "Configure RSVP Graceful-Restart parameters.";
         container graceful-restart {
+            if-feature graceful-restart;
             presence "Enable RSVP graceful restart on the node.";
 
             leaf restart-time {
@@ -38,41 +60,19 @@ module ietf-rsvp {
                     "RFC 5495: Description of the Resource
                     Reservation Protocol - Traffic-Engineered (RSVP-TE)
                     Graceful Restart Procedures";
-                type uint32 {
-                     range "60..3600";
-                }
+                type uint32;
             }
-            leaf hello-interval {
+            leaf recovery-time {
                 description
-                    "Configure interval between successive Hello messages
-                    in milliseconds.";
-                reference
-                    "RFC 3209: RSVP-TE: Extensions to RSVP for LSP Tunnels
-                    RFC 5495: Description of the Resource
-                    Reservation Protocol - Traffic-Engineered (RSVP-TE)
-                    Graceful Restart Procedures";
-                type uint32 {
-                    range "3000..30000";
-                }
-            }
-            leaf hello-misses {
-                description
-                    "Configure max number of consecutive missed Hello
-                    messages.";
-                reference
-                    "RFC 3209: RSVP-TE: Extensions to RSVP for LSP Tunnels
-                    RFC 5495: Description of the Resource
-                    Reservation Protocol - Traffic-Engineered (RSVP-TE)
-                    Graceful Restart Procedures";
-                type uint32 {
-                     range "1..10";
-                }
+                    "";
+                type uint32;
             }
         }
     }
 
     grouping authentication {
         container authentication {
+            if-feature authentication;
             description
                 "Configure RSVP authentication.";
             leaf key-chain {
@@ -127,11 +127,38 @@ module ietf-rsvp {
         container signaling {
             uses graceful-restart;
             container hello {
+                if-feature hellos;
                 description "Configure Hello parameters.";
                 leaf interface-based {
                      description "Enable interface-based
                                   Hello adjacency if present.";
                      type empty;
+                }
+                leaf hello-interval {
+                    description
+                        "Configure interval between successive Hello messages
+                        in milliseconds.";
+                    reference
+                        "RFC 3209: RSVP-TE: Extensions to RSVP for LSP Tunnels
+                        RFC 5495: Description of the Resource
+                        Reservation Protocol - Traffic-Engineered (RSVP-TE)
+                        Graceful Restart Procedures";
+                    type uint32 {
+                        range "3000..30000";
+                    }
+                }
+                leaf hello-misses {
+                    description
+                        "Configure max number of consecutive missed Hello
+                        messages.";
+                    reference
+                        "RFC 3209: RSVP-TE: Extensions to RSVP for LSP Tunnels
+                        RFC 5495: Description of the Resource
+                        Reservation Protocol - Traffic-Engineered (RSVP-TE)
+                        Graceful Restart Procedures";
+                    type uint32 {
+                         range "1..10";
+                    }
                 }
             }
 
@@ -156,7 +183,9 @@ module ietf-rsvp {
                         for state expiry";
                     type uint32;
                 }
+
                 container reduction {
+                    if-feature refresh-reduction;
                     description
                         "Configure RSVP Refresh Reduction parameters.";
                     leaf bundle-message-max-size {
