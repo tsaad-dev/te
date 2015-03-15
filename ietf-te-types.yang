@@ -14,11 +14,6 @@ module ietf-te-types {
         "This module contains a collection of generally
          useful TE specific YANG data type defintions.";
 
-    feature extended-admin-groups {
-        description
-            "Support for TE link extended admin groups.";
-    }
-
     identity tunnel-type {
         description
             "Base identity from which specific tunnel types are
@@ -65,12 +60,6 @@ module ietf-te-types {
           "Packet-Switch Capable-1 (PSC-1)";
     }
 
-    identity switching-l2sc {
-        base switching-capabilities;
-        description
-          "Packet-Switch Capable-1 (PSC-1)";
-    }
-
     identity switching-evpl {
         base switching-capabilities;
         description
@@ -105,12 +94,6 @@ module ietf-te-types {
         base switching-capabilities;
         description
             "Lambda-Switch Capable (LSC)";
-    }
-
-    identity switching-dcsc {
-        base switching-capabilities;
-        description
-            "Data Channel Switching Capable (DCSC)";
     }
 
     identity switching-fsc {
@@ -499,7 +482,7 @@ module ietf-te-types {
     }
 
     typedef srlg {
-        type uin32;
+        type uint32;
     }
 
     identity path-computation-srlg-type {
@@ -593,7 +576,7 @@ module ietf-te-types {
 
     grouping path-affinities {
         container path-affinities {
-            if-feature ietf-te-types:named-path-affinities;
+            if-feature named-path-affinities;
             choice style {
                 case values {
                     leaf value {
@@ -634,7 +617,9 @@ module ietf-te-types {
             choice style {
                 case values {
                     leaf usage {
-                        type constraint-usage-type;
+                        type identityref {
+                            base route-exclude-srlg;
+                        }
                     }
                     leaf-list values {
                         type srlg;
@@ -644,7 +629,9 @@ module ietf-te-types {
                     list constraints {
                         key "usage";
                         leaf usage {
-                            type constraint-usage-type;
+                            type identityref {
+                                base route-exclude-srlg;
+                            }
                         }
                         container constraint {
                             list srlg-names {
@@ -795,11 +782,10 @@ module ietf-te-types {
             key "switching-capability";
             description
                 "List of interface capabilities for this interface";
-            leaf capability {
+            leaf switching-capability {
                 type identityref {
                     base te-types:switching-capabilities;
                 }
-                default switching-psc1;
                 description
                     "Switching Capability for this interface";
             }
