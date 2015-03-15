@@ -1,6 +1,6 @@
 module ietf-rsvp {
 
-    namespace "urn:ietf:params:xml:ns:yang:rsvp";
+    namespace "urn:ietf:params:xml:ns:yang:ietf-rsvp";
 
     /* Replace with IANA when assigned */
     prefix "rsvp";
@@ -24,6 +24,7 @@ module ietf-rsvp {
 
     revision 2014-12-17 {
         description "Initial revision.";
+        reference "RFC2205";
     }
 
     /* RSVP features */
@@ -52,192 +53,208 @@ module ietf-rsvp {
         container graceful-restart {
             if-feature graceful-restart;
             presence "Enable RSVP graceful restart on the node.";
+            description
+                "RSVP graceful-restart parameters container";
 
             leaf restart-time {
+                type uint32;
                 description
                     "Graceful restart time (seconds).";
                 reference
                     "RFC 5495: Description of the Resource
-                    Reservation Protocol - Traffic-Engineered (RSVP-TE)
-                    Graceful Restart Procedures";
-                type uint32;
+                    Reservation Protocol - Traffic-Engineered
+                    (RSVP-TE) Graceful Restart Procedures";
             }
             leaf recovery-time {
-                description
-                    "";
                 type uint32;
+                description
+                    "RSVP state recovery time";
             }
         }
     }
 
     grouping authentication {
+        description
+            "RSVP authentication grouping";
         container authentication {
             if-feature authentication;
             description
                 "Configure RSVP authentication.";
             leaf key-chain {
+                type string {
+                     length "1..32";
+                }
                 description
                     "Key chain name to authenticate RSVP signaling
                     messages.";
                 reference
                     "RFC 2747: RSVP Cryptographic Authentication";
-                type string {
-                     length "1..32";
-                }
             }
             leaf lifetime {
+                type uint32 {
+                     range "30..86400";
+                }
                 description 
                     "Life time for each security association";
                 reference
                     "RFC 2747: RSVP Cryptographic Authentication";
-                type uint32 {
-                     range "30..86400";
-                }
             }
             leaf window-size {
+                type uint32 {
+                    range "1..64";
+                }
                 description
                     "Window-size to limit number of out-of-order
                     messages.";
                 reference
                     "RFC 2747: RSVP Cryptographic Authentication";
-                type uint32 {
-                    range "1..64";
-                }
             }
             leaf challenge {
+                type empty;
                 description
                     "Enable challenge messages.";
                 reference
                     "RFC 2747: RSVP Cryptographic Authentication";
-                type empty;
             }
             leaf retransmits {
+                type uint32 {
+                    range "1..10000";
+                }
                 description
-                    "Number of retransmits when messages are dropped.";
+                    "Number of retransmits when messages are
+                     dropped.";
                 reference
                     "RFC 2747: RSVP Cryptographic Authentication";
-                 type uint32 {
-                    range "1..10000";
-                 }
             }
         }
     }
 
     grouping signaling {
+        description
+            "RSVP signaling properties grouping";
         container signaling {
+            description
+                "RSVP signaling properties container";
             uses graceful-restart;
             container hello {
                 if-feature hellos;
                 description "Configure Hello parameters.";
                 leaf interface-based {
+                     type empty;
                      description "Enable interface-based
                                   Hello adjacency if present.";
-                     type empty;
                 }
                 leaf hello-interval {
-                    description
-                        "Configure interval between successive Hello messages
-                        in milliseconds.";
-                    reference
-                        "RFC 3209: RSVP-TE: Extensions to RSVP for LSP Tunnels
-                        RFC 5495: Description of the Resource
-                        Reservation Protocol - Traffic-Engineered (RSVP-TE)
-                        Graceful Restart Procedures";
                     type uint32 {
                         range "3000..30000";
                     }
+                    description
+                        "Configure interval between successive Hello
+                        messages in milliseconds.";
+                    reference
+                        "RFC 3209: RSVP-TE: Extensions to RSVP for
+                        LSP Tunnels.
+                        RFC 5495: Description of the Resource
+                        Reservation Protocol - Traffic-Engineered
+                        (RSVP-TE) Graceful Restart Procedures";
                 }
                 leaf hello-misses {
-                    description
-                        "Configure max number of consecutive missed Hello
-                        messages.";
-                    reference
-                        "RFC 3209: RSVP-TE: Extensions to RSVP for LSP Tunnels
-                        RFC 5495: Description of the Resource
-                        Reservation Protocol - Traffic-Engineered (RSVP-TE)
-                        Graceful Restart Procedures";
                     type uint32 {
                          range "1..10";
                     }
+                    description
+                        "Configure max number of consecutive missed
+                        Hello messages.";
+                    reference
+                        "RFC 3209: RSVP-TE: Extensions to RSVP for
+                        LSP Tunnels RFC 5495: Description of the
+                        Resource Reservation Protocol - Traffic-
+                        Engineered (RSVP-TE) Graceful Restart
+                        Procedures";
                 }
             }
 
             container path-err {
+                description
+                    "RSVP path-state removal behavior";
                 leaf state-removal {
+                    type empty;
                     description
                         "State-Removal flag in Path Error message
                         if present.";
-                    type empty;
                 }
             }
 
             container refresh {
+                description
+                    "RSVP refreshes properties";
                 leaf interval {
+                    type uint32;
                     description
                         "Set interval between successive refreshes";
-                    type uint32;
                 }
                 leaf missed {
-                    description
-                        "Set max number of consecutive missed messages
-                        for state expiry";
                     type uint32;
+                    description
+                        "Set max number of consecutive missed
+                         messages for state expiry";
                 }
 
                 container reduction {
                     if-feature refresh-reduction;
                     description
-                        "Configure RSVP Refresh Reduction parameters.";
+                        "Configure RSVP Refresh Reduction
+                         parameters.";
                     leaf bundle-message-max-size {
-                        description
-                            "Configure maximum size (bytes) of a single
-                            RSVP Bundle message.";
                         type uint32 {
                             range "512..65000";
                         }
+                        description
+                            "Configure maximum size (bytes) of a
+                             single RSVP Bundle message.";
                     }
                     leaf disable {
+                        type empty;
                         description
                             "Disable refresh reduction if present.";
-                        type empty;
                     }
                     leaf reliable-ack-hold-time {
-                        description
-                            "Configure hold time in milliseconds for
-                            sending RSVP ACK message(s).";
                         type uint32 {
                             range "100..5000";
                         }
+                        description
+                            "Configure hold time in milliseconds for
+                            sending RSVP ACK message(s).";
                     }
                     leaf reliable-ack-max-size {
+                        type uint32 {
+                            range "20..65000";
+                        }
                         description
                             "Configure max size of a single RSVP ACK
                             message.";
-                        type uint32 {
-                            range "20..65000";
-                        }
                     }
                     leaf reliable-retransmit-time {
-                        description
-                            "Configure min delay in milliseconds to wait
-                            for an ACK before a retransmit.";
                         type uint32 {
                             range "100..10000";
                         }
+                        description
+                            "Configure min delay in milliseconds to
+                             wait for an ACK before a retransmit.";
                     }
                     leaf reliable-srefresh {
-                        description
-                            "Configure use of reliable messaging for summary
-                            refresh if present.";
                         type empty;
+                        description
+                            "Configure use of reliable messaging for
+                            summary refresh if present.";
                     }
                     leaf summary-max-size {
-                        description
-                            "Configure max size (bytes) of a single RSVP
-                            summary refresh message.";
                         type uint32 {
                             range "20..65000";
                         }
+                        description
+                            "Configure max size (bytes) of a single
+                             RSVP summary refresh message.";
                     }
                 }
             }
@@ -246,13 +263,15 @@ module ietf-rsvp {
 
     container rsvp {
         presence "Enable RSVP feature";
-
+        description "RSVP feature container";
         container globals {
             description "RSVP global properties.";
             uses signaling;
         }
 
         container interfaces {
+            description
+                "RSVP interfaces container";
             uses authentication;
             uses signaling;
             list interface {
@@ -260,9 +279,9 @@ module ietf-rsvp {
                 description
                     "RSVP interfaces.";
                 leaf interface {
+                     type if:interface-ref;
                      description
                         "RSVP interface.";
-                     type if:interface-ref;
                 }
                 uses authentication;
                 uses signaling;
@@ -270,8 +289,12 @@ module ietf-rsvp {
         }
 
         container sessions {
+            description
+                "RSVP sessions container";
             list session {
                 key "src_port dst_port source destination";
+                description
+                    "List of RSVP sessions";
                 leaf src_port {
                     type uint16;
                     description "RSVP source port";
@@ -296,32 +319,44 @@ module ietf-rsvp {
         }
 
         container neighbors {
+            description
+                "RSVP neighbors container";
             list neighbor {
                 key "address";
+                description
+                    "List of RSVP neighbors";
                 leaf address {
                     type inet:ip-address;
+                    description
+                        "Neighbor address";
                 }
             }
         }
 
         container interface-state {
             config "false";
+            description
+                "RSVP interfaces state";
             list session {
                 key "interface";
                 description
-                    "RSVP interfaces.";
+                    "RSVP interfaces state.";
                 leaf interface {
+                     type if:interface-ref;
                      description
                         "RSVP interface.";
-                     type if:interface-ref;
                 }
             }
         }
 
         container sessions-state {
             config "false";
+            description
+                "RSVP sessions state";
             list session {
                 key "src_port dst_port source destination";
+                description
+                    "List of RSVP sessions";
                 leaf src_port {
                     type uint16;
                     description "RSVP source port";
@@ -347,10 +382,16 @@ module ietf-rsvp {
 
         container neighbors-state {
             config "false";
+            description
+                "RSVP neighbors state";
             list neighbor {
                 key "address";
+                description
+                    "List of RSVP neighbors";
                 leaf address {
                     type inet:ip-address;
+                    description
+                        "Neighbor address";
                 }
             }
         }
