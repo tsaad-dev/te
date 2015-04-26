@@ -1,6 +1,6 @@
 module ietf-te-types {
 
-    namespace "urn:cisco:params:xml:ns:yang:ietf-te-types";
+    namespace "urn:ietf:params:xml:ns:yang:ietf-te-types";
 
     /* Replace with IANA when assigned */
     prefix "te-types";
@@ -8,222 +8,218 @@ module ietf-te-types {
     import ietf-inet-types { prefix inet; }
 
     organization
-      "IETF MPLS Working Group";
+        "IETF TEAS Working Group";
+
+    contact "Fill me";
 
     description
         "This module contains a collection of generally
-         useful MPLS-TE specific YANG data type defintions.";
+         useful TE specific YANG data type defintions.";
+
+    revision 2015-03-22 {
+        description "Latest revision of TE basic types";
+        reference "RFC3209";
+    }
+
+    identity tunnel-type {
+        description
+            "Base identity from which specific tunnel types are
+            derived.";
+    }
+
+    identity tunnel-p2p {
+        base tunnel-type;
+        description
+            "TE point-to-point tunnel type.";
+    }
+
+    identity tunnel-p2mp {
+        base tunnel-type;
+        description
+            "TE point-to-multipoint tunnel type.";
+    }
+
+    identity state-type {
+        description
+            "Base identity for TE states";
+    }
+
+    identity state-up {
+        base state-type;
+        description
+            "State up";
+    }
+
+    identity state-down {
+        base state-type;
+        description
+            "State down";
+    }
+
+    identity switching-capabilities {
+        description
+            "Base identity for interface switching capabilities";
+    }
+
+    identity switching-psc1 {
+        base switching-capabilities;
+        description
+          "Packet-Switch Capable-1 (PSC-1)";
+    }
+
+    identity switching-evpl {
+        base switching-capabilities;
+        description
+            "Ethernet Virtual Private Line (EVPL)";
+    }
+
+    identity switching-l2sc {
+        base switching-capabilities;
+        description
+            "Layer-2 Switch Capable (L2SC)";
+    }
+
+    identity switching-tdm {
+        base switching-capabilities;
+        description
+            "Time-Division-Multiplex Capable (TDM)";
+    }
+
+    identity switching-otn {
+        base switching-capabilities;
+        description
+            "OTN-TDM capable";
+    }
+
+    identity switching-dcsc {
+        base switching-capabilities;
+        description
+            "Data Channel Switching Capable (DCSC)";
+    }
+
+    identity switching-lsc {
+        base switching-capabilities;
+        description
+            "Lambda-Switch Capable (LSC)";
+    }
+
+    identity switching-fsc {
+        base switching-capabilities;
+        description
+            "Fiber-Switch Capable (FSC)";
+    }
+
+    identity lsp-encoding-types {
+        description
+            "Base identity for encoding types";
+    }
+
+    identity lsp-encoding-packet {
+        base lsp-encoding-types;
+        description
+            "Packet LSP encoding";
+    }
+
+    identity lsp-encoding-ethernet {
+        base lsp-encoding-types;
+        description
+            "Ethernet LSP encoding";
+    }
+
+    identity lsp-encoding-pdh {
+        base lsp-encoding-types;
+        description
+            "ANSI/ETSI LSP encoding";
+    }
+
+    identity lsp-encoding-sdh {
+        base lsp-encoding-types;
+        description
+            "SDH ITU-T G.707 / SONET ANSI T1.105 LSP encoding";
+    }
+
+    identity lsp-encoding-digital-wrapper {
+        base lsp-encoding-types;
+        description
+            "Digital Wrapper LSP encoding";
+    }
+
+    identity lsp-encoding-lambda {
+        base lsp-encoding-types;
+        description
+            "Lambda (photonic) LSP encoding";
+    }
+
+    identity lsp-encoding-fiber {
+        base lsp-encoding-types;
+        description
+            "Fiber LSP encoding";
+    }
+
+    identity lsp-encoding-fiber-channel {
+        base lsp-encoding-types;
+        description
+            "FiberChannel LSP encoding";
+    }
+
+    identity lsp-encoding-oduk {
+        base lsp-encoding-types;
+        description
+            "G.709 ODUk (Digital Path)LSP encoding";
+    }
+
+    identity lsp-encoding-optical-channel {
+        base lsp-encoding-types;
+        description
+            "Line (e.g., 8B/10B) LSP encoding";
+    }
+
+    identity lsp-encoding-line {
+        base lsp-encoding-types;
+        description
+            "Line (e.g., 8B/10B) LSP encoding";
+    }
+
+    /* TE basic features */
+    feature p2mp-te {
+        description
+            "Indicates support for P2MP-TE";
+    }
+
+    feature frr-te {
+        description
+            "Indicates support for TE FastReroute (FRR)";
+    }
 
     feature extended-admin-groups {
         description
-            "Support for TE link extended admin groups.";
+            "Indicates support for TE link extended admin
+            groups.";
     }
 
-    /* Describes egress label allocation */
-    typedef egress-label {
+    feature named-path-affinities {
         description
-            "Describes egress label allocation";
-        type enumeration {
-            enum "IPv4-EXPLICIT-NULL" {
-                description
-                    "Use IPv4 explicit-NULL MPLS label at the egress";
-            }
-            enum "IPv6-EXPLICIT-NULL" {
-                description
-                    "Use IPv6 explicit-NULL MPLS label at the egress";
-            }
-            enum "IMPLICIT-NULL" {
-                description
-                    "Use implicit-NULL MPLS label at the egress";
-            }
-            enum "NON-NULL";
-                description
-                    "Use a non NULL MPLS label at the egress";
-        }
+            "Indicates support for named path affinities";
     }
 
-    typedef backup-type {
+    feature named-extended-admin-groups {
         description
-            "Describes the backup LSP protection method";
-        reference
-            "RFC49090: RSVP-TE Fast Reroute";
-        type enumeration {
-            enum "facility" {
-                description
-                    "Use facility backup to protect LSPs traversing
-                    protected TE interface";
-            }
-            enum "detour" {
-                description
-                    "Use detour or 1-for-1 protection";
-            }
-        }
+            "Indicates support for named extended admin groups";
     }
 
-    typedef backup-protection-type {
+    feature named-srlg-groups {
         description
-            "Describes what faults can the backup protect against";
-        type enumeration {
-            enum "link" {
-                description
-                    "backup provides link protection only";
-            }
-            enum "node-link" {
-                description
-                    "backup offers node (preferred) or link protection";
-            }
-        }
+            "Indicates support for named SRLG groups";
     }
 
-    /* Typedefs for MPLS-TE */
-    typedef switching-capabilities {
+    feature named-path-constraints {
         description
-            "Switching Capabilities of an interface.";
-        reference
-            "RFC 5307: IS-IS Extensions in Support of Generalized
-            Multi-Protocol Label Switching (GMPLS)";
-        type enumeration {
-            enum "PSC-1" {
-                description
-                  "Packet-Switch Capable-1 (PSC-1)";
-                value 1;
-            }
-            enum "PSC-2" {
-                description
-                    "Packet-Switch Capable-2 (PSC-2)";
-                value 2;
-            }
-            enum "PSC-3" {
-                description
-                    "Packet-Switch Capable-3 (PSC-3)";
-              value 3;
-            }
-            enum "PSC-4" {
-                description
-                    "Packet-Switch Capable-4 (PSC-4)";
-              value 4;
-            }
-            enum "L2SC" {
-                description
-                    "Layer-2 Switch Capable (L2SC)";
-                value 51;
-            }
-            enum "TDM" {
-                description
-                    "Time-Division-Multiplex Capable (TDM)";
-                value 100;
-            }
-            enum "OTN-TDM" {
-                value 110;
-                description
-                    "OTN-TDM Capable";
-            }
-            enum "LSC" {
-                description
-                    "Lambda-Switch Capable (LSC)";
-                value 150;
-            }
-            enum "FSC" {
-                description
-                    "Fiber-Switch Capable (FSC)";
-                value 200;
-            }
-        }
-    }
-
-    typedef bc-model-type {
-        description
-           "Diff-Serve TE Bandwidth Constraint model type.";
-        type enumeration {
-            enum rdm {
-                description
-                    "Russian Doll bandwidth constraint
-                    model type.";
-            }
-            enum mam {
-                description
-                    "Maximum Allocation bandwidth constraint
-                    model type.";
-            }
-            enum mar {
-                description
-                    "Maximum Allocation with Reservation
-                    bandwidth constraint model type.";
-            }
-        }
-        default rdm;
-    }
-
-    typedef bandwidth-type {
-        description "MPLS-TE tunnel bandwidth type";
-        type enumeration {
-            enum CT0;
-            enum CT1;
-            enum CT2;
-            enum CT3;
-            enum CT4;
-            enum CT5;
-            enum CT6;
-            enum CT7;
-        }
-        default CT0;
-    }
-
-    typedef lsp-status-event-type {
-        description "Tunnel LSP status event type.";
-        type enumeration {
-            enum bandwidth-change;
-            enum insufficient-bandwidth;
-            enum record-route;
-            enum reroute;
-            enum state;
-            enum switchover;
-        }
-    }
-
-    typedef bandwidth-unit-type {
-        description "Bandwidth unit type.";
-        type enumeration {
-            enum Gbps;
-            enum Mbps;
-            enum Kbps;
-        }
-        default Kbps;
-    }
-
-    typedef backup-bandwidth-type {
-        description "FRR backup tunnel bandwidth protection type.";
-        type enumeration {
-            enum BC0;
-            enum BC1;
-            enum BC2;
-            enum BC3;
-            enum BC4;
-            enum BC5;
-            enum BC6;
-            enum BC7;
-            enum BC-any;
-        }
-        default BC-any;
-    }
-
-    typedef tunnel-type {
-        type enumeration {
-            enum p2p {
-                description
-                    "MPLS-TE point-to-point tunnel type.";
-            }
-            enum p2mp {
-                description
-                    "MPLS-TE point-to-multipoint tunnel type.";
-            }
-        }
-        default p2p;
-        description
-            "Possible MPLS-TE tunnel types, default is point-to-point.";
+            "Indicates support for named path constraints";
     }
 
     grouping explicit-route-object {
+        description
+            "Explicit Route Object grouping";
         container explicit-route-object {
             description
                 "An explicit route describes as a list of groups of
@@ -231,222 +227,284 @@ module ietf-te-types {
             reference "RFC3209: Extensions to RSVP for LSP Tunnels";
 
             choice type {
+                description
+                    "The Explicit Route Object type";
                 case ipv4-address {
                     description
                         "IPv4 address Explicit Route Object";
                     leaf v4-address {
-                        description
-                            "An IPv4 address.  This address is treated as
-                            a prefix based on the prefix length value below.
-                            Bits beyond the prefix are ignored on receipt and
-                            SHOULD be set to zero on transmission.";
                         type inet:ipv4-address;
+                        description
+                            "An IPv4 address.  This address is
+                             treated as a prefix based on the
+                             prefix length value below. Bits beyond
+                             the prefix are ignored on receipt and
+                             SHOULD be set to zero on transmission.";
                     }
                     leaf v4-prefix-length {
+                        type uint8;
                         description
                             "Length in bits of the IPv4 prefix";
-                        type uint8;
                     }
                     leaf v4-loose {
-                        description
-                            "Describes whether the object is loose if set,
-                            or otherwise strict";
                         type boolean;
+                        description
+                            "Describes whether the object is loose
+                            if set, or otherwise strict";
                     }
                 }
                 case ipv6-address {
                     description
                         "IPv6 address Explicit Route Object";
                     leaf v6-address {
-                        description
-                            "An IPv6 address.  This address is treated as
-                            a prefix based on the prefix length value below.
-                            Bits beyond the prefix are ignored on receipt and
-                            SHOULD be set to zero on transmission.";
                         type inet:ipv6-address;
+                        description
+                            "An IPv6 address.  This address is
+                             treated as a prefix based on the
+                             prefix length value below.  Bits
+                             beyond the prefix are ignored on
+                             receipt and SHOULD be set to zero
+                             on transmission.";
                     }
                     leaf v6-prefix-length {
+                        type uint8;
                         description
                             "Length in bits of the IPv4 prefix";
-                        type uint8;
                     }
                     leaf v6-loose {
-                        description
-                            "Describes whether the object is loose if set,
-                            or otherwise strict";
                         type boolean;
+                        description
+                            "Describes whether the object is loose
+                            if set, or otherwise strict";
                     }
                 }
                 case as-number {
-                    description
-                        "Autonomous System Explicit Route Object";
                     leaf as-number {
                         type uint16;
+                        description "AS number";
                     }
+                    description
+                        "Autonomous System Explicit Route Object";
                 }
                 case unnumbered-link {
-                    description
-                        "Unnumbered link Explicit Route Object";
-                    reference
-                        "RFC3477: Signalling Unnumbered Links in RSVP-TE";
                     leaf router-id {
                         type inet:ip-address;
+                        description
+                            "A router-id address";
                     }
                     leaf interface-id {
                         type uint32;
+                        description "The interface identifier";
                     }
+                    description
+                        "Unnumbered link Explicit Route Object";
+                    reference
+                        "RFC3477: Signalling Unnumbered Links in
+                         RSVP-TE";
                 }
                 case label {
+                    leaf value {
+                        type uint32;
+                        description "the label value";
+                    }
                     description
                         "The Label ERO subobject";
-                    leaf label_value {
-                        type uint32;
-                    }
                 }
+                /* AS domain sequence..? */
             }
         }
     }
 
     grouping record-route-object {
+        description
+            "The record route object grouping";
         container record-route-object {
             description
                 "Describes a record route object";
             choice type {
+                description
+                    "The record route object type";
                 case ipv4-address {
                     leaf address {
-                        description
-                            "An IPv4 address.  This address is treated as
-                            a prefix based on the prefix length value below.
-                            Bits beyond the prefix are ignored on receipt and
-                            SHOULD be set to zero on transmission.";
                         type inet:ipv4-address;
+                        description
+                            "An IPv4 address.  This address is
+                            treated as a prefix based on the prefix
+                            length value below. Bits beyond the
+                            prefix are ignored on receipt and
+                            SHOULD be set to zero on transmission.";
                     }
                     leaf prefix-length {
+                        type uint8;
                         description
                             "Length in bits of the IPv4 prefix";
-                        type uint8;
                     }
                 }
                 case ipv6-address {
                     leaf address {
-                        description
-                            "An IPv6 address.  This address is treated as
-                            a prefix based on the prefix length value below.
-                            Bits beyond the prefix are ignored on receipt and
-                            SHOULD be set to zero on transmission.";
                         type inet:ipv6-address;
+                        description
+                            "An IPv6 address.  This address is
+                             treated as a prefix based on the
+                             prefix length value below. Bits
+                             beyond the prefix are ignored on
+                             receipt and SHOULD be set to zero
+                             on transmission.";
                     }
                     leaf prefix-length {
+                        type uint8;
                         description
                             "Length in bits of the IPv4 prefix";
-                        type uint8;
                     }
                 }
                 case label {
+                    leaf value {
+                        type uint32;
+                        description "the label value";
+                    }
+                    description
+                        "The Label ERO subobject";
                 }
             }
         }
     }
 
-    typedef explicit-route-usage-type {
-        type enumeration {
-            enum include {
-                description
-                    "Include the explicit-route-object in the path.";
-            }
-            enum exclude {
-                description
-                    "Exclude the explicit-route-object from the path.";
-            }
-            enum exclude-srlg {
-                description
-                    "Excludes the SRLGs associated with the path";
-            }
-        }
-        default "include";
-    }
-
-    typedef hop-address-type {
-        type enumeration {
-            enum strict;
-            enum loose;
-        }
-    }
-
-    typedef bfd-type {
-        type enumeration {
-            enum classical {
-                description "BFD classical session type.";
-            }
-            enum seamless {
-                description "BFD seamless session type.";
-            }
-        }
-        default "classical";
-    }
-
-    typedef path-metric-type {
-        type enumeration {
-            enum igp;
-            enum te;
-        }
-        default igp;
-        description "Path metric for CSPF.";
-    }
-
-    typedef path-tiebreaker-type {
-        type enumeration {
-            enum min-fill;
-            enum max-fill;
-            enum random;
-        }
-        default min-fill;
+    identity route-usage-type {
         description
-            "Possible CSPF path tiebreakers for MPLS-TE tunnels.";
+            "Base identity for route usage";
     }
 
-    typedef bidir-association-type {
-        type enumeration {
-            enum corouted;
-            enum non-corouted;
-        }
-        default non-corouted;
+    identity route-include-ero {
+        base route-usage-type;
         description
-            "Possible types of bidirectional tunnel association.";
+            "Include ERO from route";
     }
 
-    typedef bfd-encap-mode-type {
-        type enumeration {
-            enum gal;
-            enum ip;
-        }
-        default ip;
+    identity route-exclude-ero {
+        base route-usage-type;
         description
-            "Possible BFD transport modes when running over MPLS-TE
-             LSPs.";
+            "Exclude ERO from route";
     }
 
-    typedef affinity-usage-type {
-        type enumeration {
-            enum include;
-            enum exclude;
-            enum include-strict;
-            enum exclude-all;
-        }
+    identity route-exclude-srlg {
+        base route-usage-type;
         description
-            "Possible handling for affinity.";
+            "Exclude SRLG from route";
+    }
+
+    identity path-metric-type {
+        description
+            "Base identity for path metric type";
+    }
+
+    identity path-metric-te {
+        base path-metric-type;
+        description
+            "TE path metric";
+    }
+
+    identity path-metric-igp {
+        base path-metric-type;
+        description
+            "IGP path metric";
+    }
+
+    identity path-tiebreaker-type {
+        description
+            "Base identity for path tie-breaker type";
+    }
+
+    identity path-tiebreaker-minfill {
+        base path-tiebreaker-type;
+        description
+            "Min-Fill LSP path placement";
+    }
+
+    identity path-tiebreaker-maxfill {
+        base path-tiebreaker-type;
+        description
+            "Max-Fill LSP path placement";
+    }
+
+    identity path-tiebreaker-randoom {
+        base path-tiebreaker-type;
+        description
+            "Random LSP path placement";
+    }
+
+    identity bidir-provisioning-mode {
+        description
+            "Base identity for bidirectional provisioning
+            mode.";
+    }
+
+    identity bidir-provisioning-single-sided {
+        base bidir-provisioning-mode;
+        description
+            "Single-sided bidirectional provioning mode";
+    }
+
+    identity bidir-provisioning-double-sided {
+        base bidir-provisioning-mode;
+        description
+            "Double-sided bidirectional provioning mode";
+    }
+
+    identity bidir-association-type {
+        description
+            "Base identity for bidirectional association type";
+    }
+
+    identity bidir-assoc-corouted {
+        base bidir-association-type;
+        description
+            "Co-routed bidirectional association type";
+    }
+
+    identity bidir-assoc-non-corouted {
+        base bidir-association-type;
+        description
+            "Non co-routed bidirectional association type";
+    }
+
+    identity resource-affinities-type {
+        description
+            "Base identity for resource affinities";
+    }
+
+    identity resource-aff-include-all {
+        base resource-affinities-type;
+        description
+            "The set of attribute filters associated with a
+            tunnel all of which must be present for a link
+            to be acceptable";
+    }
+
+    identity resource-aff-include-any {
+        base resource-affinities-type;
+        description
+            "The set of attribute filters associated with a
+            tunnel any of which must be present for a link
+            to be acceptable";
+    }
+
+    identity resource-aff-exclude-any {
+        base resource-affinities-type;
+        description
+            "The set of attribute filters associated with a
+            tunnel any of which renders a link unacceptable";
     }
 
     typedef admin-group {
+        type uint32;
         description
             "Administrative group/Resource class/Color.";
-        type uint32;
     }
 
     typedef extended-admin-group {
+        type binary;
         description
             "Extended administrative group/Resource class/Color.";
-        type binary;
     }
 
     typedef admin-groups {
@@ -454,315 +512,212 @@ module ietf-te-types {
             type admin-group;
             type extended-admin-group;
         }
-    }
-    
-    typedef srlg {
-        type uin32;
+        description "TE administrative group derived type";
     }
 
-    typedef  path-computation-srlg-type {
-        description "Path computation SRLG criteria.";
-        type enumeration {
-            enum srlg-none;
-            enum srlg-strict;
-            enum srlg-preferred;
-            enum srlg-weighted;
-        }
+    typedef srlg {
+        type uint32;
+        description "SRLG type";
+    }
+
+    identity path-computation-srlg-type {
+        description
+            "Base identity for SRLG path computation";
+    }
+
+    identity srlg-ignore {
+        base path-computation-srlg-type;
+        description
+            "Ignores SRLGs in path computation";
+    }
+
+    identity srlg-strict {
+        base path-computation-srlg-type;
+        description
+            "Include strict SRLG check in path computation";
+    }
+
+    identity srlg-preferred {
+        base path-computation-srlg-type;
+        description
+            "Include preferred SRLG check in path computation";
+    }
+
+    identity srlg-weighted {
+        base path-computation-srlg-type;
+        description
+            "Include weighted SRLG check in path computation";
     }
 
     typedef te-metric {
         type uint32;
+        description
+            "TE link metric";
     }
 
-    typedef bidir-association-provisioning {
-        type enumeration {
-            enum single-sided;
-            enum double-sided;
+    typedef topology-id {
+        type string {
+            pattern '/?([a-zA-Z0-9\-_.]+)(/[a-zA-Z0-9\-_.]+)*';
         }
-    }
-
-    grouping bandwidth-constraints {
-        description "Bandwidth constraints.";
-        container bandwidth-constraints {
-            leaf maximum-reservable {
-                type uint32 {
-                     range "0..4294967295";
-                }
-            }
-            leaf-list bc-value {
-                type uint32 {
-                    range "0..4294967295";
-                }
-                max-elements 8;
-            }
-        }
-    }
-
-    grouping bandwidth-constraint-values {
-        choice value-type {
-             case percentages {
-                 container perc-values {
-                     uses bandwidth-constraints;
-                 }
-             }
-             case absolutes {
-                 container abs-values {
-                     uses bandwidth-constraints;
-                 }
-             }
-        }
-    }
-
-    grouping interface-switching-cap {
-        list switching-capabilities {
-            key "switching-capability";
-            description
-                "List of interface capabilities for this interface";
-            leaf capability {
-              type te-types:switching-capabilities;
-              description
-                "Switching Capability for this interface";
-            }
-/*                leaf encoding {
-              type mpls-te:encoding-type;
-              description
-                "Encoding supported by this interface";
-            } */
-        }
+        description
+            "An identifier for a topology.";
     }
 
     grouping tunnel-path-selection {
+        description
+            "Tunnel path selection properties grouping";
         container path-selection {
-            leaf cost-limit {
+            description
+                "Tunnel path selection properties container";
+            leaf topology {
+                type topology-id;
                 description
-                    "The tunnel path cost limit.";
+                    "The tunnel path is computed using the specific
+                     topology identified by this identifier";
+            }
+            leaf cost-limit {
                 type uint32 {
                     range "1..4294967295";
                 }
+                description
+                    "The tunnel path cost limit.";
             }
             leaf hop-limit {
-                description
-                    "The tunnel path hop limit.";
                 type uint8 {
                      range "1..255";
                 }
+                description
+                    "The tunnel path hop limit.";
             }
             leaf metric-type {
+                type identityref {
+                    base path-metric-type;
+                }
+                default path-metric-te;
                 description
                     "The tunnel path metric type.";
-                type path-metric-type;
             }
             leaf tiebreaker-type {
+                type identityref {
+                    base path-tiebreaker-type;
+                }
+                default path-tiebreaker-maxfill;
                 description
                     "The tunnel path computation tie breakers.";
-                type path-tiebreaker-type;
             }
             leaf ignore-overload {
+                type boolean;
                 description
                     "The tunnel path can traverse overloaded node.";
-                type boolean;
             }
+            uses path-affinities;
+            uses path-srlgs;
         }
     }
 
-    grouping tunnel-affinity {
-        container affinity {
+    grouping path-affinities {
+        description
+            "Path affinities grouping";
+        container path-affinities {
+            if-feature named-path-affinities;
+            description
+                "Path affinities container";
             choice style {
+                description
+                    "Path affinities representation style";
                 case values {
                     leaf value {
-                         type uint32 {
-                              range "0..4294967295";
-                         }
+                        type uint32 {
+                            range "0..4294967295";
+                        }
+                        description
+                            "Affinity value";
                     }
                     leaf mask {
-                         type uint32 {
-                              range "0..4294967295";
-                         }
+                        type uint32 {
+                            range "0..4294967295";
+                        }
+                        description
+                            "Affinity mask";
                     }
                 }
                 case named {
                     list constraints {
                         key "usage";
                         leaf usage {
-                             type affinity-usage-type;
+                            type identityref {
+                                base resource-affinities-type;
+                            }
+                            description "Affinities usage";
                         }
                         container constraint {
-                            list affinity-list {
+                            description
+                                "Container for named affinities";
+                            list affinity-names {
+                                key "name";
+                                leaf name {
+                                    type string;
+                                    description
+                                        "Affinity name";
+                                }
+                                description
+                                    "List of named affinities";
+                            }
+                        }
+                        description
+                            "List of named affinity constraints";
+                    }
+                }
+            }
+        }
+    }
+
+    grouping path-srlgs {
+        description
+            "Path SRLG properties grouping";
+        container path-srlgs {
+            description
+                "Path SRLG properties container";
+            choice style {
+                description
+                    "Type of SRLG representation";
+                case values {
+                    leaf usage {
+                        type identityref {
+                            base route-exclude-srlg;
+                        }
+                        description "SRLG usage";
+                    }
+                    leaf-list values {
+                        type srlg;
+                        description "SRLG value";
+                    }
+                }
+                case named {
+                    list constraints {
+                        key "usage";
+                        leaf usage {
+                            type identityref {
+                                base route-exclude-srlg;
+                            }
+                            description "SRLG usage";
+                        }
+                        container constraint {
+                            description
+                                "Container for named SRLG list";
+                            list srlg-names {
                                 key "name";
                                 leaf name {
                                      type string;
+                                     description
+                                        "The SRLG name";
                                 }
+                                description
+                                    "List named SRLGs";
                             }
                         }
-                    }
-                }
-            }
-        }
-    }
-
-    grouping tunnel-forwarding-properties {
-        description "Properties for using tunnel in forwarding.";
-        container forwarding {
-            leaf load-share {
-                 description "ECMP tunnel forwarding 
-                              load-share factor.";
-                 type uint32 {
-                      range "1..4294967295";
-                 }
-            }
-            choice policy-type {
-                container class {
-                    leaf class {
-                         type uint8 {
-                              range "1..7";
-                         }
-                    }
-                }
-                container group {
-                    leaf-list classes {
-                         type uint8 {
-                              range "1..7";
-                         }
-                    }
-                }
-            }
-        }
-    }
-
-    grouping igp-protocol-def {
-         leaf instance-id {
-              description
-                  "Constrains the computed path to a specific IGP
-                   instance topology.";
-              type string;
-         }
-         leaf igp {
-             description
-                 "Constrains the computed path to a specific IGP.";
-             type enumeration {
-                 enum ospf;
-                 enum isis;
-             }
-         }
-         choice igp-type {
-              description
-                  "Constrains the computed path to a specific IGP
-                   area or level.";
-              container isis {
-                  leaf level {
-                      type uint8 {
-                           range "1..2";
-                      }
-                  }
-              }
-              container ospf {
-                  leaf area {
-                       type uint32 {
-                            range "0..4294967295";
-                       }
-                  }
-              }
-         }
-    }
-
-    grouping igp-te-domains {
-        container igp-te-domains {
-            description "MPLS-TE enabled IGPs.";
-            list igp-te-domain {
-                key "instance-id";
-                description "MPLS-TE enabled IGP instance.";
-                uses igp-protocol-def;
-
-                leaf te-router-id {
-                    description "MPLS-TE Router ID.";
-                    type inet:ip-address;
-                }
-                leaf-list routing-afs {
-                    type inet:ip-version;
-                }
-            }
-        }
-    }
-
-    grouping tunnel-routing-properties {
-        choice routing-choice {
-            description
-                "Announces the tunnel to IGP as either
-                 autoroute or forwarding adjacency.";
-            case autoroute {
-                container autoroute-announce {
-                    presence "Enable autoroute announce.";
-                    description
-                        "Announce the MPLS-TE tunnel as autoroute to
-                         IGP for use as IGP shortcut.";
-                    leaf-list routing-afs {
-                         type inet:ip-version;
-                    }
-                    choice metric-type {
-                        leaf metric {
-                            type uint32 {
-                                 range "1..2147483647";
-                            }
-                        }
-                        leaf relative-metric {
-                            type int32 {
-                                 range "-10..10";
-                            }
-                        }
-                        leaf absolute-metric {
-                            type uint32 {
-                                 range "1..2147483647";
-                            }
-                        }
-                    }
-                }
-            }
-            case forwarding-adjacency {
-                container forwarding-adjacency {
-                    presence "Enable forwarding adjacency
-                              on the tunnel.";
-                    description
-                        "Announce the MPLS-TE tunnel
-                         as forwarding adjacency.";
-                    leaf holdtime {
                         description
-                            "Holdtime in seconds after
-                             tunnel becomes UP.";
-                        type uint32 {
-                             range "0..4294967295";
-                        }
-                    }
-                    leaf-list routing-afs {
-                         type inet:ip-version;
-                    }
-                }
-            }
-        }
-    }
-
-    grouping forwarding {
-        description "Properties for using tunnel in forwarding.";
-        container forwarding {
-            leaf load-share {
-                 description "ECMP tunnel forwarding
-                              load-share factor.";
-                 type uint32 {
-                      range "1..4294967295";
-                 }
-            }
-            choice policy-type {
-                container class {
-                    leaf class {
-                         type uint8 {
-                              range "1..7";
-                         }
-                    }
-                }
-                container group {
-                    leaf-list classes {
-                         type uint8 {
-                              range "1..7";
-                         }
+                            "List of named SRLG constraints";
                     }
                 }
             }
@@ -770,107 +725,109 @@ module ietf-te-types {
     }
 
     grouping tunnel-bidir-assoc-properties {
+        description
+            "TE tunnel associated bidirectional properties
+             grouping";
         container bidirectional {
             description
-                "MPLS-TE associated bidirectional tunnel attributes.";
+                "TE tunnel associated bidirectional attributes.";
             container association {
+                description
+                    "Tunnel bidirectional association properties";
                 leaf id {
-                     description
-                         "The MPLS-TE tunnel association identifier.";
                      type uint16;
+                     description
+                         "The TE tunnel association identifier.";
                 }
                 leaf source {
-                     description
-                            "The MPLS-TE tunnel association source.";
                      type inet:ip-address;
+                     description
+                            "The TE tunnel association source.";
                 }
                 leaf global-source {
-                     description
-                            "The MPLS-TE tunnel association global
-                             source.";
                      type inet:ip-address;
+                     description
+                            "The TE tunnel association global
+                             source.";
                 }
                 leaf type {
-                     description "The MPLS-TE tunnel association type.";
-                     type bidir-association-type;
+                    type identityref {
+                        base bidir-association-type;
+                    }
+                    default bidir-assoc-non-corouted;
+                    description
+                        "The TE tunnel association type.";
                 }
                 leaf provisioing {
+                    type identityref {
+                        base bidir-provisioning-mode;
+                    }
                     description
-                        "Describes the provisioning model of the associated
-                        bidirection LSP";
+                        "Describes the provisioning model of the
+                         associated bidirectional LSP";
                     reference
-                        "draft-ietf-teas-mpls-tp-rsvpte-ext-associated-lsp,
-                        section-3.2";
-                    type bidir-association-provisioning;
+                        "draft-ietf-teas-mpls-tp-rsvpte-ext-
+                         associated-lsp, section-3.2";
                 }
             }
         }
     }
 
-    grouping tunnel-path-option {
-        leaf path-option {
-            description "A reference to an MPLS-TE tunnel path-option.";
-            type leafref {
-                path "/tunnels/tunnel/path-options/index";
+    /* TE interface attribute properties */
+    grouping interface-switching-cap {
+        description
+            "TE interface switching capabilities";
+        list switching-capabilities {
+            key "switching-capability";
+            description
+                "List of interface capabilities for this interface";
+            leaf switching-capability {
+                type identityref {
+                    base te-types:switching-capabilities;
+                }
+                description
+                    "Switching Capability for this interface";
+            }
+            leaf encoding {
+                type identityref {
+                    base lsp-encoding-types;
+                }
+                description
+                    "Encoding supported by this interface";
             }
         }
     }
 
-    grouping tunnel-lsp-properties {
-        choice lsp-type {
-            /* Point-to-point LSP properties */
-            case p2p {
-                list p2p-properties {
-                    key "po-index";
-                    description "An index identifying a set of LSP
-                                 properties, p2p path-option index.";
-                    uses tunnel-path-option;
-                }
-            }
-    
-            /* Point-to-multipoint LSP properties */
-            case p2mp {
-                list p2mp-properties {
-                    key "lsp-index";
-                    leaf lsp-index {
-                        description "An index identifying a set of LSP
-                                     properties and their paths.";
-                        type uint8 {
-                             range "0..255";
-                        }
-                    }
-
-                    /* definition of the destination 
-                       and associated path */
-                    list p2mp-path-group {
-                        key "destination";
-                        description "List of destinations 
-                                     and their paths.";
-//                        uses path-option-reference;
-//                        uses tunnel-template-leaf;
-                    }
-                }
-            }
-        }
-    }
-
-    /* TE link attribute properties */
     grouping interface-affinities {
+        description
+            "TE interface affinities grouping";
         container affinities {
+            description
+                "TE interface affinities container";
             choice type {
+                description
+                    "TE interface administrative groups
+                     representation type";
                 case admin-groups {
                     description
-                        "Administrative group/Resource class/Color.";
+                        "Administrative group/Resource
+                         class/Color.";
                     leaf admin-group {
                         type admin-group;
+                        description
+                            "TE interface administrative group";
                     }
                 }
                 case extended-admin-groups {
                     if-feature extended-admin-groups;
                     description
-                        "Extended administrative group/Resource class/Color.";
+                        "Extended administrative group/Resource
+                         class/Color.";
                     leaf extended-admin-group {
                         type extended-admin-group;
+                        description
+                            "TE interface extended administrativei
+                             group";
                     }
                 }
             }
@@ -878,54 +835,38 @@ module ietf-te-types {
     }
 
     grouping interface-srlgs {
+        description "TE interface SRLG grouping";
         container srlgs {
+            description "TE interface SRLG container";
             choice type {
+                description
+                    "SRLG representation type";
                 case srlg-name {
                     list names {
                         key "name";
-                        description "List of SRLG names that 
+                        description "List of SRLG names that
                             this link is part of.";
                         leaf name {
                              type string;
+                             description
+                                "Name associated with the SRLG";
                         }
                     }
                 }
                 case srlg-value {
                     list values {
                         key "value";
-                        description "List of SRLG values that 
+                        description "List of SRLG values that
                             this link is part of.";
                         leaf value {
                              type uint32 {
                                   range "0..4294967295";
                              }
+                             description
+                                "Value of the SRLG";
                         }
                     }
                 }
-            }
-        }
-    }
-
-    grouping interface-reservable-bandwidths {
-        container reservable-bandwidth-percentages {
-            description
-                "Reservable bandwidth percentage capacity
-                values.";
-            container rdm-bc {
-                description
-                    "Russian Doll Model Bandwidth Constraints.";
-                uses bandwidth-constraints;
-            }
-            container mam-bc {
-                description
-                    "Maximum Allocation Model Bandwidth Constraints.";
-                uses bandwidth-constraints;
-            }
-            container mar-bc {
-                description
-                    "Maximum Allocation with Reservation Model
-                    Bandwidth Constraints.";
-                uses bandwidth-constraints;
             }
         }
     }
