@@ -25,7 +25,7 @@ module ietf-te-topology {
   contact "TBD";
   description "TE topology model";
   
-  revision "2015-05-14" {
+  revision "2015-05-30" {
     description "Initial revision";
     reference "TBD";
   }
@@ -51,6 +51,12 @@ module ietf-te-topology {
     description
       "This feature indicates that the system supports 
       configuration scheduling.";
+  }
+
+  feature template {
+    description
+      "This feature indicates that the system supports 
+      template configuration.";
   }
 
   /*
@@ -290,7 +296,7 @@ module ietf-te-topology {
           +"[tet:client-id = current()/../client-id-ref]"
           +"[tet:te-topology-id = current()/../topology-id-ref]"
           +"/tet:node[tet:te-node-id = current()/../node-ref]"
-          +"/tet:te-node-attributes/tet:te-link/tet:te-link-id";
+          +"/tet:te-link/tet:te-link-id";
       }
       description
         "Grouping for an absolute reference to a TE link end.";
@@ -475,75 +481,7 @@ module ietf-te-topology {
             "A reference to a te-topology-id.";
         }
       }
-      list te-link {
-        key "te-link-id";
-        description
-          "The local representation of a TE link, which
-            interconnect TE nodes.";
-        leaf te-link-id {
-          type te-link-id;
-          description
-            "TE link identifier.";
-        }
-        choice stack-level {
-          description 
-            "The TE link can be partitioned into boundled
-              links, or component links.";
-          case boundle {
-            container boundled-links {
-              description
-                "A set of bundled links";
-              list boundled-link {
-                key "sequence";
-                description
-                  "Specify a bundled interfface that is
-                    further partitioned.";
-                leaf sequence {
-                  type uint32;
-                  description
-                    "Identify the sequence in the boundle.";
-                }
-                leaf te-link-ref {
-                  type leafref {
-                    path "../../../te-link-id";
-                    require-instance true;
-                  }
-                  description
-                    "Reference to TE link on this node.";
-                }
-              }
-            }
-          }
-          case component {
-            container component-links {
-              description
-                "A set of component links";
-              list component-link {
-                key "sequence";
-                description
-                  "Specify a component interfface that is
-                    sufficient to unambiguously identify the
-                    appropriate resources";
-                
-                leaf sequence {
-                  type uint32;
-                  description
-                    "Identify the sequence in the boundle.";
-                }
-                leaf component-link-ref {
-                  type leafref {
-                    path "/if:interfaces/if:interface/if:name";
-                    require-instance false;
-                  }
-                  description
-                    "Reference to component link on this
-                      node.";
-                }
-              }
-            }
-          }
-        }
-      }
+
       list connectivity-matrix {
         key "id";
         description
@@ -568,6 +506,75 @@ module ietf-te-topology {
           description
             "true  - switching is allowed, 
              false - switching is disallowed.";
+        }
+      }
+    }
+    list te-link {
+      key "te-link-id";
+      description
+        "The local representation of a TE link, which
+        interconnect TE nodes.";
+      leaf te-link-id {
+        type te-link-id;
+        description
+          "TE link identifier.";
+      }
+      choice stack-level {
+        description 
+          "The TE link can be partitioned into boundled
+          links, or component links.";
+        case boundle {
+          container boundled-links {
+            description
+              "A set of bundled links";
+            list boundled-link {
+              key "sequence";
+              description
+                "Specify a bundled interfface that is
+                further partitioned.";
+              leaf sequence {
+                type uint32;
+                description
+                  "Identify the sequence in the boundle.";
+              }
+              leaf te-link-ref {
+                type leafref {
+                  path "../../../te-link-id";
+                  require-instance true;
+                }
+                description
+                  "Reference to TE link on this node.";
+              }
+            }
+          }
+        }
+        case component {
+          container component-links {
+            description
+              "A set of component links";
+            list component-link {
+              key "sequence";
+              description
+                "Specify a component interfface that is
+                sufficient to unambiguously identify the
+                appropriate resources";
+                
+              leaf sequence {
+                type uint32;
+                description
+                  "Identify the sequence in the boundle.";
+              }
+              leaf component-link-ref {
+                type leafref {
+                  path "/if:interfaces/if:interface/if:name";
+                  require-instance false;
+                }
+                description
+                  "Reference to component link on this
+                  node.";
+              }
+            }
+          }
         }
       }
     }
@@ -890,30 +897,13 @@ module ietf-te-topology {
         If a locally configured link is used, this object represents
         an unique value, which is locally defined in a router.";
     }
-    list administrative-group {
-      key "sequence";
+    leaf administrative-group {
+      type te-types:admin-groups;
       description
         "Administrative group or color of the link. 
         This attribute covers both administrative group (defined in
         RFC3630, RFC5329, and RFC5305), and extended administrative
         group (defined in RFC7308).";
-      leaf sequence {
-        type uint32;
-        description
-          "Sequence number of a 4-byte element of extended
-          administrative group, indicating the position of these 
-          bits.
-          When sequence is 0, the element also represents the 
-          non-extended 4-byte administrative group defined in
-          RFC3630, RFC5329, and RFC5305.";
-      }
-      leaf ag-element {
-        type uint32;
-        description
-          "4-byte element of extended administrative group.
-          When sequence is 0, this attribute also represents the 
-          non-extended 4-byte administrative group.";
-      }
     }
     leaf max-link-bandwidth {
       type decimal64 {
@@ -1218,6 +1208,7 @@ module ietf-te-topology {
           topologies. To distinguish between topologies it is
           vital to have UNIQUE topology identifiers.";
       }
+      uses config-schedule-attributes;
       container topology-types {
         description
           "This container is used to identify the type, or types (as
@@ -1250,6 +1241,7 @@ module ietf-te-topology {
         description
           "The list of network nodes defined for the topology.";
         leaf te-node-template {
+          if-feature template;
           type leafref {
             path "/te-topologies/node-template/name";
           }
@@ -1273,7 +1265,7 @@ module ietf-te-topology {
           type leafref {
             path "../../node[te-node-id = "
               + "current()/../source-te-node-id]/"
-              + "te-node-attributes/te-link/te-link-id";
+              + "te-link/te-link-id";
           }
           mandatory true;
           description
@@ -1292,7 +1284,7 @@ module ietf-te-topology {
           type leafref {
             path "../../node[te-node-id = "
               + "current()/../dest-te-node-id]/"
-              + "te-node-attributes/te-link/te-link-id";
+              + "te-link/te-link-id";
           }
           mandatory true;
           description
@@ -1316,6 +1308,7 @@ module ietf-te-topology {
           Note that a link models a point-to-point link, not a
           multipoint link.";
         leaf te-link-template {
+          if-feature template;
           type leafref {
             path "/te-topologies/link-template/name";
           }
@@ -1327,6 +1320,7 @@ module ietf-te-topology {
     } // topology
 
     list node-template {
+      if-feature template;
       key "name";
       leaf name {
         type te-template-name;
@@ -1340,6 +1334,7 @@ module ietf-te-topology {
     } // node
 
     list link-template {
+      if-feature template;
       key "name";
       leaf name {
         type te-template-name;
@@ -1429,6 +1424,7 @@ module ietf-te-topology {
         description
           "The list of network nodes defined for the topology.";
         leaf te-node-template {
+          if-feature template;
           type leafref {
             path "/te-topologies/node-template/name";
           }
@@ -1453,7 +1449,7 @@ module ietf-te-topology {
           type leafref {
             path "../../node[te-node-id = "
               + "current()/../source-te-node-id]/"
-              + "te-node-attributes/te-link/te-link-id";
+              + "te-link/te-link-id";
           }
           mandatory true;
           description
@@ -1472,7 +1468,7 @@ module ietf-te-topology {
           type leafref {
             path "../../node[te-node-id = "
               + "current()/../dest-te-node-id]/"
-              + "te-node-attributes/te-link/te-link-id";
+              + "te-link/te-link-id";
           }
           mandatory true;
           description
@@ -1496,6 +1492,7 @@ module ietf-te-topology {
           Note that a link models a point-to-point link, not a
           multipoint link.";
         leaf te-link-template {
+          if-feature template;
           type leafref {
             path "/te-topologies/link-template/name";
           }
