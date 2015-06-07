@@ -25,7 +25,7 @@ module ietf-te-topology {
   contact "TBD";
   description "TE topology model";
   
-  revision "2015-05-30" {
+  revision "2015-06-06" {
     description "Initial revision";
     reference "TBD";
   }
@@ -1176,6 +1176,45 @@ module ietf-te-topology {
     }
   } // te-link-state-attributes
 
+  grouping template-attributes {
+    description 
+      "Common attributes for all templates.";
+
+    leaf priority {
+      type uint16;
+      description
+        "The preference value to revolve conflicts between different
+        templates. When two or more templates specify values for 
+        one configuration attribute, the value from the template
+        with the highest priority is used.";
+    }
+    leaf reference-change-polocy {
+      type enumeration {
+        enum no-action {
+          description
+            "When an attribute changes in this template, the 
+            configuration node referring to this template does 
+            not take any action.";
+        }
+        enum not-allowed {
+          description
+            "When any configuration object has a reference to this
+            template, changing this template is not allowed.";
+        }
+        enum cascade {
+          description
+            "When an attribute changes in this template, the 
+            configuration object referring to this template applies
+            the new attribute value to the corresponding 
+            configuration.";
+        }
+      }
+      description
+        "This attribute specifies the action taken to a configuration
+        node that has a reference to this template.";
+    }
+  } // template-attributes
+
   /*
    * Configuration data nodes
    */
@@ -1330,6 +1369,14 @@ module ietf-te-topology {
       description
         "The list of TE node templates used to define sharable
         and reusable TE node attributes.";
+      uses template-attributes;
+      leaf-list te-node-template {
+        type leafref {
+          path "/te-topologies/node-template/name";
+        }
+        description
+          "The reference to a TE node template.";
+      }
       uses te-node-attributes;
     } // node
 
@@ -1344,6 +1391,14 @@ module ietf-te-topology {
       description
         "The list of TE link templates used to define sharable
         and reusable TE link attributes.";
+      uses template-attributes;
+      leaf-list te-link-template {
+        type leafref {
+          path "/te-topologies/link-template/name";
+        }
+        description
+          "The reference to a TE link template.";
+      }
       uses te-link-attributes;
     } // link
   } // te-topologies
