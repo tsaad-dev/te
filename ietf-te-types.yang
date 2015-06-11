@@ -16,7 +16,7 @@ module ietf-te-types {
         "This module contains a collection of generally
          useful TE specific YANG data type defintions.";
 
-    revision 2015-03-22 {
+    revision 2015-06-08 {
         description "Latest revision of TE basic types";
         reference "RFC3209";
     }
@@ -496,7 +496,9 @@ module ietf-te-types {
     }
 
     typedef admin-group {
-        type uint32;
+        type binary {
+            length 32;
+        }
         description
             "Administrative group/Resource class/Color.";
     }
@@ -563,6 +565,64 @@ module ietf-te-types {
             "An identifier for a topology.";
     }
 
+    /**
+     * TE tunnel generic groupings
+     **/
+
+    /* TE tunnel path properties */
+    grouping tunnel-path-params {
+        description
+            "Tunnel path properties grouping";
+        container tunnel-path-params {
+            description
+                "Defines a TE tunnel path properties";
+            leaf path-named-constraint {
+                if-feature ietf-te-types:named-path-constraints;
+                type leafref {
+                    path "/te/globals/path-named-constraints/name";
+                }
+                description
+                    "Reference to a globally defined named path
+                     constraint set";
+            }
+            uses tunnel-path-selection;
+            choice type {
+                description
+                    "Describes the path type";
+                case dynamic {
+                    leaf dynamic {
+                        type empty;
+                        description
+                            "A CSPF dynamically computed path";
+                    }
+                }
+                case explicit {
+                    leaf explicit-path-name {
+                        type leafref {
+                            path "/te/globals/explicit-paths/name";
+                        }
+                        description
+                            "Reference to a globally defined
+                             explicit-path";
+                    }
+                }
+            }
+            leaf no-cspf {
+                type empty;
+                description
+                    "Indicates no CSPF is to be attempted on this
+                     path.";
+            }
+            leaf lockdown {
+                type empty;
+                description
+                    "Indicates no reoptimization to be attempted for
+                     this path.";
+            }
+        }
+    }
+
+    /* Tunnel path selection parameters */
     grouping tunnel-path-selection {
         description
             "Tunnel path selection properties grouping";
@@ -610,15 +670,15 @@ module ietf-te-types {
                 description
                     "The tunnel path can traverse overloaded node.";
             }
-            uses path-affinities;
-            uses path-srlgs;
+            uses tunnel-path-affinities;
+            uses tunnel-path-srlgs;
         }
     }
 
-    grouping path-affinities {
+    grouping tunnel-path-affinities {
         description
             "Path affinities grouping";
-        container path-affinities {
+        container tunnel-path-affinities {
             if-feature named-path-affinities;
             description
                 "Path affinities container";
@@ -672,10 +732,10 @@ module ietf-te-types {
         }
     }
 
-    grouping path-srlgs {
+    grouping tunnel-path-srlgs {
         description
             "Path SRLG properties grouping";
-        container path-srlgs {
+        container tunnel-path-srlgs {
             description
                 "Path SRLG properties container";
             choice style {
@@ -772,9 +832,110 @@ module ietf-te-types {
             }
         }
     }
+    /*** End of TE tunnel groupings ***/
 
-    /* TE interface attribute properties */
-    grouping interface-switching-cap {
+    /**
+     * TE interface generic groupings
+     **/
+
+    /* TE interface flooding parameters */
+    grouping interface-te-flooding-parameters_config {
+        description "Interface TE flooding properties.";
+        container thresholds {
+            description "Flooding threshold values in percentages.";
+            choice type {
+                description
+                    "Describes the flooding threshold step method";
+                case equal-steps {
+                    choice equal-step-type {
+                        description
+                            "Describes whether up and down equal step
+                             size are same or different";
+                        case up-down-different-step {
+                            leaf up-step {
+                                type uint8 {
+                                    range "0..100";
+                                }
+                                description
+                                    "Set single percentage threshold
+                                    for increasing resource
+                                    allocation";
+                            }
+                            leaf down-step {
+                                type uint8 {
+                                    range "0..100";
+                                }
+                                description
+                                    "Set single percentage threshold
+                                    for decreasing resource
+                                    allocation";
+                            }
+                        }
+                        case up-down-same-step {
+                            leaf step {
+                                type uint8 {
+                                    range "0..100";
+                                }
+                                description
+                                    "Set single percentage threshold
+                                    for increasing and decreasing
+                                    resource allocation";
+                            }
+                        }
+                    }
+                }
+                case unequal-steps {
+                    list up-steps {
+                        key "value";
+                        description
+                            "Set nultuple percentage thresholds for
+                            increasing resource allocation";
+                        leaf value {
+                            type uint8 {
+                                range "0..100";
+                            }
+                            description
+                                "Percentage value";
+                        }
+                    }
+                    list down-steps {
+                        key "value";
+                        description
+                            "Set nultuple percentage thresholds for
+                            decreasing resource allocation";
+                        leaf value {
+                             type uint8 {
+                                  range "0..100";
+                             }
+                             description
+                                "Percentage value";
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    grouping interface-te-flooding-parameters {
+        description "Interface TE flooding properties.";
+        container te-flooding-parameters {
+            container config {
+                description
+                    "Configuration parameters for interface
+                     flooding";
+                uses interface-te-flooding-parameters_config;
+            }
+            container state {
+                config false;
+                description
+                    "State parameters for interface flooding";
+                uses interface-te-flooding-parameters_config;
+            }
+        }
+    }
+
+    /* TE interface switching capabilities */
+    grouping te-switching-cap_config {
         description
             "TE interface switching capabilities";
         list switching-capabilities {
@@ -798,76 +959,184 @@ module ietf-te-types {
         }
     }
 
-    grouping interface-affinities {
+    grouping te-switching-cap {
+        container te-switching-cap {
+            description
+                "Interface switching capabilities container";
+            container config {
+                description
+                    "Configuration parameters for interface
+                     switching capabilities";
+                uses te-switching-cap_config;
+            }
+            container state {
+                config false;
+                description
+                    "State parameters for interface switching
+                     capabilities";
+                uses te-switching-cap_config;
+            }
+        }
+    }
+
+    /* TE interface administrative groups  */
+    grouping te-admin-groups_config {
         description
             "TE interface affinities grouping";
-        container affinities {
+        choice admin-group-type {
             description
-                "TE interface affinities container";
-            choice type {
-                description
-                    "TE interface administrative groups
-                     representation type";
-                case admin-groups {
-                    description
-                        "Administrative group/Resource
-                         class/Color.";
-                    leaf admin-group {
-                        type admin-group;
+                "TE interface administrative groups
+                 representation type";
+            case value-admin-groups {
+                choice value-admin-group-type {
+                    case value-admin-groups {
                         description
-                            "TE interface administrative group";
+                            "Administrative group/Resource
+                             class/Color.";
+                        leaf admin-group {
+                            type admin-group;
+                            description
+                                "TE interface administrative group";
+                        }
+                    }
+                    case value-extended-admin-groups {
+                        if-feature extended-admin-groups;
+                        description
+                            "Extended administrative group/Resource
+                             class/Color.";
+                        leaf extended-admin-group {
+                            type extended-admin-group;
+                            description
+                                "TE interface extended administrativei
+                                 group";
+                        }
                     }
                 }
-                case extended-admin-groups {
-                    if-feature extended-admin-groups;
+            }
+            case named-admin-groups {
+                list named-admin-groups {
+                    if-feature ietf-te-types:extended-admin-groups;
+                    if-feature
+                        ietf-te-types:named-extended-admin-groups;
+                    key named-admin-group;
                     description
-                        "Extended administrative group/Resource
-                         class/Color.";
-                    leaf extended-admin-group {
-                        type extended-admin-group;
+                        "A list of named admin-group entries";
+                    leaf named-admin-group {
+                        type leafref {
+                            path "/te/globals/" +
+                                "interface-named-admin-groups/name";
+                        }
                         description
-                            "TE interface extended administrativei
-                             group";
+                            "A named admin-group entry";
                     }
                 }
             }
         }
     }
 
-    grouping interface-srlgs {
+    grouping te-admin-groups {
+        container te-admin-groups {
+            description "TBD";
+        container config {
+            description
+                "Configuration parameters for interface administrative groups";
+            uses te-admin-groups_config;
+        }
+        container state {
+            config false;
+            description
+                "Configuration parameters for interface administrative groups";
+            uses te-admin-groups_config;
+        }
+        }
+    }
+
+    /* TE interface SRLGs */
+    grouping te-srlgs_config {
         description "TE interface SRLG grouping";
-        container srlgs {
-            description "TE interface SRLG container";
-            choice type {
-                description
-                    "SRLG representation type";
-                case srlg-name {
-                    list names {
-                        key "name";
-                        description "List of SRLG names that
-                            this link is part of.";
-                        leaf name {
-                             type string;
-                             description
-                                "Name associated with the SRLG";
-                        }
+        choice srlg-type {
+            case value-srlgs {
+                list values {
+                    key "value";
+                    description "List of SRLG values that
+                        this link is part of.";
+                    leaf value {
+                         type uint32 {
+                              range "0..4294967295";
+                         }
+                         description
+                            "Value of the SRLG";
                     }
                 }
-                case srlg-value {
-                    list values {
-                        key "value";
-                        description "List of SRLG values that
-                            this link is part of.";
-                        leaf value {
-                             type uint32 {
-                                  range "0..4294967295";
-                             }
-                             description
-                                "Value of the SRLG";
+            }
+            case named-srlgs {
+                list named-srlgs {
+                    if-feature ietf-te-types:named-srlg-groups;
+                    key named-srlg;
+                    description
+                        "A list of named SRLG entries";
+                    leaf named-srlg {
+                        type leafref {
+                            path "/te/globals/" +
+                                "interface-named-srlgs/name";
                         }
+                        description
+                            "A named SRLG entry";
                     }
                 }
             }
         }
     }
+
+    grouping te-srlgs {
+        container te-srlgs {
+            description "TBD";
+            container config {
+                description
+                    "Configuration parameters for interface SRLG
+                     groups";
+                uses te-srlgs_config;
+            }
+            container state {
+                config false;
+                description
+                    "State parameters for interface SRLG groups";
+                uses te-srlgs_config;
+            }
+        }
+    }
+
+    grouping te-metric_config {
+        description "Interface TE metric grouping";
+        leaf te-metric {
+            type ietf-te-types:te-metric;
+            description "Interface TE metric.";
+        }
+    }
+
+    grouping te-metric {
+        container te-metric {
+            container config {
+                description
+                    "Configuration parameters for interface TE
+                     metric";
+                uses te-metric_config;
+            }
+            container state {
+                config false;
+                description
+                    "State parameters for interface TE metric";
+                uses te-metric_config;
+            }
+        }
+    }
+
+    grouping interface-te-attributes {
+        description "Interface TE properties grouping.";
+        uses te-metric;
+        uses te-admin-groups;
+        uses te-srlgs;
+        uses te-switching-cap;
+    }
+    /*** End of TE interface groupings ***/
 }
