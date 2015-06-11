@@ -212,65 +212,61 @@ module ietf-rsvp-te {
         }
     }
 
-    /* RSVP-TE FRR groupings */
-    grouping auto-backup {
+    grouping global-soft-preemption_config {
         description
-            "Auto-tunnel backup properties grouping.";
-        container auto-backup {
-            presence "Enable auto-tunnel backup feature.";
-            description "Container for auto-backup features";
-            leaf method {
-                type identityref {
-                    base ietf-te-psc-types:backup-type;
-                }
-                description
-                    "Describes whether facility backup or 1-for-1
-                    backup should be used";
+            "Configuration for global RSVP-TE soft preemption";
+        leaf soft-preemption-timeout {
+            type uint16 {
+            range 0..300;
             }
-            leaf protection {
-                type identityref {
-                    base ietf-te-psc-types:backup-protection-type;
-                }
-                default
-                    ietf-te-psc-types:backup-protection-node-link;
+            default 0;
+            description
+                "Timeout value for soft preemption to revert
+                 to hard preemption";
+        }
+    }
+
+    grouping global-soft-preemption {
+        description
+            "Top level group for RSVP-TE soft-preemption";
+        container global-soft-preemption {
+            presence "Enables soft preemption on a node.";
+            description
+                "Top level container for RSVP-TE soft-preemption";
+            container config {
                 description
-                    "Describes whether the backup should offer
-                    protection against link, node, or either";
+                    "Configuration parameters relating to RSVP
+                     soft preemption support";
+                uses global-soft-preemption_config;
             }
-            leaf path-computation {
-                type identityref {
-                    base ietf-te-types:path-computation-srlg-type;
-                }
-                description
-                    "FRR backup computation type";
+            container state {
+                description "State parameters relating to RSVP 
+                soft preemption support";
+                uses global-soft-preemption_config;
             }
         }
     }
 
+    /* RSVP-TE FRR groupings */
     grouping rsvp-te-frr-backups_config {
         description
-            "FRR backup tunnels";
+            "Top level container for RSVP-TE FRR backup parameters";
         container rsvp-te-frr-backups {
             if-feature ietf-te-types:frr-te;
             description
-                "FRR backup tunnel container";
-            container backup-capacity {
+                "Top level container for RSVP-TE FRR backup
+                 parameters";
+            leaf backup-bandwidth {
+                type uint32;
                 description
-                    "Limits the aggregate amount of primary
-                     protected LSP bandwidth that this backup
-                     tunnel may protect";
-                leaf capacity {
-                    type uint32;
-                    description
-                        "Maximum bandwidth this facility backup
-                        is allowed to protect";
-                }
-                leaf type {
-                    type uint32;
-                    description
-                        "Type of primary LSP bandwidth that the
-                         backup is allowed to protect.";
-                }
+                    "Maximum bandwidth this facility backup
+                    is allowed to protect";
+            }
+            leaf backup-bandwidth-classtype {
+                type uint32;
+                description
+                    "Type of primary LSP bandwidth that the
+                     backup is allowed to protect.";
             }
             choice type {
                 description
@@ -288,7 +284,24 @@ module ietf-rsvp-te {
                     }
                 }
                 case auto-tunnel {
-                    uses auto-backup;
+                    leaf auto-backup-protection {
+                     type identityref {
+                       base ietf-te-psc-types:backup-protection-type;
+                     }
+                     default
+                       ietf-te-psc-types:backup-protection-node-link;
+                     description
+                         "Describes whether the backup should offer
+                         protection against link, node, or either";
+                    }
+                    leaf auto-backup-path-computation {
+                        type identityref {
+                            base
+                            ietf-te-types:path-computation-srlg-type;
+                        }
+                        description
+                            "FRR backup computation type";
+                    }
                 }
             }
         }
