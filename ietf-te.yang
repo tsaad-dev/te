@@ -23,6 +23,10 @@ module ietf-te {
         prefix inet;
     }
 
+    import ietf-yang-types {
+        prefix "yang";
+    }
+
     organization
         "IETF TEAS Working Group";
 
@@ -180,6 +184,511 @@ module ietf-te {
                      properties";
                 uses tunnel-properties_config;
             }
+        }
+     }
+
+     grouping lsp-error {
+       description
+         "LSP error information";
+       
+       leaf code {
+         type uint8;
+         description
+           "error code";
+       }
+       
+       leaf time {
+         type yang:date-and-time;
+         description
+           "the timestamp error happened";
+       }
+       
+       leaf node-addr {
+         type inet:ip-address;
+         description
+           "error node address";
+       }
+       
+       leaf flag {
+         type uint8;
+         description
+           "error flag";
+       }
+       
+       leaf value {
+         type uint16;
+         description
+           "error value";
+       }
+       
+       leaf repeat-count {
+         type uint8;
+         description
+           "repeat count for error";
+       }
+     } // lsp-error
+
+     grouping tunnel-state {
+        description
+            "State parameters relating to TE tunnel";
+        leaf oper-status {
+            type identityref {
+                base ietf-te-types:state-type;
+            }
+            description "TE tunnel operational state.";
+        }
+        list lsp {
+          key "ingress egress tunnel-id lsp-id";
+          description "List of LSPs associated with the tunnel.";
+          
+          leaf ingress {
+            type leafref {
+              path "../../../../lsp-state/lsp/ingress";
+            }
+            description "";
+          }
+          leaf egress {
+            type leafref {
+              path "../../../../lsp-state/lsp/egress";
+            }
+            description "";
+          }
+          leaf tunnel-id {
+            type leafref {
+              path "../../../../lsp-state/lsp/tunnel-id";
+            }
+            description "";
+          }
+          leaf lsp-id {
+            type leafref {
+              path "../../../../lsp-state/lsp/lsp-id";
+            }
+            description "";
+          }
+          leaf extended-tunnel-id {
+            type leafref {
+              path "../../../../lsp-state/lsp/extended-tunnel-id";
+            }
+            description
+              "Extended Tunnel ID of the LSP.";
+          }
+        }
+     }
+
+     grouping lsp-state {
+        description
+            "State parameters relating to LSP";
+        leaf oper-status {
+            type identityref {
+                base ietf-te-types:state-type;
+            }
+            description "LSP operational state.";
+        }
+        leaf origin-type {
+          type enumeration {
+            enum "ingress" {
+              description
+                "ingress";
+            }
+          enum "egress" {
+              description
+                "egress";
+            }
+          enum "transit" {
+              description
+                "transit";
+            }
+          }
+          description
+            "Origin type of LSP relative to the location 
+            of the local switch in the path.";
+        }
+		  
+        leaf outgoing-interface {
+          type if:interface-ref;
+          description
+            "outgoing interface";
+        }        
+        
+        leaf life-time {
+          type uint32;
+          units seconds;
+          description
+            "lsp life time";
+        }
+        
+        leaf time-to-die {
+          type uint32;
+          units seconds;
+          description
+            "lsp expire time";
+        }
+        
+        leaf frr-tunnel-id {
+          type uint32;
+          description
+      	    "If an LSP has an FRR bypass LSP that can protect it, 
+      	     this field identifies the tunnel ID of the bypass LSP. 
+      	     Otherwise, this field is empty.";
+        }
+  
+        container bypass-info {
+          description
+            "bypass information";
+          
+          leaf bypass-flag {
+            type uint8;
+            description
+              "bypass flag";
+          }
+          
+          leaf bypass-frr-on {
+            type uint8;
+            description
+              "whethere currently being bypassed";
+          }
+          
+          leaf bypass-if-addr {
+            type inet:ip-address;
+            description
+              "bypass if address";
+          }
+          
+          leaf bypass-if {
+            type if:interface-ref;
+            description
+              "bypass interface";
+          }
+          
+          leaf bypass-nhop-if-addr {
+            type inet:ip-address;
+            description
+              "bypass nexthop if address";
+          }
+        }
+	
+        leaf protect-type {
+          type enumeration {
+            enum "primary" {
+              description
+                "primary";
+            }
+            enum "backup" {
+              description
+                "backup";
+            }
+            enum "none" {
+              description
+                "none";
+            }
+            enum "bypass" {
+              description
+                "Is bypass LSP.";
+            }
+          }
+          description
+            "Protection characteristic of the LSP.";
+        }
+		  
+        container downstream-info {
+          description
+            "downstream information";
+          
+          leaf nhop {
+            type inet:ip-address;
+            description
+              "downstream nexthop.";
+          }
+		  
+    	  leaf interface {
+    	    type if:interface-ref;
+            description
+              "downstream interface.";
+    	  }
+  		  
+          leaf neighbor {
+            type inet:ip-address;
+            description
+              "downstream neighbor.";
+          }
+          
+          leaf label {
+            type uint32;
+            description
+              "downstream label.";
+          }
+        }
+		  
+        container upstream-info {
+          description
+            "upstream information";
+          
+          leaf nhop {
+            type inet:ip-address;
+            description
+              "upstream nexthop.";
+          }
+          
+          leaf interface {
+            type if:interface-ref;
+            description
+              "upstream interface.";
+          }
+  		  
+          leaf neighbor {
+            type inet:ip-address;
+            description
+              "upstream neighbor.";
+          }
+			
+          leaf label {
+            type uint32;
+            description
+              "upstream label.";
+          }
+        }
+		  
+        leaf holding-priority {
+          type uint32;
+          description
+            "holding priority";
+        }
+	
+        leaf last-downstream-tx {
+          type uint32;
+          units seconds;
+          description
+            "Time of last tx downstream (sec ago)";
+        }
+		  
+        leaf last-downstream-rx {
+          type uint32;
+          units seconds;
+          description
+            "Time of last rx downstream (sec ago)";
+        }
+		  
+        leaf last-upstream-tx {
+          type uint32;
+          units seconds;
+          description
+            "Time of last tx upstream (sec ago)";
+        }
+	
+        leaf last-upstream-rx {
+          type uint32;
+          units seconds;
+          description
+            "Time of last rx upstream (sec ago)";
+        }
+		  
+        leaf next-timer-in {
+          type uint32;
+          units seconds;
+          description
+            "Time for the next time visit (sec)";
+        }
+  	  
+        list path-err-msg {
+          key "code";
+          max-elements 5;
+          description
+            "rsvp path error message";
+          
+          uses lsp-error;	
+        }
+		  
+        list resv-err-msg {
+          key "code";
+          max-elements 5;
+          description
+            "rsvp resv error message";
+          
+          uses lsp-error;	
+        }
+		  
+        leaf protected-lsp-num {
+          type uint32;
+          description 
+            "number of protected lsps";
+        }
+		 
+        container session-attributes {
+          description
+            "session information";
+          
+          leaf node-protect-enable {
+            type boolean;
+            description
+              "enable node protect or not";
+          }
+          
+          leaf local-protect-enable {
+            type boolean;
+            description
+              "enable local protect or not";
+          }
+          
+          leaf may-reroute {
+            type boolean;
+            description
+              "may reroute protect or not";
+          }
+          
+          leaf record-label {
+            type boolean;
+            description
+              "record label or not";
+          }
+        }
+	
+        container tracking-info {
+    	  description
+    	    "tracking information";
+          
+    	  leaf track-enable {
+            type boolean;
+            description
+              "whether the lsp is tracked or not";
+          }
+          
+    	  leaf name {
+            type string;
+            description
+              "tracked object name";
+    	  }
+          
+    	  leaf track-state {
+            when "../track-enable = 'true'" {
+              description
+                "show tracking state when"
+                + "tracking lsp enabled";
+            }
+    	    type enumeration {
+              enum "up" {
+                description
+                "up";
+              }
+              enum "down" {
+                description
+                "down";
+              }
+              enum "pending" {
+                description
+                "pending";
+              }
+            }
+            description
+              "track state";
+          }
+        }
+	
+        container cspf-routes {
+          description
+            "cspf-routes information";
+          
+          leaf cspf-flag {
+            type enumeration {
+              enum "enable" {
+                description
+                "cspf enable";
+              }
+              enum "pending" {
+                description
+                "cspf pending";
+              }
+              enum "limit-exceeded" {
+                description
+                "cspf limit exceeded";
+              }
+            }
+            description
+              "cspf routes flag";
+          }
+          
+          leaf route-count {
+            when "../cspf-flag = 'pending'" {
+              description
+                "show cspf-count for pending";
+            }
+            type uint32;
+            description
+              "cspf count";			  
+          }
+          
+          list cspf-route {
+            key "id";
+            description
+              "cspf route information ";
+            
+            leaf id {
+              type uint16;
+              description
+                "cspf route id";
+            }
+            
+            leaf hop-num {
+              type uint16;
+              description
+                "downstream hops to the egress node";
+            }
+            
+            leaf-list next-hop {
+              type inet:ip-prefix;
+              description 
+                "the router id of the next hope";
+            }		  
+          }
+        }
+        
+        container record-route-information {
+          description
+            "recorded route information";
+          
+          leaf hop-num {
+            type uint16;
+            description
+              "downstream hops to the egress node";
+          }
+	
+          list next-hop {
+            key "router-id";
+            description
+              "next hope router id";
+            
+            leaf router-id {
+              type inet:ip-prefix;
+              description 
+                "the router id of the next hope";
+            }	
+    	    
+            leaf protect-flag {
+              type enumeration {
+                enum "protect-available" {
+                  description
+                  "protection available";
+                }
+                enum "protect-in-use" {
+                  description
+                  "protection in use";
+                }
+              }
+              description
+                "protection flag";
+            }
+            
+            leaf label-flag {
+              type uint32;
+              description
+            	"label flag";
+            }
+            
+            leaf label-id {
+              type uint32;
+              description
+            	"label id";
+            }
+          }           			
         }
      }
 
@@ -458,11 +967,64 @@ module ietf-te {
         container tunnels-state {
             config "false";
             description "MPLS-TE tunnel operational state data.";
+
+            list tunnel {
+                key "name type";
+                unique "identifier";
+                description "TE tunnel.";
+                leaf name {
+                    type string;
+                    description "TE tunnel name.";
+                }
+                leaf type {
+                    type identityref {
+                        base ietf-te-types:tunnel-type;
+                    }
+                    description "TE tunnel type.";
+                }
+                leaf identifier {
+                    type uint16;
+                    description
+                        "TE tunnel Identifier.";
+                }
+                
+                uses tunnel-state;
+            }
         }
 
-        container lps-state {
+        container lsp-state {
             config "false";
             description "MPLS-TE LSP operational state data.";
+
+            list lsp {
+              key 
+                "ingress egress tunnel-id lsp-id extended-tunnel-id";
+              description "List of LSPs associated with the tunnel.";
+              
+              leaf ingress {
+                type inet:ip-address;
+                description "";
+              }
+              leaf egress {
+                type inet:ip-address;
+                description "";
+              }
+              leaf tunnel-id {
+                type uint16;
+                description "";
+              }
+              leaf lsp-id {
+                type uint16;
+                description "";
+              }
+              leaf extended-tunnel-id {
+                type inet:ip-address;
+                description
+                  "Extended Tunnel ID of the LSP.";
+              }
+                 
+              uses lsp-state;
+            }
         }
     }
 
