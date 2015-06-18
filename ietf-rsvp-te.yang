@@ -12,14 +12,6 @@ module ietf-rsvp-te {
         prefix ietf-te;
     }
 
-    import ietf-te-psc-types {
-        prefix ietf-te-psc-types;
-    }
-
-    import ietf-te-types {
-        prefix ietf-te-types;
-    }
-
     import ietf-inet-types {
         prefix inet;
     }
@@ -30,7 +22,7 @@ module ietf-rsvp-te {
     contact "TBA";
 
     description
-        "This module contains the RSVP YANG data model.";
+        "This module contains the RSVP YANG generic data model.";
 
     revision 2015-06-04 {
         description "Initial revision.";
@@ -80,32 +72,11 @@ module ietf-rsvp-te {
             description "Preplanned LSP";
             reference "RFC6001";
         }
-        leaf non-php-desired {
-            type empty;
-            description
-                "Non-PHP is desired";
-            reference "RFC6511";
-        }
         leaf oob-mapping {
             type empty;
             description
                 "Mapping is done out-of-band";
             reference "RFC6511";
-        }
-        leaf entropy-label-cap {
-            type empty;
-            description "Entropy label capability";
-            reference "RFC6790";
-        }
-        leaf oam-mep-entities-desired {
-            type empty;
-            description "OAM MEP entities desired";
-            reference "RFC7260";
-        }
-        leaf oam-mip-entities-desired {
-            type empty;
-            description "OAM MIP entities desired";
-            reference "RFC7260";
         }
     }
 
@@ -115,12 +86,6 @@ module ietf-rsvp-te {
                session attribute flags";
         reference
             "RFC4859: Registry for RSVP-TE Session Flags";
-        leaf local-protection-desired {
-            type empty;
-            description "Fastreroute local protection is desired.";
-            reference
-                "RFC4859: Registry for RSVP-TE Session Flags";
-        }
         leaf local-recording-desired {
             type empty;
             description "Path recording is desired.";
@@ -130,20 +95,6 @@ module ietf-rsvp-te {
             type empty;
             description "SE Style desired";
             reference "RFC3209";
-        }
-        leaf bandwidth-protection-desired {
-            type empty;
-            description
-                "Request FRR bandwidth protection on LSRs if
-                 present.";
-            reference "RFC4090";
-        }
-        leaf node-protection-desired {
-            type empty;
-            description
-                "Request FRR node protection on LSRs if
-                 present.";
-            reference "RFC4090";
         }
         leaf path-reevaluation-request {
             type empty;
@@ -240,92 +191,9 @@ module ietf-rsvp-te {
                 uses global-soft-preemption_config;
             }
             container state {
-                description "State parameters relating to RSVP 
+                description "State parameters relating to RSVP
                 soft preemption support";
                 uses global-soft-preemption_config;
-            }
-        }
-    }
-
-    /* RSVP-TE FRR groupings */
-    grouping rsvp-te-frr-backups_config {
-        description
-            "Top level container for RSVP-TE FRR backup parameters";
-        container rsvp-te-frr-backups {
-            if-feature ietf-te-types:frr-te;
-            description
-                "Top level container for RSVP-TE FRR backup
-                 parameters";
-            leaf backup-bandwidth {
-                type uint32;
-                description
-                    "Maximum bandwidth this facility backup
-                    is allowed to protect";
-            }
-            leaf backup-bandwidth-classtype {
-                type uint32;
-                description
-                    "Type of primary LSP bandwidth that the
-                     backup is allowed to protect.";
-            }
-            choice type {
-                description
-                    "FRR backup tunnel type";
-                case static-tunnel {
-                    list static-backups {
-                        key "tunnel-name";
-                        description
-                            "List of static backup tunnels that
-                            protect the TE interface.";
-                        leaf tunnel-name {
-                            type string;
-                            description "FRR Backup tunnel";
-                        }
-                    }
-                }
-                case auto-tunnel {
-                    leaf auto-backup-protection {
-                     type identityref {
-                       base ietf-te-psc-types:backup-protection-type;
-                     }
-                     default
-                       ietf-te-psc-types:backup-protection-node-link;
-                     description
-                         "Describes whether the backup should offer
-                         protection against link, node, or either";
-                    }
-                    leaf auto-backup-path-computation {
-                        type identityref {
-                            base
-                            ietf-te-types:path-computation-srlg-type;
-                        }
-                        description
-                            "FRR backup computation type";
-                    }
-                }
-            }
-        }
-    }
-
-    grouping rsvp-te-frr-backups {
-        description
-            "Top level grouping for RSVP-TE FRR backup properties.";
-        container rsvp-te-frr-backups {
-            description
-                "Top level container for RSVP-TE FRR backup
-                 properties.";
-            container config {
-                description
-                    "Configuration parameters for interface RSVP-TE
-                     FRR backup properties";
-                uses rsvp-te-frr-backups_config;
-            }
-            container state {
-                config false;
-                description
-                    "State parameters for interface RSVP-TE
-                     FRR backup properties";
-                uses rsvp-te-frr-backups_config;
             }
         }
     }
@@ -334,40 +202,25 @@ module ietf-rsvp-te {
     augment "/rsvp:rsvp/rsvp:globals" {
         description
                 "RSVP-TE augmentation to RSVP globals";
-
-        container rsvp-frr-local-revert {
-            presence "Enable RSVP FRR local revertive recovery
-                      mode.";
-            description
-                "RSVP-TE global properties container";
-            leaf rsvp-frr-local-revert-delay {
-                type uint32;
-                description
-                    "Time to wait after primary link is restored
-                     before node attempts local revertive
-                     procedures.";
-            }
-        }
     }
 
     grouping rsvp-te-interface-attributes {
         description
-            "Top level grouping for LSP properties.";
+            "Top level grouping for RSVP-TE interface properties.";
         container rsvp-te-interface-attributes {
             description
-                "Top level container for LSP properties";
+                "Top level container for RSVP-TE interface
+                 properties";
             container config {
                 description
                     "Configuration parameters relating to RSVP-TE
                      bandwidth";
-                uses ietf-te-psc-types:bandwidth-psc-reservable;
             }
             container state {
                 config false;
                 description
                     "State information associated with RSVP-TE
                      bandwidth";
-                uses ietf-te-psc-types:bandwidth-psc-reservable;
             }
         }
     }
@@ -380,8 +233,6 @@ module ietf-rsvp-te {
     augment "/ietf-te:te/ietf-te:interfaces/ietf-te:interface" {
         description
             "RSVP reservable bandwidth configuration properties";
-        uses rsvp-te-interface-attributes;
-        uses rsvp-te-frr-backups;
     }
 
     /* Linkage to the base RSVP all links */
