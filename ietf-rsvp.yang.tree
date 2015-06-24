@@ -1,81 +1,136 @@
 module: ietf-rsvp
    +--rw rsvp!
       +--rw globals
-      |  +--rw signaling
-      |     +--rw graceful-restart!
-      |     |  +--rw restart-time?     uint32
-      |     |  +--rw hello-interval?   uint32
-      |     |  +--rw hello-misses?     uint32
-      |     +--rw hello
-      |     |  +--rw interface-based?   empty
-      |     +--rw path-err
-      |     |  +--rw state-removal?   empty
-      |     +--rw refresh
-      |        +--rw interval?    uint32
-      |        +--rw missed?      uint32
-      |        +--rw reduction
-      |           +--rw bundle-message-max-size?    uint32
-      |           +--rw disable?                    empty
-      |           +--rw reliable-ack-hold-time?     uint32
-      |           +--rw reliable-ack-max-size?      uint32
-      |           +--rw reliable-retransmit-time?   uint32
-      |           +--rw reliable-srefresh?          empty
-      |           +--rw summary-max-size?           uint32
+      |  +--rw graceful-restart! {graceful-restart}?
+      |     +--rw config
+      |     |  +--rw restart-time?    uint32
+      |     |  +--rw recovery-time?   uint32
+      |     +--ro state
+      |        +--ro restart-time?    uint32
+      |        +--ro recovery-time?   uint32
       +--rw interfaces
-      |  +--rw authentication
-      |  |  +--rw key-chain?     string
-      |  |  +--rw lifetime?      uint32
-      |  |  +--rw window-size?   uint32
-      |  |  +--rw challenge?     empty
-      |  |  +--rw retransmits?   uint32
-      |  +--rw signaling
-      |  |  +--rw graceful-restart!
-      |  |  |  +--rw restart-time?     uint32
-      |  |  |  +--rw hello-interval?   uint32
-      |  |  |  +--rw hello-misses?     uint32
-      |  |  +--rw hello
+      |  +--rw signaling-parameters
+      |  |  +--rw config
+      |  |  |  +--rw refresh-interval?        uint32
+      |  |  |  +--rw refresh-misses?          uint32
+      |  |  |  +--rw checksum?                uint32
+      |  |  |  +--rw patherr-state-removal?   empty
+      |  |  +--ro state
+      |  |     +--ro refresh-interval?        uint32
+      |  |     +--ro refresh-misses?          uint32
+      |  |     +--ro checksum?                uint32
+      |  |     +--ro patherr-state-removal?   empty
+      |  +--rw refresh-reduction {refresh-reduction}?
+      |  |  +--rw config
+      |  |  |  +--rw bundle-message-max-size?    uint32
+      |  |  |  +--rw disable?                    empty
+      |  |  |  +--rw reliable-ack-hold-time?     uint32
+      |  |  |  +--rw reliable-ack-max-size?      uint32
+      |  |  |  +--rw reliable-retransmit-time?   uint32
+      |  |  |  +--rw reliable-srefresh?          empty
+      |  |  |  +--rw summary-max-size?           uint32
+      |  |  +--ro state
+      |  |     +--ro bundle-message-max-size?    uint32
+      |  |     +--ro disable?                    empty
+      |  |     +--ro reliable-ack-hold-time?     uint32
+      |  |     +--ro reliable-ack-max-size?      uint32
+      |  |     +--ro reliable-retransmit-time?   uint32
+      |  |     +--ro reliable-srefresh?          empty
+      |  |     +--ro summary-max-size?           uint32
+      |  +--rw rsvp-hellos {hellos}?
+      |  |  +--rw config
       |  |  |  +--rw interface-based?   empty
-      |  |  +--rw path-err
-      |  |  |  +--rw state-removal?   empty
-      |  |  +--rw refresh
-      |  |     +--rw interval?    uint32
-      |  |     +--rw missed?      uint32
-      |  |     +--rw reduction
-      |  |        +--rw bundle-message-max-size?    uint32
-      |  |        +--rw disable?                    empty
-      |  |        +--rw reliable-ack-hold-time?     uint32
-      |  |        +--rw reliable-ack-max-size?      uint32
-      |  |        +--rw reliable-retransmit-time?   uint32
-      |  |        +--rw reliable-srefresh?          empty
-      |  |        +--rw summary-max-size?           uint32
+      |  |  |  +--rw hello-interval?    uint32
+      |  |  |  +--rw hello-misses?      uint32
+      |  |  +--ro state
+      |  |     +--ro interface-based?   empty
+      |  |     +--ro hello-interval?    uint32
+      |  |     +--ro hello-misses?      uint32
+      |  +--rw authentication {authentication}?
+      |  |  +--rw config
+      |  |  |  +--rw (authentication-type)?
+      |  |  |     +--:(string)
+      |  |  |     |  +--rw secret?        string
+      |  |  |     |  +--rw algorithm?     identityref
+      |  |  |     +--:(key-chain) {authentication}?
+      |  |  |        +--rw key-chain?     string
+      |  |  |        +--rw lifetime?      uint32
+      |  |  |        +--rw window-size?   uint32
+      |  |  |        +--rw challenge?     empty
+      |  |  |        +--rw retransmits?   uint32
+      |  |  +--ro state
+      |  |     +--ro (authentication-type)?
+      |  |        +--:(string)
+      |  |        |  +--ro secret?        string
+      |  |        |  +--ro algorithm?     identityref
+      |  |        +--:(key-chain) {authentication}?
+      |  |           +--ro key-chain?     string
+      |  |           +--ro lifetime?      uint32
+      |  |           +--ro window-size?   uint32
+      |  |           +--ro challenge?     empty
+      |  |           +--ro retransmits?   uint32
       |  +--rw interface* [interface]
-      |     +--rw interface         if:interface-ref
-      |     +--rw authentication
-      |     |  +--rw key-chain?     string
-      |     |  +--rw lifetime?      uint32
-      |     |  +--rw window-size?   uint32
-      |     |  +--rw challenge?     empty
-      |     |  +--rw retransmits?   uint32
-      |     +--rw signaling
-      |        +--rw graceful-restart!
-      |        |  +--rw restart-time?     uint32
-      |        |  +--rw hello-interval?   uint32
-      |        |  +--rw hello-misses?     uint32
-      |        +--rw hello
-      |        |  +--rw interface-based?   empty
-      |        +--rw path-err
-      |        |  +--rw state-removal?   empty
-      |        +--rw refresh
-      |           +--rw interval?    uint32
-      |           +--rw missed?      uint32
-      |           +--rw reduction
-      |              +--rw bundle-message-max-size?    uint32
-      |              +--rw disable?                    empty
-      |              +--rw reliable-ack-hold-time?     uint32
-      |              +--rw reliable-ack-max-size?      uint32
-      |              +--rw reliable-retransmit-time?   uint32
-      |              +--rw reliable-srefresh?          empty
-      |              +--rw summary-max-size?           uint32
+      |     +--rw interface               if:interface-ref
+      |     +--rw signaling-parameters
+      |     |  +--rw config
+      |     |  |  +--rw refresh-interval?        uint32
+      |     |  |  +--rw refresh-misses?          uint32
+      |     |  |  +--rw checksum?                uint32
+      |     |  |  +--rw patherr-state-removal?   empty
+      |     |  +--ro state
+      |     |     +--ro refresh-interval?        uint32
+      |     |     +--ro refresh-misses?          uint32
+      |     |     +--ro checksum?                uint32
+      |     |     +--ro patherr-state-removal?   empty
+      |     +--rw refresh-reduction {refresh-reduction}?
+      |     |  +--rw config
+      |     |  |  +--rw bundle-message-max-size?    uint32
+      |     |  |  +--rw disable?                    empty
+      |     |  |  +--rw reliable-ack-hold-time?     uint32
+      |     |  |  +--rw reliable-ack-max-size?      uint32
+      |     |  |  +--rw reliable-retransmit-time?   uint32
+      |     |  |  +--rw reliable-srefresh?          empty
+      |     |  |  +--rw summary-max-size?           uint32
+      |     |  +--ro state
+      |     |     +--ro bundle-message-max-size?    uint32
+      |     |     +--ro disable?                    empty
+      |     |     +--ro reliable-ack-hold-time?     uint32
+      |     |     +--ro reliable-ack-max-size?      uint32
+      |     |     +--ro reliable-retransmit-time?   uint32
+      |     |     +--ro reliable-srefresh?          empty
+      |     |     +--ro summary-max-size?           uint32
+      |     +--rw rsvp-hellos {hellos}?
+      |     |  +--rw config
+      |     |  |  +--rw interface-based?   empty
+      |     |  |  +--rw hello-interval?    uint32
+      |     |  |  +--rw hello-misses?      uint32
+      |     |  +--ro state
+      |     |     +--ro interface-based?   empty
+      |     |     +--ro hello-interval?    uint32
+      |     |     +--ro hello-misses?      uint32
+      |     +--rw authentication {authentication}?
+      |        +--rw config
+      |        |  +--rw (authentication-type)?
+      |        |     +--:(string)
+      |        |     |  +--rw secret?        string
+      |        |     |  +--rw algorithm?     identityref
+      |        |     +--:(key-chain) {authentication}?
+      |        |        +--rw key-chain?     string
+      |        |        +--rw lifetime?      uint32
+      |        |        +--rw window-size?   uint32
+      |        |        +--rw challenge?     empty
+      |        |        +--rw retransmits?   uint32
+      |        +--ro state
+      |           +--ro (authentication-type)?
+      |              +--:(string)
+      |              |  +--ro secret?        string
+      |              |  +--ro algorithm?     identityref
+      |              +--:(key-chain) {authentication}?
+      |                 +--ro key-chain?     string
+      |                 +--ro lifetime?      uint32
+      |                 +--ro window-size?   uint32
+      |                 +--ro challenge?     empty
+      |                 +--ro retransmits?   uint32
       +--rw sessions
       |  +--rw session* [src_port dst_port source destination]
       |     +--rw src_port       uint16
@@ -86,7 +141,7 @@ module: ietf-rsvp
       |  +--rw neighbor* [address]
       |     +--rw address    inet:ip-address
       +--ro interface-state
-      |  +--ro session* [interface]
+      |  +--ro interface* [interface]
       |     +--ro interface    if:interface-ref
       +--ro sessions-state
       |  +--ro session* [src_port dst_port source destination]
