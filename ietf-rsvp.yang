@@ -13,6 +13,10 @@ module ietf-rsvp {
     import ietf-inet-types {
         prefix inet;
     }
+    
+    import ietf-yang-types {
+        prefix "yang";
+    }
 
     organization
         "IETF TEAS Working Group";
@@ -22,7 +26,7 @@ module ietf-rsvp {
     description
         "This module contains the RSVP YANG data model.";
 
-    revision 2015-06-08 {
+    revision 2015-06-25 {
         description "Latest revision of RSVP yang module.";
         reference "RFC2205";
     }
@@ -53,19 +57,40 @@ module ietf-rsvp {
             "Indicates support for RSVP authentication";
     }
 
+    feature error-statistics {
+      description
+        "Indicates support for error statistics";
+    }
+
+    feature global-statistics {
+      description
+        "Indicates support for global statistics";
+    }
+
     feature graceful-restart {
         description
             "Indicates support for RSVP graceful restart";
     }
 
-    feature refresh-reduction {
-        description
-            "Indicates support for RSVP refresh reduction";
-    }
-
     feature hellos {
         description
-            "Indicates support for RSVP hellos";
+            "Indicates support for RSVP hellos (RFC3209).";
+    }
+
+    feature notify {
+        description
+            "Indicates support for RSVP notify message (RFC3473).";
+    }
+
+    feature refresh-reduction {
+        description
+            "Indicates support for RSVP refresh reduction 
+            (RFC2961).";
+    }
+
+    feature per-interface-statistics {
+      description
+        "Indicates support for per interface statistics";
     }
 
     grouping graceful-restart_config {
@@ -412,6 +437,463 @@ module ietf-rsvp {
         }
     }
 
+    grouping state-derived-neighbor {
+      description
+        "Derived state at neighbor level.";
+      
+      leaf epoch {
+        type uint32;
+        description
+          "Neighbor epoch.";
+      }
+        
+      leaf expiry-time {
+        type uint32;
+        units seconds;
+        description
+          "Neighbor expiry time.";
+      }
+      
+      leaf flags {
+        type uint32;
+        description
+          "Neighbor flags.";
+      }
+        
+      container graceful-restart {
+        description 
+          "Graceful restart information.";
+            
+        leaf enabled {
+          type boolean;
+          description 
+            "'true' if graceful restart is enabled for the 
+            neighbor.";
+        }
+
+        leaf local-restart-time {
+            type uint32;
+            units seconds;
+            description
+              "Local node restart time";
+        }
+        
+        leaf local-recovery-time {
+          type uint32;
+          units seconds;
+          description
+            "Local node recover time";
+        }
+          
+        leaf nbr-restart-time {
+          type uint32;
+          units seconds;
+          description
+            "Neighbor restart time";
+        }
+          
+        leaf nbr-recovery-time {
+          type uint32;
+          units seconds;
+          description
+            "Neighbor recover time";
+        }
+          
+        container helper-mode {
+          description 
+            "Helper mode information ";
+          
+          leaf helper-mode {
+            type boolean;
+            description
+              "'true' if helper mode is enabled.";
+          }
+          
+          leaf helper-restart-time {
+            type uint32;
+            units seconds;
+            description
+              "Helper restart time";
+          }
+          
+          leaf helper-recovery-time {
+            type uint32;
+            units seconds;
+            description
+              "Helper recover time";
+          }
+          
+          leaf nbr-restart-ttd {              
+            type uint32;
+            units seconds;
+            description
+              "Number of seconds remaining for neighbor to send
+              Hello message.";
+          }
+            
+          leaf nbr-recovery-ttd {
+            type uint32;
+            units seconds;
+            description
+              "Number of seconds remaining for neighbor to 
+                refresh.";
+          }
+        } // helper-mode
+      } // graceful-restart
+        
+      leaf hello-status {
+        if-feature hellos;
+        type enumeration {
+          enum "enabled" {
+            description
+            "Enabled";
+          }
+          enum "disabled" {
+            description
+            "Disabled";
+          }
+          enum "restarting" {
+            description
+            "Restarting";
+          }           
+        }
+        description
+          "Hello status";
+      }
+        
+      leaf interface {
+        type if:interface-ref;
+        description
+          "Interface to this neighbor.";
+      }
+      
+      leaf neighbor-state {
+        type enumeration {
+          enum "up" {
+            description
+            "up";
+          }
+          enum "down" {
+            description
+            "down";
+          }
+          enum "hello-disable" {
+            description
+            "hello-disable";
+          }
+          enum "restarting" {
+            description
+            "restarting";
+          }            
+        }
+        description
+          "Neighbor state";
+      }
+      
+      leaf ref-count {
+        type uint32;
+        description
+          "Number of path/resv state currently referencing the 
+          neighbor.";
+      }
+                
+      leaf refresh-reduction-capable {
+        if-feature refresh-reduction;
+        type boolean;
+        description
+          "Whether neighbor is refresh reduction capable.";
+      }
+          
+      leaf restart-count {
+        type uint32;
+        description
+          "Number of the neighbor restart";
+      }
+        
+      leaf restart-time {
+        type yang:date-and-time;
+        description
+          "Last restart time of the neighbor";
+      }
+    } // state-derived-neighbor
+
+    grouping state-statistics {
+      description "RSVP statistic attributes.";
+      container statistics {
+        description 
+          "RSVP statistics";
+        
+        leaf discontinuity-time {
+          type yang:date-and-time;
+          description
+            "The time on the most recent occasion at which any one
+            or more of the statistic counters suffered a
+            discontinuity. If no such discontinuities have occurred
+            since the last re-initialization of the local
+            management subsystem, then this node contains the time
+            the local management subsystem re-initialized itself.";
+        }
+
+        container packet {
+          description
+            "Packet statistics.";
+          leaf sent {
+            type yang:counter32;
+            description
+              "Packet sent count";
+          }
+        
+          leaf rcvd {
+            type yang:counter32;
+            description
+              "Packet received count";
+          }
+          
+          leaf tx-dropped {
+            type yang:counter32;
+            description
+              "Packet tx dropped count";
+          }
+          
+          leaf rx-dropped {
+            type yang:counter32;
+            description
+              "Packet rx dropped count";
+          }
+          
+          leaf tx-error {
+            type yang:counter32;
+            description
+              "Packet tx error count";
+          }
+          
+          leaf rx-error {
+            type yang:counter32;
+            description
+              "Packet rx error count";
+          }
+        }
+          
+        container protocol {
+          description 
+            "RSVP protocol statistics.";
+          leaf ack-sent {
+            if-feature refresh-reduction;
+            type yang:counter32;
+            description
+              "Hello sent count";
+          }
+        
+          leaf ack-rcvd {
+            if-feature refresh-reduction;
+            type yang:counter32;
+            description
+              "Hello received count";
+          }
+          
+          leaf bundle-sent {
+            if-feature refresh-reduction;
+            type yang:counter32;
+            description
+              "Bundle sent count";
+          }
+          
+          leaf bundle-rcvd {
+            if-feature refresh-reduction;
+            type yang:counter32;
+            description
+              "Bundle received count";
+          }
+          
+          leaf hello-sent {
+            if-feature hellos;
+            type yang:counter32;
+            description
+              "Hello sent count";
+          }
+          
+          leaf hello-rcvd {
+            if-feature hellos;
+            type yang:counter32;
+            description
+              "Hello received count";
+          }
+          
+          leaf integrity-challenge-sent {
+            if-feature authentication;
+            type yang:counter32;
+            description
+              "Integrity Challenge sent count";
+          }
+          
+          leaf integrity-challenge-rcvd {
+            if-feature authentication;
+            type yang:counter32;
+            description
+              "Integrity Challenge received count";
+          }
+          
+          leaf integrity-response-sent {
+            if-feature authentication;
+            type yang:counter32;
+            description
+              "Integrity Response sent count";
+          }
+          
+          leaf integrity-response-rcvd {
+            if-feature authentication;
+            type yang:counter32;
+            description
+              "Integrity Response received count";
+          }
+          
+          leaf notify-sent {
+            if-feature refresh-reduction;
+            type yang:counter32;
+            description
+              "Notify sent count";
+          }
+          
+          leaf notify-rcvd {
+            if-feature refresh-reduction;
+            type yang:counter32;
+            description
+              "Notify received count";
+          }
+          
+          leaf path-sent {
+            type yang:counter32;
+            description
+              "Path sent count";
+          }
+          
+          leaf path-rcvd {
+            type yang:counter32;
+            description
+              "Path received count";
+          }
+          
+          leaf path-err-sent {
+            type yang:counter32;
+            description
+              "Path error sent count";
+          }
+          
+          leaf path-err-rcvd {
+            type yang:counter32;
+            description
+              "Path error received count";
+          }
+        
+          leaf path-tear-sent {
+            type yang:counter32;
+            description
+              "Path tear sent count";
+          }
+          
+          leaf path-tear-rcvd {
+            type yang:counter32;
+            description
+              "Path tear received count";
+          }
+          
+          leaf resv-sent {
+            type yang:counter32;
+            description
+              "Resv sent count";
+          }
+        
+          leaf resv-rcvd {
+            type yang:counter32;
+            description
+              "Resv received count";
+          }
+          
+          leaf resv-confirm-sent {
+            type yang:counter32;
+            description
+              "Confirm sent count";
+          }
+          
+          leaf resv-confirm-rcvd {
+            type yang:counter32;
+            description
+              "Confirm received count";
+          }
+        
+          leaf resv-err-sent {
+            type yang:counter32;
+            description
+              "Resv error sent count";
+          }
+          
+          leaf resv-err-rcvd {
+            type yang:counter32;
+            description
+            "Resv error received count";
+          }
+          
+          leaf resv-tear-sent {
+            type yang:counter32;
+            description
+              "Resv tear sent count";
+          }
+        
+          leaf resv-tear-rcvd {
+            type yang:counter32;
+            description
+            "Resv tear received count";
+          }
+          
+          leaf summary-refresh-sent {
+            if-feature refresh-reduction;
+            type yang:counter32;
+            description
+              "Summary refresh sent count";
+          }
+          
+          leaf summary-refresh-rcvd {
+            if-feature refresh-reduction;
+            type yang:counter32;
+            description
+              "Summary refresh received count";
+          }
+          
+          leaf unknow-recv {
+            type yang:counter32;
+            description
+              "Unknown packet received count";
+          }
+        } // rsvp
+
+        container error {
+          description
+            "Error statistics.";
+
+          leaf authentication {
+            type yang:counter64;
+            description
+              "The total number of packets received with an 
+              authentication failure.";
+          }
+
+          leaf checksum {
+            type yang:counter64;
+            description
+              "The total number of packets received with an invalid
+              checksum value.";
+          }
+
+          leaf packet-len {
+            type yang:counter64;
+            description
+              "The total number of packets received with an invalid
+              packet length.";
+          }
+        } // error
+      } // statistics
+    } // state-statistics        
+
     container rsvp {
         presence "Enable RSVP feature";
         description "RSVP feature container";
@@ -489,6 +971,15 @@ module ietf-rsvp {
             }
         }
 
+        container global-state {
+            config "false";
+            description
+                "RSVP global state";
+            uses state-statistics {
+              if-feature global-statistics;
+            }
+        }
+
         container interface-state {
             config "false";
             description
@@ -501,6 +992,9 @@ module ietf-rsvp {
                      type if:interface-ref;
                      description
                         "RSVP interface.";
+                }
+                uses state-statistics {
+                  if-feature per-interface-statistics;
                 }
             }
         }
@@ -549,6 +1043,8 @@ module ietf-rsvp {
                     description
                         "Neighbor address";
                 }
+
+                uses state-derived-neighbor;
             }
         }
     }
