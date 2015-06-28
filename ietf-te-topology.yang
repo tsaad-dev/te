@@ -25,7 +25,7 @@ module ietf-te-topology {
   contact "TBD";
   description "TE topology model";
   
-  revision "2015-06-06" {
+  revision "2015-06-26" {
     description "Initial revision";
     reference "TBD";
   }
@@ -590,7 +590,7 @@ module ietf-te-topology {
 
   grouping te-link-underlay-attributes {
     description "Attributes for  te-link underlay.";
-    container underlay-path {
+    container underlay-primary-path {
       description 
         "The service path on the underlay topology that
          supports this link.";
@@ -628,11 +628,19 @@ module ietf-te-topology {
         }
         uses te-path-element;
       }
-    } // underlay-path
-    container underlay-backup-path {
+    } // underlay-primary-path
+    list underlay-backup-path {
+      key "index";
       description 
-        "The backup service path on the underlay topology that
-         supports this link.";
+        "A list of backup service paths on the underlay topology that
+        protect the underlay primary path. If the primary path is
+        not protected, the list contains zero element. If the primary
+        path is protected, the list contains one or more elements.";
+      leaf index {
+        type uint32;
+        description
+          "A sequence number to indentify a backup path.";
+      }
       leaf provider-id-ref {
         type leafref {
           path "/tet:te-topologies/tet:topology/tet:provider-id";
