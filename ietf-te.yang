@@ -41,6 +41,213 @@ module ietf-te {
   /**
    * TE interface generic groupings
    */
+  grouping te-admin-groups_config {
+    description
+      "TE interface affinities grouping";
+    choice admin-group-type {
+      description
+        "TE interface administrative groups
+        representation type";
+      case value-admin-groups {
+        choice value-admin-group-type {
+          case value-admin-groups {
+            description
+              "Administrative group/Resource
+              class/Color.";
+            leaf admin-group {
+              type ietf-te-types:admin-group;
+              description
+                "TE interface administrative group";
+            }
+          }
+          case value-extended-admin-groups {
+            if-feature ietf-te-types:extended-admin-groups;
+            description
+              "Extended administrative group/Resource
+              class/Color.";
+            leaf extended-admin-group {
+              type ietf-te-types:extended-admin-group;
+              description
+                "TE interface extended administrativei
+                group";
+            }
+          }
+        }
+      }
+      case named-admin-groups {
+        list named-admin-groups {
+          if-feature ietf-te-types:extended-admin-groups;
+          if-feature ietf-te-types:named-extended-admin-groups;
+          key named-admin-group;
+          description
+            "A list of named admin-group entries";
+          leaf named-admin-group {
+            type leafref {
+              path "/te/globals/" +
+                "named-admin-groups/config/"+
+                "named-admin-groups/name";
+            }
+            description
+              "A named admin-group entry";
+          }
+        }
+      }
+    }
+  }
+
+  grouping te-admin-groups {
+    container te-admin-groups {
+      description
+        "Configuration parameters for interface 
+        administrative groups";
+      container config {
+        description
+          "Configuration parameters for interface
+          administrative groups";
+        uses te-admin-groups_config;
+      }
+      container state {
+        config false;
+        description
+          "Configuration parameters for interface
+          administrative groups";
+        uses te-admin-groups_config;
+      }
+    }
+  }
+
+  /* TE interface SRLGs */
+  grouping te-srlgs_config {
+    description "TE interface SRLG grouping";
+    choice srlg-type {
+      case value-srlgs {
+        list values {
+          key "value";
+          description "List of SRLG values that
+            this link is part of.";
+          leaf value {
+            type uint32 {
+              range "0..4294967295";
+            }
+            description
+              "Value of the SRLG";
+          }
+        }
+      }
+      case named-srlgs {
+        list named-srlgs {
+          if-feature ietf-te-types:named-srlg-groups;
+          key named-srlg;
+          description
+            "A list of named SRLG entries";
+          leaf named-srlg {
+            type leafref {
+              path "/te:te/te:globals/" +
+                "te:named-srlgs/te:config/te:named-srlgs/te:name";
+            }
+            description
+              "A named SRLG entry";
+          }
+        }
+      }
+    }
+  }
+
+  grouping te-srlgs {
+    container te-srlgs {
+      description "TBD";
+      container config {
+        description
+          "Configuration parameters for interface SRLG
+          groups";
+        uses te-srlgs_config;
+      }
+      container state {
+        config false;
+        description
+          "State parameters for interface SRLG groups";
+        uses te-srlgs_config;
+      }
+    }
+  }
+
+  grouping te-metric_config {
+    description "Interface TE metric grouping";
+    leaf te-metric {
+      type ietf-te-types:te-metric;
+      description "Interface TE metric.";
+    }
+  }
+
+  grouping te-metric {
+    container te-metric {
+      container config {
+        description
+          "Configuration parameters for interface TE
+          metric";
+        uses te-metric_config;
+      }
+      container state {
+        config false;
+        description
+          "State parameters for interface TE metric";
+        uses te-metric_config;
+      }
+    }
+  }
+
+  /* TE interface switching capabilities */
+  grouping te-switching-cap_config {
+    description
+      "TE interface switching capabilities";
+    list switching-capabilities {
+      key "switching-capability";
+      description
+        "List of interface capabilities for this interface";
+      leaf switching-capability {
+        type identityref {
+          base ietf-te-types:switching-capabilities;
+        }
+        description
+          "Switching Capability for this interface";
+      }
+      leaf encoding {
+        type identityref {
+          base ietf-te-types:lsp-encoding-types;
+        }
+        description
+          "Encoding supported by this interface";
+      }
+    }
+  }
+
+  grouping te-switching-cap {
+    container te-switching-cap {
+      description
+        "Interface switching capabilities container";
+      container config {
+        description
+          "Configuration parameters for interface
+          switching capabilities";
+        uses te-switching-cap_config;
+      }
+      container state {
+        config false;
+        description
+          "State parameters for interface switching
+          capabilities";
+        uses te-switching-cap_config;
+      }
+    }
+  }
+
+  grouping interface-te-attributes {
+    description "Interface TE properties grouping.";
+    uses te-metric;
+    uses te-admin-groups;
+    uses te-srlgs;
+    uses te-switching-cap;
+  }
   grouping interface-admission-state {
     description "TE interface admission state";
     container interface-admission-state {
@@ -188,6 +395,61 @@ module ietf-te {
    * TE tunnel generic groupings
    */
 
+  /* TE tunnel path properties */
+  grouping tunnel-path-params {
+    description
+      "Tunnel path properties grouping";
+    container tunnel-path-params {
+      description
+        "Defines a TE tunnel path properties";
+      leaf path-named-constraint {
+        if-feature ietf-te-types:named-path-constraints;
+        type leafref {
+            path "/te/globals/named-path-constraints/config/"+
+                 "named-path-constraints/name";
+        }
+        description
+          "Reference to a globally defined named path
+           constraint set";
+      }
+      uses ietf-te-types:tunnel-path-selection;
+      choice type {
+        description
+          "Describes the path type";
+        case dynamic {
+          leaf dynamic {
+              type empty;
+              description
+                  "A CSPF dynamically computed path";
+          }
+        }
+        case explicit {
+          leaf explicit-path-name {
+              type leafref {
+                  path "/te/globals/named-explicit-paths/config/"+
+                       "named-explicit-paths/name";
+              }
+              description
+                  "Reference to a globally defined
+                   explicit-path";
+          }
+        }
+      }
+      leaf no-cspf {
+        type empty;
+        description
+            "Indicates no CSPF is to be attempted on this
+             path.";
+      }
+      leaf lockdown {
+        type empty;
+        description
+            "Indicates no reoptimization to be attempted for
+             this path.";
+      }
+    }
+  }
+
   grouping tunnel-properties_config {
     description
       "Configuration parameters relating to TE tunnel";
@@ -231,7 +493,7 @@ module ietf-te {
               number higher the
               preference";
           }
-          uses ietf-te-types:tunnel-path-params;
+          uses tunnel-path-params;
           list seondary-paths {
             key "preference";
             description
@@ -247,8 +509,7 @@ module ietf-te {
                 number higher the
                 preference";
             }
-            uses
-              ietf-te-types:tunnel-path-params;
+            uses tunnel-path-params;
           }
         }
       }
@@ -278,8 +539,7 @@ module ietf-te {
                 number higher the
                 preference";
             }
-            uses
-              ietf-te-types:tunnel-path-params;
+            uses tunnel-path-params;
             list seondary-paths {
               key "preference";
               description
@@ -294,8 +554,7 @@ module ietf-te {
                     the number higher
                       the preference";
               }
-              uses
-                ietf-te-types:tunnel-path-params;
+              uses tunnel-path-params;
             }
           }
         }
@@ -733,7 +992,7 @@ module ietf-te {
             "TE interface name.";
         }
         /* TE interface parameters */
-        uses ietf-te-types:interface-te-attributes;
+        uses interface-te-attributes;
         /* TE interface flooding parameters */
         uses ietf-te-types:interface-te-flooding-parameters;
       }

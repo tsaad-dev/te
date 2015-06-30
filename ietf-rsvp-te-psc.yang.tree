@@ -2,6 +2,12 @@ module: ietf-rsvp-te-psc
 augment /rsvp:rsvp/rsvp:globals:
    +--rw rsvp-frr-local-revert!
       +--rw rsvp-frr-local-revert-delay?   uint32
+augment /rsvp:rsvp/rsvp:interfaces:
+augment /rsvp:rsvp/rsvp:interfaces/rsvp:interface:
+augment /rsvp:rsvp/rsvp:sessions:
+augment /rsvp:rsvp/rsvp:neighbors:
+augment /rsvp:rsvp/rsvp:sessions-state:
+augment /rsvp:rsvp/rsvp:neighbors-state:
 augment /ietf-te:te/ietf-te:tunnels/ietf-te:tunnel:
    +--rw lsp-properties-psc
       +--rw config
@@ -89,9 +95,25 @@ augment /ietf-te:te/ietf-te:interfaces/ietf-te:interface:
                +--:(auto-tunnel)
                   +--ro auto-backup-protection?         identityref
                   +--ro auto-backup-path-computation?   identityref
-augment /rsvp:rsvp/rsvp:interfaces:
-augment /rsvp:rsvp/rsvp:interfaces/rsvp:interface:
-augment /rsvp:rsvp/rsvp:sessions:
-augment /rsvp:rsvp/rsvp:neighbors:
-augment /rsvp:rsvp/rsvp:sessions-state:
-augment /rsvp:rsvp/rsvp:neighbors-state:
+augment /ietf-te:te/ietf-te:interfaces-state/ietf-te:interface:
+   +--ro interface-softpreemption-state
+      +--ro soft-preempted-bandwidth?    uint32
+      +--ro over-subscribed-bandwidth?   uint32
+      +--ro lsps* [source destination tunnel-id lsp-id extended-tunnel-id]
+         +--ro source                leafref
+         +--ro destination           leafref
+         +--ro tunnel-id             leafref
+         +--ro lsp-id                leafref
+         +--ro extended-tunnel-id    leafref
+augment /ietf-te:te/ietf-te:lsps-state/ietf-te:lsp:
+   +--ro local-protection-desired?       empty
+   +--ro bandwidth-protection-desired?   empty
+   +--ro node-protection-desired?        empty
+   +--ro non-php-desired?                empty
+   +--ro entropy-label-cap?              empty
+   +--ro oam-mep-entities-desired?       empty
+   +--ro oam-mip-entities-desired?       empty
+   +--ro backup-info
+      +--ro backup-tunnel-name?         string
+      +--ro backup-frr-on?              uint8
+      +--ro backup-protected-lsp-num?   uint32
