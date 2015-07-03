@@ -50,6 +50,7 @@ module ietf-te {
         representation type";
       case value-admin-groups {
         choice value-admin-group-type {
+          description "choice of admin-groups";
           case value-admin-groups {
             description
               "Administrative group/Resource
@@ -96,6 +97,7 @@ module ietf-te {
   }
 
   grouping te-admin-groups {
+    description "TE admin-group configuration grouping";
     container te-admin-groups {
       description
         "Configuration parameters for interface 
@@ -120,6 +122,7 @@ module ietf-te {
   grouping te-srlgs_config {
     description "TE interface SRLG grouping";
     choice srlg-type {
+      description "Choice of SRLG configuration";
       case value-srlgs {
         list values {
           key "value";
@@ -154,6 +157,7 @@ module ietf-te {
   }
 
   grouping te-srlgs {
+    description "TE SRLG configuration grouping";
     container te-srlgs {
       description "TBD";
       container config {
@@ -179,12 +183,14 @@ module ietf-te {
     }
   }
 
-  grouping te-metric {
-    container te-metric {
+  grouping te-attributes {
+    description "TE attributes configuration grouping";
+    container te-attributes {
+      description "TE attributes configuration container";
       container config {
         description
           "Configuration parameters for interface TE
-          metric";
+           attributes";
         uses te-metric_config;
       }
       container state {
@@ -222,6 +228,7 @@ module ietf-te {
   }
 
   grouping te-switching-cap {
+    description "TE interface switching capability grouping";
     container te-switching-cap {
       description
         "Interface switching capabilities container";
@@ -243,82 +250,10 @@ module ietf-te {
 
   grouping interface-te-attributes {
     description "Interface TE properties grouping.";
-    uses te-metric;
+    uses te-attributes;
     uses te-admin-groups;
     uses te-srlgs;
     uses te-switching-cap;
-  }
-  grouping interface-admission-state {
-    description "TE interface admission state";
-    container interface-admission-state {
-      description
-        "TE interface admission state container";
-      list lsp {
-        key "source destination tunnel-id lsp-id";
-        description
-          "List of LSPs associated with the tunnel.";
-        leaf type {
-          type identityref {
-            base ietf-te-types:tunnel-type;
-          }
-          description "TE tunnel type.";
-        }
-        leaf source {
-          type leafref {
-            path "../../../../../lsps-state/lsp/source";
-          }
-          description
-            "Tunnel sender address extracted from
-            SENDER_TEMPLATE  object";
-          reference "RFC3209";
-        }
-        leaf destination {
-          type leafref {
-            path "../../../../../lsps-state/"+
-              "lsp/destination";
-          }
-          description
-            "Tunnel endpoint address extracted from
-            SESSION object";
-          reference "RFC3209";
-        }
-        leaf tunnel-id {
-          type leafref {
-            path "../../../../../lsps-state/lsp"+
-              "/tunnel-id";
-          }
-          description
-            "Tunnel identifier used in the SESSION
-            that remains constant over the life
-            of the tunnel.";
-          reference "RFC3209";
-        }
-        leaf lsp-id {
-          type leafref {
-            path "../../../../../lsps-state/lsp/lsp-id";
-          }
-          description
-            "Identifier used in the SENDER_TEMPLATE
-            and the FILTER_SPEC that can be changed
-            to allow a sender to share resources with
-            itself.";
-          reference "RFC3209";
-        }
-        leaf extended-tunnel-id {
-          type leafref {
-            path "../../../../../lsps-state/lsp/"+
-              "extended-tunnel-id";
-          }
-          description
-            "Extended Tunnel ID of the LSP.";
-          reference "RFC3209";
-        }
-        leaf lsp_rerouted {
-          type empty;
-          description "LSP is rerouted";
-        }
-      }
-    }
   }
 
   grouping interface-advertisements-state {
@@ -405,12 +340,12 @@ module ietf-te {
       leaf path-named-constraint {
         if-feature ietf-te-types:named-path-constraints;
         type leafref {
-            path "/te/globals/named-path-constraints/config/"+
-                 "named-path-constraints/name";
+          path "/te/globals/named-path-constraints/config/"+
+            "named-path-constraints/name";
         }
         description
           "Reference to a globally defined named path
-           constraint set";
+          constraint set";
       }
       uses ietf-te-types:tunnel-path-selection;
       choice type {
@@ -418,34 +353,34 @@ module ietf-te {
           "Describes the path type";
         case dynamic {
           leaf dynamic {
-              type empty;
-              description
-                  "A CSPF dynamically computed path";
+            type empty;
+            description
+              "A CSPF dynamically computed path";
           }
         }
         case explicit {
           leaf explicit-path-name {
-              type leafref {
-                  path "/te/globals/named-explicit-paths/config/"+
-                       "named-explicit-paths/name";
-              }
-              description
-                  "Reference to a globally defined
-                   explicit-path";
+            type leafref {
+              path "/te/globals/named-explicit-paths/config/"+
+                "named-explicit-paths/name";
+            }
+            description
+              "Reference to a globally defined
+              explicit-path";
           }
         }
       }
       leaf no-cspf {
         type empty;
         description
-            "Indicates no CSPF is to be attempted on this
-             path.";
+          "Indicates no CSPF is to be attempted on this
+          path.";
       }
       leaf lockdown {
         type empty;
         description
-            "Indicates no reoptimization to be attempted for
-             this path.";
+          "Indicates no reoptimization to be attempted for
+          this path.";
       }
     }
   }
@@ -565,7 +500,7 @@ module ietf-te {
   grouping tunnel-properties {
     description
       "Top level grouping for tunnel properties.";
-    container tunnel-properties{
+    container tunnel-properties {
       description
         "Top level container for tunnel properties";
       container config {
@@ -584,7 +519,7 @@ module ietf-te {
     }
   }
 
-  grouping tunnel-state {
+  grouping tunnel-properties_state {
     description
       "State parameters relating to TE tunnel";
     leaf oper-status {
@@ -599,7 +534,7 @@ module ietf-te {
 
       leaf source {
         type leafref {
-          path "../../../../lsps-state/lsp/source";
+          path "/te/lsps-state/lsp/source";
         }
         description
           "Tunnel sender address extracted from
@@ -608,7 +543,7 @@ module ietf-te {
       }
       leaf destination {
         type leafref {
-          path "../../../../lsps-state/lsp/destination";
+          path "/te/lsps-state/lsp/destination";
         }
         description
           "Tunnel endpoint address extracted from
@@ -617,7 +552,7 @@ module ietf-te {
       }
       leaf tunnel-id {
         type leafref {
-          path "../../../../lsps-state/lsp/tunnel-id";
+          path "/te/lsps-state/lsp/tunnel-id";
         }
         description
           "Tunnel identifier used in the SESSION
@@ -627,7 +562,7 @@ module ietf-te {
       }
       leaf lsp-id {
         type leafref {
-          path "../../../../lsps-state/lsp/lsp-id";
+          path "/te/lsps-state/lsp/lsp-id";
         }
         description
           "Identifier used in the SENDER_TEMPLATE
@@ -638,11 +573,17 @@ module ietf-te {
       }
       leaf extended-tunnel-id {
         type leafref {
-          path "../../../../lsps-state/lsp/extended-tunnel-id";
+          path "/te/lsps-state/lsp/extended-tunnel-id";
         }
         description
           "Extended Tunnel ID of the LSP.";
         reference "RFC3209";
+      }
+      leaf type {
+        type leafref {
+          path "/te/lsps-state/lsp/type";
+        }
+        description "LSP type P2P or P2MP";
       }
     }
   }
@@ -652,7 +593,7 @@ module ietf-te {
    * LSP related generic groupings
    */
 
-  grouping lsp-state {
+  grouping lsp-properties_state {
     description
       "State parameters relating to LSP";
     leaf oper-status {
@@ -680,6 +621,52 @@ module ietf-te {
       description
         "Origin type of LSP relative to the location 
         of the local switch in the path.";
+    }
+
+    leaf lsp-resource-status {
+      type enumeration {
+        enum primary {
+          description
+            "A primary LSP is a fully established LSP for
+             which the resource allocation has been committed
+             at the data plane";
+        }
+        enum secondary {
+          description
+            "A secondary LSP is an LSP that has been provisioned
+             in the control plane only; e.g. resource allocation
+             has not been committed at the data plane";
+        }
+      }
+      description "LSP resource allocation type";
+      reference "rfc4872, section 4.2.1";
+    }
+
+    leaf lsp-protection-status {
+      type enumeration {
+        enum working {
+          description
+            "A working LSP must be a primary LSP whilst a protecting
+             LSP can be either a primary or a secondary LSP. Also,
+             known as protected LSPs when working LSPs are associated
+             with protecting LSPs.";
+        }
+        enum protecting {
+          description
+            "A secondary LSP is an LSP that has been provisioned
+             in the control plane only; e.g. resource allocation
+             has not been committed at the data plane";
+        }
+      }
+      description "LSP role type";
+      reference "rfc4872, section 4.2.1";
+    }
+
+    leaf lsp-operational-status {
+      type empty;
+      description
+        "This bit is set when a protecting LSP is carrying the normal
+         traffic after protection switching";
     }
 
     container lsp-timers {
@@ -772,6 +759,22 @@ module ietf-te {
   /**
    * TE global generic groupings
    */
+
+  grouping global-attributes {
+    description "TE Global attributes grouping";
+    container global-attributes {
+      description "TE Global attributes container";
+      container config {
+        description
+          "Global configuration parameters";
+      }
+      container state {
+        config false;
+        description
+          "Global configuration parameters";
+      }
+    }
+  }
 
   grouping named-admin-groups_config {
     description
@@ -972,7 +975,7 @@ module ietf-te {
       description
         "Configuration data for Global System-wide
         Traffic Engineering.";
-
+      uses global-attributes;
       uses named-admin-groups;
       uses named-srlgs;
       uses named-explicit-paths;
@@ -1026,35 +1029,12 @@ module ietf-te {
         uses tunnel-properties;
       }
     }
-    /* MPLS-TE Global Operational Data */
-    container global-state {
-      config "false";
-      description
-        "State for global TE data";
-    }
 
-    /* TE Interfaces State Data */
-    container interfaces-state {
-      config "false";
-      description
-        "Operational data model for TE interfaces.";
-      list interface {
-        key "interface";
-        description "TE interfaces.";
-        leaf interface {
-          type if:interface-ref;
-          description
-            "TE interface name.";
-        }
-        uses interface-admission-state;
-        uses interface-advertisements-state;
-      }
-    }
-
-    /* TE Tunnel State Data */
+    /* TE Tunnel Ephemeral State Data */
     container tunnels-state {
       config "false";
-      description "MPLS-TE tunnel operational state data.";
+      description
+        "Derived state corresponding to ephemeral tunnels";
 
       list tunnel {
         key "name type";
@@ -1076,18 +1056,19 @@ module ietf-te {
             "TE tunnel Identifier.";
         }
 
-        uses tunnel-state;
+        uses tunnel-properties_state;
       }
     }
 
+    /* TE LSPs State Data */
     container lsps-state {
       config "false";
       description "MPLS-TE LSP operational state data.";
 
       list lsp {
-        key 
+        key
           "source destination tunnel-id lsp-id "+
-          "extended-tunnel-id";
+          "extended-tunnel-id type";
         description
           "List of LSPs associated with the tunnel.";
         leaf source {
@@ -1126,8 +1107,14 @@ module ietf-te {
           description
             "Extended Tunnel ID of the LSP.";
           reference "RFC3209";
-        } 
-        uses lsp-state;
+        }
+        leaf type {
+          type identityref {
+            base ietf-te-types:tunnel-type;
+          }
+          description "The LSP type P2P or P2MP";
+        }
+        uses lsp-properties_state;
       }
     }
   }
@@ -1142,6 +1129,34 @@ module ietf-te {
   rpc interfaces-rpc {
     description
       "Execution data for TE interfaces.";
+  }
+
+  /* TE globals derived state augmentation properties */
+  augment "/te/globals/global-attributes/state" {
+    description
+      "Derived state corresponding to TE interfaces";
+    leaf tunnels-counter {
+      type uint32;
+      description "Tunnels count";
+    }
+    leaf lsps-counter {
+      type uint32;
+      description "Tunnels count";
+    }
+  }
+
+  /* TE tunnels derived state augmentation properties */
+  augment "/te/tunnels/tunnel/tunnel-properties/state" {
+    description
+      "Derived state corresponding to TE tunnels";
+      uses tunnel-properties_state;
+  }
+
+  /* TE interfaces derived state augmentation properties */
+  augment "/te/interfaces/interface/te-attributes/state" {
+    description
+      "Derived state corresponding to TE interfaces";
+      uses interface-advertisements-state;
   }
 
   /* TE Tunnel RPCs/execution Data */

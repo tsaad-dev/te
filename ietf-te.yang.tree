@@ -1,6 +1,11 @@
 module: ietf-te
    +--rw te!
       +--rw globals
+      |  +--rw global-attributes
+      |  |  +--rw config
+      |  |  +--ro state
+      |  |     +--ro tunnels-counter?   uint32
+      |  |     +--ro lsps-counter?      uint32
       |  +--rw named-admin-groups
       |  |  +--rw config
       |  |  |  +--rw named-admin-groups* [name] {ietf-te-types:extended-admin-groups,ietf-te-types:named-extended-admin-groups}?
@@ -132,11 +137,18 @@ module: ietf-te
       +--rw interfaces
       |  +--rw interface* [interface]
       |     +--rw interface                 if:interface-ref
-      |     +--rw te-metric
+      |     +--rw te-attributes
       |     |  +--rw config
       |     |  |  +--rw te-metric?   ietf-te-types:te-metric
       |     |  +--ro state
-      |     |     +--ro te-metric?   ietf-te-types:te-metric
+      |     |     +--ro te-metric?                        ietf-te-types:te-metric
+      |     |     +--ro interface-advertisements-state
+      |     |        +--ro flood-interval?           uint32
+      |     |        +--ro last-flooded-time?        uint32
+      |     |        +--ro next-flooded-time?        uint32
+      |     |        +--ro last-flooded-trigger?     enumeration
+      |     |        +--ro advertized-level-areas* [level-area]
+      |     |           +--ro level-area    uint32
       |     +--rw te-admin-groups
       |     |  +--rw config
       |     |  |  +--rw (admin-group-type)?
@@ -458,191 +470,179 @@ module: ietf-te
       |           |     +--ro type?            identityref
       |           |     +--ro provisioing?     identityref
       |           +--ro (path-type)?
-      |              +--:(p2p)
-      |              |  +--ro destination?            inet:ip-address
-      |              |  +--ro primary-paths* [preference]
-      |              |     +--ro preference            uint8
-      |              |     +--ro tunnel-path-params
-      |              |     |  +--ro path-named-constraint?   leafref {ietf-te-types:named-path-constraints}?
-      |              |     |  +--ro path-selection
-      |              |     |  |  +--ro topology?                 topology-id
-      |              |     |  |  +--ro cost-limit?               uint32
-      |              |     |  |  +--ro hop-limit?                uint8
-      |              |     |  |  +--ro metric-type?              identityref
-      |              |     |  |  +--ro tiebreaker-type?          identityref
-      |              |     |  |  +--ro ignore-overload?          boolean
-      |              |     |  |  +--ro tunnel-path-affinities {named-path-affinities}?
-      |              |     |  |  |  +--ro (style)?
-      |              |     |  |  |     +--:(values)
-      |              |     |  |  |     |  +--ro value?         uint32
-      |              |     |  |  |     |  +--ro mask?          uint32
-      |              |     |  |  |     +--:(named)
-      |              |     |  |  |        +--ro constraints* [usage]
-      |              |     |  |  |           +--ro usage         identityref
-      |              |     |  |  |           +--ro constraint
-      |              |     |  |  |              +--ro affinity-names* [name]
-      |              |     |  |  |                 +--ro name    string
-      |              |     |  |  +--ro tunnel-path-srlgs
-      |              |     |  |     +--ro (style)?
-      |              |     |  |        +--:(values)
-      |              |     |  |        |  +--ro usage?         identityref
-      |              |     |  |        |  +--ro values*        srlg
-      |              |     |  |        +--:(named)
-      |              |     |  |           +--ro constraints* [usage]
-      |              |     |  |              +--ro usage         identityref
-      |              |     |  |              +--ro constraint
-      |              |     |  |                 +--ro srlg-names* [name]
-      |              |     |  |                    +--ro name    string
-      |              |     |  +--ro (type)?
-      |              |     |  |  +--:(dynamic)
-      |              |     |  |  |  +--ro dynamic?                 empty
-      |              |     |  |  +--:(explicit)
-      |              |     |  |     +--ro explicit-path-name?      leafref
-      |              |     |  +--ro no-cspf?                 empty
-      |              |     |  +--ro lockdown?                empty
-      |              |     +--ro seondary-paths* [preference]
-      |              |        +--ro preference            uint8
-      |              |        +--ro tunnel-path-params
-      |              |           +--ro path-named-constraint?   leafref {ietf-te-types:named-path-constraints}?
-      |              |           +--ro path-selection
-      |              |           |  +--ro topology?                 topology-id
-      |              |           |  +--ro cost-limit?               uint32
-      |              |           |  +--ro hop-limit?                uint8
-      |              |           |  +--ro metric-type?              identityref
-      |              |           |  +--ro tiebreaker-type?          identityref
-      |              |           |  +--ro ignore-overload?          boolean
-      |              |           |  +--ro tunnel-path-affinities {named-path-affinities}?
-      |              |           |  |  +--ro (style)?
-      |              |           |  |     +--:(values)
-      |              |           |  |     |  +--ro value?         uint32
-      |              |           |  |     |  +--ro mask?          uint32
-      |              |           |  |     +--:(named)
-      |              |           |  |        +--ro constraints* [usage]
-      |              |           |  |           +--ro usage         identityref
-      |              |           |  |           +--ro constraint
-      |              |           |  |              +--ro affinity-names* [name]
-      |              |           |  |                 +--ro name    string
-      |              |           |  +--ro tunnel-path-srlgs
-      |              |           |     +--ro (style)?
-      |              |           |        +--:(values)
-      |              |           |        |  +--ro usage?         identityref
-      |              |           |        |  +--ro values*        srlg
-      |              |           |        +--:(named)
-      |              |           |           +--ro constraints* [usage]
-      |              |           |              +--ro usage         identityref
-      |              |           |              +--ro constraint
-      |              |           |                 +--ro srlg-names* [name]
-      |              |           |                    +--ro name    string
-      |              |           +--ro (type)?
-      |              |           |  +--:(dynamic)
-      |              |           |  |  +--ro dynamic?                 empty
-      |              |           |  +--:(explicit)
-      |              |           |     +--ro explicit-path-name?      leafref
-      |              |           +--ro no-cspf?                 empty
-      |              |           +--ro lockdown?                empty
-      |              +--:(p2mp) {ietf-te-types:p2mp-te}?
-      |                 +--ro p2mp-paths* [destination]
-      |                    +--ro destination      inet:ip-address
-      |                    +--ro primary-paths* [preference]
-      |                       +--ro preference            uint8
-      |                       +--ro tunnel-path-params
-      |                       |  +--ro path-named-constraint?   leafref {ietf-te-types:named-path-constraints}?
-      |                       |  +--ro path-selection
-      |                       |  |  +--ro topology?                 topology-id
-      |                       |  |  +--ro cost-limit?               uint32
-      |                       |  |  +--ro hop-limit?                uint8
-      |                       |  |  +--ro metric-type?              identityref
-      |                       |  |  +--ro tiebreaker-type?          identityref
-      |                       |  |  +--ro ignore-overload?          boolean
-      |                       |  |  +--ro tunnel-path-affinities {named-path-affinities}?
-      |                       |  |  |  +--ro (style)?
-      |                       |  |  |     +--:(values)
-      |                       |  |  |     |  +--ro value?         uint32
-      |                       |  |  |     |  +--ro mask?          uint32
-      |                       |  |  |     +--:(named)
-      |                       |  |  |        +--ro constraints* [usage]
-      |                       |  |  |           +--ro usage         identityref
-      |                       |  |  |           +--ro constraint
-      |                       |  |  |              +--ro affinity-names* [name]
-      |                       |  |  |                 +--ro name    string
-      |                       |  |  +--ro tunnel-path-srlgs
-      |                       |  |     +--ro (style)?
-      |                       |  |        +--:(values)
-      |                       |  |        |  +--ro usage?         identityref
-      |                       |  |        |  +--ro values*        srlg
-      |                       |  |        +--:(named)
-      |                       |  |           +--ro constraints* [usage]
-      |                       |  |              +--ro usage         identityref
-      |                       |  |              +--ro constraint
-      |                       |  |                 +--ro srlg-names* [name]
-      |                       |  |                    +--ro name    string
-      |                       |  +--ro (type)?
-      |                       |  |  +--:(dynamic)
-      |                       |  |  |  +--ro dynamic?                 empty
-      |                       |  |  +--:(explicit)
-      |                       |  |     +--ro explicit-path-name?      leafref
-      |                       |  +--ro no-cspf?                 empty
-      |                       |  +--ro lockdown?                empty
-      |                       +--ro seondary-paths* [preference]
-      |                          +--ro preference            uint8
-      |                          +--ro tunnel-path-params
-      |                             +--ro path-named-constraint?   leafref {ietf-te-types:named-path-constraints}?
-      |                             +--ro path-selection
-      |                             |  +--ro topology?                 topology-id
-      |                             |  +--ro cost-limit?               uint32
-      |                             |  +--ro hop-limit?                uint8
-      |                             |  +--ro metric-type?              identityref
-      |                             |  +--ro tiebreaker-type?          identityref
-      |                             |  +--ro ignore-overload?          boolean
-      |                             |  +--ro tunnel-path-affinities {named-path-affinities}?
-      |                             |  |  +--ro (style)?
-      |                             |  |     +--:(values)
-      |                             |  |     |  +--ro value?         uint32
-      |                             |  |     |  +--ro mask?          uint32
-      |                             |  |     +--:(named)
-      |                             |  |        +--ro constraints* [usage]
-      |                             |  |           +--ro usage         identityref
-      |                             |  |           +--ro constraint
-      |                             |  |              +--ro affinity-names* [name]
-      |                             |  |                 +--ro name    string
-      |                             |  +--ro tunnel-path-srlgs
-      |                             |     +--ro (style)?
-      |                             |        +--:(values)
-      |                             |        |  +--ro usage?         identityref
-      |                             |        |  +--ro values*        srlg
-      |                             |        +--:(named)
-      |                             |           +--ro constraints* [usage]
-      |                             |              +--ro usage         identityref
-      |                             |              +--ro constraint
-      |                             |                 +--ro srlg-names* [name]
-      |                             |                    +--ro name    string
-      |                             +--ro (type)?
-      |                             |  +--:(dynamic)
-      |                             |  |  +--ro dynamic?                 empty
-      |                             |  +--:(explicit)
-      |                             |     +--ro explicit-path-name?      leafref
-      |                             +--ro no-cspf?                 empty
-      |                             +--ro lockdown?                empty
-      +--ro global-state
-      +--ro interfaces-state
-      |  +--ro interface* [interface]
-      |     +--ro interface                         if:interface-ref
-      |     +--ro interface-admission-state
-      |     |  +--ro lsp* [source destination tunnel-id lsp-id]
-      |     |     +--ro type?                 identityref
-      |     |     +--ro source                leafref
-      |     |     +--ro destination           leafref
-      |     |     +--ro tunnel-id             leafref
-      |     |     +--ro lsp-id                leafref
-      |     |     +--ro extended-tunnel-id?   leafref
-      |     |     +--ro lsp_rerouted?         empty
-      |     +--ro interface-advertisements-state
-      |        +--ro flood-interval?           uint32
-      |        +--ro last-flooded-time?        uint32
-      |        +--ro next-flooded-time?        uint32
-      |        +--ro last-flooded-trigger?     enumeration
-      |        +--ro advertized-level-areas* [level-area]
-      |           +--ro level-area    uint32
+      |           |  +--:(p2p)
+      |           |  |  +--ro destination?            inet:ip-address
+      |           |  |  +--ro primary-paths* [preference]
+      |           |  |     +--ro preference            uint8
+      |           |  |     +--ro tunnel-path-params
+      |           |  |     |  +--ro path-named-constraint?   leafref {ietf-te-types:named-path-constraints}?
+      |           |  |     |  +--ro path-selection
+      |           |  |     |  |  +--ro topology?                 topology-id
+      |           |  |     |  |  +--ro cost-limit?               uint32
+      |           |  |     |  |  +--ro hop-limit?                uint8
+      |           |  |     |  |  +--ro metric-type?              identityref
+      |           |  |     |  |  +--ro tiebreaker-type?          identityref
+      |           |  |     |  |  +--ro ignore-overload?          boolean
+      |           |  |     |  |  +--ro tunnel-path-affinities {named-path-affinities}?
+      |           |  |     |  |  |  +--ro (style)?
+      |           |  |     |  |  |     +--:(values)
+      |           |  |     |  |  |     |  +--ro value?         uint32
+      |           |  |     |  |  |     |  +--ro mask?          uint32
+      |           |  |     |  |  |     +--:(named)
+      |           |  |     |  |  |        +--ro constraints* [usage]
+      |           |  |     |  |  |           +--ro usage         identityref
+      |           |  |     |  |  |           +--ro constraint
+      |           |  |     |  |  |              +--ro affinity-names* [name]
+      |           |  |     |  |  |                 +--ro name    string
+      |           |  |     |  |  +--ro tunnel-path-srlgs
+      |           |  |     |  |     +--ro (style)?
+      |           |  |     |  |        +--:(values)
+      |           |  |     |  |        |  +--ro usage?         identityref
+      |           |  |     |  |        |  +--ro values*        srlg
+      |           |  |     |  |        +--:(named)
+      |           |  |     |  |           +--ro constraints* [usage]
+      |           |  |     |  |              +--ro usage         identityref
+      |           |  |     |  |              +--ro constraint
+      |           |  |     |  |                 +--ro srlg-names* [name]
+      |           |  |     |  |                    +--ro name    string
+      |           |  |     |  +--ro (type)?
+      |           |  |     |  |  +--:(dynamic)
+      |           |  |     |  |  |  +--ro dynamic?                 empty
+      |           |  |     |  |  +--:(explicit)
+      |           |  |     |  |     +--ro explicit-path-name?      leafref
+      |           |  |     |  +--ro no-cspf?                 empty
+      |           |  |     |  +--ro lockdown?                empty
+      |           |  |     +--ro seondary-paths* [preference]
+      |           |  |        +--ro preference            uint8
+      |           |  |        +--ro tunnel-path-params
+      |           |  |           +--ro path-named-constraint?   leafref {ietf-te-types:named-path-constraints}?
+      |           |  |           +--ro path-selection
+      |           |  |           |  +--ro topology?                 topology-id
+      |           |  |           |  +--ro cost-limit?               uint32
+      |           |  |           |  +--ro hop-limit?                uint8
+      |           |  |           |  +--ro metric-type?              identityref
+      |           |  |           |  +--ro tiebreaker-type?          identityref
+      |           |  |           |  +--ro ignore-overload?          boolean
+      |           |  |           |  +--ro tunnel-path-affinities {named-path-affinities}?
+      |           |  |           |  |  +--ro (style)?
+      |           |  |           |  |     +--:(values)
+      |           |  |           |  |     |  +--ro value?         uint32
+      |           |  |           |  |     |  +--ro mask?          uint32
+      |           |  |           |  |     +--:(named)
+      |           |  |           |  |        +--ro constraints* [usage]
+      |           |  |           |  |           +--ro usage         identityref
+      |           |  |           |  |           +--ro constraint
+      |           |  |           |  |              +--ro affinity-names* [name]
+      |           |  |           |  |                 +--ro name    string
+      |           |  |           |  +--ro tunnel-path-srlgs
+      |           |  |           |     +--ro (style)?
+      |           |  |           |        +--:(values)
+      |           |  |           |        |  +--ro usage?         identityref
+      |           |  |           |        |  +--ro values*        srlg
+      |           |  |           |        +--:(named)
+      |           |  |           |           +--ro constraints* [usage]
+      |           |  |           |              +--ro usage         identityref
+      |           |  |           |              +--ro constraint
+      |           |  |           |                 +--ro srlg-names* [name]
+      |           |  |           |                    +--ro name    string
+      |           |  |           +--ro (type)?
+      |           |  |           |  +--:(dynamic)
+      |           |  |           |  |  +--ro dynamic?                 empty
+      |           |  |           |  +--:(explicit)
+      |           |  |           |     +--ro explicit-path-name?      leafref
+      |           |  |           +--ro no-cspf?                 empty
+      |           |  |           +--ro lockdown?                empty
+      |           |  +--:(p2mp) {ietf-te-types:p2mp-te}?
+      |           |     +--ro p2mp-paths* [destination]
+      |           |        +--ro destination      inet:ip-address
+      |           |        +--ro primary-paths* [preference]
+      |           |           +--ro preference            uint8
+      |           |           +--ro tunnel-path-params
+      |           |           |  +--ro path-named-constraint?   leafref {ietf-te-types:named-path-constraints}?
+      |           |           |  +--ro path-selection
+      |           |           |  |  +--ro topology?                 topology-id
+      |           |           |  |  +--ro cost-limit?               uint32
+      |           |           |  |  +--ro hop-limit?                uint8
+      |           |           |  |  +--ro metric-type?              identityref
+      |           |           |  |  +--ro tiebreaker-type?          identityref
+      |           |           |  |  +--ro ignore-overload?          boolean
+      |           |           |  |  +--ro tunnel-path-affinities {named-path-affinities}?
+      |           |           |  |  |  +--ro (style)?
+      |           |           |  |  |     +--:(values)
+      |           |           |  |  |     |  +--ro value?         uint32
+      |           |           |  |  |     |  +--ro mask?          uint32
+      |           |           |  |  |     +--:(named)
+      |           |           |  |  |        +--ro constraints* [usage]
+      |           |           |  |  |           +--ro usage         identityref
+      |           |           |  |  |           +--ro constraint
+      |           |           |  |  |              +--ro affinity-names* [name]
+      |           |           |  |  |                 +--ro name    string
+      |           |           |  |  +--ro tunnel-path-srlgs
+      |           |           |  |     +--ro (style)?
+      |           |           |  |        +--:(values)
+      |           |           |  |        |  +--ro usage?         identityref
+      |           |           |  |        |  +--ro values*        srlg
+      |           |           |  |        +--:(named)
+      |           |           |  |           +--ro constraints* [usage]
+      |           |           |  |              +--ro usage         identityref
+      |           |           |  |              +--ro constraint
+      |           |           |  |                 +--ro srlg-names* [name]
+      |           |           |  |                    +--ro name    string
+      |           |           |  +--ro (type)?
+      |           |           |  |  +--:(dynamic)
+      |           |           |  |  |  +--ro dynamic?                 empty
+      |           |           |  |  +--:(explicit)
+      |           |           |  |     +--ro explicit-path-name?      leafref
+      |           |           |  +--ro no-cspf?                 empty
+      |           |           |  +--ro lockdown?                empty
+      |           |           +--ro seondary-paths* [preference]
+      |           |              +--ro preference            uint8
+      |           |              +--ro tunnel-path-params
+      |           |                 +--ro path-named-constraint?   leafref {ietf-te-types:named-path-constraints}?
+      |           |                 +--ro path-selection
+      |           |                 |  +--ro topology?                 topology-id
+      |           |                 |  +--ro cost-limit?               uint32
+      |           |                 |  +--ro hop-limit?                uint8
+      |           |                 |  +--ro metric-type?              identityref
+      |           |                 |  +--ro tiebreaker-type?          identityref
+      |           |                 |  +--ro ignore-overload?          boolean
+      |           |                 |  +--ro tunnel-path-affinities {named-path-affinities}?
+      |           |                 |  |  +--ro (style)?
+      |           |                 |  |     +--:(values)
+      |           |                 |  |     |  +--ro value?         uint32
+      |           |                 |  |     |  +--ro mask?          uint32
+      |           |                 |  |     +--:(named)
+      |           |                 |  |        +--ro constraints* [usage]
+      |           |                 |  |           +--ro usage         identityref
+      |           |                 |  |           +--ro constraint
+      |           |                 |  |              +--ro affinity-names* [name]
+      |           |                 |  |                 +--ro name    string
+      |           |                 |  +--ro tunnel-path-srlgs
+      |           |                 |     +--ro (style)?
+      |           |                 |        +--:(values)
+      |           |                 |        |  +--ro usage?         identityref
+      |           |                 |        |  +--ro values*        srlg
+      |           |                 |        +--:(named)
+      |           |                 |           +--ro constraints* [usage]
+      |           |                 |              +--ro usage         identityref
+      |           |                 |              +--ro constraint
+      |           |                 |                 +--ro srlg-names* [name]
+      |           |                 |                    +--ro name    string
+      |           |                 +--ro (type)?
+      |           |                 |  +--:(dynamic)
+      |           |                 |  |  +--ro dynamic?                 empty
+      |           |                 |  +--:(explicit)
+      |           |                 |     +--ro explicit-path-name?      leafref
+      |           |                 +--ro no-cspf?                 empty
+      |           |                 +--ro lockdown?                empty
+      |           +--ro oper-status?            identityref
+      |           +--ro lsp* [source destination tunnel-id lsp-id]
+      |              +--ro source                leafref
+      |              +--ro destination           leafref
+      |              +--ro tunnel-id             leafref
+      |              +--ro lsp-id                leafref
+      |              +--ro extended-tunnel-id?   leafref
+      |              +--ro type?                 leafref
       +--ro tunnels-state
       |  +--ro tunnel* [name type]
       |     +--ro name           string
@@ -655,15 +655,20 @@ module: ietf-te
       |        +--ro tunnel-id             leafref
       |        +--ro lsp-id                leafref
       |        +--ro extended-tunnel-id?   leafref
+      |        +--ro type?                 leafref
       +--ro lsps-state
-         +--ro lsp* [source destination tunnel-id lsp-id extended-tunnel-id]
-            +--ro source                inet:ip-address
-            +--ro destination           inet:ip-address
-            +--ro tunnel-id             uint16
-            +--ro lsp-id                uint16
-            +--ro extended-tunnel-id    inet:ip-address
-            +--ro oper-status?          identityref
-            +--ro origin-type?          enumeration
+         +--ro lsp* [source destination tunnel-id lsp-id extended-tunnel-id type]
+            +--ro source                    inet:ip-address
+            +--ro destination               inet:ip-address
+            +--ro tunnel-id                 uint16
+            +--ro lsp-id                    uint16
+            +--ro extended-tunnel-id        inet:ip-address
+            +--ro type                      identityref
+            +--ro oper-status?              identityref
+            +--ro origin-type?              enumeration
+            +--ro lsp-resource-status?      enumeration
+            +--ro lsp-protection-status?    enumeration
+            +--ro lsp-operational-status?   empty
             +--ro lsp-timers
             |  +--ro life-time?         uint32
             |  +--ro time-to-install?   uint32

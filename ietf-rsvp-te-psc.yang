@@ -115,7 +115,18 @@ module ietf-rsvp-te-psc {
   /* End of RSVP-TE LSPs packet groupings */
 
   /* RSVP-TE packet interface groupings */
-  grouping rsvp-te-interface-softpreemption-state {
+  grouping rsvp-te-interface_state {
+    description
+      "The RSVP-TE interface state grouping";
+    leaf over-subscribed-bandwidth {
+      type uint32;
+      description
+        "The amount of over-subscribed bandwidth on
+        the interface";
+    }
+  }
+
+  grouping rsvp-te-interface-softpreemption_state {
     description
       "The RSVP-TE interface preeemptions state grouping";
     container interface-softpreemption-state {
@@ -127,12 +138,6 @@ module ietf-rsvp-te-psc {
           "The amount of soft-preempted bandwidth on
           this interface";
       }
-      leaf over-subscribed-bandwidth {
-        type uint32;
-        description
-          "The amount of over-subscribed bandwidth on
-          the interface";
-      }
       list lsps {
         key 
           "source destination tunnel-id lsp-id "+
@@ -141,7 +146,7 @@ module ietf-rsvp-te-psc {
           "List of LSPs that are soft-preempted";
         leaf source {
           type leafref {
-            path "../../../../../ietf-te:lsps-state/ietf-te:lsp/"+
+            path "/ietf-te:te/ietf-te:lsps-state/ietf-te:lsp/"+
                  "ietf-te:source";
           }
           description
@@ -151,7 +156,7 @@ module ietf-rsvp-te-psc {
         }
         leaf destination {
           type leafref {
-            path "../../../../../ietf-te:lsps-state/ietf-te:lsp/"+
+            path "/ietf-te:te/ietf-te:lsps-state/ietf-te:lsp/"+
                  "ietf-te:destination";
           }
           description
@@ -161,7 +166,7 @@ module ietf-rsvp-te-psc {
         }
         leaf tunnel-id {
           type leafref {
-            path "../../../../../ietf-te:lsps-state/ietf-te:lsp/"+
+            path "/ietf-te:te/ietf-te:lsps-state/ietf-te:lsp/"+
               "ietf-te:tunnel-id";
           }
           description
@@ -172,7 +177,7 @@ module ietf-rsvp-te-psc {
         }
         leaf lsp-id {
           type leafref {
-            path "../../../../../ietf-te:lsps-state/ietf-te:lsp/"+
+            path "/ietf-te:te/ietf-te:lsps-state/ietf-te:lsp/"+
                  "ietf-te:lsp-id";
           }
           description
@@ -184,12 +189,19 @@ module ietf-rsvp-te-psc {
         }
         leaf extended-tunnel-id {
           type leafref {
-            path "../../../../../ietf-te:lsps-state/ietf-te:lsp/"+
+            path "/ietf-te:te/ietf-te:lsps-state/ietf-te:lsp/"+
               "ietf-te:extended-tunnel-id";
           }
           description
             "Extended Tunnel ID of the LSP.";
           reference "RFC3209";
+        }
+        leaf type {
+          type leafref {
+            path "/ietf-te:te/ietf-te:lsps-state/ietf-te:lsp/"+
+              "ietf-te:type";
+          }
+          description "LSP type P2P or P2MP";
         }
       }
     }
@@ -200,57 +212,51 @@ module ietf-rsvp-te-psc {
   grouping rsvp-te-frr-backups_config {
     description
       "Top level container for RSVP-TE FRR backup parameters";
-    container rsvp-te-frr-backups {
-      if-feature ietf-te-types:frr-te;
+    leaf backup-bandwidth {
+      type uint32;
       description
-        "Top level container for RSVP-TE FRR backup
-        parameters";
-      leaf backup-bandwidth {
-        type uint32;
-        description
-          "Maximum bandwidth this facility backup
-          is allowed to protect";
-      }
-      leaf backup-bandwidth-classtype {
-        type uint32;
-        description
-          "Type of primary LSP bandwidth that the
-          backup is allowed to protect.";
-      }
-      choice type {
-        description
-          "FRR backup tunnel type";
-        case static-tunnel {
-          list static-backups {
-            key "tunnel-name";
-            description
-              "List of static backup tunnels that
-              protect the RSVP-TE interface.";
-            leaf tunnel-name {
-              type string;
-              description "FRR Backup tunnel";
-            }
+        "Maximum bandwidth this facility backup
+        is allowed to protect";
+    }
+    leaf backup-bandwidth-classtype {
+      type uint32;
+      description
+        "Type of primary LSP bandwidth that the
+        backup is allowed to protect.";
+    }
+    choice type {
+      description
+        "FRR backup tunnel type";
+      case static-tunnel {
+        list static-backups {
+          key "tunnel-name";
+          description
+            "List of static backup tunnels that
+            protect the RSVP-TE interface.";
+          leaf tunnel-name {
+            type string;
+            description "FRR Backup tunnel";
           }
         }
-        case auto-tunnel {
-          leaf auto-backup-protection {
-            type identityref {
-              base ietf-te-psc-types:backup-protection-type;
-            }
-            default
-              ietf-te-psc-types:backup-protection-node-link;
-            description
-              "Describes whether the backup should offer
-              protection against link, node, or either";
+      }
+      case auto-tunnel {
+        leaf auto-backup-protection {
+          type identityref {
+            base ietf-te-psc-types:backup-protection-type;
           }
-          leaf auto-backup-path-computation {
-            type identityref {
-              base
-                ietf-te-types:path-computation-srlg-type;
-            }
-            description
-              "FRR backup computation type";
+          default
+            ietf-te-psc-types:backup-protection-node-link;
+          description
+            "Describes whether the backup should offer
+            protection against link, node, or either";
+        }
+        leaf auto-backup-path-computation {
+          type identityref {
+            base
+              ietf-te-types:path-computation-srlg-type;
           }
+          description
+            "FRR backup computation type";
         }
       }
     }
@@ -260,6 +266,7 @@ module ietf-rsvp-te-psc {
     description
       "Top level grouping for RSVP-TE FRR backup properties.";
     container rsvp-te-frr-backups {
+      if-feature ietf-te-types:frr-te;
       description
         "Top level container for RSVP-TE FRR backup
         properties.";
@@ -279,7 +286,7 @@ module ietf-rsvp-te-psc {
     }
   }
 
-  grouping lps-backup-info {
+  grouping lps-backup-info_state {
     description "Backup/bypass LSP related information";
     container backup-info {
       description
@@ -347,6 +354,8 @@ module ietf-rsvp-te-psc {
           "State information associated with RSVP-TE
           bandwidth";
         uses ietf-te-psc-types:bandwidth-psc-reservable;
+        uses rsvp-te-interface-softpreemption_state;
+        uses rsvp-te-interface_state;
       }
     }
   }
@@ -399,17 +408,19 @@ module ietf-rsvp-te-psc {
     uses rsvp-te-frr-backups;
   }
 
-  augment "/ietf-te:te/ietf-te:interfaces-state/ietf-te:interface" {
+/*
+  augment "/ietf-te:te/ietf-te:interfaces/ietf-te:interface/"+
+          "ietf-te:te-attributes/ietf-te:state" {
     description
       "RSVP-TE interface state properties";
-    uses rsvp-te-interface-softpreemption-state;
-  }
+    uses rsvp-te-interface_state;
+  } */
 
   augment "/ietf-te:te/ietf-te:lsps-state/ietf-te:lsp" {
     description
       "RSVP-TE LSP state properties";
     uses lsp-session-attributes-obj-flags-psc_config;
     uses lsp-attributes-flags-psc_config;
-    uses lps-backup-info;
+    uses lps-backup-info_state;
   }
 }
