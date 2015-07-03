@@ -46,9 +46,9 @@ module: ietf-te-topology
    |  |  |  +--rw te-link* [te-link-id]
    |  |  |     +--rw te-link-id         te-link-id
    |  |  |     +--rw (stack-level)?
-   |  |  |        +--:(boundle)
-   |  |  |        |  +--rw boundled-links
-   |  |  |        |     +--rw boundled-link* [sequence]
+   |  |  |        +--:(bundle)
+   |  |  |        |  +--rw bundled-links
+   |  |  |        |     +--rw bundled-link* [sequence]
    |  |  |        |        +--rw sequence       uint32
    |  |  |        |        +--rw te-link-ref?   leafref
    |  |  |        +--:(component)
@@ -204,17 +204,11 @@ module: ietf-te-topology
    |  |        |     +--rw minimum-lsp-bandwidth?   decimal64
    |  |        |     +--rw indication?              enumeration
    |  |        +--rw te-srlgs
-   |  |           +--rw (srlg-type)?
-   |  |              +--:(value-srlgs)
-   |  |              |  +--rw values* [value]
-   |  |              |     +--rw value    uint32
-   |  |              +--:(named-srlgs)
-   |  |                 +--rw named-srlgs* [named-srlg] {ietf-te-types:named-srlg-groups}?
-   |  |                    +--rw named-srlg    leafref
+   |  |           +--rw values*   te-types:srlg
    |  +--rw node-template* [name] {template}?
    |  |  +--rw name                       te-template-name
    |  |  +--rw priority?                  uint16
-   |  |  +--rw reference-change-polocy?   enumeration
+   |  |  +--rw reference-change-policy?   enumeration
    |  |  +--rw te-node-template*          leafref
    |  |  +--rw te-node-attributes
    |  |  |  +--rw schedules* [schedule-id] {configuration-schedule}?
@@ -248,9 +242,9 @@ module: ietf-te-topology
    |  |  +--rw te-link* [te-link-id]
    |  |     +--rw te-link-id         te-link-id
    |  |     +--rw (stack-level)?
-   |  |        +--:(boundle)
-   |  |        |  +--rw boundled-links
-   |  |        |     +--rw boundled-link* [sequence]
+   |  |        +--:(bundle)
+   |  |        |  +--rw bundled-links
+   |  |        |     +--rw bundled-link* [sequence]
    |  |        |        +--rw sequence       uint32
    |  |        |        +--rw te-link-ref?   leafref
    |  |        +--:(component)
@@ -261,7 +255,7 @@ module: ietf-te-topology
    |  +--rw link-template* [name] {template}?
    |     +--rw name                       te-template-name
    |     +--rw priority?                  uint16
-   |     +--rw reference-change-polocy?   enumeration
+   |     +--rw reference-change-policy?   enumeration
    |     +--rw te-link-template*          leafref
    |     +--rw te-link-attributes
    |        +--rw schedules* [schedule-id] {configuration-schedule}?
@@ -405,13 +399,7 @@ module: ietf-te-topology
    |        |     +--rw minimum-lsp-bandwidth?   decimal64
    |        |     +--rw indication?              enumeration
    |        +--rw te-srlgs
-   |           +--rw (srlg-type)?
-   |              +--:(value-srlgs)
-   |              |  +--rw values* [value]
-   |              |     +--rw value    uint32
-   |              +--:(named-srlgs)
-   |                 +--rw named-srlgs* [named-srlg] {ietf-te-types:named-srlg-groups}?
-   |                    +--rw named-srlg    leafref
+   |           +--rw values*   te-types:srlg
    +--ro te-topologies-state
       +--ro topology* [provider-id client-id te-topology-id]
          +--ro provider-id        te-global-id
@@ -455,9 +443,9 @@ module: ietf-te-topology
          |  +--ro te-link* [te-link-id]
          |  |  +--ro te-link-id         te-link-id
          |  |  +--ro (stack-level)?
-         |  |     +--:(boundle)
-         |  |     |  +--ro boundled-links
-         |  |     |     +--ro boundled-link* [sequence]
+         |  |     +--:(bundle)
+         |  |     |  +--ro bundled-links
+         |  |     |     +--ro bundled-link* [sequence]
          |  |     |        +--ro sequence       uint32
          |  |     |        +--ro te-link-ref?   leafref
          |  |     +--:(component)
@@ -469,10 +457,11 @@ module: ietf-te-topology
          |     +--ro information-source?         enumeration
          |     +--ro information-source-state
          |        +--ro credibility-preference?   uint16
-         |        +--ro topolgy
-         |           +--ro provider-id-ref?   leafref
-         |           +--ro client-id-ref?     leafref
-         |           +--ro topology-id-ref?   leafref
+         |        +--ro topology
+         |        |  +--ro provider-id-ref?   leafref
+         |        |  +--ro client-id-ref?     leafref
+         |        |  +--ro topology-id-ref?   leafref
+         |        +--ro routing-instance?         string
          +--ro link* [source-te-node-id source-te-link-id dest-te-node-id dest-te-link-id]
             +--ro source-te-node-id     leafref
             +--ro source-te-link-id     leafref
@@ -623,30 +612,26 @@ module: ietf-te-topology
             |  |     +--ro minimum-lsp-bandwidth?   decimal64
             |  |     +--ro indication?              enumeration
             |  +--ro te-srlgs
-            |     +--ro (srlg-type)?
-            |        +--:(value-srlgs)
-            |        |  +--ro values* [value]
-            |        |     +--ro value    uint32
-            |        +--:(named-srlgs)
-            |           +--ro named-srlgs* [named-srlg] {ietf-te-types:named-srlg-groups}?
-            |              +--ro named-srlg    leafref
+            |     +--ro values*   te-types:srlg
             +--ro te-link-state
                +--ro oper-status?                enumeration
                +--ro information-source?         enumeration
                +--ro information-source-state
                |  +--ro credibility-preference?   uint16
-               |  +--ro topolgy
-               |     +--ro provider-id-ref?   leafref
-               |     +--ro client-id-ref?     leafref
-               |     +--ro topology-id-ref?   leafref
+               |  +--ro topology
+               |  |  +--ro provider-id-ref?   leafref
+               |  |  +--ro client-id-ref?     leafref
+               |  |  +--ro topology-id-ref?   leafref
+               |  +--ro routing-instance?         string
                +--ro alt-information-sources* [information-source]
                   +--ro information-source                  enumeration
                   +--ro information-source-state
                   |  +--ro credibility-preference?   uint16
-                  |  +--ro topolgy
-                  |     +--ro provider-id-ref?   leafref
-                  |     +--ro client-id-ref?     leafref
-                  |     +--ro topology-id-ref?   leafref
+                  |  +--ro topology
+                  |  |  +--ro provider-id-ref?   leafref
+                  |  |  +--ro client-id-ref?     leafref
+                  |  |  +--ro topology-id-ref?   leafref
+                  |  +--ro routing-instance?         string
                   +--ro link-index?                         uint64
                   +--ro administrative-group?               te-types:admin-groups
                   +--ro max-link-bandwidth?                 decimal64
@@ -688,13 +673,7 @@ module: ietf-te-topology
                   |     +--ro minimum-lsp-bandwidth?   decimal64
                   |     +--ro indication?              enumeration
                   +--ro te-srlgs
-                     +--ro (srlg-type)?
-                        +--:(value-srlgs)
-                        |  +--ro values* [value]
-                        |     +--ro value    uint32
-                        +--:(named-srlgs)
-                           +--ro named-srlgs* [named-srlg] {ietf-te-types:named-srlg-groups}?
-                              +--ro named-srlg    leafref
+                     +--ro values*   te-types:srlg
 notifications:
    +---n te-node-event    
    |  +--ro event-type?           te-topology-event-type
@@ -735,9 +714,9 @@ notifications:
    |  +--ro te-link* [te-link-id]
    |  |  +--ro te-link-id         te-link-id
    |  |  +--ro (stack-level)?
-   |  |     +--:(boundle)
-   |  |     |  +--ro boundled-links
-   |  |     |     +--ro boundled-link* [sequence]
+   |  |     +--:(bundle)
+   |  |     |  +--ro bundled-links
+   |  |     |     +--ro bundled-link* [sequence]
    |  |     |        +--ro sequence       uint32
    |  |     |        +--ro te-link-ref?   leafref
    |  |     +--:(component)
@@ -749,10 +728,11 @@ notifications:
    |     +--ro information-source?         enumeration
    |     +--ro information-source-state
    |        +--ro credibility-preference?   uint16
-   |        +--ro topolgy
-   |           +--ro provider-id-ref?   leafref
-   |           +--ro client-id-ref?     leafref
-   |           +--ro topology-id-ref?   leafref
+   |        +--ro topology
+   |        |  +--ro provider-id-ref?   leafref
+   |        |  +--ro client-id-ref?     leafref
+   |        |  +--ro topology-id-ref?   leafref
+   |        +--ro routing-instance?         string
    +---n te-link-event    
       +--ro event-type?              te-topology-event-type
       +--ro provider-id-ref?         leafref
@@ -907,30 +887,26 @@ notifications:
       |  |     +--ro minimum-lsp-bandwidth?   decimal64
       |  |     +--ro indication?              enumeration
       |  +--ro te-srlgs
-      |     +--ro (srlg-type)?
-      |        +--:(value-srlgs)
-      |        |  +--ro values* [value]
-      |        |     +--ro value    uint32
-      |        +--:(named-srlgs)
-      |           +--ro named-srlgs* [named-srlg] {ietf-te-types:named-srlg-groups}?
-      |              +--ro named-srlg    leafref
+      |     +--ro values*   te-types:srlg
       +--ro te-link-state
          +--ro oper-status?                enumeration
          +--ro information-source?         enumeration
          +--ro information-source-state
          |  +--ro credibility-preference?   uint16
-         |  +--ro topolgy
-         |     +--ro provider-id-ref?   leafref
-         |     +--ro client-id-ref?     leafref
-         |     +--ro topology-id-ref?   leafref
+         |  +--ro topology
+         |  |  +--ro provider-id-ref?   leafref
+         |  |  +--ro client-id-ref?     leafref
+         |  |  +--ro topology-id-ref?   leafref
+         |  +--ro routing-instance?         string
          +--ro alt-information-sources* [information-source]
             +--ro information-source                  enumeration
             +--ro information-source-state
             |  +--ro credibility-preference?   uint16
-            |  +--ro topolgy
-            |     +--ro provider-id-ref?   leafref
-            |     +--ro client-id-ref?     leafref
-            |     +--ro topology-id-ref?   leafref
+            |  +--ro topology
+            |  |  +--ro provider-id-ref?   leafref
+            |  |  +--ro client-id-ref?     leafref
+            |  |  +--ro topology-id-ref?   leafref
+            |  +--ro routing-instance?         string
             +--ro link-index?                         uint64
             +--ro administrative-group?               te-types:admin-groups
             +--ro max-link-bandwidth?                 decimal64
@@ -972,10 +948,4 @@ notifications:
             |     +--ro minimum-lsp-bandwidth?   decimal64
             |     +--ro indication?              enumeration
             +--ro te-srlgs
-               +--ro (srlg-type)?
-                  +--:(value-srlgs)
-                  |  +--ro values* [value]
-                  |     +--ro value    uint32
-                  +--:(named-srlgs)
-                     +--ro named-srlgs* [named-srlg] {ietf-te-types:named-srlg-groups}?
-                        +--ro named-srlg    leafref
+               +--ro values*   te-types:srlg

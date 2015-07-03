@@ -21,15 +21,11 @@ module ietf-te-topology {
     prefix "te-types";
   }
 
-  import ietf-te {
-    prefix "ietf-te";
-  }
-
   organization "TBD";
   contact "TBD";
   description "TE topology model";
   
-  revision "2015-06-29" {
+  revision "2015-07-02" {
     description "Initial revision";
     reference "TBD";
   }
@@ -150,15 +146,15 @@ module ietf-te-topology {
 
   typedef performance-metric-normality {
     type enumeration {
-      enum "unkown" {        
+      enum "unknown" {        
         value 0;
         description
-          "Unkown";
+          "Unknown";
       }
       enum "normal" {        
         value 1;
         description
-          "Noarmal";
+          "Normal";
       }
       enum "abnormal" {        
         value 2;
@@ -168,7 +164,7 @@ module ietf-te-topology {
     }
     description
       "Indicates whether a performance metric is normal, abnormal, or
-      unkown.";
+      unknown.";
   }
 
   /*
@@ -320,7 +316,7 @@ module ietf-te-topology {
   grouping te-path-element {
     description
       "A group of attributes defining an element in a TE path
-      such as TE node, TE link, TE aotomic resource or label.";
+      such as TE node, TE link, TE atomic resource or label.";
     uses te-types:explicit-route-subobject;
   } // te-path-element
   
@@ -393,7 +389,7 @@ module ietf-te-topology {
     container information-source-state {
       description
         "The container contains state attributes related to 
-        the inforamtion source.";
+        the information source.";
       leaf credibility-preference {
         type uint16;
         description
@@ -403,7 +399,7 @@ module ietf-te-topology {
           information-source values.
           Higher value is more preferable.";
       }      
-      container topolgy {
+      container topology {
         description 
           "When the information is processed by the system,
           the attributes in this container indicate which topology
@@ -430,7 +426,13 @@ module ietf-te-topology {
           description
             "A reference to a te-topology-id.";
         }
-      }
+      } // topology
+      leaf routing-instance {
+        type string;
+        description
+          "When applicable, this is the name of a routing instance
+            from which the information is learned.";
+      } // routing-information
     }
   } // information-source-attributes
 
@@ -525,21 +527,21 @@ module ietf-te-topology {
       }
       choice stack-level {
         description 
-          "The TE link can be partitioned into boundled
+          "The TE link can be partitioned into bundled
           links, or component links.";
-        case boundle {
-          container boundled-links {
+        case bundle {
+          container bundled-links {
             description
               "A set of bundled links";
-            list boundled-link {
+            list bundled-link {
               key "sequence";
               description
-                "Specify a bundled interfface that is
+                "Specify a bundled interface that is
                 further partitioned.";
               leaf sequence {
                 type uint32;
                 description
-                  "Identify the sequence in the boundle.";
+                  "Identify the sequence in the bundle.";
               }
               leaf te-link-ref {
                 type leafref {
@@ -559,14 +561,14 @@ module ietf-te-topology {
             list component-link {
               key "sequence";
               description
-                "Specify a component interfface that is
+                "Specify a component interface that is
                 sufficient to unambiguously identify the
                 appropriate resources";
                 
               leaf sequence {
                 type uint32;
                 description
-                  "Identify the sequence in the boundle.";
+                  "Identify the sequence in the bundle.";
               }
               leaf component-link-ref {
                 type leafref {
@@ -638,12 +640,13 @@ module ietf-te-topology {
       description 
         "A list of backup service paths on the underlay topology that
         protect the underlay primary path. If the primary path is
-        not protected, the list contains zero element. If the primary
-        path is protected, the list contains one or more elements.";
+        not protected, the list contains zero elements. If the 
+        primary path is protected, the list contains one or more
+        elements.";
       leaf index {
         type uint32;
         description
-          "A sequence number to indentify a backup path.";
+          "A sequence number to identify a backup path.";
       }
       leaf provider-id-ref {
         type leafref {
@@ -829,6 +832,14 @@ module ietf-te-topology {
       "A container controlling performance metric throttle.";
     container performance-metric-throttle {
       if-feature te-performance-metric;
+      must "suppression-interval >= measure-interval" {
+        error-message 
+          "suppression-interval cannot be less then 
+            measure-interval";
+        description
+          "Constraint on suppression-interval and 
+            measure-interval.";
+      }
       description
         "Link performance information in real time.";
       reference 
@@ -857,14 +868,6 @@ module ietf-te-topology {
         type uint32 {
           range "1 .. max";
         }
-        must "suppression-interval >= ../measure-interval" {
-          error-message 
-            "suppression-interval cannot be less then 
-            measure-interval";
-          description
-            "Contraint on suppression-interval and 
-            measure-interval.";
-        }
         default 120;
         description 
           "Interval in seconds to suppress advertising the extended
@@ -890,7 +893,7 @@ module ietf-te-topology {
       }
       container threshold-accelerated-advertisement {
         description
-          "Whe the difference between the last advertised value and
+          "When the difference between the last advertised value and
           current measured value exceed this threshold, anomalous
           announcement will be triggered.";
         uses performance-metric-attributes;
@@ -900,14 +903,14 @@ module ietf-te-topology {
 
   grouping te-link-info-attributes {
     description
-      "Advertised TE informaton attributes.";
+      "Advertised TE information attributes.";
     leaf link-index {
       type uint64;
       description
         "The link identifier.  If OSPF is used, this represents an
         ospfLsdbID.  If IS-IS is used, this represents an isisLSPID.
         If a locally configured link is used, this object represents
-        an unique value, which is locally defined in a router.";
+        a unique value, which is locally defined in a router.";
     }
     leaf administrative-group {
       type te-types:admin-groups;
@@ -922,7 +925,7 @@ module ietf-te-topology {
         fraction-digits 2;
       }
       description
-        "Maximum bandwidth that can be see on this link in this
+        "Maximum bandwidth that can be seen on this link in this
         direction. Units in bytes per second";
     }
     leaf max-resv-link-bandwidth {
@@ -966,8 +969,8 @@ module ietf-te-topology {
         "draft-ietf-ospf-te-metric-extensions.";
       container measurement {
         description
-          "Messured performance metric values. Static configuration
-          and manual override of these measurements are also 
+          "Measured performance metric values. Static configuration
+          and manual overrides of these measurements are also 
           allowed.";
         uses performance-metric-attributes;
       }
@@ -1040,10 +1043,10 @@ module ietf-te-topology {
         }
       }
       container packet-switch-capable {
-        when "../switching-capability = PSC-1  or "
-          +"../switching-capability = PSC-2 or "
-          +"../switching-capability = PSC-3 or "
-          +"../switching-capability = PSC-4" {
+        when "../switching-capability = 'PSC-1'  or "
+          +"../switching-capability = 'PSC-2' or "
+          +"../switching-capability = 'PSC-3' or "
+          +"../switching-capability = 'PSC-4'" {
           description "Valid only for PSC";
         }
         description
@@ -1062,7 +1065,7 @@ module ietf-te-topology {
         }
       }
       container time-division-multiplex-capable {
-        when "../switching-capability = TDM" {
+        when "../switching-capability = 'TDM'" {
           description "Valid only for TDM";
         }
         description
@@ -1093,7 +1096,10 @@ module ietf-te-topology {
     container te-srlgs {
       description
         "A list of SLRGs.";
-      uses ietf-te:te-srlgs_config;
+      leaf-list values {
+        type te-types:srlg;
+        description "SRLG value";
+      }
     }
   } // te-link-info-attributes
 
@@ -1199,12 +1205,12 @@ module ietf-te-topology {
     leaf priority {
       type uint16;
       description
-        "The preference value to revolve conflicts between different
+        "The preference value to resolve conflicts between different
         templates. When two or more templates specify values for 
         one configuration attribute, the value from the template
         with the highest priority is used.";
     }
-    leaf reference-change-polocy {
+    leaf reference-change-policy {
       type enumeration {
         enum no-action {
           description
