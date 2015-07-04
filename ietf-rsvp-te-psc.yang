@@ -92,24 +92,20 @@ module ietf-rsvp-te-psc {
   grouping lsp-properties-psc {
     description
       "Top level grouping for LSP properties.";
-    container lsp-properties-psc {
+    container config {
       description
-        "Top level container for LSP properties";
-      container config {
-        description
-          "Configuration parameters relating to
-          LSP properties";
-        uses lsp-session-attributes-obj-flags-psc_config;
-        uses lsp-attributes-flags-psc_config;
-      }
-      container state {
-        config false;
-        description
-          "State information associated with LSP
-          properties";
-        uses lsp-session-attributes-obj-flags-psc_config;
-        uses lsp-attributes-flags-psc_config;
-      }
+        "Configuration parameters relating to
+        LSP properties";
+      uses lsp-session-attributes-obj-flags-psc_config;
+      uses lsp-attributes-flags-psc_config;
+    }
+    container state {
+      config false;
+      description
+        "State information associated with LSP
+        properties";
+      uses lsp-session-attributes-obj-flags-psc_config;
+      uses lsp-attributes-flags-psc_config;
     }
   }
   /* End of RSVP-TE LSPs packet groupings */
@@ -313,12 +309,9 @@ module ietf-rsvp-te-psc {
       }
     }
   }
-  /*** End of RSVP-TE FRR backup information ***/
 
-  /* RSVP-TE global propeerties */
-  augment "/rsvp:rsvp/rsvp:globals" {
-    description
-      "RSVP-TE augmentation to RSVP globals";
+  grouping rsvp-frr-local-revert_config {
+    description "RSVP-TE FRR local revertive grouping";
     container rsvp-frr-local-revert {
       presence "Enable RSVP FRR local revertive recovery
         mode.";
@@ -334,29 +327,51 @@ module ietf-rsvp-te-psc {
     }
   }
 
+  /*** End of RSVP-TE FRR backup information ***/
+
+  grouping globals-properties {
+    description
+      "Top level grouping for globals properties";
+    container config {
+      description
+        "Configuration parameters relating to
+         global RVP-TE packet properties";
+      uses rsvp-frr-local-revert_config;
+    }
+    container state {
+      config false;
+      description
+        "State parameters relating to
+         global RVP-TE packet properties";
+      uses rsvp-frr-local-revert_config;
+    }
+  }
+
+  /* RSVP-TE global propeerties */
+  augment "/rsvp:rsvp/rsvp:globals" {
+    description
+      "RSVP-TE augmentation to RSVP globals";
+    uses globals-properties;
+  }
+
   grouping rsvp-te-interface-attributes-psc {
     description
       "Top level grouping for RSVP-TE packet interface
       properties.";
-    container rsvp-te-interface-attributes-psc {
+    container config {
       description
-        "Top level container for RSVP-TE packet interface
-        properties";
-      container config {
-        description
-          "Configuration parameters relating to RSVP-TE
-          bandwidth";
-        uses ietf-te-psc-types:bandwidth-psc-reservable;
-      }
-      container state {
-        config false;
-        description
-          "State information associated with RSVP-TE
-          bandwidth";
-        uses ietf-te-psc-types:bandwidth-psc-reservable;
-        uses rsvp-te-interface-softpreemption_state;
-        uses rsvp-te-interface_state;
-      }
+        "Configuration parameters relating to RSVP-TE
+        bandwidth";
+      uses ietf-te-psc-types:bandwidth-psc-reservable;
+    }
+    container state {
+      config false;
+      description
+        "State information associated with RSVP-TE
+        bandwidth";
+      uses ietf-te-psc-types:bandwidth-psc-reservable;
+      uses rsvp-te-interface-softpreemption_state;
+      uses rsvp-te-interface_state;
     }
   }
 
@@ -379,16 +394,6 @@ module ietf-rsvp-te-psc {
   }
 
   augment "/rsvp:rsvp/rsvp:neighbors" {
-    description "TBD";
-    /* To be added */
-  }
-
-  augment "/rsvp:rsvp/rsvp:sessions-state" {
-    description "TBD";
-    /* To be added */
-  }
-
-  augment "/rsvp:rsvp/rsvp:neighbors-state" {
     description "TBD";
     /* To be added */
   }
