@@ -185,20 +185,18 @@ module ietf-te {
 
   grouping te-attributes {
     description "TE attributes configuration grouping";
-    container te-attributes {
-      description "TE attributes configuration container";
-      container config {
-        description
-          "Configuration parameters for interface TE
-           attributes";
-        uses te-metric_config;
-      }
-      container state {
-        config false;
-        description
-          "State parameters for interface TE metric";
-        uses te-metric_config;
-      }
+    container config {
+      description
+        "Configuration parameters for interface TE
+         attributes";
+      uses te-metric_config;
+    }
+    container state {
+      config false;
+      description
+        "State parameters for interface TE metric";
+      uses te-metric_config;
+      uses interface-advertisements_state;
     }
   }
 
@@ -492,22 +490,19 @@ module ietf-te {
   grouping tunnel-properties {
     description
       "Top level grouping for tunnel properties.";
-    container tunnel-properties {
+    container config {
       description
-        "Top level container for tunnel properties";
-      container config {
-        description
-          "Configuration parameters relating to
-          tunnel properties";
-        uses tunnel-properties_config;
-      }
-      container state {
-        config false;
-        description
-          "State information associated with tunnel
-          properties";
-        uses tunnel-properties_config;
-      }
+        "Configuration parameters relating to
+        tunnel properties";
+      uses tunnel-properties_config;
+    }
+    container state {
+      config false;
+      description
+        "State information associated with tunnel
+        properties";
+      uses tunnel-properties_config;
+      uses tunnel-properties_state;
     }
   }
 
@@ -752,19 +747,37 @@ module ietf-te {
    * TE global generic groupings
    */
 
+  grouping global-attributes_config {
+    description
+      "Top level grouping for global config data.";
+  }
+
+  grouping global-attributes_state {
+    description
+      "Top level grouping for global state data.";
+    leaf tunnels-counter {
+      type uint32;
+      description "Tunnels count";
+    }
+    leaf lsps-counter {
+      type uint32;
+      description "Tunnels count";
+    }
+  }
+
   grouping global-attributes {
     description "TE Global attributes grouping";
-    container global-attributes {
-      description "TE Global attributes container";
-      container config {
-        description
-          "Global configuration parameters";
-      }
-      container state {
-        config false;
-        description
-          "Global configuration parameters";
-      }
+    container config {
+      description
+        "Global configuration parameters";
+      uses global-attributes_config;
+    }
+    container state {
+      config false;
+      description
+        "Global configuration parameters";
+      uses global-attributes_config;
+      uses global-attributes_state;
     }
   }
 
@@ -1025,7 +1038,7 @@ module ietf-te {
       }
     }
 
-    /* TE Tunnel Ephemeral State Data */
+    /* TE Tunnel Ephemeral State Data (TBD) */
     container tunnels-state {
       config "false";
       description
@@ -1051,7 +1064,6 @@ module ietf-te {
             "TE tunnel Identifier.";
         }
 
-        uses tunnel-properties_state;
       }
     }
 
@@ -1124,34 +1136,6 @@ module ietf-te {
   rpc interfaces-rpc {
     description
       "Execution data for TE interfaces.";
-  }
-
-  /* TE globals derived state augmentation properties */
-  augment "/te/globals/global-attributes/state" {
-    description
-      "Derived state corresponding to TE interfaces";
-    leaf tunnels-counter {
-      type uint32;
-      description "Tunnels count";
-    }
-    leaf lsps-counter {
-      type uint32;
-      description "Tunnels count";
-    }
-  }
-
-  /* TE tunnels derived state augmentation properties */
-  augment "/te/tunnels/tunnel/tunnel-properties/state" {
-    description
-      "Derived state corresponding to TE tunnels";
-      uses tunnel-properties_state;
-  }
-
-  /* TE interfaces derived state augmentation properties */
-  augment "/te/interfaces/interface/te-attributes/state" {
-    description
-      "Derived state corresponding to TE interfaces";
-      uses interface-advertisements_state;
   }
 
   /* TE Tunnel RPCs/execution Data */
