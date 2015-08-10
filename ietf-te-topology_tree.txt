@@ -1,221 +1,17 @@
 module: ietf-te-topology
-   +--rw te-topologies
-   |  +--rw topology* [provider-id client-id te-topology-id]
-   |  |  +--rw provider-id       te-global-id
-   |  |  +--rw client-id         te-global-id
-   |  |  +--rw te-topology-id    te-topology-id
-   |  |  +--rw schedules* [schedule-id] {configuration-schedule}?
-   |  |  |  +--rw schedule-id          uint32
-   |  |  |  +--rw start?               yang:date-and-time
-   |  |  |  +--rw schedule-duration?   string
-   |  |  |  +--rw repeat-interval?     string
-   |  |  +--rw topology-types
-   |  |  |  +--rw te-topology!
-   |  |  +--rw node* [te-node-id]
-   |  |  |  +--rw te-node-id            te-node-id
-   |  |  |  +--rw te-node-template?     leafref {template}?
-   |  |  |  +--rw te-node-attributes
-   |  |  |  |  +--rw schedules* [schedule-id] {configuration-schedule}?
-   |  |  |  |  |  +--rw schedule-id          uint32
-   |  |  |  |  |  +--rw start?               yang:date-and-time
-   |  |  |  |  |  +--rw schedule-duration?   string
-   |  |  |  |  |  +--rw repeat-interval?     string
-   |  |  |  |  +--rw name?                  inet:domain-name
-   |  |  |  |  +--rw signaling-address*     inet:ip-address
-   |  |  |  |  +--rw flag*                  flag-type
-   |  |  |  |  +--rw is-abstract?           boolean
-   |  |  |  |  +--rw underlay-topology {te-topology-hierarchy}?
-   |  |  |  |  |  +--rw provider-id-ref?   leafref
-   |  |  |  |  |  +--rw client-id-ref?     leafref
-   |  |  |  |  |  +--rw topology-id-ref?   leafref
-   |  |  |  |  +--rw connectivity-matrix* [id]
-   |  |  |  |     +--rw id            uint32
-   |  |  |  |     +--rw from-link
-   |  |  |  |     |  +--rw provider-id-ref?   leafref
-   |  |  |  |     |  +--rw client-id-ref?     leafref
-   |  |  |  |     |  +--rw topology-id-ref?   leafref
-   |  |  |  |     |  +--rw node-ref?          leafref
-   |  |  |  |     |  +--rw link-end-ref?      leafref
-   |  |  |  |     +--rw to-link
-   |  |  |  |     |  +--rw provider-id-ref?   leafref
-   |  |  |  |     |  +--rw client-id-ref?     leafref
-   |  |  |  |     |  +--rw topology-id-ref?   leafref
-   |  |  |  |     |  +--rw node-ref?          leafref
-   |  |  |  |     |  +--rw link-end-ref?      leafref
-   |  |  |  |     +--rw is-allowed?   boolean
-   |  |  |  +--rw te-link* [te-link-id]
-   |  |  |     +--rw te-link-id         te-link-id
-   |  |  |     +--rw (stack-level)?
-   |  |  |        +--:(bundle)
-   |  |  |        |  +--rw bundled-links
-   |  |  |        |     +--rw bundled-link* [sequence]
-   |  |  |        |        +--rw sequence       uint32
-   |  |  |        |        +--rw te-link-ref?   leafref
-   |  |  |        +--:(component)
-   |  |  |           +--rw component-links
-   |  |  |              +--rw component-link* [sequence]
-   |  |  |                 +--rw sequence              uint32
-   |  |  |                 +--rw component-link-ref?   leafref
-   |  |  +--rw link* [source-te-node-id source-te-link-id dest-te-node-id dest-te-link-id]
-   |  |     +--rw source-te-node-id     leafref
-   |  |     +--rw source-te-link-id     leafref
-   |  |     +--rw dest-te-node-id       leafref
-   |  |     +--rw dest-te-link-id       leafref
-   |  |     +--rw te-link-template?     leafref {template}?
-   |  |     +--rw te-link-attributes
-   |  |        +--rw schedules* [schedule-id] {configuration-schedule}?
-   |  |        |  +--rw schedule-id          uint32
-   |  |        |  +--rw start?               yang:date-and-time
-   |  |        |  +--rw schedule-duration?   string
-   |  |        |  +--rw repeat-interval?     string
-   |  |        +--rw name?                               string
-   |  |        +--rw flag*                               flag-type
-   |  |        +--rw is-abstract?                        boolean
-   |  |        +--rw underlay! {te-topology-hierarchy}?
-   |  |        |  +--rw underlay-primary-path
-   |  |        |  |  +--rw provider-id-ref?   leafref
-   |  |        |  |  +--rw client-id-ref?     leafref
-   |  |        |  |  +--rw topology-id-ref?   leafref
-   |  |        |  |  +--rw path-element* [path-element-id]
-   |  |        |  |     +--rw path-element-id     uint32
-   |  |        |  |     +--rw (type)?
-   |  |        |  |        +--:(ipv4-address)
-   |  |        |  |        |  +--rw v4-address?         inet:ipv4-address
-   |  |        |  |        |  +--rw v4-prefix-length?   uint8
-   |  |        |  |        |  +--rw v4-loose?           boolean
-   |  |        |  |        +--:(ipv6-address)
-   |  |        |  |        |  +--rw v6-address?         inet:ipv6-address
-   |  |        |  |        |  +--rw v6-prefix-length?   uint8
-   |  |        |  |        |  +--rw v6-loose?           boolean
-   |  |        |  |        +--:(as-number)
-   |  |        |  |        |  +--rw as-number?          uint16
-   |  |        |  |        +--:(unnumbered-link)
-   |  |        |  |        |  +--rw router-id?          inet:ip-address
-   |  |        |  |        |  +--rw interface-id?       uint32
-   |  |        |  |        +--:(label)
-   |  |        |  |           +--rw value?              uint32
-   |  |        |  +--rw underlay-backup-path* [index]
-   |  |        |  |  +--rw index              uint32
-   |  |        |  |  +--rw provider-id-ref?   leafref
-   |  |        |  |  +--rw client-id-ref?     leafref
-   |  |        |  |  +--rw topology-id-ref?   leafref
-   |  |        |  |  +--rw path-element* [path-element-id]
-   |  |        |  |     +--rw path-element-id     uint32
-   |  |        |  |     +--rw (type)?
-   |  |        |  |        +--:(ipv4-address)
-   |  |        |  |        |  +--rw v4-address?         inet:ipv4-address
-   |  |        |  |        |  +--rw v4-prefix-length?   uint8
-   |  |        |  |        |  +--rw v4-loose?           boolean
-   |  |        |  |        +--:(ipv6-address)
-   |  |        |  |        |  +--rw v6-address?         inet:ipv6-address
-   |  |        |  |        |  +--rw v6-prefix-length?   uint8
-   |  |        |  |        |  +--rw v6-loose?           boolean
-   |  |        |  |        +--:(as-number)
-   |  |        |  |        |  +--rw as-number?          uint16
-   |  |        |  |        +--:(unnumbered-link)
-   |  |        |  |        |  +--rw router-id?          inet:ip-address
-   |  |        |  |        |  +--rw interface-id?       uint32
-   |  |        |  |        +--:(label)
-   |  |        |  |           +--rw value?              uint32
-   |  |        |  +--rw underlay-protection-type?   uint16
-   |  |        |  +--rw underlay-trail-src
-   |  |        |  |  +--rw provider-id-ref?   leafref
-   |  |        |  |  +--rw client-id-ref?     leafref
-   |  |        |  |  +--rw topology-id-ref?   leafref
-   |  |        |  |  +--rw node-ref?          leafref
-   |  |        |  |  +--rw link-end-ref?      leafref
-   |  |        |  +--rw underlay-trail-des
-   |  |        |     +--rw provider-id-ref?   leafref
-   |  |        |     +--rw client-id-ref?     leafref
-   |  |        |     +--rw topology-id-ref?   leafref
-   |  |        |     +--rw node-ref?          leafref
-   |  |        |     +--rw link-end-ref?      leafref
-   |  |        +--rw admin-status?                       enumeration
-   |  |        +--rw performance-metric-throttle {te-performance-metric}?
-   |  |        |  +--rw unidirectional-delay-offset?           uint32
-   |  |        |  +--rw measure-interval?                      uint32
-   |  |        |  +--rw advertisement-interval?                uint32
-   |  |        |  +--rw suppression-interval?                  uint32
-   |  |        |  +--rw threshold-out
-   |  |        |  |  +--rw unidirectional-delay?                 uint32
-   |  |        |  |  +--rw unidirectional-min-delay?             uint32
-   |  |        |  |  +--rw unidirectional-max-delay?             uint32
-   |  |        |  |  +--rw unidirectional-delay-variation?       uint32
-   |  |        |  |  +--rw unidirectional-packet-loss?           decimal64
-   |  |        |  |  +--rw unidirectional-residual-bandwidth?    decimal64
-   |  |        |  |  +--rw unidirectional-available-bandwidth?   decimal64
-   |  |        |  |  +--rw unidirectional-utilized-bandwidth?    decimal64
-   |  |        |  +--rw threshold-in
-   |  |        |  |  +--rw unidirectional-delay?                 uint32
-   |  |        |  |  +--rw unidirectional-min-delay?             uint32
-   |  |        |  |  +--rw unidirectional-max-delay?             uint32
-   |  |        |  |  +--rw unidirectional-delay-variation?       uint32
-   |  |        |  |  +--rw unidirectional-packet-loss?           decimal64
-   |  |        |  |  +--rw unidirectional-residual-bandwidth?    decimal64
-   |  |        |  |  +--rw unidirectional-available-bandwidth?   decimal64
-   |  |        |  |  +--rw unidirectional-utilized-bandwidth?    decimal64
-   |  |        |  +--rw threshold-accelerated-advertisement
-   |  |        |     +--rw unidirectional-delay?                 uint32
-   |  |        |     +--rw unidirectional-min-delay?             uint32
-   |  |        |     +--rw unidirectional-max-delay?             uint32
-   |  |        |     +--rw unidirectional-delay-variation?       uint32
-   |  |        |     +--rw unidirectional-packet-loss?           decimal64
-   |  |        |     +--rw unidirectional-residual-bandwidth?    decimal64
-   |  |        |     +--rw unidirectional-available-bandwidth?   decimal64
-   |  |        |     +--rw unidirectional-utilized-bandwidth?    decimal64
-   |  |        +--rw link-index?                         uint64
-   |  |        +--rw administrative-group?               te-types:admin-groups
-   |  |        +--rw max-link-bandwidth?                 decimal64
-   |  |        +--rw max-resv-link-bandwidth?            decimal64
-   |  |        +--rw unreserved-bandwidth* [priority]
-   |  |        |  +--rw priority     uint8
-   |  |        |  +--rw bandwidth?   decimal64
-   |  |        +--rw te-default-metric?                  uint32
-   |  |        +--rw performance-metric {te-performance-metric}?
-   |  |        |  +--rw measurement
-   |  |        |  |  +--rw unidirectional-delay?                 uint32
-   |  |        |  |  +--rw unidirectional-min-delay?             uint32
-   |  |        |  |  +--rw unidirectional-max-delay?             uint32
-   |  |        |  |  +--rw unidirectional-delay-variation?       uint32
-   |  |        |  |  +--rw unidirectional-packet-loss?           decimal64
-   |  |        |  |  +--rw unidirectional-residual-bandwidth?    decimal64
-   |  |        |  |  +--rw unidirectional-available-bandwidth?   decimal64
-   |  |        |  |  +--rw unidirectional-utilized-bandwidth?    decimal64
-   |  |        |  +--rw normality
-   |  |        |     +--rw unidirectional-delay?                 performance-metric-normality
-   |  |        |     +--rw unidirectional-min-delay?             performance-metric-normality
-   |  |        |     +--rw unidirectional-max-delay?             performance-metric-normality
-   |  |        |     +--rw unidirectional-delay-variation?       performance-metric-normality
-   |  |        |     +--rw unidirectional-packet-loss?           performance-metric-normality
-   |  |        |     +--rw unidirectional-residual-bandwidth?    performance-metric-normality
-   |  |        |     +--rw unidirectional-available-bandwidth?   performance-metric-normality
-   |  |        |     +--rw unidirectional-utilized-bandwidth?    performance-metric-normality
-   |  |        +--rw link-protection-type?               enumeration
-   |  |        +--rw interface-switching-capabilities* [switching-capability]
-   |  |        |  +--rw switching-capability               identityref
-   |  |        |  +--rw encoding?                          identityref
-   |  |        |  +--rw max-lsp-bandwidth* [priority]
-   |  |        |  |  +--rw priority     uint8
-   |  |        |  |  +--rw bandwidth?   decimal64
-   |  |        |  +--rw packet-switch-capable
-   |  |        |  |  +--rw minimum-lsp-bandwidth?   decimal64
-   |  |        |  |  +--rw interface-mtu?           uint16
-   |  |        |  +--rw time-division-multiplex-capable
-   |  |        |     +--rw minimum-lsp-bandwidth?   decimal64
-   |  |        |     +--rw indication?              enumeration
-   |  |        +--rw te-srlgs
-   |  |           +--rw values*   te-types:srlg
+   +--rw templates
    |  +--rw node-template* [name] {template}?
    |  |  +--rw name                       te-template-name
    |  |  +--rw priority?                  uint16
    |  |  +--rw reference-change-policy?   enumeration
    |  |  +--rw te-node-template*          leafref
    |  |  +--rw te-node-attributes
-   |  |  |  +--rw schedules* [schedule-id] {configuration-schedule}?
-   |  |  |  |  +--rw schedule-id          uint32
-   |  |  |  |  +--rw start?               yang:date-and-time
-   |  |  |  |  +--rw schedule-duration?   string
-   |  |  |  |  +--rw repeat-interval?     string
+   |  |  |  +--rw schedules
+   |  |  |  |  +--rw schedule* [schedule-id]
+   |  |  |  |     +--rw schedule-id          uint32
+   |  |  |  |     +--rw start?               yang:date-and-time
+   |  |  |  |     +--rw schedule-duration?   string
+   |  |  |  |     +--rw repeat-interval?     string
    |  |  |  +--rw name?                  inet:domain-name
    |  |  |  +--rw signaling-address*     inet:ip-address
    |  |  |  +--rw flag*                  flag-type
@@ -226,18 +22,14 @@ module: ietf-te-topology
    |  |  |  |  +--rw topology-id-ref?   leafref
    |  |  |  +--rw connectivity-matrix* [id]
    |  |  |     +--rw id            uint32
-   |  |  |     +--rw from-link
-   |  |  |     |  +--rw provider-id-ref?   leafref
-   |  |  |     |  +--rw client-id-ref?     leafref
-   |  |  |     |  +--rw topology-id-ref?   leafref
-   |  |  |     |  +--rw node-ref?          leafref
-   |  |  |     |  +--rw link-end-ref?      leafref
-   |  |  |     +--rw to-link
-   |  |  |     |  +--rw provider-id-ref?   leafref
-   |  |  |     |  +--rw client-id-ref?     leafref
-   |  |  |     |  +--rw topology-id-ref?   leafref
-   |  |  |     |  +--rw node-ref?          leafref
-   |  |  |     |  +--rw link-end-ref?      leafref
+   |  |  |     +--rw from
+   |  |  |     |  +--rw network-ref?   leafref
+   |  |  |     |  +--rw node-ref?      leafref
+   |  |  |     |  +--rw tp-ref?        leafref
+   |  |  |     +--rw to
+   |  |  |     |  +--rw network-ref?   leafref
+   |  |  |     |  +--rw node-ref?      leafref
+   |  |  |     |  +--rw tp-ref?        leafref
    |  |  |     +--rw is-allowed?   boolean
    |  |  +--rw te-link* [te-link-id]
    |  |     +--rw te-link-id         te-link-id
@@ -251,18 +43,19 @@ module: ietf-te-topology
    |  |           +--rw component-links
    |  |              +--rw component-link* [sequence]
    |  |                 +--rw sequence              uint32
-   |  |                 +--rw component-link-ref?   leafref
+   |  |                 +--rw component-link-ref?   string
    |  +--rw link-template* [name] {template}?
    |     +--rw name                       te-template-name
    |     +--rw priority?                  uint16
    |     +--rw reference-change-policy?   enumeration
    |     +--rw te-link-template*          leafref
    |     +--rw te-link-attributes
-   |        +--rw schedules* [schedule-id] {configuration-schedule}?
-   |        |  +--rw schedule-id          uint32
-   |        |  +--rw start?               yang:date-and-time
-   |        |  +--rw schedule-duration?   string
-   |        |  +--rw repeat-interval?     string
+   |        +--rw schedules
+   |        |  +--rw schedule* [schedule-id]
+   |        |     +--rw schedule-id          uint32
+   |        |     +--rw start?               yang:date-and-time
+   |        |     +--rw schedule-duration?   string
+   |        |     +--rw repeat-interval?     string
    |        +--rw name?                               string
    |        +--rw flag*                               flag-type
    |        +--rw is-abstract?                        boolean
@@ -314,17 +107,13 @@ module: ietf-te-topology
    |        |  |           +--rw value?              uint32
    |        |  +--rw underlay-protection-type?   uint16
    |        |  +--rw underlay-trail-src
-   |        |  |  +--rw provider-id-ref?   leafref
-   |        |  |  +--rw client-id-ref?     leafref
-   |        |  |  +--rw topology-id-ref?   leafref
-   |        |  |  +--rw node-ref?          leafref
-   |        |  |  +--rw link-end-ref?      leafref
+   |        |  |  +--rw network-ref?   leafref
+   |        |  |  +--rw node-ref?      leafref
+   |        |  |  +--rw tp-ref?        leafref
    |        |  +--rw underlay-trail-des
-   |        |     +--rw provider-id-ref?   leafref
-   |        |     +--rw client-id-ref?     leafref
-   |        |     +--rw topology-id-ref?   leafref
-   |        |     +--rw node-ref?          leafref
-   |        |     +--rw link-end-ref?      leafref
+   |        |     +--rw network-ref?   leafref
+   |        |     +--rw node-ref?      leafref
+   |        |     +--rw tp-ref?        leafref
    |        +--rw admin-status?                       enumeration
    |        +--rw performance-metric-throttle {te-performance-metric}?
    |        |  +--rw unidirectional-delay-offset?           uint32
@@ -412,11 +201,12 @@ module: ietf-te-topology
          |  +--ro te-node-id            te-node-id
          |  +--ro te-node-template?     leafref {template}?
          |  +--ro te-node-attributes
-         |  |  +--ro schedules* [schedule-id] {configuration-schedule}?
-         |  |  |  +--ro schedule-id          uint32
-         |  |  |  +--ro start?               yang:date-and-time
-         |  |  |  +--ro schedule-duration?   string
-         |  |  |  +--ro repeat-interval?     string
+         |  |  +--ro schedules
+         |  |  |  +--ro schedule* [schedule-id]
+         |  |  |     +--ro schedule-id          uint32
+         |  |  |     +--ro start?               yang:date-and-time
+         |  |  |     +--ro schedule-duration?   string
+         |  |  |     +--ro repeat-interval?     string
          |  |  +--ro name?                  inet:domain-name
          |  |  +--ro signaling-address*     inet:ip-address
          |  |  +--ro flag*                  flag-type
@@ -427,18 +217,14 @@ module: ietf-te-topology
          |  |  |  +--ro topology-id-ref?   leafref
          |  |  +--ro connectivity-matrix* [id]
          |  |     +--ro id            uint32
-         |  |     +--ro from-link
-         |  |     |  +--ro provider-id-ref?   leafref
-         |  |     |  +--ro client-id-ref?     leafref
-         |  |     |  +--ro topology-id-ref?   leafref
-         |  |     |  +--ro node-ref?          leafref
-         |  |     |  +--ro link-end-ref?      leafref
-         |  |     +--ro to-link
-         |  |     |  +--ro provider-id-ref?   leafref
-         |  |     |  +--ro client-id-ref?     leafref
-         |  |     |  +--ro topology-id-ref?   leafref
-         |  |     |  +--ro node-ref?          leafref
-         |  |     |  +--ro link-end-ref?      leafref
+         |  |     +--ro from
+         |  |     |  +--ro network-ref?   leafref
+         |  |     |  +--ro node-ref?      leafref
+         |  |     |  +--ro tp-ref?        leafref
+         |  |     +--ro to
+         |  |     |  +--ro network-ref?   leafref
+         |  |     |  +--ro node-ref?      leafref
+         |  |     |  +--ro tp-ref?        leafref
          |  |     +--ro is-allowed?   boolean
          |  +--ro te-link* [te-link-id]
          |  |  +--ro te-link-id         te-link-id
@@ -452,7 +238,7 @@ module: ietf-te-topology
          |  |        +--ro component-links
          |  |           +--ro component-link* [sequence]
          |  |              +--ro sequence              uint32
-         |  |              +--ro component-link-ref?   leafref
+         |  |              +--ro component-link-ref?   string
          |  +--ro te-node-state
          |     +--ro information-source?         enumeration
          |     +--ro information-source-state
@@ -469,11 +255,12 @@ module: ietf-te-topology
             +--ro dest-te-link-id       leafref
             +--ro te-link-template?     leafref {template}?
             +--ro te-link-attributes
-            |  +--ro schedules* [schedule-id] {configuration-schedule}?
-            |  |  +--ro schedule-id          uint32
-            |  |  +--ro start?               yang:date-and-time
-            |  |  +--ro schedule-duration?   string
-            |  |  +--ro repeat-interval?     string
+            |  +--ro schedules
+            |  |  +--ro schedule* [schedule-id]
+            |  |     +--ro schedule-id          uint32
+            |  |     +--ro start?               yang:date-and-time
+            |  |     +--ro schedule-duration?   string
+            |  |     +--ro repeat-interval?     string
             |  +--ro name?                               string
             |  +--ro flag*                               flag-type
             |  +--ro is-abstract?                        boolean
@@ -525,17 +312,13 @@ module: ietf-te-topology
             |  |  |           +--ro value?              uint32
             |  |  +--ro underlay-protection-type?   uint16
             |  |  +--ro underlay-trail-src
-            |  |  |  +--ro provider-id-ref?   leafref
-            |  |  |  +--ro client-id-ref?     leafref
-            |  |  |  +--ro topology-id-ref?   leafref
-            |  |  |  +--ro node-ref?          leafref
-            |  |  |  +--ro link-end-ref?      leafref
+            |  |  |  +--ro network-ref?   leafref
+            |  |  |  +--ro node-ref?      leafref
+            |  |  |  +--ro tp-ref?        leafref
             |  |  +--ro underlay-trail-des
-            |  |  |  +--ro provider-id-ref?   leafref
-            |  |  |  +--ro client-id-ref?     leafref
-            |  |  |  +--ro topology-id-ref?   leafref
-            |  |  |  +--ro node-ref?          leafref
-            |  |  |  +--ro link-end-ref?      leafref
+            |  |  |  +--ro network-ref?   leafref
+            |  |  |  +--ro node-ref?      leafref
+            |  |  |  +--ro tp-ref?        leafref
             |  |  +--ro dynamic?                    boolean
             |  |  +--ro committed?                  boolean
             |  +--ro admin-status?                       enumeration
@@ -674,20 +457,225 @@ module: ietf-te-topology
                   |     +--ro indication?              enumeration
                   +--ro te-srlgs
                      +--ro values*   te-types:srlg
+augment /nw:network/nw:network-types:
+   +--rw te-topology!
+augment /nw:network:
+   +--rw te-topology-id!
+   |  +--rw provider-id       te-global-id
+   |  +--rw client-id         te-global-id
+   |  +--rw te-topology-id    te-topology-id
+   +--rw schedules
+      +--rw schedule* [schedule-id]
+         +--rw schedule-id          uint32
+         +--rw start?               yang:date-and-time
+         +--rw schedule-duration?   string
+         +--rw repeat-interval?     string
+augment /nw:network/nw:node:
+   +--rw te-node-id?           te-node-id
+   +--rw te-node-template?     leafref {template}?
+   +--rw te-node-attributes
+   |  +--rw schedules
+   |  |  +--rw schedule* [schedule-id]
+   |  |     +--rw schedule-id          uint32
+   |  |     +--rw start?               yang:date-and-time
+   |  |     +--rw schedule-duration?   string
+   |  |     +--rw repeat-interval?     string
+   |  +--rw name?                  inet:domain-name
+   |  +--rw signaling-address*     inet:ip-address
+   |  +--rw flag*                  flag-type
+   |  +--rw is-abstract?           boolean
+   |  +--rw underlay-topology {te-topology-hierarchy}?
+   |  |  +--rw provider-id-ref?   leafref
+   |  |  +--rw client-id-ref?     leafref
+   |  |  +--rw topology-id-ref?   leafref
+   |  +--rw connectivity-matrix* [id]
+   |     +--rw id            uint32
+   |     +--rw from
+   |     |  +--rw network-ref?   leafref
+   |     |  +--rw node-ref?      leafref
+   |     |  +--rw tp-ref?        leafref
+   |     +--rw to
+   |     |  +--rw network-ref?   leafref
+   |     |  +--rw node-ref?      leafref
+   |     |  +--rw tp-ref?        leafref
+   |     +--rw is-allowed?   boolean
+   +--rw te-link* [te-link-id]
+      +--rw te-link-id         te-link-id
+      +--rw (stack-level)?
+         +--:(bundle)
+         |  +--rw bundled-links
+         |     +--rw bundled-link* [sequence]
+         |        +--rw sequence       uint32
+         |        +--rw te-link-ref?   leafref
+         +--:(component)
+            +--rw component-links
+               +--rw component-link* [sequence]
+                  +--rw sequence              uint32
+                  +--rw component-link-ref?   string
+augment /nw:network/nt:link:
+   +--rw te-link-template?     leafref {template}?
+   +--rw te-link-attributes
+      +--rw schedules
+      |  +--rw schedule* [schedule-id]
+      |     +--rw schedule-id          uint32
+      |     +--rw start?               yang:date-and-time
+      |     +--rw schedule-duration?   string
+      |     +--rw repeat-interval?     string
+      +--rw name?                               string
+      +--rw flag*                               flag-type
+      +--rw is-abstract?                        boolean
+      +--rw underlay! {te-topology-hierarchy}?
+      |  +--rw underlay-primary-path
+      |  |  +--rw provider-id-ref?   leafref
+      |  |  +--rw client-id-ref?     leafref
+      |  |  +--rw topology-id-ref?   leafref
+      |  |  +--rw path-element* [path-element-id]
+      |  |     +--rw path-element-id     uint32
+      |  |     +--rw (type)?
+      |  |        +--:(ipv4-address)
+      |  |        |  +--rw v4-address?         inet:ipv4-address
+      |  |        |  +--rw v4-prefix-length?   uint8
+      |  |        |  +--rw v4-loose?           boolean
+      |  |        +--:(ipv6-address)
+      |  |        |  +--rw v6-address?         inet:ipv6-address
+      |  |        |  +--rw v6-prefix-length?   uint8
+      |  |        |  +--rw v6-loose?           boolean
+      |  |        +--:(as-number)
+      |  |        |  +--rw as-number?          uint16
+      |  |        +--:(unnumbered-link)
+      |  |        |  +--rw router-id?          inet:ip-address
+      |  |        |  +--rw interface-id?       uint32
+      |  |        +--:(label)
+      |  |           +--rw value?              uint32
+      |  +--rw underlay-backup-path* [index]
+      |  |  +--rw index              uint32
+      |  |  +--rw provider-id-ref?   leafref
+      |  |  +--rw client-id-ref?     leafref
+      |  |  +--rw topology-id-ref?   leafref
+      |  |  +--rw path-element* [path-element-id]
+      |  |     +--rw path-element-id     uint32
+      |  |     +--rw (type)?
+      |  |        +--:(ipv4-address)
+      |  |        |  +--rw v4-address?         inet:ipv4-address
+      |  |        |  +--rw v4-prefix-length?   uint8
+      |  |        |  +--rw v4-loose?           boolean
+      |  |        +--:(ipv6-address)
+      |  |        |  +--rw v6-address?         inet:ipv6-address
+      |  |        |  +--rw v6-prefix-length?   uint8
+      |  |        |  +--rw v6-loose?           boolean
+      |  |        +--:(as-number)
+      |  |        |  +--rw as-number?          uint16
+      |  |        +--:(unnumbered-link)
+      |  |        |  +--rw router-id?          inet:ip-address
+      |  |        |  +--rw interface-id?       uint32
+      |  |        +--:(label)
+      |  |           +--rw value?              uint32
+      |  +--rw underlay-protection-type?   uint16
+      |  +--rw underlay-trail-src
+      |  |  +--rw network-ref?   leafref
+      |  |  +--rw node-ref?      leafref
+      |  |  +--rw tp-ref?        leafref
+      |  +--rw underlay-trail-des
+      |     +--rw network-ref?   leafref
+      |     +--rw node-ref?      leafref
+      |     +--rw tp-ref?        leafref
+      +--rw admin-status?                       enumeration
+      +--rw performance-metric-throttle {te-performance-metric}?
+      |  +--rw unidirectional-delay-offset?           uint32
+      |  +--rw measure-interval?                      uint32
+      |  +--rw advertisement-interval?                uint32
+      |  +--rw suppression-interval?                  uint32
+      |  +--rw threshold-out
+      |  |  +--rw unidirectional-delay?                 uint32
+      |  |  +--rw unidirectional-min-delay?             uint32
+      |  |  +--rw unidirectional-max-delay?             uint32
+      |  |  +--rw unidirectional-delay-variation?       uint32
+      |  |  +--rw unidirectional-packet-loss?           decimal64
+      |  |  +--rw unidirectional-residual-bandwidth?    decimal64
+      |  |  +--rw unidirectional-available-bandwidth?   decimal64
+      |  |  +--rw unidirectional-utilized-bandwidth?    decimal64
+      |  +--rw threshold-in
+      |  |  +--rw unidirectional-delay?                 uint32
+      |  |  +--rw unidirectional-min-delay?             uint32
+      |  |  +--rw unidirectional-max-delay?             uint32
+      |  |  +--rw unidirectional-delay-variation?       uint32
+      |  |  +--rw unidirectional-packet-loss?           decimal64
+      |  |  +--rw unidirectional-residual-bandwidth?    decimal64
+      |  |  +--rw unidirectional-available-bandwidth?   decimal64
+      |  |  +--rw unidirectional-utilized-bandwidth?    decimal64
+      |  +--rw threshold-accelerated-advertisement
+      |     +--rw unidirectional-delay?                 uint32
+      |     +--rw unidirectional-min-delay?             uint32
+      |     +--rw unidirectional-max-delay?             uint32
+      |     +--rw unidirectional-delay-variation?       uint32
+      |     +--rw unidirectional-packet-loss?           decimal64
+      |     +--rw unidirectional-residual-bandwidth?    decimal64
+      |     +--rw unidirectional-available-bandwidth?   decimal64
+      |     +--rw unidirectional-utilized-bandwidth?    decimal64
+      +--rw link-index?                         uint64
+      +--rw administrative-group?               te-types:admin-groups
+      +--rw max-link-bandwidth?                 decimal64
+      +--rw max-resv-link-bandwidth?            decimal64
+      +--rw unreserved-bandwidth* [priority]
+      |  +--rw priority     uint8
+      |  +--rw bandwidth?   decimal64
+      +--rw te-default-metric?                  uint32
+      +--rw performance-metric {te-performance-metric}?
+      |  +--rw measurement
+      |  |  +--rw unidirectional-delay?                 uint32
+      |  |  +--rw unidirectional-min-delay?             uint32
+      |  |  +--rw unidirectional-max-delay?             uint32
+      |  |  +--rw unidirectional-delay-variation?       uint32
+      |  |  +--rw unidirectional-packet-loss?           decimal64
+      |  |  +--rw unidirectional-residual-bandwidth?    decimal64
+      |  |  +--rw unidirectional-available-bandwidth?   decimal64
+      |  |  +--rw unidirectional-utilized-bandwidth?    decimal64
+      |  +--rw normality
+      |     +--rw unidirectional-delay?                 performance-metric-normality
+      |     +--rw unidirectional-min-delay?             performance-metric-normality
+      |     +--rw unidirectional-max-delay?             performance-metric-normality
+      |     +--rw unidirectional-delay-variation?       performance-metric-normality
+      |     +--rw unidirectional-packet-loss?           performance-metric-normality
+      |     +--rw unidirectional-residual-bandwidth?    performance-metric-normality
+      |     +--rw unidirectional-available-bandwidth?   performance-metric-normality
+      |     +--rw unidirectional-utilized-bandwidth?    performance-metric-normality
+      +--rw link-protection-type?               enumeration
+      +--rw interface-switching-capabilities* [switching-capability]
+      |  +--rw switching-capability               identityref
+      |  +--rw encoding?                          identityref
+      |  +--rw max-lsp-bandwidth* [priority]
+      |  |  +--rw priority     uint8
+      |  |  +--rw bandwidth?   decimal64
+      |  +--rw packet-switch-capable
+      |  |  +--rw minimum-lsp-bandwidth?   decimal64
+      |  |  +--rw interface-mtu?           uint16
+      |  +--rw time-division-multiplex-capable
+      |     +--rw minimum-lsp-bandwidth?   decimal64
+      |     +--rw indication?              enumeration
+      +--rw te-srlgs
+         +--rw values*   te-types:srlg
+augment /nw:network/nw:node/nt:termination-point:
+   +--rw te-tp-id!
+   |  +--rw te-tp-id    te-tp-id
+   +--rw schedules
+      +--rw schedule* [schedule-id]
+         +--rw schedule-id          uint32
+         +--rw start?               yang:date-and-time
+         +--rw schedule-duration?   string
+         +--rw repeat-interval?     string
 notifications:
    +---n te-node-event    
    |  +--ro event-type?           te-topology-event-type
-   |  +--ro provider-id-ref?      leafref
-   |  +--ro client-id-ref?        leafref
-   |  +--ro topology-id-ref?      leafref
+   |  +--ro network-ref?          leafref
    |  +--ro node-ref?             leafref
    |  +--ro te-topology!
    |  +--ro te-node-attributes
-   |  |  +--ro schedules* [schedule-id] {configuration-schedule}?
-   |  |  |  +--ro schedule-id          uint32
-   |  |  |  +--ro start?               yang:date-and-time
-   |  |  |  +--ro schedule-duration?   string
-   |  |  |  +--ro repeat-interval?     string
+   |  |  +--ro schedules
+   |  |  |  +--ro schedule* [schedule-id]
+   |  |  |     +--ro schedule-id          uint32
+   |  |  |     +--ro start?               yang:date-and-time
+   |  |  |     +--ro schedule-duration?   string
+   |  |  |     +--ro repeat-interval?     string
    |  |  +--ro name?                  inet:domain-name
    |  |  +--ro signaling-address*     inet:ip-address
    |  |  +--ro flag*                  flag-type
@@ -698,18 +686,14 @@ notifications:
    |  |  |  +--ro topology-id-ref?   leafref
    |  |  +--ro connectivity-matrix* [id]
    |  |     +--ro id            uint32
-   |  |     +--ro from-link
-   |  |     |  +--ro provider-id-ref?   leafref
-   |  |     |  +--ro client-id-ref?     leafref
-   |  |     |  +--ro topology-id-ref?   leafref
-   |  |     |  +--ro node-ref?          leafref
-   |  |     |  +--ro link-end-ref?      leafref
-   |  |     +--ro to-link
-   |  |     |  +--ro provider-id-ref?   leafref
-   |  |     |  +--ro client-id-ref?     leafref
-   |  |     |  +--ro topology-id-ref?   leafref
-   |  |     |  +--ro node-ref?          leafref
-   |  |     |  +--ro link-end-ref?      leafref
+   |  |     +--ro from
+   |  |     |  +--ro network-ref?   leafref
+   |  |     |  +--ro node-ref?      leafref
+   |  |     |  +--ro tp-ref?        leafref
+   |  |     +--ro to
+   |  |     |  +--ro network-ref?   leafref
+   |  |     |  +--ro node-ref?      leafref
+   |  |     |  +--ro tp-ref?        leafref
    |  |     +--ro is-allowed?   boolean
    |  +--ro te-link* [te-link-id]
    |  |  +--ro te-link-id         te-link-id
@@ -723,7 +707,7 @@ notifications:
    |  |        +--ro component-links
    |  |           +--ro component-link* [sequence]
    |  |              +--ro sequence              uint32
-   |  |              +--ro component-link-ref?   leafref
+   |  |              +--ro component-link-ref?   string
    |  +--ro te-node-state
    |     +--ro information-source?         enumeration
    |     +--ro information-source-state
@@ -734,21 +718,17 @@ notifications:
    |        |  +--ro topology-id-ref?   leafref
    |        +--ro routing-instance?         string
    +---n te-link-event    
-      +--ro event-type?              te-topology-event-type
-      +--ro provider-id-ref?         leafref
-      +--ro client-id-ref?           leafref
-      +--ro topology-id-ref?         leafref
-      +--ro source-te-node-id-ref?   leafref
-      +--ro source-te-link-id-ref?   leafref
-      +--ro dest-te-node-id-ref?     leafref
-      +--ro dest-te-link-id-ref?     leafref
+      +--ro event-type?           te-topology-event-type
+      +--ro network-ref?          leafref
+      +--ro link-ref?             leafref
       +--ro te-topology!
       +--ro te-link-attributes
-      |  +--ro schedules* [schedule-id] {configuration-schedule}?
-      |  |  +--ro schedule-id          uint32
-      |  |  +--ro start?               yang:date-and-time
-      |  |  +--ro schedule-duration?   string
-      |  |  +--ro repeat-interval?     string
+      |  +--ro schedules
+      |  |  +--ro schedule* [schedule-id]
+      |  |     +--ro schedule-id          uint32
+      |  |     +--ro start?               yang:date-and-time
+      |  |     +--ro schedule-duration?   string
+      |  |     +--ro repeat-interval?     string
       |  +--ro name?                               string
       |  +--ro flag*                               flag-type
       |  +--ro is-abstract?                        boolean
@@ -800,17 +780,13 @@ notifications:
       |  |  |           +--ro value?              uint32
       |  |  +--ro underlay-protection-type?   uint16
       |  |  +--ro underlay-trail-src
-      |  |  |  +--ro provider-id-ref?   leafref
-      |  |  |  +--ro client-id-ref?     leafref
-      |  |  |  +--ro topology-id-ref?   leafref
-      |  |  |  +--ro node-ref?          leafref
-      |  |  |  +--ro link-end-ref?      leafref
+      |  |  |  +--ro network-ref?   leafref
+      |  |  |  +--ro node-ref?      leafref
+      |  |  |  +--ro tp-ref?        leafref
       |  |  +--ro underlay-trail-des
-      |  |  |  +--ro provider-id-ref?   leafref
-      |  |  |  +--ro client-id-ref?     leafref
-      |  |  |  +--ro topology-id-ref?   leafref
-      |  |  |  +--ro node-ref?          leafref
-      |  |  |  +--ro link-end-ref?      leafref
+      |  |  |  +--ro network-ref?   leafref
+      |  |  |  +--ro node-ref?      leafref
+      |  |  |  +--ro tp-ref?        leafref
       |  |  +--ro dynamic?                    boolean
       |  |  +--ro committed?                  boolean
       |  +--ro admin-status?                       enumeration

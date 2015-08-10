@@ -5,27 +5,31 @@ module ietf-te-topology {
   
   prefix "tet";
 
-  import ietf-yang-types { 
-    prefix "yang"; 
-  }
-
   import ietf-inet-types {
     prefix "inet";
   }
 
-  import ietf-interfaces {
-    prefix "if";
+  import ietf-schedule { 
+    prefix "sch"; 
   }
 
   import ietf-te-types {
     prefix "te-types";
   }
 
+  import ietf-network {
+    prefix "nw";
+  }
+
+  import ietf-network-topology {
+    prefix "nt";
+  }
+
   organization "TBD";
   contact "TBD";
   description "TE topology model";
   
-  revision "2015-07-02" {
+  revision "2015-08-06" {
     description "Initial revision";
     reference "TBD";
   }
@@ -90,6 +94,12 @@ module ietf-te-topology {
       template.";
   }
 
+  typedef te-link-id {
+    type te-tp-id;
+    description
+      "An identifier for a TE link on a node.";
+  }
+
   typedef te-node-id {
     type inet:ip-address;
     description
@@ -103,7 +113,7 @@ module ietf-te-topology {
        and/or the type of topology that the node is a part of.";
   }
 
-  typedef te-link-id {
+  typedef te-tp-id {
     type union {
       type uint32;          // Unnumbered
       type inet:ip-address; // IPv4 or IPv6 address
@@ -190,118 +200,34 @@ module ietf-te-topology {
   /*
    * Groupings
    */
-
-  grouping topo-ref {
+  grouping te-topology-ref {
     description
-      "Grouping for an absolute reference to a topology instance.";
+      "References a TE topology.";
     leaf provider-id-ref {
       type leafref {
-        path "/tet:te-topologies/tet:topology/tet:provider-id";
+        path "/nw:network/tet:te-topology-id/tet:provider-id";
+        require-instance false;
       }
       description
-        "An absolute reference to a provider-id.";
+        "A reference to a provider-id.";
     }
     leaf client-id-ref {
       type leafref {
-        path "/tet:te-topologies/tet:topology/tet:client-id";
+        path "/nw:network/tet:te-topology-id/tet:client-id";
+        require-instance false;
       }
       description
-        "An absolute reference to a client-id.";
+        "A reference to a client-id.";
     }
     leaf topology-id-ref {
       type leafref {
-        path "/tet:te-topologies/tet:topology/tet:te-topology-id";
+        path "/nw:network/tet:te-topology-id/tet:te-topology-id";
+        require-instance false;
       }
       description
-        "An absolute reference to a te-topology-id.";
+        "A reference to a te-topology-id.";
     }
-  } // topo-ref
-
-  grouping link-ref {
-    description
-      "Grouping for an absolute reference to a link instance.";
-    uses topo-ref;
-    leaf source-te-node-id-ref {
-      type leafref {
-        path "/tet:te-topologies/tet:topology"
-          +"[tet:provider-id = current()/../provider-id-ref]"
-          +"[tet:client-id = current()/../client-id-ref]"
-          +"[tet:te-topology-id = current()/../topology-id-ref]"
-          +"/tet:link/tet:source-te-node-id";
-      }
-      description
-        "An absolute reference to a link instance.";
-    }
-    leaf source-te-link-id-ref {
-      type leafref {
-        path "/tet:te-topologies/tet:topology"
-          +"[tet:provider-id = current()/../provider-id-ref]"
-          +"[tet:client-id = current()/../client-id-ref]"
-          +"[tet:te-topology-id = current()/../topology-id-ref]"
-          +"/tet:link/tet:source-te-link-id";
-      }
-      description
-        "An absolute reference to a link instance.";
-    }
-    leaf dest-te-node-id-ref {
-      type leafref {
-        path "/tet:te-topologies/tet:topology"
-          +"[tet:provider-id = current()/../provider-id-ref]"
-          +"[tet:client-id = current()/../client-id-ref]"
-          +"[tet:te-topology-id = current()/../topology-id-ref]"
-          +"/tet:link/tet:dest-te-node-id";
-      }
-      description
-        "An absolute reference to a link instance.";
-    }
-    leaf dest-te-link-id-ref {
-      type leafref {
-        path "/tet:te-topologies/tet:topology"
-          +"[tet:provider-id = current()/../provider-id-ref]"
-          +"[tet:client-id = current()/../client-id-ref]"
-          +"[tet:te-topology-id = current()/../topology-id-ref]"
-          +"/tet:link/tet:dest-te-link-id";
-      }
-      description
-        "An absolute reference to a link instance.";
-    }
-  } // link-ref
-
-  grouping node-ref {
-    description
-      "Grouping for an absolute reference to a node instance.";
-    uses topo-ref;
-    leaf node-ref {
-      type leafref {
-        path "/tet:te-topologies/tet:topology"
-          +"[tet:provider-id = current()/../provider-id-ref]"
-          +"[tet:client-id = current()/../client-id-ref]"
-          +"[tet:te-topology-id = current()/../topology-id-ref]"
-          +"/tet:node/tet:te-node-id";
-      }
-      description
-        "An absolute reference to a node instance.";
-    }
-  } // node-ref
-
-  grouping link-end-ref {
-    description
-      "Grouping for an absolute reference to a TE link end, which is
-      the local representation of a TE link on a node.";
-    uses node-ref;
-    leaf link-end-ref {
-      type leafref {
-        path "/tet:te-topologies/tet:topology"
-          +"[tet:provider-id = current()/../provider-id-ref]"
-          +"[tet:client-id = current()/../client-id-ref]"
-          +"[tet:te-topology-id = current()/../topology-id-ref]"
-          +"/tet:node[tet:te-node-id = current()/../node-ref]"
-          +"/tet:te-link/tet:te-link-id";
-      }
-      description
-        "Grouping for an absolute reference to a TE link end.";
-    }
-  } // link-end-ref
+  } // te-topology-ref
 
   grouping te-topology-type {
     description
@@ -320,41 +246,6 @@ module ietf-te-topology {
     uses te-types:explicit-route-subobject;
   } // te-path-element
   
-  grouping config-schedule-attributes {
-    description
-      "A list of schedules defining when a particular 
-       configuration takes effect.";
-    list schedules {
-      if-feature configuration-schedule;
-      key "schedule-id";
-      description "A list of schedule elements.";
-      
-      leaf schedule-id {
-        type uint32;
-        description "Identifies the schedule element.";
-      }
-      leaf start {
-        type yang:date-and-time;
-        description "Start time.";
-      }
-      leaf schedule-duration {
-        type string {
-          pattern 
-            'P(\d+Y)?(\d+M)?(\d+W)?(\d+D)?T(\d+H)?(\d+M)?(\d+S)?';
-        }
-        description "Schedule duration in ISO 8601 format.";
-      }
-      leaf repeat-interval {
-        type string {
-          pattern 
-            'R\d*/P(\d+Y)?(\d+M)?(\d+W)?(\d+D)?T(\d+H)?(\d+M)?'
-            + '(\d+S)?';
-        }
-        description "Repeat interval in ISO 8601 format.";
-     }
-    }
-  } // config-schedule-attributes
-
   grouping information-source-attributes {
     description
       "The attributes identifying source that has provided the 
@@ -404,28 +295,7 @@ module ietf-te-topology {
           "When the information is processed by the system,
           the attributes in this container indicate which topology
           is used to process to generate the result information.";
-        leaf provider-id-ref {
-          type leafref {
-            path "/tet:te-topologies/tet:topology/tet:provider-id";
-          }
-          description
-            "A reference to a provider-id.";
-        }
-        leaf client-id-ref {
-          type leafref {
-            path "/tet:te-topologies/tet:topology/tet:client-id";
-          }
-          description
-            "A reference to a client-id.";
-        }
-        leaf topology-id-ref {
-          type leafref {
-            path "/tet:te-topologies/tet:topology"
-              +"/tet:te-topology-id";
-          }
-          description
-            "A reference to a te-topology-id.";
-        }
+        uses te-topology-ref;
       } // topology
       leaf routing-instance {
         type string;
@@ -437,10 +307,30 @@ module ietf-te-topology {
   } // information-source-attributes
 
   grouping te-node-attributes {
+    description
+      "Group of TE attributes for node.";
+    leaf te-node-id {
+      type te-node-id;
+      description
+        "The identifier of a node in the topology.
+        A node is specific to a topology to which it belongs.";
+    }
+    leaf te-node-template {
+      if-feature template;
+      type leafref {
+        path "/templates/node-template/name";
+      }
+      description
+        "The reference to a TE node template.";
+    }
+    uses te-node-config-attributes;
+  } // te-node-attributes
+
+  grouping te-node-config-attributes {
     description "Node attributes in a TE topology.";
     container te-node-attributes {
       description "Node attributes in a TE topology.";
-      uses config-schedule-attributes;
+      uses sch:schedule-list-container;
       leaf name {
         type inet:domain-name;
         description "Node name.";
@@ -464,28 +354,7 @@ module ietf-te-topology {
         description 
           "When an abstract node encapsulates a topology, 
           the attributes in this container point to said topology.";
-        leaf provider-id-ref {
-          type leafref {
-            path "/tet:te-topologies/tet:topology/tet:provider-id";
-          }
-          description
-            "A reference to a provider-id.";
-        }
-        leaf client-id-ref {
-          type leafref {
-            path "/tet:te-topologies/tet:topology/tet:client-id";
-          }
-          description
-            "A reference to a client-id.";
-        }
-        leaf topology-id-ref {
-          type leafref {
-            path "/tet:te-topologies/tet:topology"
-              +"/tet:te-topology-id";
-          }
-          description
-            "A reference to a te-topology-id.";
-        }
+        uses te-topology-ref;
       }
 
       list connectivity-matrix {
@@ -497,13 +366,13 @@ module ietf-te-topology {
           type uint32;
           description "Identifies the connectivity-matrix entry.";
         }
-        container from-link {
-          uses tet:link-end-ref;
+        container from {
+          uses nt:tp-ref;
           description 
             "Reference to source NTP.";
         }
-        container to-link {
-          uses tet:link-end-ref;
+        container to {
+          uses nt:tp-ref;
           description 
             "Reference to destination NTP.";
         }
@@ -571,10 +440,7 @@ module ietf-te-topology {
                   "Identify the sequence in the bundle.";
               }
               leaf component-link-ref {
-                type leafref {
-                  path "/if:interfaces/if:interface/if:name";
-                  require-instance false;
-                }
+                type string;
                 description
                   "Reference to component link on this
                   node.";
@@ -584,7 +450,7 @@ module ietf-te-topology {
         }
       }
     }
-  } // te-node-attributes
+  } // te-node-config-attributes
     
   grouping te-node-state-attributes {
     description "Node state attributes in a TE topology.";
@@ -600,30 +466,7 @@ module ietf-te-topology {
       description 
         "The service path on the underlay topology that
          supports this link.";
-      leaf provider-id-ref {
-        type leafref {
-          path "/tet:te-topologies/tet:topology/tet:provider-id";
-          require-instance false;
-        }
-        description
-          "A reference to a provider-id.";
-      }
-      leaf client-id-ref {
-        type leafref {
-          path "/tet:te-topologies/tet:topology/tet:client-id";
-          require-instance false;
-        }
-        description
-          "A reference to a client-id.";
-      }
-      leaf topology-id-ref {
-        type leafref {
-          path "/tet:te-topologies/tet:topology/tet:te-topology-id";
-          require-instance false;
-        }
-        description 
-          "Identifies the topology where the path belongs.";
-      }
+      uses te-topology-ref;
       list path-element {
         key "path-element-id";
         description 
@@ -648,30 +491,7 @@ module ietf-te-topology {
         description
           "A sequence number to identify a backup path.";
       }
-      leaf provider-id-ref {
-        type leafref {
-          path "/tet:te-topologies/tet:topology/tet:provider-id";
-          require-instance false;
-        }
-        description
-          "A reference to a provider-id.";
-      }
-      leaf client-id-ref {
-        type leafref {
-          path "/tet:te-topologies/tet:topology/tet:client-id";
-          require-instance false;
-        }
-        description
-          "A reference to a client-id.";
-      }
-      leaf topology-id-ref {
-        type leafref {
-          path "/tet:te-topologies/tet:topology/tet:te-topology-id";
-          require-instance false;
-        }
-        description 
-          "Identifies the topology where the path belongs.";
-      }
+      uses te-topology-ref;
       list path-element {
         key "path-element-id";
         description 
@@ -690,12 +510,12 @@ module ietf-te-topology {
         "Underlay protection type desired for this link";
     }
     container underlay-trail-src {
-      uses tet:link-end-ref;
+      uses nt:tp-ref;
       description
         "Source TE link of the underlay trail.";
     }
     container underlay-trail-des {
-      uses tet:link-end-ref;
+      uses nt:tp-ref;
       description
         "Destination TE link of the underlay trail.";
     }
@@ -1106,9 +926,24 @@ module ietf-te-topology {
   grouping te-link-attributes {
     description 
       "Link attributes in a TE topology.";
+    
+    leaf te-link-template {
+      if-feature template;
+      type leafref {
+        path "/templates/link-template/name";
+      }
+      description
+        "The reference to a TE link template.";
+    }
+    uses te-link-config-attributes;
+  } // te-link-attributes
+
+  grouping te-link-config-attributes {
+    description 
+      "Link configuration attributes in a TE topology.";
     container te-link-attributes {
       description "Link attributes in a TE topology.";
-      uses config-schedule-attributes;
+      uses sch:schedule-list-container;
       leaf name {
         type string;
         description "Link Name";
@@ -1154,7 +989,7 @@ module ietf-te-topology {
       uses performance-metric-throttle-container;
       uses te-link-info-attributes;
     }
-  } // te-link-attributes
+  } // te-link-config-attributes
 
   grouping te-link-state-attributes {
     description 
@@ -1237,148 +1072,78 @@ module ietf-te-topology {
     }
   } // template-attributes
 
-  /*
-   * Configuration data nodes
-   */
+  grouping te-termination-point-attributes {
+    description "Attributes in a TE termination point.";
 
-  container te-topologies {
-    description
-      "This container acts as the top-level data element of 
-       configuration data.";
-    list topology {
-      key "provider-id client-id te-topology-id";
-      description
-        "This is the model of an abstract topology. A topology
-        contains nodes and links. Each topology MUST be identified
-        by a unique te-topology-id for reason that a network could
-        contain many topologies.";
+    container te-tp-id {
+      presence "TE termination point ID";      
+      description 
+        "Key attributes to identify a TE termination point.";
+      leaf te-tp-id {
+        type te-tp-id;
+        mandatory true;
+        description
+          "An identifier to uniquely identify a TE termination
+          point.";
+      }
+    }
+    uses sch:schedule-list-container;
+  } // te-topology-attributes
+
+  grouping te-topology-attributes {
+    description "Topology attributes in a TE topology.";
+
+    container te-topology-id {
+      presence "TE topology ID";      
+      description "Key attributes to identify a TE topology.";
       leaf provider-id {
         type te-global-id;
+        mandatory true;
         description
           "An identifier to uniquely identify a provider.";
       }
       leaf client-id {
         type te-global-id;
+        mandatory true;
         description
           "An identifier to uniquely identify a client.";
       }
       leaf te-topology-id {
         type te-topology-id;
+        mandatory true;
         description
           "It is presumed that a datastore will contain many
           topologies. To distinguish between topologies it is
           vital to have UNIQUE topology identifiers.";
       }
-      uses config-schedule-attributes;
-      container topology-types {
-        description
-          "This container is used to identify the type, or types (as
-          a topology can support several types simultaneously), of
-          the topology.
-          Topology types are the subject of several integrity
-          constraints that an implementing server can validate in
-          order to maintain integrity of the datastore.
-          Topology types are indicated through separate data nodes;
-          the set of topology types is expected to increase over
-          time.
-          To add support for a new topology, an augmenting module
-          needs to augment this container with a new empty optional
-          container to indicate the new topology type.
-          The use of a container allows to indicate a
-          subcategorization of topology types.
-          The container SHALL NOT be augmented with any data nodes
-          that serve a purpose other than identifying a particular
-          topology type.";
-        uses te-topology-type; // Defines the TE topology type.
-      }
-      list node {
-        key "te-node-id";
-        leaf te-node-id {
-          type te-node-id;
-          description
-            "The identifier of a node in the topology.
-            A node is specific to a topology to which it belongs.";
-        }
-        description
-          "The list of network nodes defined for the topology.";
-        leaf te-node-template {
-          if-feature template;
-          type leafref {
-            path "/te-topologies/node-template/name";
-          }
-          description
-            "The reference to a TE node template.";
-        }
-        uses te-node-attributes;
-      }
-      list link {
-        key "source-te-node-id source-te-link-id "
-          + "dest-te-node-id dest-te-link-id";
-        leaf source-te-node-id {
-          type leafref {
-            path "../../node/te-node-id";
-          }
-          mandatory true;
-          description
-            "Source node identifier, must be in same topology.";
-        }
-        leaf source-te-link-id {
-          type leafref {
-            path "../../node[te-node-id = "
-              + "current()/../source-te-node-id]/"
-              + "te-link/te-link-id";
-          }
-          mandatory true;
-          description
-            "Source TE link identifier, must be in same topology.";
-        }
-        leaf dest-te-node-id {
-          type leafref {
-            path "../../node/te-node-id";
-          }
-          mandatory true;
-          description
-            "Destination node identifier, must be in the same
-            topology.";
-        }
-        leaf dest-te-link-id {
-          type leafref {
-            path "../../node[te-node-id = "
-              + "current()/../dest-te-node-id]/"
-              + "te-link/te-link-id";
-          }
-          mandatory true;
-          description
-            "Destination TE link identifier, must be in same
-            topology.";
-        }
-        description
-          "TE link is a logical construct that represents a way
-          to group/map information about certain physical
-          resources (and their properties) that interconnect TE
-          nodes.
-          A Network Link connects a by Local (Source) node and
-          a Remote (Destination) Network Nodes via a set of the
-          nodes' TE links.
-          As it is possible to have several links between the
-          same source and destination nodes, and as a link
-          could potentially be re-homed, to ensure that we
-          would always know to distinguish between
-          links, every link is identified by a dedicated link
-          identifier.
-          Note that a link models a point-to-point link, not a
-          multipoint link.";
-        leaf te-link-template {
-          if-feature template;
-          type leafref {
-            path "/te-topologies/link-template/name";
-          }
-          description
-            "The reference to a TE link template.";
-        }
-        uses te-link-attributes;
-      } // link
-    } // topology
+    }
+    uses sch:schedule-list-container;
+  } // te-topology-attributes
+  
+  /*
+   * Configuration data nodes
+   */
+  augment "/nw:network/nw:network-types" {
+    description
+      "Introduce new network type for TE topology.";
+    uses te-topology-type;
+  }
+
+  augment "/nw:network" {
+    when "nw:network-types/te-topology" {
+      description
+        "Augmentation parameters apply only for networks with
+        TE topology type";
+    }
+    description
+      "Configuration parameters for TE topology.";
+    uses te-topology-attributes;
+  }
+
+  container templates {
+    description
+      "Configuration parameters for templates used for TE
+      topology.";
 
     list node-template {
       if-feature template;
@@ -1394,13 +1159,13 @@ module ietf-te-topology {
       uses template-attributes;
       leaf-list te-node-template {
         type leafref {
-          path "/te-topologies/node-template/name";
+          path "/templates/node-template/name";
         }
         description
           "The reference to a TE node template.";
       }
-      uses te-node-attributes;
-    } // node
+      uses te-node-config-attributes;
+    } // node-template
 
     list link-template {
       if-feature template;
@@ -1416,14 +1181,48 @@ module ietf-te-topology {
       uses template-attributes;
       leaf-list te-link-template {
         type leafref {
-          path "/te-topologies/link-template/name";
+          path "/templates/link-template/name";
         }
         description
           "The reference to a TE link template.";
       }
-      uses te-link-attributes;
-    } // link
-  } // te-topologies
+      uses te-link-config-attributes;
+    } // link-template
+  }
+
+  augment "/nw:network/nw:node" {
+    when "../nw:network-types/te-topology" {
+      description
+        "Augmentation parameters apply only for networks with
+        TE topology type";
+    }
+    description
+      "Configuration parameters for TE at node level";
+    uses te-node-attributes;
+  }
+
+  augment "/nw:network/nt:link" {
+    when "../nw:network-types/te-topology" {
+      description
+        "Augmentation parameters apply only for networks with
+        TE topology type";
+    }
+    description
+      "Configuration parameters for TE at link level";
+    uses te-link-attributes;
+  }
+
+  augment "/nw:network/nw:node/"
+         +"nt:termination-point" {
+    when "../../nw:network-types/te-topology" {
+      description
+        "Augmentation parameters apply only for networks with
+        TE topology type";
+    }
+    description
+      "Configuration parameters for TE at termination point level";
+    uses te-termination-point-attributes;
+  }
 
   /*
    * Operational state data nodes
@@ -1503,12 +1302,12 @@ module ietf-te-topology {
         leaf te-node-template {
           if-feature template;
           type leafref {
-            path "/te-topologies/node-template/name";
+            path "/templates/node-template/name";
           }
           description
             "The reference to a TE node template.";
         }
-        uses te-node-attributes;
+        uses te-node-config-attributes;
         uses te-node-state-attributes;
       }
       list link {
@@ -1571,12 +1370,12 @@ module ietf-te-topology {
         leaf te-link-template {
           if-feature template;
           type leafref {
-            path "/te-topologies/link-template/name";
+            path "/templates/link-template/name";
           }
           description
             "The reference to a TE link template.";
         }
-        uses te-link-attributes;
+        uses te-link-config-attributes;
         uses te-link-state-attributes;
       } // link
     } // topology
@@ -1598,9 +1397,9 @@ module ietf-te-topology {
       type te-topology-event-type;
       description "Event type";
     }
-    uses node-ref;
+    uses nw:node-ref;
     uses te-topology-type;
-    uses tet:te-node-attributes;
+    uses tet:te-node-config-attributes;
     uses tet:te-node-state-attributes;
   }
   
@@ -1610,9 +1409,9 @@ module ietf-te-topology {
       type te-topology-event-type;
       description "Event type";
     }
-    uses link-ref;
+    uses nt:link-ref;
     uses te-topology-type;
-    uses tet:te-link-attributes;
+    uses tet:te-link-config-attributes;
     uses tet:te-link-state-attributes;
   }
 
