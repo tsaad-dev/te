@@ -29,7 +29,7 @@ module ietf-te-topology {
   contact "TBD";
   description "TE topology model";
   
-  revision "2015-08-19" {
+  revision "2015-08-20" {
     description "Initial revision";
     reference "TBD";
   }
@@ -205,7 +205,7 @@ module ietf-te-topology {
       "References a TE topology.";
     leaf provider-id-ref {
       type leafref {
-        path "/nw:network/tet:te-topology-id/tet:provider-id";
+        path "/nw:network/tet:te/tet:provider-id";
         require-instance false;
       }
       description
@@ -213,7 +213,7 @@ module ietf-te-topology {
     }
     leaf client-id-ref {
       type leafref {
-        path "/nw:network/tet:te-topology-id/tet:client-id";
+        path "/nw:network/tet:te/tet:client-id";
         require-instance false;
       }
       description
@@ -221,7 +221,7 @@ module ietf-te-topology {
     }
     leaf topology-id-ref {
       type leafref {
-        path "/nw:network/tet:te-topology-id/tet:te-topology-id";
+        path "/nw:network/tet:te/tet:te-topology-id";
         require-instance false;
       }
       description
@@ -309,27 +309,34 @@ module ietf-te-topology {
   grouping te-node-attributes {
     description
       "Group of TE attributes for node.";
-    leaf te-node-id {
-      type te-node-id;
-      description
-        "The identifier of a node in the topology.
-        A node is specific to a topology to which it belongs.";
-    }
-    leaf te-node-template {
-      if-feature template;
-      type leafref {
-        path "/templates/node-template/name";
+    container te {
+      presence "TE support.";
+      description 
+        "Indicates TE support.";
+
+      leaf te-node-id {
+        type te-node-id;
+        mandatory true;
+        description
+          "The identifier of a node in the topology.
+          A node is specific to a topology to which it belongs.";
       }
-      description
-        "The reference to a TE node template.";
-    }
-    uses te-node-config-attributes;
+      leaf te-node-template {
+        if-feature template;
+        type leafref {
+          path "/templates/node-template/name";
+        }
+        description
+          "The reference to a TE node template.";
+      }
+      uses te-node-config-attributes;
+    } // te
   } // te-node-attributes
 
   grouping te-node-config-attributes {
-    description "Node attributes in a TE topology.";
+    description "Configuration node attributes in a TE topology.";
     container te-node-attributes {
-      description "Node attributes in a TE topology.";
+      description "Containing node attributes in a TE topology.";
       uses sch:schedule-list-container;
       list connectivity-matrix {
         key "id";
@@ -404,6 +411,7 @@ module ietf-te-topology {
         uses te-topology-ref;
       }
     }
+/*
     list te-link {
       key "te-link-id";
       description
@@ -470,6 +478,7 @@ module ietf-te-topology {
         }
       }
     }
+*/
   } // te-node-config-attributes
     
   grouping te-node-state-attributes {
@@ -1002,15 +1011,99 @@ module ietf-te-topology {
     description 
       "Link attributes in a TE topology.";
     
-    leaf te-link-template {
-      if-feature template;
-      type leafref {
-        path "/templates/link-template/name";
+    container te {
+      presence "TE support.";
+      description 
+        "Indicates TE support.";
+
+      choice bundle-stack-level {
+        description 
+          "The TE link can be partitioned into bundled
+          links, or component links.";
+        case bundle {
+          container bundled-links {
+            description
+              "A set of bundled links";
+            list bundled-link {
+              key "sequence";
+              description
+                "Specify a bundled interface that is
+              further partitioned.";
+              leaf sequence {
+                type uint32;
+                description
+                  "Identify the sequence in the bundle.";
+              }
+              leaf src-tp-ref {
+                type leafref {
+                  path "../../../../../nw:node[nw:node-id = "
+                    + "current()/../../../../nt:source/"
+                    + "nt:source-node]/"
+                    + "nt:termination-point/nt:tp-id";
+                  require-instance true;
+                }
+                description
+                  "Reference to another TE termination point on the
+                  same souruce node.";
+              }
+              leaf des-tp-ref {
+                type leafref {
+                  path "../../../../../nw:node[nw:node-id = "
+                    + "current()/../../../../nt:destination/"
+                    + "nt:dest-node]/"
+                    + "nt:termination-point/nt:tp-id";
+                  require-instance true;
+                }
+                description
+                  "Reference to another TE termination point on the
+                same destination node.";
+              }
+            } // list bundled-link
+          }
+        }
+        case component {
+          container component-links {
+            description
+              "A set of component links";
+            list component-link {
+              key "sequence";
+              description
+                "Specify a component interface that is
+                sufficient to unambiguously identify the
+                appropriate resources";
+              
+              leaf sequence {
+                type uint32;
+                description
+                  "Identify the sequence in the bundle.";
+              }
+              leaf src-interface-ref {
+                type string;
+                description
+                  "Reference to component link interface on the
+                  source node.";
+              }
+              leaf des-interface-ref {
+                type string;
+                description
+                  "Reference to component link interface on the
+                  destinatioin node.";
+              }
+            }
+          }
+        }
+      } // bundle-stack-level
+
+      leaf te-link-template {
+        if-feature template;
+        type leafref {
+          path "/templates/link-template/name";
+        }
+        description
+          "The reference to a TE link template.";
       }
-      description
-        "The reference to a TE link template.";
-    }
-    uses te-link-config-attributes;
+      uses te-link-config-attributes;
+    } // te
   } // te-link-attributes
 
   grouping te-link-config-attributes {
@@ -1150,10 +1243,11 @@ module ietf-te-topology {
   grouping te-termination-point-attributes {
     description "Attributes in a TE termination point.";
 
-    container te-tp-id {
-      presence "TE termination point ID";      
+    container te {
+      presence "TE support.";      
       description 
-        "Key attributes to identify a TE termination point.";
+        "Indicates TE support.";
+
       leaf te-tp-id {
         type te-tp-id;
         mandatory true;
@@ -1161,16 +1255,29 @@ module ietf-te-topology {
           "An identifier to uniquely identify a TE termination
           point.";
       }
+      uses te-termination-point-config-attributes;
+    } // te
+  } // te-termination-point-attributes
+
+  grouping te-termination-point-config-attributes {
+    description 
+      "Configuration attributes in a TE termination point.";
+    container te-tp-attributes {
+      description 
+        "Containing attributes in a TE termination point.";      
+        
+      uses sch:schedule-list-container;    
     }
-    uses sch:schedule-list-container;
   } // te-topology-attributes
 
   grouping te-topology-attributes {
     description "Topology attributes in a TE topology.";
 
-    container te-topology-id {
-      presence "TE topology ID";      
-      description "Key attributes to identify a TE topology.";
+    container te {
+      presence "TE support.";
+      description 
+        "Indicates TE support.";
+
       leaf provider-id {
         type te-global-id;
         mandatory true;
@@ -1191,10 +1298,21 @@ module ietf-te-topology {
           topologies. To distinguish between topologies it is
           vital to have UNIQUE topology identifiers.";
       }
-    }
-    uses sch:schedule-list-container;
+
+      uses te-topology-config-attributes;
+    } // te
   } // te-topology-attributes
-  
+
+  grouping te-topology-config-attributes {
+    description "Configuration attributes in a TE topology.";
+    container te-topology-attributes {
+      description
+        "Containing attributes in a TE termination point.";
+      
+      uses sch:schedule-list-container;
+    }
+  } // te-topology-config-attributes 
+
   /*
    * Configuration data nodes
    */
@@ -1303,6 +1421,7 @@ module ietf-te-topology {
    * Operational state data nodes
    */
 
+/*** TBD 
   container te-topologies-state {
     config false;
     description
@@ -1461,6 +1580,7 @@ module ietf-te-topology {
     description "Add state attributes to te-link underlay.";
     uses te-link-state-underlay-attributes;
   }
+*** TBD */
 
   /*
    * Notifications
