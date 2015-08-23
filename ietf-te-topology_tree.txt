@@ -12,25 +12,27 @@ module: ietf-te-topology
    |  |  |  |     +--rw start?               yang:date-and-time
    |  |  |  |     +--rw schedule-duration?   string
    |  |  |  |     +--rw repeat-interval?     string
-   |  |  |  +--rw name?                  inet:domain-name
-   |  |  |  +--rw signaling-address*     inet:ip-address
+   |  |  |  +--rw connectivity-matrix* [id]
+   |  |  |  |  +--rw id            uint32
+   |  |  |  |  +--rw from
+   |  |  |  |  |  +--rw network-ref?   leafref
+   |  |  |  |  |  +--rw node-ref?      leafref
+   |  |  |  |  |  +--rw tp-ref?        leafref
+   |  |  |  |  +--rw to
+   |  |  |  |  |  +--rw network-ref?   leafref
+   |  |  |  |  |  +--rw node-ref?      leafref
+   |  |  |  |  |  +--rw tp-ref?        leafref
+   |  |  |  |  +--rw is-allowed?   boolean
+   |  |  |  +--rw domain-id?             uint32
    |  |  |  +--rw flag*                  flag-type
    |  |  |  +--rw is-abstract?           boolean
+   |  |  |  +--rw name?                  inet:domain-name
+   |  |  |  +--rw segment-id?            uint32
+   |  |  |  +--rw signaling-address*     inet:ip-address
    |  |  |  +--rw underlay-topology {te-topology-hierarchy}?
-   |  |  |  |  +--rw provider-id-ref?   leafref
-   |  |  |  |  +--rw client-id-ref?     leafref
-   |  |  |  |  +--rw topology-id-ref?   leafref
-   |  |  |  +--rw connectivity-matrix* [id]
-   |  |  |     +--rw id            uint32
-   |  |  |     +--rw from
-   |  |  |     |  +--rw network-ref?   leafref
-   |  |  |     |  +--rw node-ref?      leafref
-   |  |  |     |  +--rw tp-ref?        leafref
-   |  |  |     +--rw to
-   |  |  |     |  +--rw network-ref?   leafref
-   |  |  |     |  +--rw node-ref?      leafref
-   |  |  |     |  +--rw tp-ref?        leafref
-   |  |  |     +--rw is-allowed?   boolean
+   |  |  |     +--rw provider-id-ref?   leafref
+   |  |  |     +--rw client-id-ref?     leafref
+   |  |  |     +--rw topology-id-ref?   leafref
    |  |  +--rw te-link* [te-link-id]
    |  |     +--rw te-link-id         te-link-id
    |  |     +--rw (stack-level)?
@@ -56,9 +58,9 @@ module: ietf-te-topology
    |        |     +--rw start?               yang:date-and-time
    |        |     +--rw schedule-duration?   string
    |        |     +--rw repeat-interval?     string
-   |        +--rw name?                               string
-   |        +--rw flag*                               flag-type
-   |        +--rw is-abstract?                        boolean
+   |        +--rw name?                             string
+   |        +--rw flag*                             flag-type
+   |        +--rw is-abstract?                      boolean
    |        +--rw underlay! {te-topology-hierarchy}?
    |        |  +--rw underlay-primary-path
    |        |  |  +--rw provider-id-ref?   leafref
@@ -114,7 +116,7 @@ module: ietf-te-topology
    |        |     +--rw network-ref?   leafref
    |        |     +--rw node-ref?      leafref
    |        |     +--rw tp-ref?        leafref
-   |        +--rw admin-status?                       enumeration
+   |        +--rw admin-status?                     enumeration
    |        +--rw performance-metric-throttle {te-performance-metric}?
    |        |  +--rw unidirectional-delay-offset?           uint32
    |        |  +--rw measure-interval?                      uint32
@@ -147,14 +149,15 @@ module: ietf-te-topology
    |        |     +--rw unidirectional-residual-bandwidth?    decimal64
    |        |     +--rw unidirectional-available-bandwidth?   decimal64
    |        |     +--rw unidirectional-utilized-bandwidth?    decimal64
-   |        +--rw link-index?                         uint64
-   |        +--rw administrative-group?               te-types:admin-groups
-   |        +--rw max-link-bandwidth?                 decimal64
-   |        +--rw max-resv-link-bandwidth?            decimal64
+   |        +--rw link-index?                       uint64
+   |        +--rw administrative-group?             te-types:admin-groups
+   |        +--rw max-link-bandwidth?               decimal64
+   |        +--rw max-resv-link-bandwidth?          decimal64
+   |        +--rw segment-id?                       uint32
    |        +--rw unreserved-bandwidth* [priority]
    |        |  +--rw priority     uint8
    |        |  +--rw bandwidth?   decimal64
-   |        +--rw te-default-metric?                  uint32
+   |        +--rw te-default-metric?                uint32
    |        +--rw performance-metric {te-performance-metric}?
    |        |  +--rw measurement
    |        |  |  +--rw unidirectional-delay?                 uint32
@@ -174,8 +177,8 @@ module: ietf-te-topology
    |        |     +--rw unidirectional-residual-bandwidth?    performance-metric-normality
    |        |     +--rw unidirectional-available-bandwidth?   performance-metric-normality
    |        |     +--rw unidirectional-utilized-bandwidth?    performance-metric-normality
-   |        +--rw link-protection-type?               enumeration
-   |        +--rw interface-switching-capabilities* [switching-capability]
+   |        +--rw link-protection-type?             enumeration
+   |        +--rw interface-switching-capability* [switching-capability]
    |        |  +--rw switching-capability               identityref
    |        |  +--rw encoding?                          identityref
    |        |  +--rw max-lsp-bandwidth* [priority]
@@ -185,8 +188,14 @@ module: ietf-te-topology
    |        |  |  +--rw minimum-lsp-bandwidth?   decimal64
    |        |  |  +--rw interface-mtu?           uint16
    |        |  +--rw time-division-multiplex-capable
-   |        |     +--rw minimum-lsp-bandwidth?   decimal64
-   |        |     +--rw indication?              enumeration
+   |        |  |  +--rw minimum-lsp-bandwidth?   decimal64
+   |        |  |  +--rw indication?              enumeration
+   |        |  +--rw interface-adjustment-capability* [upper-sc]
+   |        |     +--rw upper-sc             identityref
+   |        |     +--rw upper-encoding?      identityref
+   |        |     +--rw max-lsp-bandwidth* [priority]
+   |        |        +--rw priority     uint8
+   |        |        +--rw bandwidth?   decimal64
    |        +--rw te-srlgs
    |           +--rw values*   te-types:srlg
    +--ro te-topologies-state
@@ -207,25 +216,27 @@ module: ietf-te-topology
          |  |  |     +--ro start?               yang:date-and-time
          |  |  |     +--ro schedule-duration?   string
          |  |  |     +--ro repeat-interval?     string
-         |  |  +--ro name?                  inet:domain-name
-         |  |  +--ro signaling-address*     inet:ip-address
+         |  |  +--ro connectivity-matrix* [id]
+         |  |  |  +--ro id            uint32
+         |  |  |  +--ro from
+         |  |  |  |  +--ro network-ref?   leafref
+         |  |  |  |  +--ro node-ref?      leafref
+         |  |  |  |  +--ro tp-ref?        leafref
+         |  |  |  +--ro to
+         |  |  |  |  +--ro network-ref?   leafref
+         |  |  |  |  +--ro node-ref?      leafref
+         |  |  |  |  +--ro tp-ref?        leafref
+         |  |  |  +--ro is-allowed?   boolean
+         |  |  +--ro domain-id?             uint32
          |  |  +--ro flag*                  flag-type
          |  |  +--ro is-abstract?           boolean
+         |  |  +--ro name?                  inet:domain-name
+         |  |  +--ro segment-id?            uint32
+         |  |  +--ro signaling-address*     inet:ip-address
          |  |  +--ro underlay-topology {te-topology-hierarchy}?
-         |  |  |  +--ro provider-id-ref?   leafref
-         |  |  |  +--ro client-id-ref?     leafref
-         |  |  |  +--ro topology-id-ref?   leafref
-         |  |  +--ro connectivity-matrix* [id]
-         |  |     +--ro id            uint32
-         |  |     +--ro from
-         |  |     |  +--ro network-ref?   leafref
-         |  |     |  +--ro node-ref?      leafref
-         |  |     |  +--ro tp-ref?        leafref
-         |  |     +--ro to
-         |  |     |  +--ro network-ref?   leafref
-         |  |     |  +--ro node-ref?      leafref
-         |  |     |  +--ro tp-ref?        leafref
-         |  |     +--ro is-allowed?   boolean
+         |  |     +--ro provider-id-ref?   leafref
+         |  |     +--ro client-id-ref?     leafref
+         |  |     +--ro topology-id-ref?   leafref
          |  +--ro te-link* [te-link-id]
          |  |  +--ro te-link-id         te-link-id
          |  |  +--ro (stack-level)?
@@ -261,9 +272,9 @@ module: ietf-te-topology
             |  |     +--ro start?               yang:date-and-time
             |  |     +--ro schedule-duration?   string
             |  |     +--ro repeat-interval?     string
-            |  +--ro name?                               string
-            |  +--ro flag*                               flag-type
-            |  +--ro is-abstract?                        boolean
+            |  +--ro name?                             string
+            |  +--ro flag*                             flag-type
+            |  +--ro is-abstract?                      boolean
             |  +--ro underlay! {te-topology-hierarchy}?
             |  |  +--ro underlay-primary-path
             |  |  |  +--ro provider-id-ref?   leafref
@@ -321,7 +332,7 @@ module: ietf-te-topology
             |  |  |  +--ro tp-ref?        leafref
             |  |  +--ro dynamic?                    boolean
             |  |  +--ro committed?                  boolean
-            |  +--ro admin-status?                       enumeration
+            |  +--ro admin-status?                     enumeration
             |  +--ro performance-metric-throttle {te-performance-metric}?
             |  |  +--ro unidirectional-delay-offset?           uint32
             |  |  +--ro measure-interval?                      uint32
@@ -354,14 +365,15 @@ module: ietf-te-topology
             |  |     +--ro unidirectional-residual-bandwidth?    decimal64
             |  |     +--ro unidirectional-available-bandwidth?   decimal64
             |  |     +--ro unidirectional-utilized-bandwidth?    decimal64
-            |  +--ro link-index?                         uint64
-            |  +--ro administrative-group?               te-types:admin-groups
-            |  +--ro max-link-bandwidth?                 decimal64
-            |  +--ro max-resv-link-bandwidth?            decimal64
+            |  +--ro link-index?                       uint64
+            |  +--ro administrative-group?             te-types:admin-groups
+            |  +--ro max-link-bandwidth?               decimal64
+            |  +--ro max-resv-link-bandwidth?          decimal64
+            |  +--ro segment-id?                       uint32
             |  +--ro unreserved-bandwidth* [priority]
             |  |  +--ro priority     uint8
             |  |  +--ro bandwidth?   decimal64
-            |  +--ro te-default-metric?                  uint32
+            |  +--ro te-default-metric?                uint32
             |  +--ro performance-metric {te-performance-metric}?
             |  |  +--ro measurement
             |  |  |  +--ro unidirectional-delay?                 uint32
@@ -381,8 +393,8 @@ module: ietf-te-topology
             |  |     +--ro unidirectional-residual-bandwidth?    performance-metric-normality
             |  |     +--ro unidirectional-available-bandwidth?   performance-metric-normality
             |  |     +--ro unidirectional-utilized-bandwidth?    performance-metric-normality
-            |  +--ro link-protection-type?               enumeration
-            |  +--ro interface-switching-capabilities* [switching-capability]
+            |  +--ro link-protection-type?             enumeration
+            |  +--ro interface-switching-capability* [switching-capability]
             |  |  +--ro switching-capability               identityref
             |  |  +--ro encoding?                          identityref
             |  |  +--ro max-lsp-bandwidth* [priority]
@@ -392,8 +404,14 @@ module: ietf-te-topology
             |  |  |  +--ro minimum-lsp-bandwidth?   decimal64
             |  |  |  +--ro interface-mtu?           uint16
             |  |  +--ro time-division-multiplex-capable
-            |  |     +--ro minimum-lsp-bandwidth?   decimal64
-            |  |     +--ro indication?              enumeration
+            |  |  |  +--ro minimum-lsp-bandwidth?   decimal64
+            |  |  |  +--ro indication?              enumeration
+            |  |  +--ro interface-adjustment-capability* [upper-sc]
+            |  |     +--ro upper-sc             identityref
+            |  |     +--ro upper-encoding?      identityref
+            |  |     +--ro max-lsp-bandwidth* [priority]
+            |  |        +--ro priority     uint8
+            |  |        +--ro bandwidth?   decimal64
             |  +--ro te-srlgs
             |     +--ro values*   te-types:srlg
             +--ro te-link-state
@@ -407,7 +425,7 @@ module: ietf-te-topology
                |  |  +--ro topology-id-ref?   leafref
                |  +--ro routing-instance?         string
                +--ro alt-information-sources* [information-source]
-                  +--ro information-source                  enumeration
+                  +--ro information-source                enumeration
                   +--ro information-source-state
                   |  +--ro credibility-preference?   uint16
                   |  +--ro topology
@@ -415,14 +433,15 @@ module: ietf-te-topology
                   |  |  +--ro client-id-ref?     leafref
                   |  |  +--ro topology-id-ref?   leafref
                   |  +--ro routing-instance?         string
-                  +--ro link-index?                         uint64
-                  +--ro administrative-group?               te-types:admin-groups
-                  +--ro max-link-bandwidth?                 decimal64
-                  +--ro max-resv-link-bandwidth?            decimal64
+                  +--ro link-index?                       uint64
+                  +--ro administrative-group?             te-types:admin-groups
+                  +--ro max-link-bandwidth?               decimal64
+                  +--ro max-resv-link-bandwidth?          decimal64
+                  +--ro segment-id?                       uint32
                   +--ro unreserved-bandwidth* [priority]
                   |  +--ro priority     uint8
                   |  +--ro bandwidth?   decimal64
-                  +--ro te-default-metric?                  uint32
+                  +--ro te-default-metric?                uint32
                   +--ro performance-metric {te-performance-metric}?
                   |  +--ro measurement
                   |  |  +--ro unidirectional-delay?                 uint32
@@ -442,8 +461,8 @@ module: ietf-te-topology
                   |     +--ro unidirectional-residual-bandwidth?    performance-metric-normality
                   |     +--ro unidirectional-available-bandwidth?   performance-metric-normality
                   |     +--ro unidirectional-utilized-bandwidth?    performance-metric-normality
-                  +--ro link-protection-type?               enumeration
-                  +--ro interface-switching-capabilities* [switching-capability]
+                  +--ro link-protection-type?             enumeration
+                  +--ro interface-switching-capability* [switching-capability]
                   |  +--ro switching-capability               identityref
                   |  +--ro encoding?                          identityref
                   |  +--ro max-lsp-bandwidth* [priority]
@@ -453,8 +472,14 @@ module: ietf-te-topology
                   |  |  +--ro minimum-lsp-bandwidth?   decimal64
                   |  |  +--ro interface-mtu?           uint16
                   |  +--ro time-division-multiplex-capable
-                  |     +--ro minimum-lsp-bandwidth?   decimal64
-                  |     +--ro indication?              enumeration
+                  |  |  +--ro minimum-lsp-bandwidth?   decimal64
+                  |  |  +--ro indication?              enumeration
+                  |  +--ro interface-adjustment-capability* [upper-sc]
+                  |     +--ro upper-sc             identityref
+                  |     +--ro upper-encoding?      identityref
+                  |     +--ro max-lsp-bandwidth* [priority]
+                  |        +--ro priority     uint8
+                  |        +--ro bandwidth?   decimal64
                   +--ro te-srlgs
                      +--ro values*   te-types:srlg
 augment /nw:network/nw:network-types:
@@ -480,25 +505,27 @@ augment /nw:network/nw:node:
    |  |     +--rw start?               yang:date-and-time
    |  |     +--rw schedule-duration?   string
    |  |     +--rw repeat-interval?     string
-   |  +--rw name?                  inet:domain-name
-   |  +--rw signaling-address*     inet:ip-address
+   |  +--rw connectivity-matrix* [id]
+   |  |  +--rw id            uint32
+   |  |  +--rw from
+   |  |  |  +--rw network-ref?   leafref
+   |  |  |  +--rw node-ref?      leafref
+   |  |  |  +--rw tp-ref?        leafref
+   |  |  +--rw to
+   |  |  |  +--rw network-ref?   leafref
+   |  |  |  +--rw node-ref?      leafref
+   |  |  |  +--rw tp-ref?        leafref
+   |  |  +--rw is-allowed?   boolean
+   |  +--rw domain-id?             uint32
    |  +--rw flag*                  flag-type
    |  +--rw is-abstract?           boolean
+   |  +--rw name?                  inet:domain-name
+   |  +--rw segment-id?            uint32
+   |  +--rw signaling-address*     inet:ip-address
    |  +--rw underlay-topology {te-topology-hierarchy}?
-   |  |  +--rw provider-id-ref?   leafref
-   |  |  +--rw client-id-ref?     leafref
-   |  |  +--rw topology-id-ref?   leafref
-   |  +--rw connectivity-matrix* [id]
-   |     +--rw id            uint32
-   |     +--rw from
-   |     |  +--rw network-ref?   leafref
-   |     |  +--rw node-ref?      leafref
-   |     |  +--rw tp-ref?        leafref
-   |     +--rw to
-   |     |  +--rw network-ref?   leafref
-   |     |  +--rw node-ref?      leafref
-   |     |  +--rw tp-ref?        leafref
-   |     +--rw is-allowed?   boolean
+   |     +--rw provider-id-ref?   leafref
+   |     +--rw client-id-ref?     leafref
+   |     +--rw topology-id-ref?   leafref
    +--rw te-link* [te-link-id]
       +--rw te-link-id         te-link-id
       +--rw (stack-level)?
@@ -521,9 +548,9 @@ augment /nw:network/nt:link:
       |     +--rw start?               yang:date-and-time
       |     +--rw schedule-duration?   string
       |     +--rw repeat-interval?     string
-      +--rw name?                               string
-      +--rw flag*                               flag-type
-      +--rw is-abstract?                        boolean
+      +--rw name?                             string
+      +--rw flag*                             flag-type
+      +--rw is-abstract?                      boolean
       +--rw underlay! {te-topology-hierarchy}?
       |  +--rw underlay-primary-path
       |  |  +--rw provider-id-ref?   leafref
@@ -579,7 +606,7 @@ augment /nw:network/nt:link:
       |     +--rw network-ref?   leafref
       |     +--rw node-ref?      leafref
       |     +--rw tp-ref?        leafref
-      +--rw admin-status?                       enumeration
+      +--rw admin-status?                     enumeration
       +--rw performance-metric-throttle {te-performance-metric}?
       |  +--rw unidirectional-delay-offset?           uint32
       |  +--rw measure-interval?                      uint32
@@ -612,14 +639,15 @@ augment /nw:network/nt:link:
       |     +--rw unidirectional-residual-bandwidth?    decimal64
       |     +--rw unidirectional-available-bandwidth?   decimal64
       |     +--rw unidirectional-utilized-bandwidth?    decimal64
-      +--rw link-index?                         uint64
-      +--rw administrative-group?               te-types:admin-groups
-      +--rw max-link-bandwidth?                 decimal64
-      +--rw max-resv-link-bandwidth?            decimal64
+      +--rw link-index?                       uint64
+      +--rw administrative-group?             te-types:admin-groups
+      +--rw max-link-bandwidth?               decimal64
+      +--rw max-resv-link-bandwidth?          decimal64
+      +--rw segment-id?                       uint32
       +--rw unreserved-bandwidth* [priority]
       |  +--rw priority     uint8
       |  +--rw bandwidth?   decimal64
-      +--rw te-default-metric?                  uint32
+      +--rw te-default-metric?                uint32
       +--rw performance-metric {te-performance-metric}?
       |  +--rw measurement
       |  |  +--rw unidirectional-delay?                 uint32
@@ -639,8 +667,8 @@ augment /nw:network/nt:link:
       |     +--rw unidirectional-residual-bandwidth?    performance-metric-normality
       |     +--rw unidirectional-available-bandwidth?   performance-metric-normality
       |     +--rw unidirectional-utilized-bandwidth?    performance-metric-normality
-      +--rw link-protection-type?               enumeration
-      +--rw interface-switching-capabilities* [switching-capability]
+      +--rw link-protection-type?             enumeration
+      +--rw interface-switching-capability* [switching-capability]
       |  +--rw switching-capability               identityref
       |  +--rw encoding?                          identityref
       |  +--rw max-lsp-bandwidth* [priority]
@@ -650,8 +678,14 @@ augment /nw:network/nt:link:
       |  |  +--rw minimum-lsp-bandwidth?   decimal64
       |  |  +--rw interface-mtu?           uint16
       |  +--rw time-division-multiplex-capable
-      |     +--rw minimum-lsp-bandwidth?   decimal64
-      |     +--rw indication?              enumeration
+      |  |  +--rw minimum-lsp-bandwidth?   decimal64
+      |  |  +--rw indication?              enumeration
+      |  +--rw interface-adjustment-capability* [upper-sc]
+      |     +--rw upper-sc             identityref
+      |     +--rw upper-encoding?      identityref
+      |     +--rw max-lsp-bandwidth* [priority]
+      |        +--rw priority     uint8
+      |        +--rw bandwidth?   decimal64
       +--rw te-srlgs
          +--rw values*   te-types:srlg
 augment /nw:network/nw:node/nt:termination-point:
@@ -676,25 +710,27 @@ notifications:
    |  |  |     +--ro start?               yang:date-and-time
    |  |  |     +--ro schedule-duration?   string
    |  |  |     +--ro repeat-interval?     string
-   |  |  +--ro name?                  inet:domain-name
-   |  |  +--ro signaling-address*     inet:ip-address
+   |  |  +--ro connectivity-matrix* [id]
+   |  |  |  +--ro id            uint32
+   |  |  |  +--ro from
+   |  |  |  |  +--ro network-ref?   leafref
+   |  |  |  |  +--ro node-ref?      leafref
+   |  |  |  |  +--ro tp-ref?        leafref
+   |  |  |  +--ro to
+   |  |  |  |  +--ro network-ref?   leafref
+   |  |  |  |  +--ro node-ref?      leafref
+   |  |  |  |  +--ro tp-ref?        leafref
+   |  |  |  +--ro is-allowed?   boolean
+   |  |  +--ro domain-id?             uint32
    |  |  +--ro flag*                  flag-type
    |  |  +--ro is-abstract?           boolean
+   |  |  +--ro name?                  inet:domain-name
+   |  |  +--ro segment-id?            uint32
+   |  |  +--ro signaling-address*     inet:ip-address
    |  |  +--ro underlay-topology {te-topology-hierarchy}?
-   |  |  |  +--ro provider-id-ref?   leafref
-   |  |  |  +--ro client-id-ref?     leafref
-   |  |  |  +--ro topology-id-ref?   leafref
-   |  |  +--ro connectivity-matrix* [id]
-   |  |     +--ro id            uint32
-   |  |     +--ro from
-   |  |     |  +--ro network-ref?   leafref
-   |  |     |  +--ro node-ref?      leafref
-   |  |     |  +--ro tp-ref?        leafref
-   |  |     +--ro to
-   |  |     |  +--ro network-ref?   leafref
-   |  |     |  +--ro node-ref?      leafref
-   |  |     |  +--ro tp-ref?        leafref
-   |  |     +--ro is-allowed?   boolean
+   |  |     +--ro provider-id-ref?   leafref
+   |  |     +--ro client-id-ref?     leafref
+   |  |     +--ro topology-id-ref?   leafref
    |  +--ro te-link* [te-link-id]
    |  |  +--ro te-link-id         te-link-id
    |  |  +--ro (stack-level)?
@@ -729,9 +765,9 @@ notifications:
       |  |     +--ro start?               yang:date-and-time
       |  |     +--ro schedule-duration?   string
       |  |     +--ro repeat-interval?     string
-      |  +--ro name?                               string
-      |  +--ro flag*                               flag-type
-      |  +--ro is-abstract?                        boolean
+      |  +--ro name?                             string
+      |  +--ro flag*                             flag-type
+      |  +--ro is-abstract?                      boolean
       |  +--ro underlay! {te-topology-hierarchy}?
       |  |  +--ro underlay-primary-path
       |  |  |  +--ro provider-id-ref?   leafref
@@ -789,7 +825,7 @@ notifications:
       |  |  |  +--ro tp-ref?        leafref
       |  |  +--ro dynamic?                    boolean
       |  |  +--ro committed?                  boolean
-      |  +--ro admin-status?                       enumeration
+      |  +--ro admin-status?                     enumeration
       |  +--ro performance-metric-throttle {te-performance-metric}?
       |  |  +--ro unidirectional-delay-offset?           uint32
       |  |  +--ro measure-interval?                      uint32
@@ -822,14 +858,15 @@ notifications:
       |  |     +--ro unidirectional-residual-bandwidth?    decimal64
       |  |     +--ro unidirectional-available-bandwidth?   decimal64
       |  |     +--ro unidirectional-utilized-bandwidth?    decimal64
-      |  +--ro link-index?                         uint64
-      |  +--ro administrative-group?               te-types:admin-groups
-      |  +--ro max-link-bandwidth?                 decimal64
-      |  +--ro max-resv-link-bandwidth?            decimal64
+      |  +--ro link-index?                       uint64
+      |  +--ro administrative-group?             te-types:admin-groups
+      |  +--ro max-link-bandwidth?               decimal64
+      |  +--ro max-resv-link-bandwidth?          decimal64
+      |  +--ro segment-id?                       uint32
       |  +--ro unreserved-bandwidth* [priority]
       |  |  +--ro priority     uint8
       |  |  +--ro bandwidth?   decimal64
-      |  +--ro te-default-metric?                  uint32
+      |  +--ro te-default-metric?                uint32
       |  +--ro performance-metric {te-performance-metric}?
       |  |  +--ro measurement
       |  |  |  +--ro unidirectional-delay?                 uint32
@@ -849,8 +886,8 @@ notifications:
       |  |     +--ro unidirectional-residual-bandwidth?    performance-metric-normality
       |  |     +--ro unidirectional-available-bandwidth?   performance-metric-normality
       |  |     +--ro unidirectional-utilized-bandwidth?    performance-metric-normality
-      |  +--ro link-protection-type?               enumeration
-      |  +--ro interface-switching-capabilities* [switching-capability]
+      |  +--ro link-protection-type?             enumeration
+      |  +--ro interface-switching-capability* [switching-capability]
       |  |  +--ro switching-capability               identityref
       |  |  +--ro encoding?                          identityref
       |  |  +--ro max-lsp-bandwidth* [priority]
@@ -860,8 +897,14 @@ notifications:
       |  |  |  +--ro minimum-lsp-bandwidth?   decimal64
       |  |  |  +--ro interface-mtu?           uint16
       |  |  +--ro time-division-multiplex-capable
-      |  |     +--ro minimum-lsp-bandwidth?   decimal64
-      |  |     +--ro indication?              enumeration
+      |  |  |  +--ro minimum-lsp-bandwidth?   decimal64
+      |  |  |  +--ro indication?              enumeration
+      |  |  +--ro interface-adjustment-capability* [upper-sc]
+      |  |     +--ro upper-sc             identityref
+      |  |     +--ro upper-encoding?      identityref
+      |  |     +--ro max-lsp-bandwidth* [priority]
+      |  |        +--ro priority     uint8
+      |  |        +--ro bandwidth?   decimal64
       |  +--ro te-srlgs
       |     +--ro values*   te-types:srlg
       +--ro te-link-state
@@ -875,7 +918,7 @@ notifications:
          |  |  +--ro topology-id-ref?   leafref
          |  +--ro routing-instance?         string
          +--ro alt-information-sources* [information-source]
-            +--ro information-source                  enumeration
+            +--ro information-source                enumeration
             +--ro information-source-state
             |  +--ro credibility-preference?   uint16
             |  +--ro topology
@@ -883,14 +926,15 @@ notifications:
             |  |  +--ro client-id-ref?     leafref
             |  |  +--ro topology-id-ref?   leafref
             |  +--ro routing-instance?         string
-            +--ro link-index?                         uint64
-            +--ro administrative-group?               te-types:admin-groups
-            +--ro max-link-bandwidth?                 decimal64
-            +--ro max-resv-link-bandwidth?            decimal64
+            +--ro link-index?                       uint64
+            +--ro administrative-group?             te-types:admin-groups
+            +--ro max-link-bandwidth?               decimal64
+            +--ro max-resv-link-bandwidth?          decimal64
+            +--ro segment-id?                       uint32
             +--ro unreserved-bandwidth* [priority]
             |  +--ro priority     uint8
             |  +--ro bandwidth?   decimal64
-            +--ro te-default-metric?                  uint32
+            +--ro te-default-metric?                uint32
             +--ro performance-metric {te-performance-metric}?
             |  +--ro measurement
             |  |  +--ro unidirectional-delay?                 uint32
@@ -910,8 +954,8 @@ notifications:
             |     +--ro unidirectional-residual-bandwidth?    performance-metric-normality
             |     +--ro unidirectional-available-bandwidth?   performance-metric-normality
             |     +--ro unidirectional-utilized-bandwidth?    performance-metric-normality
-            +--ro link-protection-type?               enumeration
-            +--ro interface-switching-capabilities* [switching-capability]
+            +--ro link-protection-type?             enumeration
+            +--ro interface-switching-capability* [switching-capability]
             |  +--ro switching-capability               identityref
             |  +--ro encoding?                          identityref
             |  +--ro max-lsp-bandwidth* [priority]
@@ -921,7 +965,13 @@ notifications:
             |  |  +--ro minimum-lsp-bandwidth?   decimal64
             |  |  +--ro interface-mtu?           uint16
             |  +--ro time-division-multiplex-capable
-            |     +--ro minimum-lsp-bandwidth?   decimal64
-            |     +--ro indication?              enumeration
+            |  |  +--ro minimum-lsp-bandwidth?   decimal64
+            |  |  +--ro indication?              enumeration
+            |  +--ro interface-adjustment-capability* [upper-sc]
+            |     +--ro upper-sc             identityref
+            |     +--ro upper-encoding?      identityref
+            |     +--ro max-lsp-bandwidth* [priority]
+            |        +--ro priority     uint8
+            |        +--ro bandwidth?   decimal64
             +--ro te-srlgs
                +--ro values*   te-types:srlg

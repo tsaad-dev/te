@@ -29,7 +29,7 @@ module ietf-te-topology {
   contact "TBD";
   description "TE topology model";
   
-  revision "2015-08-06" {
+  revision "2015-08-19" {
     description "Initial revision";
     reference "TBD";
   }
@@ -331,32 +331,6 @@ module ietf-te-topology {
     container te-node-attributes {
       description "Node attributes in a TE topology.";
       uses sch:schedule-list-container;
-      leaf name {
-        type inet:domain-name;
-        description "Node name.";
-      }
-      leaf-list signaling-address {
-        type inet:ip-address;
-        description "Node signaling address.";
-      }
-      leaf-list flag {
-        type flag-type;
-        description "Node operational flags.";
-      }      
-      leaf is-abstract {
-        type boolean;
-        description 
-          "true if the node is abstract, false when the node is
-          actual.";
-      }
-      container underlay-topology {
-        if-feature te-topology-hierarchy;
-        description 
-          "When an abstract node encapsulates a topology, 
-          the attributes in this container point to said topology.";
-        uses te-topology-ref;
-      }
-
       list connectivity-matrix {
         key "id";
         description
@@ -382,6 +356,52 @@ module ietf-te-topology {
             "true  - switching is allowed, 
              false - switching is disallowed.";
         }
+      }
+      leaf domain-id {
+        type uint32;
+        description
+          "Identifies the domain that this node belongs.
+           This attribute is used to support inter-domain links.";
+        reference
+          "RFC5152: A Per-Domain Path Computation Method for
+          Establishing Inter-Domain Traffic Engineering (TE)
+          Label Switched Paths (LSPs).
+          RFC5392: OSPF Extensions in Support of Inter-Autonomous
+          System (AS) MPLS and GMPLS Traffic Engineering.
+          RFC5316: ISIS Extensions in Support of Inter-Autonomous
+          System (AS) MPLS and GMPLS Traffic Engineering.";
+      }
+      leaf-list flag {
+        type flag-type;
+        description "Node operational flags.";
+      }
+      leaf is-abstract {
+        type boolean;
+        description 
+          "true if the node is abstract, false when the node is
+          actual.";
+      }
+      leaf name {
+        type inet:domain-name;
+        description "Node name.";
+      }
+      leaf segment-id {
+        type uint32;
+        description
+          "Node Sement ID (Node-SID) for Segment Routing.";
+        reference
+          "draft-ietf-spring-segment-routing-04.";
+      }
+      leaf-list signaling-address {
+        type inet:ip-address;
+        description "Node signaling address.";
+      }
+      container underlay-topology {
+        if-feature te-topology-hierarchy;
+        description 
+          "When an abstract node encapsulates a topology, 
+          the attributes in this container point to said topology.";
+        uses te-topology-ref;
       }
     }
     list te-link {
@@ -756,6 +776,13 @@ module ietf-te-topology {
         "Maximum amount of bandwidth that can be reserved in this
          direction in this link. Units in bytes per second";
     }
+    leaf segment-id {
+      type uint32;
+      description
+        "Link Adjacency Sement ID (Adj-SID) for Segment Routing.";
+      reference
+        "draft-ietf-spring-segment-routing-04.";
+    }
     list unreserved-bandwidth {
       key "priority";
       max-elements "8";
@@ -825,10 +852,16 @@ module ietf-te-topology {
       description
         "Link Protection Type desired for this link";
     }
-    list interface-switching-capabilities {
+    list interface-switching-capability {
       key "switching-capability";
       description
-        "List of interface capabilities for this interface";
+        "List of Interface Switching Capabilities Descriptors (ISCD)
+        for this link.";
+      reference
+        "RFC3471: Generalized Multi-Protocol Label Switching (GMPLS)
+        Signaling Functional Description.
+        RFC4203: OSPF Extensions in Support of Generalized 
+        Multi-Protocol Label Switching (GMPLS).";
       leaf switching-capability {
         type identityref {
           base te-types:switching-capabilities;
@@ -912,7 +945,49 @@ module ietf-te-topology {
              Arbitrary SONET/SDH";
         }
       }
-    }
+      list interface-adjustment-capability {
+        key "upper-sc";
+        description
+          "List of Interface Adjustment Capability Descriptors (IACD)
+          for this link.";
+        reference
+          "RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
+          for Multi-Layer and Multi-Region Networks (MLN/MRN)";
+        leaf upper-sc {
+          type identityref {
+            base te-types:switching-capabilities;
+          }
+          description
+            "Switching Capability for this interface";
+        }
+        leaf upper-encoding {
+          type identityref {
+            base te-types:lsp-encoding-types;
+          }
+          description
+            "Encoding supported by this interface";
+        }
+        list max-lsp-bandwidth {
+          key "priority";
+          max-elements "8";
+          description
+            "Maximum LSP Bandwidth at priorities 0-7";
+          leaf priority {
+            type uint8 {
+              range "0..7";
+            }
+            description "Priority";
+          }
+          leaf bandwidth {
+            type decimal64 {
+              fraction-digits 2;
+            }
+            description
+              "Max LSP Bandwidth for this level";
+          }
+        }
+      } // interface-adjustment-capability
+    } // interface-switching-capability
     container te-srlgs {
       description
         "A list of SLRGs.";
