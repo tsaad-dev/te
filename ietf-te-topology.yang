@@ -29,7 +29,7 @@ module ietf-te-topology {
   contact "TBD";
   description "TE topology model";
   
-  revision "2015-08-28" {
+  revision "2015-08-31" {
     description "Initial revision";
     reference "TBD";
   }
@@ -70,10 +70,10 @@ module ietf-te-topology {
     type enumeration {
       enum normal {
         description
-          "Both the protection and working paths are fully
+          "Both the recovery and working spans are fully
           allocated and active, data traffic is being
           transported over (or selected from) the working
-          path, and no trigger events are reported.";
+          span, and no trigger events are reported.";
       }
       enum recovery-started {
         description
@@ -81,7 +81,9 @@ module ietf-te-topology {
       }
       enum recovery-succeeded {
         description
-          "The recovery action has succeeded.";
+          "The recovery action has succeeded. The working span has
+          reported a failure/degrade condition and the user traffic
+          is being transported (or selected) on the recovery span.";
       }
       enum recovery-failed {
         description
@@ -91,17 +93,34 @@ module ietf-te-topology {
         description
           "The reversion has started.";
       }
-      enum reversion-succeeded {
-        description
-          "The reversion has started.";
-      }
       enum reversion-failed {
         description
           "The reversion has failed.";
       }
+      enum recovery-unavailable {
+        description
+          "The recovery is unavailable -- either as a result of an
+          operator Lockout command or a failure condition detected
+          on the recovery span.";
+      }
+      enum recovery-admin {
+        description
+          "The operator has issued a command switching the user
+          traffic to the recovery span.";
+      }
+      enum wait-to-restore {
+        description
+          "The recovery domain is recovering from a failuer/degrade
+          condition on the working span that is being controlled by
+          the Wait-to-Restore (WTR) timer.";
+      }
     }
     description
-      "Defines the status of an action.";
+      "Defines the status of a recovery action.";
+    reference
+      "RFC4427: Recovery (Protection and Restoration) Terminology
+      for Generalized Multi-Protocol Label Switching (GMPLS).
+      RFC6378: MPLS Transport Profile (MPLS-TP) Linear Protection";
   }
 
   typedef te-admin-status {
@@ -467,13 +486,6 @@ module ietf-te-topology {
         type inet:domain-name;
         description "Node name.";
       }
-      leaf segment-id {
-        type uint32;
-        description
-          "Node Sement ID (Node-SID) for Segment Routing.";
-        reference
-          "draft-ietf-spring-segment-routing-04.";
-      }
       leaf-list signaling-address {
         type inet:ip-address;
         description "Node signaling address.";
@@ -665,20 +677,6 @@ module ietf-te-topology {
       type boolean;
       description 
         "true if the underlay is committed.";
-    }
-    container recovery {
-      description
-        "Status of the recovery process.";
-      leaf restoration-status {
-        type te-recovery-status;
-        description
-          "Restoration status.";
-      }
-      leaf protection-status {
-        type te-recovery-status;
-        description
-          "Protection status.";
-      }      
     }
   } // te-link-state-underlay-attributes
     
@@ -902,13 +900,6 @@ module ietf-te-topology {
       description
         "Maximum amount of bandwidth that can be reserved in this
          direction in this link. Units in bytes per second";
-    }
-    leaf segment-id {
-      type uint32;
-      description
-        "Link Adjacency Sement ID (Adj-SID) for Segment Routing.";
-      reference
-        "draft-ietf-spring-segment-routing-04.";
     }
     list unreserved-bandwidth {
       key "priority";
@@ -1306,11 +1297,20 @@ module ietf-te-topology {
         uses information-source-attributes;
         uses te-link-info-attributes;
       }
-      leaf protection-status {
-        type te-recovery-status;
+      container recovery {
         description
-          "Protection status.";
-      }      
+          "Status of the recovery process.";
+        leaf restoration-status {
+          type te-recovery-status;
+          description
+            "Restoration status.";
+        }
+        leaf protection-status {
+          type te-recovery-status;
+          description
+            "Protection status.";
+        }      
+      }
       container underlay {
         if-feature te-topology-hierarchy;
         description "State attributes for te-link underlay.";
