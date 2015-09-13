@@ -1,0 +1,505 @@
+module ietf-te {
+
+    namespace "urn:ietf:params:xml:ns:yang:ietf-te";
+
+    /* Replace with IANA when assigned */
+    prefix "te";
+
+    /* Import TE generic types */
+    import ietf-te-types {
+        prefix ietf-te-types;
+    }
+
+    /* Import TE packet specific types */
+    import ietf-te-psc-types {
+        prefix ietf-te-psc-types;
+    }
+
+    import ietf-interfaces {
+        prefix if;
+    }
+
+    import ietf-inet-types {
+        prefix inet;
+    }
+
+    organization
+        "IETF TEAS Working Group";
+
+    contact
+        "Fill me";
+
+    description
+        "YANG data module for TE configuration,
+         state, RPC and notifications.";
+
+    revision 2015-06-08 {
+        description "Updated revision.";
+        reference "TBD";
+    }
+
+    /**
+     * TE interface generic groupings
+     */
+
+    /**
+     * TE tunnel generic groupings
+     */
+
+     grouping tunnel-properties_config {
+        description
+              "Configuration parameters relating to TE tunnel";
+        leaf description {
+            type string;
+            description
+                "TE tunnel description.";
+        }
+        leaf admin-status {
+            type identityref {
+                base ietf-te-types:state-type;
+            }
+            default ietf-te-types:state-up;
+            description "TE tunnel administrative state.";
+        }
+        uses ietf-te-psc-types:tunnel-routing-properties;
+        uses ietf-te-psc-types:tunnel-forwarding-properties;
+        uses ietf-te-types:tunnel-bidir-assoc-properties;
+        choice path-type {
+            description
+                "Describes the path type";
+            case p2p {
+                leaf destination {
+                    type inet:ip-address;
+                    description
+                        "P2P tunnel destination address";
+                }
+                /* P2P list of path(s) */
+                list primary-paths {
+                    key "preference";
+                    description
+                        "List of primary paths for this
+                         tunnel.";
+                    leaf preference {
+                         type uint8 {
+                              range "1..255";
+                         }
+                         description
+                            "Specifies a preference for
+                             this path. The lower the
+                             number higher the
+                             preference";
+                    }
+                    uses ietf-te-types:tunnel-path-params;
+                    list seondary-paths {
+                        key "preference";
+                        description
+                            "List of secondary paths for this
+                             tunnel.";
+                        leaf preference {
+                             type uint8 {
+                                  range "1..255";
+                             }
+                             description
+                                "Specifies a preference for
+                                 this path. The lower the
+                                 number higher the
+                                 preference";
+                        }
+                        uses
+                        ietf-te-types:tunnel-path-params;
+                    }
+                }
+            }
+            case p2mp {
+                if-feature ietf-te-types:p2mp-te;
+                list p2mp-paths {
+                    key "destination";
+                    description
+                        "List of destinations and their
+                         paths.";
+                    leaf destination {
+                        type inet:ip-address;
+                        description
+                            "P2MP destination leaf address";
+                    }
+                    list primary-paths {
+                        key "preference";
+                        description
+                            "List of primary paths";
+                        leaf preference {
+                             type uint8 {
+                                  range "1..255";
+                             }
+                             description
+                                "Specifies a preference for
+                                 this path. The lower the
+                                 number higher the
+                                 preference";
+                        }
+                        uses
+                        ietf-te-types:tunnel-path-params;
+                        list seondary-paths {
+                            key "preference";
+                            description
+                                "List of secondary paths";
+                            leaf preference {
+                                type uint8 {
+                                    range "1..255";
+                                }
+                                description
+                                    "Specifies a preference
+                                     for this path. The lower
+                                     the number higher
+                                     the preference";
+                            }
+                        uses
+                        ietf-te-types:tunnel-path-params;
+                        }
+                    }
+                }
+            }
+        }
+     }
+
+     grouping tunnel-properties {
+        description
+            "Top level grouping for tunnel properties.";
+        container tunnel-properties{
+            description
+                "Top level container for tunnel properties";
+            container config {
+                description
+                    "Configuration parameters relating to
+                     tunnel properties";
+                uses tunnel-properties_config;
+            }
+            container state {
+                config false;
+                description
+                    "State information associated with tunnel
+                     properties";
+                uses tunnel-properties_config;
+            }
+        }
+     }
+
+    /**
+     * TE global generic groupings
+     */
+
+    grouping named-admin-groups_config {
+        description
+            "Global named administrative groups configuration
+             grouping";
+        list named-admin-groups {
+            if-feature ietf-te-types:extended-admin-groups;
+            if-feature ietf-te-types:named-extended-admin-groups;
+            key "name";
+            description
+                "List of named TE admin-groups";
+            leaf name {
+                type string;
+                description
+                    "A string name that uniquely identifies a TE
+                     interface named admin-group";
+            }
+            leaf group {
+                type ietf-te-types:admin-groups;
+                description
+                    "An SRLG value";
+            }
+        }
+    }
+
+    grouping named-admin-groups {
+        description
+            "Named admin groups grouping";
+        container named-admin-groups {
+            description
+                "Named admin groups container";
+            container config {
+                description
+                    "Configuration parameters for named admin
+                     groups";
+                uses named-admin-groups_config;
+            }
+            container state {
+                config false;
+                description
+                    "State parameters for named admin groups";
+                uses named-admin-groups_config;
+            }
+        }
+    }
+
+    grouping named-srlgs_config {
+        description
+            "Global named SRLGs configuration
+             grouping";
+        list named-srlgs {
+            if-feature ietf-te-types:named-srlg-groups;
+            key "name";
+            description
+                "A list of named SRLG groups";
+            leaf name {
+                type string;
+                description
+                    "A string name that uniquely identifies a TE
+                     interface named srlg";
+            }
+            leaf group {
+                type ietf-te-types:srlg;
+                description "An SRLG value";
+            }
+        }
+    }
+
+    grouping named-srlgs {
+        description
+            "Global named SRLGs grouping";
+        container named-srlgs {
+            description
+                "Named SRLGs container";
+            container config {
+                description
+                    "Configuration parameters for named SRLG groups";
+                uses named-srlgs_config;
+            }
+            container state {
+                config false;
+                description
+                    "State parameters for named SRLG groups";
+                uses named-srlgs_config;
+            }
+        }
+    }
+
+    grouping named-explicit-paths_config {
+        description
+            "Global explicit path configuration
+             grouping";
+        list named-explicit-paths {
+            key "name";
+            description
+                "A list of explicit paths";
+            leaf name {
+                type string;
+                description
+                    "A string name that uniquely identifies an
+                     explicit path";
+            }
+            list explicit-route-objects {
+                key "index";
+                description
+                    "List of explicit route objects";
+                leaf index {
+                    type uint8 {
+                         range "0..255";
+                    }
+                    description
+                        "Index of this explicit route object";
+                }
+                uses ietf-te-types:explicit-route-object;
+                leaf explicit-route-usage {
+                    type identityref {
+                        base ietf-te-types:route-usage-type;
+                    }
+                    description
+                        "An IP hop action.";
+                }
+            }
+        }
+    }
+
+    grouping named-explicit-paths {
+        description
+            "Global named explicit path grouping";
+        container named-explicit-paths {
+            description
+                "Nmaed explicit paths container";
+            container config {
+                description
+                    "Configuration parameters for named explicit
+                     paths";
+                uses named-explicit-paths_config;
+            }
+            container state {
+                config false;
+                description
+                    "State parameters for named explicit paths";
+                uses named-explicit-paths_config;
+            }
+        }
+    }
+
+    grouping named-path-constraints_config {
+        description
+            "Global named path constraints configuration
+             grouping";
+        list named-path-constraints {
+            if-feature ietf-te-types:named-path-constraints;
+            key "name";
+            description
+                "A list of named path constraints";
+            leaf name {
+                type string;
+                description
+                    "A string name that uniquely identifies a
+                     path constraint set";
+            }
+            uses ietf-te-types:tunnel-path-selection;
+        }
+    }
+
+    grouping named-path-constraints {
+        description
+            "Global named path constraints grouping";
+        container named-path-constraints {
+            description
+                "Nmaed explicit paths container";
+            container config {
+                description
+                    "Configuration parameters for named explicit
+                     paths";
+                uses named-path-constraints_config;
+            }
+            container state {
+                config false;
+                description
+                    "State parameters for named explicit paths";
+                uses named-path-constraints_config;
+            }
+        }
+    }
+    /*** End of TE global groupings ***/
+
+    /**
+     * TE configurations container
+     */
+    container te {
+        presence "Enable TE feature.";
+        description
+            "TE global container.";
+
+        /* TE Global Configuration Data */
+        container globals {
+            description
+                "Configuration data for Global System-wide
+                 Traffic Engineering.";
+
+            uses named-admin-groups;
+            uses named-srlgs;
+            uses named-explicit-paths;
+            uses named-path-constraints;
+        }
+
+        /* TE Interface Configuration Data */
+        container interfaces {
+            description
+                "Configuration data model for TE interfaces.";
+            list interface {
+                key "interface";
+                description "TE interfaces.";
+                leaf interface {
+                     type if:interface-ref;
+                     description
+                        "TE interface name.";
+                }
+                /* TE interface parameters */
+                uses ietf-te-types:interface-te-attributes;
+                /* TE interface flooding parameters */
+                uses ietf-te-types:interface-te-flooding-parameters;
+            }
+        }
+
+        /* TE Tunnel Configuration Data */
+        container tunnels {
+            description
+                "Configuration, operational, notification and RPC
+                 data model for TE tunnels.";
+
+            list tunnel {
+                key "name type";
+                unique "identifier";
+                description "TE tunnel.";
+                leaf name {
+                    type string;
+                    description "TE tunnel name.";
+                }
+                leaf type {
+                    type identityref {
+                        base ietf-te-types:tunnel-type;
+                    }
+                    description "TE tunnel type.";
+                }
+                leaf identifier {
+                    type uint16;
+                    description
+                        "TE tunnel Identifier.";
+                }
+                uses tunnel-properties;
+            }
+        }
+        /* MPLS-TE Global Operational Data */
+        container global-state {
+            config "false";
+            description
+                "State for global TE data";
+        }
+
+        /* TE Interfaces State Data */
+        container interface-state {
+            config "false";
+            description
+                "Operational data model for TE interfaces.";
+        }
+
+        /* TE Tunnel State Data */
+        container tunnels-state {
+            config "false";
+            description "MPLS-TE tunnel operational state data.";
+        }
+
+        container lps-state {
+            config "false";
+            description "MPLS-TE LSP operational state data.";
+        }
+    }
+
+    /* TE Global RPCs/execution Data */
+    rpc globals-rpc {
+        description
+            "Execution data for TE global.";
+    }
+
+    /* TE interfaces RPCs/execution Data */
+    rpc interfaces-rpc {
+        description
+            "Execution data for TE interfaces.";
+    }
+
+    /* TE Tunnel RPCs/execution Data */
+    rpc tunnels-rpc {
+	description
+            "TE tunnels RPC nodes";
+    }
+
+
+    /* TE Global Notification Data */
+    notification globals-notif {
+        description
+            "Notification messages for Global TE.";
+    }
+
+    /* TE Interfaces Notification Data */
+    notification interfaces-notif {
+        description
+            "Notification messages for TE interfaces.";
+    }
+
+    /* TE Tunnel Notification Data */
+    notification tunnels-notif {
+        description
+            "Notification messages for TE tunnels.";
+    }
+}
