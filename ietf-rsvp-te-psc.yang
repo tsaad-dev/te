@@ -89,6 +89,128 @@ module ietf-rsvp-te-psc {
     }
   }
 
+  grouping  lsp-overflow_config {
+    description "configuration for mpls lsp bandwidth
+      overflow adjustment";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description "enables mpls lsp bandwidth overflow
+        adjustment on the lsp";
+    }
+
+    leaf overflow-threshold {
+      type uint32;
+      description "bandwidth percentage change to trigger
+        an overflow event";
+
+    }
+
+    leaf trigger-event-count {
+      type uint16;
+      description "number of consecutive overflow sample
+        events needed to trigger an overflow adjustment";
+    }
+  }
+
+  grouping lsp-underflow_config {
+    description
+      "configuration for mpls lsp bandwidth
+      underflow adjustment";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description "enables bandwidth underflow
+        adjustment on the lsp";
+    }
+
+    leaf underflow-threshold {
+      type uint32;
+      description "bandwidth percentage change to trigger
+        and underflow event";
+    }
+
+    leaf trigger-event-count {
+      type uint16;
+      description "number of consecutive underflow sample
+        events needed to trigger an underflow adjustment";
+    }
+  }
+
+  grouping lsp-auto-bandwidth_config {
+    container auto-bandwidth {
+      description "configure auto-bandwidth operation in
+        which devices automatically adjust bandwidth to meet
+        requirements";
+
+      leaf enabled {
+        type boolean;
+        default false;
+        description "enables mpls auto-bandwidth on the
+          lsp";
+      }
+
+      leaf min-bw {
+        type uint32;
+        description "set the minimum bandwidth in Mbps for an
+          auto-bandwidth LSP";
+      }
+
+      leaf max-bw {
+        type uint32;
+        description "set the maximum bandwidth in Mbps for an
+          auto-bandwidth LSP";
+      }
+
+      leaf adjust-interval {
+        type uint32;
+        description "time in seconds between adjustments to
+          LSP bandwidth";
+      }
+
+      leaf adjust-threshold {
+        type uint32;
+        description "percentage difference between the LSP's
+          specified bandwidth and its current bandwidth
+          allocation -- if the difference is greater than the
+          specified percentage, auto-bandwidth adjustment is
+          triggered";
+      }
+
+      container overflow {
+        description "configuration of MPLS overflow bandwidth
+          adjustement for the LSP";
+        uses lsp-overflow_config;
+      }
+
+      container underflow {
+        description "configuration of MPLS underflow bandwidth
+          adjustement for the LSP";
+        uses lsp-underflow_config;
+      }
+    }
+  }
+
+  grouping lsp-bandwidth_config {
+    choice lsp-bandwidth {
+      default explicit;
+      case explicit {
+        leaf set-bandwidth {
+          type uint32;
+          description
+            "Set bandwidth explicitly, e.g., using
+             offline calculation";
+        }
+      }
+      case auto {
+        uses lsp-auto-bandwidth_config;
+        description "Set auto-bandwidth parameters";
+      }
+    }
+  }
+
   grouping lsp-properties-psc {
     description
       "Top level grouping for LSP properties.";
@@ -96,6 +218,7 @@ module ietf-rsvp-te-psc {
       description
         "Configuration parameters relating to
         LSP properties";
+      uses lsp-bandwidth_config;
       uses lsp-session-attributes-obj-flags-psc_config;
       uses lsp-attributes-flags-psc_config;
     }
@@ -104,6 +227,7 @@ module ietf-rsvp-te-psc {
       description
         "State information associated with LSP
         properties";
+      uses lsp-bandwidth_config;
       uses lsp-session-attributes-obj-flags-psc_config;
       uses lsp-attributes-flags-psc_config;
     }
@@ -416,6 +540,7 @@ module ietf-rsvp-te-psc {
   augment "/ietf-te:te/ietf-te:lsps-state/ietf-te:lsp" {
     description
       "RSVP-TE LSP state properties";
+    uses lsp-properties-psc;
     uses lsp-session-attributes-obj-flags-psc_config;
     uses lsp-attributes-flags-psc_config;
     uses lps-backup-info_state;
