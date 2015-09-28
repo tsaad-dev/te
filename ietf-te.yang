@@ -84,36 +84,13 @@ module ietf-te {
             "A list of named admin-group entries";
           leaf named-admin-group {
             type leafref {
-              path "/te/globals/" +
-                "named-admin-groups/config/"+
+              path "../../../../../globals/config/" +
                 "named-admin-groups/name";
             }
             description
               "A named admin-group entry";
           }
         }
-      }
-    }
-  }
-
-  grouping te-admin-groups {
-    description "TE admin-group configuration grouping";
-    container te-admin-groups {
-      description
-        "Configuration parameters for interface 
-        administrative groups";
-      container config {
-        description
-          "Configuration parameters for interface
-          administrative groups";
-        uses te-admin-groups_config;
-      }
-      container state {
-        config false;
-        description
-          "Configuration parameters for interface
-          administrative groups";
-        uses te-admin-groups_config;
       }
     }
   }
@@ -145,8 +122,8 @@ module ietf-te {
             "A list of named SRLG entries";
           leaf named-srlg {
             type leafref {
-              path "/te:te/te:globals/" +
-                "te:named-srlgs/te:config/te:named-srlgs/te:name";
+              path "../../../../../globals/config/" +
+                "named-srlgs/name";
             }
             description
               "A named SRLG entry";
@@ -156,47 +133,90 @@ module ietf-te {
     }
   }
 
-  grouping te-srlgs {
-    description "TE SRLG configuration grouping";
-    container te-srlgs {
-      description "TBD";
-      container config {
+  /* TE interface flooding parameters */
+  grouping te-flooding-parameters_config {
+    description "Interface TE flooding properties.";
+    container thresholds {
+      description "Flooding threshold values in percentages.";
+      choice type {
         description
-          "Configuration parameters for interface SRLG
-          groups";
-        uses te-srlgs_config;
-      }
-      container state {
-        config false;
-        description
-          "State parameters for interface SRLG groups";
-        uses te-srlgs_config;
+          "Describes the flooding threshold step method";
+        case equal-steps {
+          choice equal-step-type {
+            description
+              "Describes whether up and down equal step
+              size are same or different";
+            case up-down-different-step {
+              leaf up-step {
+                type uint8 {
+                  range "0..100";
+                }
+                description
+                  "Set single percentage threshold
+                  for increasing resource
+                    allocation";
+              }
+              leaf down-step {
+                type uint8 {
+                  range "0..100";
+                }
+                description
+                  "Set single percentage threshold
+                  for decreasing resource
+                    allocation";
+              }
+            }
+            case up-down-same-step {
+              leaf step {
+                type uint8 {
+                  range "0..100";
+                }
+                description
+                  "Set single percentage threshold
+                  for increasing and decreasing
+                    resource allocation";
+              }
+            }
+          }
+        }
+        case unequal-steps {
+          list up-steps {
+            key "value";
+            description
+              "Set nultuple percentage thresholds for
+              increasing resource allocation";
+            leaf value {
+              type uint8 {
+                range "0..100";
+              }
+              description
+                "Percentage value";
+            }
+          }
+          list down-steps {
+            key "value";
+            description
+              "Set nultuple percentage thresholds for
+              decreasing resource allocation";
+            leaf value {
+              type uint8 {
+                range "0..100";
+              }
+              description
+                "Percentage value";
+            }
+          }
+        }
       }
     }
   }
 
+  /* TE interface metric */
   grouping te-metric_config {
     description "Interface TE metric grouping";
     leaf te-metric {
       type ietf-te-types:te-metric;
       description "Interface TE metric.";
-    }
-  }
-
-  grouping te-attributes {
-    description "TE attributes configuration grouping";
-    container config {
-      description
-        "Configuration parameters for interface TE
-         attributes";
-      uses te-metric_config;
-    }
-    container state {
-      config false;
-      description
-        "State parameters for interface TE metric";
-      uses te-metric_config;
-      uses interface-advertisements_state;
     }
   }
 
@@ -225,31 +245,10 @@ module ietf-te {
     }
   }
 
-  grouping te-switching-cap {
-    description "TE interface switching capability grouping";
-    container te-switching-cap {
-      description
-        "Interface switching capabilities container";
-      container config {
-        description
-          "Configuration parameters for interface
-          switching capabilities";
-        uses te-switching-cap_config;
-      }
-      container state {
-        config false;
-        description
-          "State parameters for interface switching
-          capabilities";
-        uses te-switching-cap_config;
-      }
-    }
-  }
-
-  grouping interface-advertisements_state {
+  grouping te-advertisements_state {
     description
       "TE interface advertisements state grouping";
-    container interface-advertisements_state {
+    container te-advertisements_state {
       description
         "TE interface advertisements state container";
       leaf flood-interval {
@@ -314,68 +313,84 @@ module ietf-te {
       }
     }
   }
+
+  /* TE interface attributes grouping */
+  grouping te-attributes {
+    description "TE attributes configuration grouping";
+    container config {
+      description
+        "Configuration parameters for interface TE
+         attributes";
+      uses te-metric_config;
+      uses te-admin-groups_config;
+      uses te-srlgs_config;
+      uses te-switching-cap_config;
+      uses te-flooding-parameters_config;
+    }
+    container state {
+      config false;
+      description
+        "State parameters for interface TE metric";
+      uses te-metric_config;
+      uses te-admin-groups_config;
+      uses te-srlgs_config;
+      uses te-switching-cap_config;
+      uses te-flooding-parameters_config;
+      uses te-advertisements_state;
+    }
+  }
   /*** End of TE interface groupings ***/
 
   /**
    * TE tunnel generic groupings
    */
 
-  /* TE tunnel path properties */
-  grouping tunnel-path-params {
+  /* TE tunnel path configuration data */
+  grouping tunnel-path-params_config {
     description
       "Tunnel path properties grouping";
-    container tunnel-path-params {
+    leaf path-named-constraint {
+      if-feature ietf-te-types:named-path-constraints;
+      type string;
       description
-        "Defines a TE tunnel path properties";
-      leaf path-named-constraint {
-        if-feature ietf-te-types:named-path-constraints;
-        type leafref {
-          path "/te/globals/named-path-constraints/config/"+
-            "named-constraints/name";
-        }
-        description
-          "Reference to a globally defined named path
-          constraint set";
-      }
-      uses ietf-te-types:tunnel-path-selection;
-      choice type {
-        description
-          "Describes the path type";
-        case dynamic {
-          leaf dynamic {
-            type empty;
-            description
-              "A CSPF dynamically computed path";
-          }
-        }
-        case explicit {
-          leaf explicit-path-name {
-            type leafref {
-              path "/te/globals/named-explicit-paths/config/"+
-                "named-explicit-paths/name";
-            }
-            description
-              "Reference to a globally defined
-              explicit-path";
-          }
+        "Reference to a globally defined named path
+        constraint set";
+    }
+    uses ietf-te-types:tunnel-path-selection;
+    choice type {
+      description
+        "Describes the path type";
+      case dynamic {
+        leaf dynamic {
+          type empty;
+          description
+            "A CSPF dynamically computed path";
         }
       }
-      leaf no-cspf {
-        type empty;
-        description
-          "Indicates no CSPF is to be attempted on this
-          path.";
+      case explicit {
+        leaf explicit-path-name {
+          type string;
+          description
+            "The explicit-path name";
+        }
       }
-      leaf lockdown {
-        type empty;
-        description
-          "Indicates no reoptimization to be attempted for
-          this path.";
-      }
+    }
+    leaf no-cspf {
+      type empty;
+      description
+        "Indicates no CSPF is to be attempted on this
+        path.";
+    }
+    leaf lockdown {
+      type empty;
+      description
+        "Indicates no reoptimization to be attempted for
+        this path.";
     }
   }
 
-  grouping tunnel-properties_config {
+  /* TE tunne configuration data */
+  grouping tunnel-params_config {
     description
       "Configuration parameters relating to TE tunnel";
     leaf description {
@@ -418,8 +433,8 @@ module ietf-te {
               number higher the
               preference";
           }
-          uses tunnel-path-params;
-          list seondary-paths {
+          uses tunnel-path-params_config;
+          list secondary-paths {
             key "preference";
             description
               "List of secondary paths for this
@@ -434,7 +449,7 @@ module ietf-te {
                 number higher the
                 preference";
             }
-            uses tunnel-path-params;
+            uses tunnel-path-params_config;
           }
         }
       }
@@ -464,8 +479,8 @@ module ietf-te {
                 number higher the
                 preference";
             }
-            uses tunnel-path-params;
-            list seondary-paths {
+            uses tunnel-path-params_config;
+            list secondary-paths {
               key "preference";
               description
                 "List of secondary paths";
@@ -479,7 +494,7 @@ module ietf-te {
                     the number higher
                       the preference";
               }
-              uses tunnel-path-params;
+              uses tunnel-path-params_config;
             }
           }
         }
@@ -487,26 +502,7 @@ module ietf-te {
     }
   }
 
-  grouping tunnel-properties {
-    description
-      "Top level grouping for tunnel properties.";
-    container config {
-      description
-        "Configuration parameters relating to
-        tunnel properties";
-      uses tunnel-properties_config;
-    }
-    container state {
-      config false;
-      description
-        "State information associated with tunnel
-        properties";
-      uses tunnel-properties_config;
-      uses tunnel-properties_state;
-    }
-  }
-
-  grouping tunnel-properties_state {
+  grouping tunnel-params_state {
     description
       "State parameters relating to TE tunnel";
     leaf oper-status {
@@ -521,7 +517,7 @@ module ietf-te {
 
       leaf source {
         type leafref {
-          path "/te/lsps-state/lsp/source";
+          path "../../../../../lsps-state/lsp/source";
         }
         description
           "Tunnel sender address extracted from
@@ -530,7 +526,7 @@ module ietf-te {
       }
       leaf destination {
         type leafref {
-          path "/te/lsps-state/lsp/destination";
+          path "../../../../../lsps-state/lsp/destination";
         }
         description
           "Tunnel endpoint address extracted from
@@ -539,7 +535,7 @@ module ietf-te {
       }
       leaf tunnel-id {
         type leafref {
-          path "/te/lsps-state/lsp/tunnel-id";
+          path "../../../../../lsps-state/lsp/tunnel-id";
         }
         description
           "Tunnel identifier used in the SESSION
@@ -549,7 +545,7 @@ module ietf-te {
       }
       leaf lsp-id {
         type leafref {
-          path "/te/lsps-state/lsp/lsp-id";
+          path "../../../../../lsps-state/lsp/lsp-id";
         }
         description
           "Identifier used in the SENDER_TEMPLATE
@@ -560,7 +556,7 @@ module ietf-te {
       }
       leaf extended-tunnel-id {
         type leafref {
-          path "/te/lsps-state/lsp/extended-tunnel-id";
+          path "../../../../../lsps-state/lsp/extended-tunnel-id";
         }
         description
           "Extended Tunnel ID of the LSP.";
@@ -568,10 +564,30 @@ module ietf-te {
       }
       leaf type {
         type leafref {
-          path "/te/lsps-state/lsp/type";
+          path "../../../../../lsps-state/lsp/type";
         }
         description "LSP type P2P or P2MP";
       }
+    }
+  }
+
+  /* TE tunnel configuration/state grouping */
+  grouping tunnel-properties {
+    description
+      "Top level grouping for tunnel properties.";
+    container config {
+      description
+        "Configuration parameters relating to
+        tunnel properties";
+      uses tunnel-params_config;
+    }
+    container state {
+      config false;
+      description
+        "State information associated with tunnel
+        properties";
+      uses tunnel-params_config;
+      uses tunnel-params_state;
     }
   }
   /*** End of TE tunnel groupings ***/
@@ -747,12 +763,26 @@ module ietf-te {
    * TE global generic groupings
    */
 
-  grouping global-attributes_config {
+  /* Global device specific configuration data */
+  grouping globals-device_config {
     description
       "Top level grouping for global config data.";
+    leaf lsp-install-interval {
+      type uint32;
+      units seconds;
+      description
+        "lsp installation delay time";
+    }
+    leaf lsp-cleanup-interval {
+      type uint32;
+      units seconds;
+      description
+        "lsp cleanup delay time";
+    }
   }
 
-  grouping global-attributes_state {
+  /* Global device specific state data */
+  grouping globals-device_state {
     description
       "Top level grouping for global state data.";
     leaf tunnels-counter {
@@ -765,22 +795,7 @@ module ietf-te {
     }
   }
 
-  grouping global-attributes {
-    description "TE Global attributes grouping";
-    container config {
-      description
-        "Global configuration parameters";
-      uses global-attributes_config;
-    }
-    container state {
-      config false;
-      description
-        "Global configuration parameters";
-      uses global-attributes_config;
-      uses global-attributes_state;
-    }
-  }
-
+  /* Global named admin-groups configuration data */
   grouping named-admin-groups_config {
     description
       "Global named administrative groups configuration
@@ -805,27 +820,7 @@ module ietf-te {
     }
   }
 
-  grouping named-admin-groups {
-    description
-      "Named admin groups grouping";
-    container named-admin-groups {
-      description
-        "Named admin groups container";
-      container config {
-        description
-          "Configuration parameters for named admin
-          groups";
-        uses named-admin-groups_config;
-      }
-      container state {
-        config false;
-        description
-          "State parameters for named admin groups";
-        uses named-admin-groups_config;
-      }
-    }
-  }
-
+  /* Global named admin-srlgs configuration data */
   grouping named-srlgs_config {
     description
       "Global named SRLGs configuration
@@ -848,26 +843,7 @@ module ietf-te {
     }
   }
 
-  grouping named-srlgs {
-    description
-      "Global named SRLGs grouping";
-    container named-srlgs {
-      description
-        "Named SRLGs container";
-      container config {
-        description
-          "Configuration parameters for named SRLG groups";
-        uses named-srlgs_config;
-      }
-      container state {
-        config false;
-        description
-          "State parameters for named SRLG groups";
-        uses named-srlgs_config;
-      }
-    }
-  }
-
+  /* Global named explicit-paths configuration data */
   grouping named-explicit-paths_config {
     description
       "Global explicit path configuration
@@ -905,27 +881,7 @@ module ietf-te {
     }
   }
 
-  grouping named-explicit-paths {
-    description
-      "Global named explicit path grouping";
-    container named-explicit-paths {
-      description
-        "Nmaed explicit paths container";
-      container config {
-        description
-          "Configuration parameters for named explicit
-          paths";
-        uses named-explicit-paths_config;
-      }
-      container state {
-        config false;
-        description
-          "State parameters for named explicit paths";
-        uses named-explicit-paths_config;
-      }
-    }
-  }
-
+  /* Global named paths constraints configuration data */
   grouping named-path-constraints_config {
     description
       "Global named path constraints configuration
@@ -945,49 +901,38 @@ module ietf-te {
     }
   }
 
-  grouping named-path-constraints {
+  /* TE globals container data */
+  grouping globals-grouping {
     description
-      "Global named path constraints grouping";
-    container named-path-constraints {
+      "Globals TE system-wide configuration data grouping";
+    container globals {
       description
-        "Nmaed explicit paths container";
+        "Globals TE system-wide configuration data container";
       container config {
         description
-          "Configuration parameters for named explicit
-          paths";
+          "Configuration parameters for system-wide
+           parameters";
+        uses named-admin-groups_config;
+        uses named-srlgs_config;
+        uses named-explicit-paths_config;
         uses named-path-constraints_config;
       }
       container state {
         config false;
         description
-          "State parameters for named explicit paths";
+          "State for system-wide parameters";
+        uses named-admin-groups_config;
+        uses named-srlgs_config;
+        uses named-explicit-paths_config;
         uses named-path-constraints_config;
       }
     }
   }
-  /*** End of TE global groupings ***/
 
-  /**
-   * TE configurations container
-   */
-  container te {
-    presence "Enable TE feature.";
+  /* TE interface container data */
+  grouping interfaces-grouping {
     description
-      "TE global container.";
-
-    /* TE Global Configuration Data */
-    container globals {
-      description
-        "Configuration data for Global System-wide
-        Traffic Engineering.";
-      uses global-attributes;
-      uses named-admin-groups;
-      uses named-srlgs;
-      uses named-explicit-paths;
-      uses named-path-constraints;
-    }
-
-    /* TE Interface Configuration Data */
+      "Interface TE configuration data grouping";
     container interfaces {
       description
         "Configuration data model for TE interfaces.";
@@ -1001,19 +946,17 @@ module ietf-te {
         }
         /* TE interface parameters */
         uses te-attributes;
-        uses te-admin-groups;
-        uses te-srlgs;
-        uses te-switching-cap;
-        /* TE interface flooding parameters */
-        uses ietf-te-types:interface-te-flooding-parameters;
       }
     }
+  }
 
-    /* TE Tunnel Configuration Data */
+  /* TE tunnels container data */
+  grouping tunnels-grouping {
+    description
+      "Tunnels TE configuration data grouping";
     container tunnels {
       description
-        "Configuration, operational, notification and RPC
-        data model for TE tunnels.";
+        "Tunnels TE configuration data container";
 
       list tunnel {
         key "name type";
@@ -1037,40 +980,15 @@ module ietf-te {
         uses tunnel-properties;
       }
     }
+  }
 
-    /* TE Tunnel Ephemeral State Data (TBD) */
-    container tunnels-state {
-      config "false";
-      description
-        "Derived state corresponding to ephemeral tunnels";
-
-      list tunnel {
-        key "name type";
-        unique "identifier";
-        description "TE tunnel.";
-        leaf name {
-          type string;
-          description "TE tunnel name.";
-        }
-        leaf type {
-          type identityref {
-            base ietf-te-types:tunnel-type;
-          }
-          description "TE tunnel type.";
-        }
-        leaf identifier {
-          type uint16;
-          description
-            "TE tunnel Identifier.";
-        }
-
-      }
-    }
-
-    /* TE LSPs State Data */
+  /* TE LSPs ephemeral state container data */
+  grouping lsps-state-grouping {
+    description
+      "LSPs state operational data grouping";
     container lsps-state {
       config "false";
-      description "MPLS-TE LSP operational state data.";
+      description "LSPs operational state data.";
 
       list lsp {
         key
@@ -1125,6 +1043,28 @@ module ietf-te {
       }
     }
   }
+  /*** End of TE global groupings ***/
+
+  /**
+   * TE configurations container
+   */
+  container te {
+    presence "Enable TE feature.";
+    description
+       "TE global container.";
+
+    /* TE Global Configuration Data */
+    uses globals-grouping;
+
+    /* TE Interface Configuration Data */
+    uses interfaces-grouping;
+
+    /* TE Tunnel Configuration Data */
+    uses tunnels-grouping;
+
+    /* TE LSPs State Data */
+    uses lsps-state-grouping;
+  }
 
   /* TE Global RPCs/execution Data */
   rpc globals-rpc {
@@ -1144,6 +1084,18 @@ module ietf-te {
       "TE tunnels RPC nodes";
   }
 
+  /* Augment TE device parameters */
+  augment "/te/globals/config" {
+    description
+      "Global TE device specific configuration parameters";
+    uses globals-device_config;
+  }
+  augment "/te/globals/state" {
+    description
+      "Global TE device specific state parameters";
+    uses globals-device_config;
+    uses globals-device_state;
+  }
 
   /* TE Global Notification Data */
   notification globals-notif {
