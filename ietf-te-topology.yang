@@ -29,7 +29,7 @@ module ietf-te-topology {
   contact "TBD";
   description "TE topology model";
   
-  revision "2015-09-25" {
+  revision "2015-09-28" {
     description "Initial revision";
     reference "TBD";
   }
@@ -434,7 +434,7 @@ module ietf-te-topology {
     leaf te-node-template {
       if-feature template;
       type leafref {
-        path "/templates/node-template/name";
+        path "../../../../te/templates/node-template/name";
       }
       description
         "The reference to a TE node template.";
@@ -941,7 +941,7 @@ module ietf-te-topology {
     leaf te-link-template {
       if-feature template;
       type leafref {
-        path "/templates/link-template/name";
+        path "../../../../te/templates/link-template/name";
       }
       description
         "The reference to a TE link template.";
@@ -1369,7 +1369,7 @@ module ietf-te-topology {
   grouping te-termination-point-augment {
     description
       "Augmentatin for TE termination point.";
-
+    
     container te {
       presence "TE support.";      
       description 
@@ -1406,7 +1406,7 @@ module ietf-te-topology {
   grouping te-topology-augment {
     description
       "Augmentatin for TE topology.";
-
+    
     container te {
       presence "TE support.";
       description 
@@ -1444,6 +1444,56 @@ module ietf-te-topology {
           "Operational state data.";
         uses te-topology-config;
       } // state
+
+      container templates {
+        description
+          "Configuration parameters for templates used for TE
+          topology.";
+
+        list node-template {
+          if-feature template;
+          key "name";
+          leaf name {
+            type te-template-name;
+            description
+              "The name to identify a TE node template.";
+          }
+          description
+            "The list of TE node templates used to define sharable
+            and reusable TE node attributes.";
+          uses template-attributes;
+          leaf-list te-node-template {
+            type leafref {
+              path "../../node-template/name";
+            }
+            description
+              "The reference to a TE node template.";
+          }
+          uses te-node-config-attributes;
+        } // node-template
+        
+        list link-template {
+          if-feature template;
+          key "name";
+          leaf name {
+            type te-template-name;
+            description
+              "The name to identify a TE link template.";
+          }
+          description
+            "The list of TE link templates used to define sharable
+            and reusable TE link attributes.";
+          uses template-attributes;
+          leaf-list te-link-template {
+            type leafref {
+              path "../../link-template/name";
+            }
+            description
+              "The reference to a TE link template.";
+          }
+          uses te-link-config-attributes;
+        } // link-template
+      } // templates
     } // te
   } // te-topology-augment
 
@@ -1472,57 +1522,7 @@ module ietf-te-topology {
       "Configuration parameters for TE topology.";
     uses te-topology-augment;
   }
-
-  container templates {
-    description
-      "Configuration parameters for templates used for TE
-      topology.";
-
-    list node-template {
-      if-feature template;
-      key "name";
-      leaf name {
-        type te-template-name;
-        description
-          "The name to identify a TE node template.";
-      }
-      description
-        "The list of TE node templates used to define sharable
-        and reusable TE node attributes.";
-      uses template-attributes;
-      leaf-list te-node-template {
-        type leafref {
-          path "/templates/node-template/name";
-        }
-        description
-          "The reference to a TE node template.";
-      }
-      uses te-node-config-attributes;
-    } // node-template
-
-    list link-template {
-      if-feature template;
-      key "name";
-      leaf name {
-        type te-template-name;
-        description
-          "The name to identify a TE link template.";
-      }
-      description
-        "The list of TE link templates used to define sharable
-        and reusable TE link attributes.";
-      uses template-attributes;
-      leaf-list te-link-template {
-        type leafref {
-          path "/templates/link-template/name";
-        }
-        description
-          "The reference to a TE link template.";
-      }
-      uses te-link-config-attributes;
-    } // link-template
-  }
-
+  
   augment "/nw:network/nw:node" {
     when "../nw:network-types/te-topology" {
       description
