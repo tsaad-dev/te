@@ -29,7 +29,7 @@ module ietf-te-topology {
   contact "TBD";
   description "TE topology model";
   
-  revision "2015-09-29" {
+  revision "2015-10-02" {
     description "Initial revision";
     reference "TBD";
   }
@@ -134,11 +134,66 @@ module ietf-te-topology {
        unique context for TE topologies.";
   }
 
+  typedef te-link-access-type {
+    type enumeration {
+      enum point-to-point {
+        description
+          "The link is point-to-point.";
+      }
+      enum multi-access {
+        description
+          "The link is multi-access, including broacast and NBMA.";
+      }
+    }
+    description
+      "Defines a type representing the access type of a TE link.";
+    reference
+      "RFC3630: Traffic Engineering (TE) Extensions to OSPF
+       Version 2.";
+  }
+
   typedef te-node-id {
     type inet:ip-address;
     description
       "An identifier for a node in a topology.
        The identifier is represented as an IPv4 or IPv6 address.";
+  }
+
+  typedef te-oper-status {
+    type enumeration {
+      enum up {
+        description
+        "Operational up.";
+      }
+      enum down {
+        description
+        "Operational down.";
+      }
+      enum testing {
+        description
+        "In some test mode.";
+      }
+      enum unknown {
+        description
+        "Status cannot be determined for some reason.";
+      }
+      enum preparing-maintenance {
+        description
+          "Resource is disabled in the control plane to prepare for
+           graceful shutdown for maintenance purposes.";
+        reference
+          "RFC5817: Graceful Shutdown in MPLS and Generalized MPLS
+           Traffic Engineering Networks";
+      }
+      enum maintenance {
+        description
+          "Resource is disabled in the data plane for maintenance
+           purposes.";
+      }
+    }
+    description
+      "Defines a type representing the operational status of 
+       a TE resource.";
   }
 
   typedef te-recovery-status {
@@ -655,17 +710,23 @@ module ietf-te-topology {
     container te-link-attributes {
       description "Link attributes in a TE topology.";
       uses sch:schedule-list-container;
-      leaf name {
-        type string;
-        description "Link Name.";
+      leaf access-type {
+        type te-link-access-type;
+        description 
+          "Link access type, which can be point-to-point or
+           multi-access.";
       }
       leaf-list flag {
         type te-link-flag;
         description "Link flags.";
       }
       leaf is-abstract {
-        type boolean;
-        description "true if the link is abstract.";
+        type empty;
+        description "Present if the link is abstract.";
+      }
+      leaf name {
+        type string;
+        description "Link Name.";
       }
       container underlay {
         if-feature te-topology-hierarchy;
@@ -950,28 +1011,7 @@ module ietf-te-topology {
     container derived {
       description "Link state attributes in a TE topology.";
       leaf oper-status {
-        type enumeration {
-          enum up {
-            value 1;
-            description
-            "Operational up.";
-          }
-          enum down {
-            value 2;
-            description
-            "Operational down.";
-          }
-          enum testing {
-            value 3;
-            description
-            "In some test mode.";
-          }
-          enum unknown {
-            value 4;
-            description
-            "Status cannot be determined for some reason.";
-          }
-        }
+        type te-oper-status;
         description
           "The current operational state of the link.";
       }
@@ -1182,10 +1222,10 @@ module ietf-te-topology {
         description "Node operational flags.";
       }
       leaf is-abstract {
-        type boolean;
+        type empty;
         description 
-          "true if the node is abstract, false when the node is
-           actual.";
+          "Present if the node is abstract, not present if the node
+           is actual.";
       }
       leaf name {
         type inet:domain-name;
@@ -1209,6 +1249,22 @@ module ietf-te-topology {
     description "Node state attributes in a TE topology.";
     container derived {
       description "Node state attributes in a TE topology.";
+      leaf oper-status {
+        type te-oper-status;
+        description
+          "The current operational state of the node.";
+      }
+      leaf is-multi-access-dr {
+        type empty;
+        description
+          "The presence of this attribute indicates that this TE node
+           is a pseudonode elected as a designated router.";
+        reference
+          "RFC3630: Traffic Engineering (TE) Extensions to OSPF
+           Version 2.
+           RFC1195: Use of OSI IS-IS for Routing in TCP/IP and Dual
+           Environments.";
+      }
       uses information-source-attributes;
     }
   } // te-node-state-derived
@@ -1376,13 +1432,21 @@ module ietf-te-topology {
       description
         "A reference to a client-id.";
     }
-    leaf topology-id-ref {
+    leaf te-topology-id-ref {
       type leafref {
         path "/nw:network/tet:te/tet:te-topology-id";
         require-instance false;
       }
       description
         "A reference to a te-topology-id.";
+    }
+    leaf network-id-ref {
+      type leafref {
+        path "/nw:network/nw:network-id";
+        require-instance false;
+      }
+      description
+        "A reference to a network-id in base ietf-network module.";
     }
   } // te-topology-ref
 
