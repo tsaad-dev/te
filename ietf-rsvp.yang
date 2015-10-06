@@ -5,7 +5,6 @@ module ietf-rsvp {
   /* Replace with IANA when assigned */
   prefix "rsvp";
 
-  /* import ietf-inet-types { prefix inet; } */
   import ietf-interfaces {
     prefix "if";
   }
@@ -50,66 +49,16 @@ module ietf-rsvp {
     reference "NIST, FIPS PUB 180-1: Secure Hash Standard";
   }
 
-
-  /* RSVP features */
-  feature authentication {
-    description
-      "Indicates support for RSVP authentication";
-  }
-
-  feature error-statistics {
-    description
-      "Indicates support for error statistics";
-  }
-
-  feature global-statistics {
-    description
-      "Indicates support for global statistics";
-  }
-
-  feature graceful-restart {
-    description
-      "Indicates support for RSVP graceful restart";
-  }
-
-  feature hellos {
-    description
-      "Indicates support for RSVP hellos (RFC3209).";
-  }
-
-  feature notify {
-    description
-      "Indicates support for RSVP notify message (RFC3473).";
-  }
-
-  feature refresh-reduction {
-    description
-      "Indicates support for RSVP refresh reduction 
-      (RFC2961).";
-  }
-
-  feature per-interface-statistics {
-    description
-      "Indicates support for per interface statistics";
-  }
-
   grouping graceful-restart_config {
     description
-      "Configuration parameters relating to RSVP
-      Graceful-Restart";
-    leaf restart-time {
-      type uint32;
-      description
-        "Graceful restart time (seconds).";
-      reference
-        "RFC 5495: Description of the Resource
-        Reservation Protocol - Traffic-Engineered
-        (RSVP-TE) Graceful Restart Procedures";
-    }
-    leaf recovery-time {
-      type uint32;
-      description
-        "RSVP state recovery time";
+      "Base configuration parameters relating to RSVP
+       Graceful-Restart";
+    leaf enabled {
+      type boolean;
+      default false;
+      description 
+        "'true' if RSVP Graceful Restart is enabled.
+         'false' if RSVP Graceful Restart is disabled.";
     }
   }
 
@@ -118,257 +67,9 @@ module ietf-rsvp {
       "Top level grouping for RSVP graceful-restart
       parameters";
     container graceful-restart {
-      if-feature graceful-restart;
-      presence "Enable RSVP graceful restart on the node.";
       description
         "Top level container for RSVP graceful-restart";
-      container config {
-        description
-          "Configuration parameters relating to
-          graceful-restart";
-        uses graceful-restart_config;
-      }
-      container state {
-        config false;
-        description
-          "State information associated with RSVP
-          graceful-restart";
-        uses graceful-restart_config;
-      }
-    }
-  }
-
-  grouping authentication_config {
-    description
-      "Configuration parameters relating to RSVP
-      authentication";
-    leaf lifetime {
-      type uint32 {
-        range "30..86400";
-      }
-      description
-        "Life time for each security association";
-      reference
-        "RFC 2747: RSVP Cryptographic
-        Authentication";
-    }
-    leaf window-size {
-      type uint32 {
-        range "1..64";
-      }
-      description
-        "Window-size to limit number of out-of-order
-        messages.";
-      reference
-        "RFC 2747: RSVP Cryptographic
-        Authentication";
-    }
-    leaf challenge {
-      type empty;
-      description
-        "Enable challenge messages.";
-      reference
-        "RFC 2747: RSVP Cryptographic
-        Authentication";
-    }
-    leaf retransmits {
-      type uint32 {
-        range "1..10000";
-      }
-      description
-        "Number of retransmits when messages are
-        dropped.";
-      reference
-        "RFC 2747: RSVP Cryptographic
-        Authentication";
-    }
-    choice authentication-type {
-      description
-        "RSVP authentication choices";
-      case string {
-        leaf password {
-          type string;
-          description
-            "An authentication key string";
-        }
-        leaf algorithm {
-          type identityref {
-            base hash-algorithm;
-          }
-          description
-            "Cryptographic hash algorithm";
-        }
-      }
-      case key-chain {
-        description
-          "Configure RSVP authentication.";
-        leaf key-chain {
-          type string {
-            length "1..32";
-          }
-          description
-            "Key chain name to authenticate RSVP
-            signaling messages.";
-          reference
-            "RFC 2747: RSVP Cryptographic
-            Authentication";
-        }
-      }
-    }
-  }
-
-  grouping authentication {
-    description
-      "Top level grouping for RSVP authentication parameters";
-    container authentication {
-      if-feature authentication;
-      description
-        "Top level container for RSVP authentication
-        parameters";
-      container config {
-        description
-          "Configuration parameters relating to
-          RSVP authentication";
-        uses authentication_config;
-      }
-      container state {
-        config false;
-        description
-          "State information associated with RSVP
-          authentication";
-        uses authentication_config;
-      }
-    }
-  }
-
-  grouping rsvp-hellos_config {
-    description
-      "Configuration parameters relating to RSVP
-      hellos";
-    leaf interface-based {
-      type empty;
-      description "Enable interface-based
-        Hello adjacency if present.";
-    }
-    leaf hello-interval {
-      type uint32 {
-        range "3000..30000";
-      }
-      description
-        "Configure interval between successive Hello
-        messages in milliseconds.";
-      reference
-        "RFC 3209: RSVP-TE: Extensions to RSVP for
-        LSP Tunnels.
-        RFC 5495: Description of the Resource
-        Reservation Protocol - Traffic-Engineered
-        (RSVP-TE) Graceful Restart Procedures";
-    }
-    leaf hello-misses {
-      type uint32 {
-        range "1..10";
-      }
-      description
-        "Configure max number of consecutive missed
-        Hello messages.";
-      reference
-        "RFC 3209: RSVP-TE: Extensions to RSVP for
-        LSP Tunnels RFC 5495: Description of the
-        Resource Reservation Protocol - Traffic-
-        Engineered (RSVP-TE) Graceful Restart
-        Procedures";
-    }
-  }
-
-  grouping rsvp-hellos {
-    description
-      "Top level grouping for RSVP hellos parameters";
-    container rsvp-hellos {
-      if-feature hellos;
-      description
-        "Top level container for RSVP hello parameters";
-      container config {
-        description
-          "Configuration parameters relating to
-          RSVP hellos";
-        uses rsvp-hellos_config;
-      }
-      container state {
-        config false;
-        description
-          "State information associated with RSVP
-          hellos";
-        uses rsvp-hellos_config;
-      }
-    }
-  }
-
-  grouping signaling-parameters_config {
-    description
-      "Configuration parameters relating to RSVP
-      signaling";
-    leaf refresh-interval {
-      type uint32;
-      description
-        "Set interval between successive refreshes";
-    }
-    leaf refresh-misses {
-      type uint32;
-      description
-        "Set max number of consecutive missed
-        messages for state expiry";
-    }
-    leaf checksum {
-      type uint32;
-      description
-        "Enable RSVP message checksum computation";
-    }
-    leaf patherr-state-removal {
-      type empty;
-      description
-        "State-Removal flag in Path Error message
-        if present.";
-    }
-  }
-
-  grouping signaling-parameters {
-    description
-      "Top level grouping for RSVP signaling  parameters";
-    container signaling-parameters {
-      description
-        "Top level container for RSVP signaling parameters";
-      container config {
-        description
-          "Configuration parameters relating to
-          RSVP signaling parameters";
-        uses signaling-parameters_config;
-      }
-      container state {
-        config false;
-        description
-          "State information associated with RSVP
-          signaling parameters";
-        uses signaling-parameters_config;
-      }
-    }
-  }
-
-  grouping interface-attributes {
-    description
-      "Top level grouping for RSVP interface properties";
-    container config {
-      description
-        "Configuration parameters relating to
-        RSVP interface parameters";
-    }
-    container state {
-      config false;
-      description
-        "State information associated with RSVP
-         interface parameters";
-      uses statistics_state {
-        if-feature per-interface-statistics;
-      }
+      uses graceful-restart_config;
     }
   }
 
@@ -376,56 +77,13 @@ module ietf-rsvp {
     description
       "Configuration parameters relating to RSVP
       refresh reduction";
-    leaf bundle-message-max-size {
-      type uint32 {
-        range "512..65000";
-      }
-      description
-        "Configure maximum size (bytes) of a
-        single RSVP Bundle message.";
-    }
-    leaf disable {
-      type empty;
-      description
-        "Disable refresh reduction if present.";
-    }
-    leaf reliable-ack-hold-time {
-      type uint32 {
-        range "100..5000";
-      }
-      description
-        "Configure hold time in milliseconds for
-        sending RSVP ACK message(s).";
-    }
-    leaf reliable-ack-max-size {
-      type uint32 {
-        range "20..65000";
-      }
-      description
-        "Configure max size of a single RSVP ACK
-        message.";
-    }
-    leaf reliable-retransmit-time {
-      type uint32 {
-        range "100..10000";
-      }
-      description
-        "Configure min delay in milliseconds to
-        wait for an ACK before a retransmit.";
-    }
-    leaf reliable-srefresh {
-      type empty;
-      description
-        "Configure use of reliable messaging for
-        summary refresh if present.";
-    }
-    leaf summary-max-size {
-      type uint32 {
-        range "20..65000";
-      }
-      description
-        "Configure max size (bytes) of a single
-        RSVP summary refresh message.";
+
+    leaf enabled {
+      type boolean;
+      default true;
+      description 
+        "'true' if RSVP Refresh Reduction is enabled.
+         'false' if RSVP Refresh Reduction is disabled.";
     }
   }
 
@@ -434,24 +92,365 @@ module ietf-rsvp {
       "Top level grouping for RSVP refresh reduction
       parameters";
     container refresh-reduction {
-      if-feature refresh-reduction;
       description
         "Top level container for RSVP refresh reduction
         parameters";
+      uses refresh-reduction_config;
+    }
+  }
+
+  grouping authentication_config {
+    description
+      "Configuration parameters relating to RSVP
+      authentication";
+    leaf enabled {
+      type boolean;
+      default false;
+      description 
+        "'true' if RSVP Authenticaiton is enabled.
+         'false' if RSVP Authenticaiton is disabled.";
+    }
+    leaf password {
+      type string;
+      description
+        "An authentication key string";
+    }
+    leaf algorithm {
+      type identityref {
+        base hash-algorithm;
+      }
+      description
+        "Cryptographic hash algorithm";
+    }
+  }
+
+  grouping authentication {
+    description
+      "Top level grouping for RSVP authentication parameters";
+    container authentication {
+      description
+        "Top level container for RSVP authentication
+        parameters";
+      uses authentication_config;
+    }
+  }
+
+  grouping rsvp-hellos_config {
+    description
+      "Configuration parameters relating to RSVP
+      hellos";
+    leaf enabled {
+      type boolean;
+      default false;
+      description 
+        "'true' if RSVP Hello is enabled.
+         'false' if RSVP Hello is disabled.";
+    }
+  }
+
+  grouping rsvp-hellos {
+    description
+      "Top level grouping for RSVP hellos parameters";
+    container rsvp-hellos {
+      description
+        "Top level container for RSVP hello parameters";
+      uses rsvp-hellos_config;
+    }
+  }
+
+  grouping signaling-parameters_config {
+    description
+      "Configuration parameters relating to RSVP
+      signaling";
+  }
+
+  grouping signaling-parameters {
+    description
+      "Top level grouping for RSVP signaling  parameters";
+    uses signaling-parameters_config;
+  }
+
+  grouping session-attributes {
+    description
+      "Top level grouping for RSVP session properties";
+    container config {
+      description
+        "Configuration for session properties";
+    }
+    container state {
+      config false;
+      description
+        "State information associated with RSVP
+         session properties";
+    }
+  }
+
+  grouping neighbor-attributes {
+    description
+      "Top level grouping for RSVP neighbor properties";
+    container neighbor-attributes {
+      description
+        "Top level container for RSVP neighbor properties";
       container config {
         description
-          "Configuration parameters relating to
-          RSVP refresh reduction";
-        uses refresh-reduction_config;
+          "Configuration for neighbor properties";
       }
       container state {
         config false;
         description
           "State information associated with RSVP
-          refresh reduction";
-        uses refresh-reduction_config;
+           neighbor properties";
+        uses neighbor-derived_state;
       }
     }
+  }
+
+  grouping statistics-packets_state {
+    description
+      "Packet statistics grouping";
+    container packets {
+      description
+        "Packet statistics container";
+      leaf sent {
+        type yang:counter32;
+        description
+          "Packet sent count";
+      }
+
+      leaf rcvd {
+        type yang:counter32;
+        description
+          "Packet received count";
+      }
+    }
+  }
+
+  grouping statistics-protocol_state {
+    description 
+      "RSVP protocol statistics grouping";
+    container protocol {
+      description 
+        "RSVP protocol statistics container";
+      leaf ack-sent {
+        type yang:counter32;
+        description
+          "Hello sent count";
+      }
+
+      leaf ack-rcvd {
+        type yang:counter32;
+        description
+          "Hello received count";
+      }
+
+      leaf bundle-sent {
+        type yang:counter32;
+        description
+          "Bundle sent count";
+      }
+
+      leaf bundle-rcvd {
+        type yang:counter32;
+        description
+          "Bundle received count";
+      }
+
+      leaf hello-sent {
+        type yang:counter32;
+        description
+          "Hello sent count";
+      }
+
+      leaf hello-rcvd {
+        type yang:counter32;
+        description
+          "Hello received count";
+      }
+
+      leaf integrity-challenge-sent {
+        type yang:counter32;
+        description
+          "Integrity Challenge sent count";
+      }
+
+      leaf integrity-challenge-rcvd {
+        type yang:counter32;
+        description
+          "Integrity Challenge received count";
+      }
+
+      leaf integrity-response-sent {
+        type yang:counter32;
+        description
+          "Integrity Response sent count";
+      }
+
+      leaf integrity-response-rcvd {
+        type yang:counter32;
+        description
+          "Integrity Response received count";
+      }
+
+      leaf notify-sent {
+        type yang:counter32;
+        description
+          "Notify sent count";
+      }
+
+      leaf notify-rcvd {
+        type yang:counter32;
+        description
+          "Notify received count";
+      }
+
+      leaf path-sent {
+        type yang:counter32;
+        description
+          "Path sent count";
+      }
+
+      leaf path-rcvd {
+        type yang:counter32;
+        description
+          "Path received count";
+      }
+
+      leaf path-err-sent {
+        type yang:counter32;
+        description
+          "Path error sent count";
+      }
+
+      leaf path-err-rcvd {
+        type yang:counter32;
+        description
+          "Path error received count";
+      }
+
+      leaf path-tear-sent {
+        type yang:counter32;
+        description
+          "Path tear sent count";
+      }
+
+      leaf path-tear-rcvd {
+        type yang:counter32;
+        description
+          "Path tear received count";
+      }
+
+      leaf resv-sent {
+        type yang:counter32;
+        description
+          "Resv sent count";
+      }
+
+      leaf resv-rcvd {
+        type yang:counter32;
+        description
+          "Resv received count";
+      }
+
+      leaf resv-confirm-sent {
+        type yang:counter32;
+        description
+          "Confirm sent count";
+      }
+
+      leaf resv-confirm-rcvd {
+        type yang:counter32;
+        description
+          "Confirm received count";
+      }
+
+      leaf resv-err-sent {
+        type yang:counter32;
+        description
+          "Resv error sent count";
+      }
+
+      leaf resv-err-rcvd {
+        type yang:counter32;
+        description
+          "Resv error received count";
+      }
+
+      leaf resv-tear-sent {
+        type yang:counter32;
+        description
+          "Resv tear sent count";
+      }
+
+      leaf resv-tear-rcvd {
+        type yang:counter32;
+        description
+          "Resv tear received count";
+      }
+
+      leaf summary-refresh-sent {
+        type yang:counter32;
+        description
+          "Summary refresh sent count";
+      }
+
+      leaf summary-refresh-rcvd {
+        type yang:counter32;
+        description
+          "Summary refresh received count";
+      }
+
+      leaf unknown-recv {
+        type yang:counter32;
+        description
+          "Unknown packet received count";
+      }
+    }
+  }
+
+  grouping statistics-errors_state {
+    description
+      "Error statistics state grouping";
+    container errors {
+      description
+        "Error statistics state container";
+      leaf authenticate {
+        type yang:counter64;
+        description
+          "The total number of packets received with an 
+          authentication failure.";
+      }
+
+      leaf checksum {
+        type yang:counter64;
+        description
+          "The total number of packets received with an invalid
+          checksum value.";
+      }
+
+      leaf packet-len {
+        type yang:counter64;
+        description
+          "The total number of packets received with an invalid
+          packet length.";
+      }
+    }
+  } // statistics_state
+
+  grouping statistics_state {
+    description "RSVP statistic attributes.";
+    leaf discontinuity-time {
+      type yang:date-and-time;
+      description
+        "The time on the most recent occasion at which any one
+        or more of the statistic counters suffered a
+        discontinuity. If no such discontinuities have occurred
+        since the last re-initialization of the local
+        management subsystem, then this node contains the time
+        the local management subsystem re-initialized itself.";
+    }
+    uses statistics-packets_state;
+    uses statistics-protocol_state;
+    uses statistics-errors_state;
   }
 
   grouping neighbor-derived_state {
@@ -557,7 +556,6 @@ module ietf-rsvp {
     } // graceful-restart
 
     leaf hello-status {
-      if-feature hellos;
       type enumeration {
         enum "enabled" {
           description
@@ -620,7 +618,6 @@ module ietf-rsvp {
     }
 
     leaf refresh-reduction-capable {
-      if-feature refresh-reduction;
       type boolean;
       description
         "Whether neighbor is refresh reduction capable.";
@@ -639,333 +636,46 @@ module ietf-rsvp {
     }
   } // neighbor-derived_state
 
-  grouping statistics_state {
-    description "RSVP statistic attributes.";
-    container statistics {
-      description 
-        "RSVP statistics";
-
-      leaf discontinuity-time {
-        type yang:date-and-time;
-        description
-          "The time on the most recent occasion at which any one
-          or more of the statistic counters suffered a
-          discontinuity. If no such discontinuities have occurred
-          since the last re-initialization of the local
-          management subsystem, then this node contains the time
-          the local management subsystem re-initialized itself.";
-      }
-
-      container packet {
-        description
-          "Packet statistics.";
-        leaf sent {
-          type yang:counter32;
-          description
-            "Packet sent count";
-        }
-
-        leaf rcvd {
-          type yang:counter32;
-          description
-            "Packet received count";
-        }
-
-        leaf tx-dropped {
-          type yang:counter32;
-          description
-            "Packet tx dropped count";
-        }
-
-        leaf rx-dropped {
-          type yang:counter32;
-          description
-            "Packet rx dropped count";
-        }
-
-        leaf tx-error {
-          type yang:counter32;
-          description
-            "Packet tx error count";
-        }
-
-        leaf rx-error {
-          type yang:counter32;
-          description
-            "Packet rx error count";
-        }
-      }
-
-      container protocol {
-        description 
-          "RSVP protocol statistics.";
-        leaf ack-sent {
-          if-feature refresh-reduction;
-          type yang:counter32;
-          description
-            "Hello sent count";
-        }
-
-        leaf ack-rcvd {
-          if-feature refresh-reduction;
-          type yang:counter32;
-          description
-            "Hello received count";
-        }
-
-        leaf bundle-sent {
-          if-feature refresh-reduction;
-          type yang:counter32;
-          description
-            "Bundle sent count";
-        }
-
-        leaf bundle-rcvd {
-          if-feature refresh-reduction;
-          type yang:counter32;
-          description
-            "Bundle received count";
-        }
-
-        leaf hello-sent {
-          if-feature hellos;
-          type yang:counter32;
-          description
-            "Hello sent count";
-        }
-
-        leaf hello-rcvd {
-          if-feature hellos;
-          type yang:counter32;
-          description
-            "Hello received count";
-        }
-
-        leaf integrity-challenge-sent {
-          if-feature authentication;
-          type yang:counter32;
-          description
-            "Integrity Challenge sent count";
-        }
-
-        leaf integrity-challenge-rcvd {
-          if-feature authentication;
-          type yang:counter32;
-          description
-            "Integrity Challenge received count";
-        }
-
-        leaf integrity-response-sent {
-          if-feature authentication;
-          type yang:counter32;
-          description
-            "Integrity Response sent count";
-        }
-
-        leaf integrity-response-rcvd {
-          if-feature authentication;
-          type yang:counter32;
-          description
-            "Integrity Response received count";
-        }
-
-        leaf notify-sent {
-          if-feature refresh-reduction;
-          type yang:counter32;
-          description
-            "Notify sent count";
-        }
-
-        leaf notify-rcvd {
-          if-feature refresh-reduction;
-          type yang:counter32;
-          description
-            "Notify received count";
-        }
-
-        leaf path-sent {
-          type yang:counter32;
-          description
-            "Path sent count";
-        }
-
-        leaf path-rcvd {
-          type yang:counter32;
-          description
-            "Path received count";
-        }
-
-        leaf path-err-sent {
-          type yang:counter32;
-          description
-            "Path error sent count";
-        }
-
-        leaf path-err-rcvd {
-          type yang:counter32;
-          description
-            "Path error received count";
-        }
-
-        leaf path-tear-sent {
-          type yang:counter32;
-          description
-            "Path tear sent count";
-        }
-
-        leaf path-tear-rcvd {
-          type yang:counter32;
-          description
-            "Path tear received count";
-        }
-
-        leaf resv-sent {
-          type yang:counter32;
-          description
-            "Resv sent count";
-        }
-
-        leaf resv-rcvd {
-          type yang:counter32;
-          description
-            "Resv received count";
-        }
-
-        leaf resv-confirm-sent {
-          type yang:counter32;
-          description
-            "Confirm sent count";
-        }
-
-        leaf resv-confirm-rcvd {
-          type yang:counter32;
-          description
-            "Confirm received count";
-        }
-
-        leaf resv-err-sent {
-          type yang:counter32;
-          description
-            "Resv error sent count";
-        }
-
-        leaf resv-err-rcvd {
-          type yang:counter32;
-          description
-            "Resv error received count";
-        }
-
-        leaf resv-tear-sent {
-          type yang:counter32;
-          description
-            "Resv tear sent count";
-        }
-
-        leaf resv-tear-rcvd {
-          type yang:counter32;
-          description
-            "Resv tear received count";
-        }
-
-        leaf summary-refresh-sent {
-          if-feature refresh-reduction;
-          type yang:counter32;
-          description
-            "Summary refresh sent count";
-        }
-
-        leaf summary-refresh-rcvd {
-          if-feature refresh-reduction;
-          type yang:counter32;
-          description
-            "Summary refresh received count";
-        }
-
-        leaf unknown-recv {
-          type yang:counter32;
-          description
-            "Unknown packet received count";
-        }
-      } // rsvp
-
-      container error {
-        description
-          "Error statistics.";
-
-        leaf authentication {
-          type yang:counter64;
-          description
-            "The total number of packets received with an 
-            authentication failure.";
-        }
-
-        leaf checksum {
-          type yang:counter64;
-          description
-            "The total number of packets received with an invalid
-            checksum value.";
-        }
-
-        leaf packet-len {
-          type yang:counter64;
-          description
-            "The total number of packets received with an invalid
-            packet length.";
-        }
-      } // error
-    } // statistics
-  } // statistics_state        
-
   grouping global-attributes {
     description
       "Top level grouping for RSVP global properties";
     container config {
       description
         "Configuration globals properties";
+      uses graceful-restart;
     }
     container state {
       config false;
       description
         "State information associated with RSVP
          global properties";
-      uses statistics_state {
-        if-feature global-statistics;
-      }
+      uses graceful-restart;
+      uses statistics_state;
     }
   }
 
-  grouping session-attributes {
+  grouping intf-attributes {
     description
-      "Top level grouping for RSVP session properties";
+      "Top level grouping for RSVP interface properties";
     container config {
       description
-        "Configuration for session properties";
+        "Configuration parameters relating to
+        RSVP interface parameters";
+      uses signaling-parameters;
+      uses refresh-reduction;
+      uses rsvp-hellos;
+      uses authentication;
     }
     container state {
       config false;
       description
         "State information associated with RSVP
-         session properties";
-    }
-  }
-
-  grouping neighbor-attributes {
-    description
-      "Top level grouping for RSVP neighbor properties";
-    container neighbor-attributes {
-      description
-        "Top level container for RSVP neighbor properties";
-      container config {
-        description
-          "Configuration for neighbor properties";
-      }
-      container state {
-        config false;
-        description
-          "State information associated with RSVP
-           neighbor properties";
-        uses neighbor-derived_state;
-      }
+         interface parameters";
+      uses signaling-parameters;
+      uses refresh-reduction;
+      uses rsvp-hellos;
+      uses authentication;
+      uses statistics_state;
     }
   }
 
@@ -975,17 +685,12 @@ module ietf-rsvp {
     container globals {
       description "RSVP global properties.";
       uses global-attributes;
-      uses graceful-restart;
     }
 
     container interfaces {
       description
         "RSVP interfaces container";
-      uses interface-attributes;
-      uses signaling-parameters;
-      uses refresh-reduction;
-      uses rsvp-hellos;
-      uses authentication;
+      uses intf-attributes;
 
       list interface {
         key "interface";
@@ -996,11 +701,7 @@ module ietf-rsvp {
           description
             "RSVP interface.";
         }
-        uses interface-attributes;
-        uses signaling-parameters;
-        uses refresh-reduction;
-        uses rsvp-hellos;
-        uses authentication;
+        uses intf-attributes;
       }
     }
 
@@ -1052,3 +753,4 @@ module ietf-rsvp {
     }
   }
 }
+
