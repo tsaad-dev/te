@@ -29,7 +29,7 @@ module ietf-te-topology {
   contact "TBD";
   description "TE topology model";
   
-  revision "2015-10-02" {
+  revision "2015-10-06" {
     description "Initial revision";
     reference "TBD";
   }
@@ -693,7 +693,7 @@ module ietf-te-topology {
       }
     } // bundle-stack-level
     
-    leaf te-link-template {
+    leaf-list te-link-template {
       if-feature template;
       type leafref {
         path "../../../../te/templates/link-template/name";
@@ -1008,40 +1008,37 @@ module ietf-te-topology {
   grouping te-link-state-derived {
     description 
       "Link state attributes in a TE topology.";
-    container derived {
-      description "Link state attributes in a TE topology.";
-      leaf oper-status {
-        type te-oper-status;
-        description
-          "The current operational state of the link.";
-      }
+    leaf oper-status {
+      type te-oper-status;
+      description
+        "The current operational state of the link.";
+    }
+    uses information-source-attributes;
+    list alt-information-sources {
+      key "information-source";
+      description
+        "A list of information sources learned but not used.";
       uses information-source-attributes;
-      list alt-information-sources {
-        key "information-source";
+      uses te-link-info-attributes;
+    }
+    container recovery {
+      description
+        "Status of the recovery process.";
+      leaf restoration-status {
+        type te-recovery-status;
         description
-          "A list of information sources learned but not used.";
-        uses information-source-attributes;
-        uses te-link-info-attributes;
+          "Restoration status.";
       }
-      container recovery {
+      leaf protection-status {
+        type te-recovery-status;
         description
-          "Status of the recovery process.";
-        leaf restoration-status {
-          type te-recovery-status;
-          description
-            "Restoration status.";
-        }
-        leaf protection-status {
-          type te-recovery-status;
-          description
-            "Protection status.";
-        }      
-      }
-      container underlay {
-        if-feature te-topology-hierarchy;
-        description "State attributes for te-link underlay.";
-        uses te-link-state-underlay-attributes;
-      }
+          "Protection status.";
+      }      
+    }
+    container underlay {
+      if-feature te-topology-hierarchy;
+      description "State attributes for te-link underlay.";
+      uses te-link-state-underlay-attributes;
     }
   } // te-link-state-derived
 
@@ -1156,7 +1153,7 @@ module ietf-te-topology {
   grouping te-node-config {
     description "TE node configuration grouping.";
 
-    leaf te-node-template {
+    leaf-list te-node-template {
       if-feature template;
       type leafref {
         path "../../../../te/templates/node-template/name";
@@ -1247,26 +1244,23 @@ module ietf-te-topology {
     
   grouping te-node-state-derived {
     description "Node state attributes in a TE topology.";
-    container derived {
-      description "Node state attributes in a TE topology.";
-      leaf oper-status {
-        type te-oper-status;
-        description
-          "The current operational state of the node.";
-      }
-      leaf is-multi-access-dr {
-        type empty;
-        description
-          "The presence of this attribute indicates that this TE node
-           is a pseudonode elected as a designated router.";
-        reference
-          "RFC3630: Traffic Engineering (TE) Extensions to OSPF
-           Version 2.
-           RFC1195: Use of OSI IS-IS for Routing in TCP/IP and Dual
-           Environments.";
-      }
-      uses information-source-attributes;
+    leaf oper-status {
+      type te-oper-status;
+      description
+        "The current operational state of the node.";
     }
+    leaf is-multi-access-dr {
+      type empty;
+      description
+        "The presence of this attribute indicates that this TE node
+           is a pseudonode elected as a designated router.";
+      reference
+        "RFC3630: Traffic Engineering (TE) Extensions to OSPF
+         Version 2.
+         RFC1195: Use of OSI IS-IS for Routing in TCP/IP and Dual
+         Environments.";
+    }
+    uses information-source-attributes;
   } // te-node-state-derived
 
   grouping te-path-element {
@@ -1372,13 +1366,6 @@ module ietf-te-topology {
             "The list of TE node templates used to define sharable
              and reusable TE node attributes.";
           uses template-attributes;
-          leaf-list te-node-template {
-            type leafref {
-              path "../../node-template/name";
-            }
-            description
-              "The reference to a TE node template.";
-          }
           uses te-node-config-attributes;
         } // node-template
         
@@ -1394,13 +1381,6 @@ module ietf-te-topology {
             "The list of TE link templates used to define sharable
              and reusable TE link attributes.";
           uses template-attributes;
-          leaf-list te-link-template {
-            type leafref {
-              path "../../link-template/name";
-            }
-            description
-              "The reference to a TE link template.";
-          }
           uses te-link-config-attributes;
         } // link-template
       } // templates
