@@ -709,12 +709,6 @@ module ietf-te {
           "downstream nexthop.";
       }
 
-      leaf outgoing-interface {
-        type if:interface-ref;
-        description
-          "downstream interface.";
-      }
-
       leaf neighbor {
         type inet:ip-address;
         description
@@ -732,16 +726,10 @@ module ietf-te {
       description
         "upstream information";
 
-      leaf nhop { // phop?
+      leaf phop {
         type inet:ip-address;
         description
-          "upstream nexthop.";
-      }
-
-      leaf incoming-interface {
-        type if:interface-ref;
-        description
-          "upstream interface.";
+          "upstream nexthop or previous-hop.";
       }
 
       leaf neighbor {
@@ -1084,7 +1072,11 @@ module ietf-te {
       "TE tunnels RPC nodes";
   }
 
-  /* Augment TE device parameters */
+  /**
+   * Augmentations for TE device-specific parameters
+   */
+
+  /* Globals augmentation */
   augment "/te/globals/config" {
     description
       "Global TE device specific configuration parameters";
@@ -1096,6 +1088,23 @@ module ietf-te {
     uses globals-device_config;
     uses globals-device_state;
   }
+
+  /* LSPs state augmentation */
+  augment "/te/lsps-state/lsp/downstream-info" {
+    leaf outgoing-interface {
+      type if:interface-ref;
+      description
+        "downstream interface.";
+    }
+  }
+  augment "/te/lsps-state/lsp/upstream-info" {
+    leaf incoming-interface {
+      type if:interface-ref;
+      description
+        "upstream interface.";
+    }
+  }
+
 
   /* TE Global Notification Data */
   notification globals-notif {

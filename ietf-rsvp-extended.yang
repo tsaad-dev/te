@@ -79,6 +79,7 @@ module ietf-rsvp-extended {
       Graceful-Restart";
     leaf restart-time {
       type uint32;
+      units seconds;
       description
         "Graceful restart time (seconds).";
       reference
@@ -160,9 +161,8 @@ module ietf-rsvp-extended {
         Hello adjacency if present.";
     }
     leaf hello-interval {
-      type uint32 {
-        range "3000..30000";
-      }
+      type uint32;
+      units milliseconds;
       description
         "Configure interval between successive Hello
         messages in milliseconds.";
@@ -231,25 +231,21 @@ module ietf-rsvp-extended {
         single RSVP Bundle message.";
     }
     leaf reliable-ack-hold-time {
-      type uint32 {
-        range "100..5000";
-      }
+      type uint32;
+      units milliseconds;
       description
         "Configure hold time in milliseconds for
         sending RSVP ACK message(s).";
     }
     leaf reliable-ack-max-size {
-      type uint32 {
-        range "20..65000";
-      }
+      type uint32;
       description
         "Configure max size of a single RSVP ACK
         message.";
     }
     leaf reliable-retransmit-time {
-      type uint32 {
-        range "100..10000";
-      }
+      type uint32;
+      units milliseconds;
       description
         "Configure min delay in milliseconds to
         wait for an ACK before a retransmit.";
@@ -319,17 +315,38 @@ module ietf-rsvp-extended {
    * RSVP extensions augmentations
    */
 
-  /* RSVP globals */
-  augment "/rsvp:rsvp/rsvp:globals/rsvp:config" {
+  /* RSVP globals graceful restart*/
+  augment "/rsvp:rsvp/rsvp:globals/rsvp:config/"+
+          "rsvp:graceful-restart" {
     description
       "RSVP globals configuration extensions";
     uses graceful-restart-extended_config;
   }
-  augment "/rsvp:rsvp/rsvp:globals/rsvp:state" {
+  augment "/rsvp:rsvp/rsvp:globals/rsvp:state/"+
+          "rsvp:graceful-restart" {
     description
       "RSVP globals state extensions";
     uses graceful-restart-extended_config;
-    uses statistics-extended_state;
+  }
+
+  /* RSVP statistics augmentation */
+  augment "/rsvp:rsvp/rsvp:globals/rsvp:state/"+
+          "rsvp:packets-stats" {
+    description
+      "RSVP packet stats extensions";
+    uses statistics-packets-extended_state;
+  }
+  augment "/rsvp:rsvp/rsvp:globals/rsvp:state/"+
+          "rsvp:protocol-stats" {
+    description
+      "RSVP protocol message stats extensions";
+    uses statistics-protocol-extended_state;
+  }
+  augment "/rsvp:rsvp/rsvp:globals/rsvp:state/"+
+          "rsvp:errors-stats" {
+    description
+      "RSVP errors stats extensions";
+    uses statistics-errors-extended_state;
   }
 
   /**
