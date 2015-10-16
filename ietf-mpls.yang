@@ -35,63 +35,59 @@ module ietf-mpls {
   }
 
   typedef percent {
-      type uint16 {
-          range "0 .. 100";
-      }
-      description "Percentage";
-  }
-
-  identity mpls {
-    base "rt:routing-protocol";
-    description "MPLS Protocol";
-  }
-
-  augment "/rt:routing/rt:routing-instance/rt:routing-protocols/"+
-          "rt:routing-protocol" {
-    when "rt:type = 'mpls:mpls'" {
-      description
-        "This augment is only valid for a routing protocol instance
-         of MPLS";
+    type uint16 {
+      range "0 .. 100";
     }
-    description "MPLS augmentation.";
+    description "Percentage";
+  }
 
+  grouping interface-mpls {
+    description "MPLS interface properties grouping";
+    leaf enabled {
+      type boolean;
+      description
+        "'true' if mpls encapsulation is enabled on the
+         interface. 'false' if mpls encapsulation is enabled
+         on the interface.";
+    }
+  }
+
+  augment "/rt:routing/rt:routing-instance" {
+    description "MPLS augmentation.";
     container mpls {
       description
         "MPLS container, to be used as an augmentation target node
          other MPLS sub-features config, e.g. MPLS static LSP, MPLS
          LDP LSPs, and Trafic Engineering MPLS LSP Tunnels, etc.";
+
+      list interface {
+        key "name";
+        description "List of MPLS interfaces";
+        leaf name {
+          type if:interface-ref;
+          description
+            "The name of a configured MPLS interface";
+        }
+        container config {
+          description "Holds intended configuration";
+          uses interface-mpls;
+        }
+        container state {
+          config false;
+          description "Holds inuse configuration";
+          uses interface-mpls;
+        }
+      }
     }
   }
 
-  augment "/rt:routing-state/rt:routing-instance/"+
-          "rt:routing-protocols/rt:routing-protocol" {
-    when "rt:type = 'mpls:mpls'" {
-      description
-        "This augment is only valid for a routing protocol instance
-         of MPLS";
-    }
+  augment "/rt:routing-state/rt:routing-instance" {
     description "MPLS augmentation.";
     container mpls {
       config false;
       description
         "MPLS container, to be used as an augmentation target node
          other MPLS sub-features state";
-    }
-  }
-
-  augment "/if:interfaces/if:interface" {
-    description
-      "MPLS interface augmentation";
-    container mpls {
-      description
-        "Holds MPLS interface configuration properties";
-      leaf enabled {
-        type boolean;
-        description
-          "'true' if mpls encapsulation is enabled on the interface.
-           'false' if mpls encapsulation is enabled on the
-           interface.";
-      }
     }
   }
 }

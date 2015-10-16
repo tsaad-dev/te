@@ -49,6 +49,13 @@ module ietf-mpls-static {
         "label value to push at the current hop for the
          LSP";
     }
+
+    leaf outgoing-interface {
+      type if:interface-ref;
+      description
+        "The outgoing interface";
+    }
+
   }
 
   grouping path-properties_config {
@@ -72,12 +79,6 @@ module ietf-mpls-static {
         "The address of the next-hop";
     }
 
-    leaf outgoing-interface {
-      type if:interface-ref;
-      description
-        "The outgoing interface";
-    }
-
     list outgoing-labels {
       key index;
       description
@@ -93,6 +94,12 @@ module ietf-mpls-static {
         description
           "The MPLS label value";
       }
+    }
+
+    leaf outgoing-interface {
+      type if:interface-ref;
+      description
+        "The outgoing interface";
     }
 
     leaf loadshare {
@@ -124,9 +131,9 @@ module ietf-mpls-static {
   grouping static-lsp_config {
     description "common definitions for static LSPs";
 
-    container fec {
+    container in-segment {
       description
-        "Forwarding Equivalence Class";
+        "MPLS incoming segment";
       choice type {
         description
           "Basic FEC choice";
@@ -137,23 +144,12 @@ module ietf-mpls-static {
           }
         }
         case mpls-label {
-          leaf label {
+          leaf incoming-label {
             type mpls:mpls-label;
-            description "An MPLS label";
+            description "label value on the incoming packet";
           }
         }
       }
-    }
-
-    leaf destination {
-      type inet:ip-address;
-      description
-        "Static LSP destination address";
-    }
-
-    leaf incoming-label {
-      type mpls:mpls-label;
-      description "label value on the incoming packet";
     }
 
     leaf operation {
@@ -169,8 +165,8 @@ module ietf-mpls-static {
         }
         enum pop-impose-and-forward {
           description
-            "Operation pop incoming label, impose outgoing label(s)
-             and forward to next-hop";
+            "Operation pop incoming label, impose one or more
+             outgoing label(s) and forward to next-hop";
         }
         enum swap-and-forward {
           description
@@ -186,8 +182,8 @@ module ietf-mpls-static {
         "The MPLS operation to be executed on the incoming packet";
     }
 
-    choice path-type {
-      description "The MPLS path type choice";
+    choice out-segment {
+      description "The MPLS out-segment type choice";
       case simple-path {
         uses path-basic_config;
       }
@@ -216,12 +212,7 @@ module ietf-mpls-static {
     }
   }
 
-  augment "/rt:routing/rt:routing-instance/rt:routing-protocols/"+
-          "rt:routing-protocol/mpls:mpls" {
-    when "../rt:type = 'mpls:mpls'" {
-       description
-       "This augment MPLS protocol when used";
-    }
+  augment "/rt:routing/rt:routing-instance/mpls:mpls" {
     description "Augmentations for MPLS Static LSPs";
     container static-lsps {
       description
