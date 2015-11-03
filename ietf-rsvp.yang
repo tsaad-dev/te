@@ -17,6 +17,10 @@ module ietf-rsvp {
     prefix "yang";
   }
 
+  import ietf-routing {
+    prefix "rt";
+  }
+
   organization
     "IETF TEAS Working Group";
 
@@ -30,6 +34,11 @@ module ietf-rsvp {
     reference "RFC2205";
   }
 
+  identity rsvp {
+    base "rt:routing-protocol";
+    description "RSVP protocol";
+  }
+
   identity hash-algorithm {
     description
       "Base identity for message-digest algorithm";
@@ -41,6 +50,7 @@ module ietf-rsvp {
       "MD5 hash algorithm";
     reference "RFC1321";
   }
+
 
   identity SHA-1 {
     base hash-algorithm;
@@ -665,71 +675,79 @@ module ietf-rsvp {
     }
   }
 
-  container rsvp {
-    presence "Enable RSVP feature";
-    description "RSVP feature container";
-    container globals {
-      description "RSVP global properties.";
-      uses global-attributes;
+  augment "/rt:routing/rt:routing-instance/rt:routing-protocols/"
+    +"rt:routing-protocol" {
+    when "rt:type = 'rsvp:rsvp'" {
+    description
+     "This augment is only valid when routing protocol
+      instance type is RSVP.";
     }
+    container rsvp {
+      presence "Enable RSVP feature";
+      description "RSVP feature container";
+      container globals {
+        description "RSVP global properties.";
+        uses global-attributes;
+      }
 
-    container interfaces {
-      description
-        "RSVP interfaces container";
-      uses intf-attributes;
-
-      list interface {
-        key "interface";
+      container interfaces {
         description
-          "RSVP interfaces.";
-        leaf interface {
-          type if:interface-ref;
-          description
-            "RSVP interface.";
-        }
+          "RSVP interfaces container";
         uses intf-attributes;
-      }
-    }
 
-    container sessions {
-      description
-        "RSVP sessions container";
-      list session {
-        key "dst_port source destination";
-        description
-          "List of RSVP sessions";
-        leaf dst_port {
-          type uint16;
-          description "RSVP destination port";
-          reference "RFC2205";
-        }
-        leaf source {
-          type inet:ip-address;
-          description "RSVP source address";
-          reference "RFC2205";
-        }
-        leaf destination {
-          type inet:ip-address;
-          description "RSVP destination address";
-          reference "RFC2205";
-        }
-        uses session-attributes;
-      }
-    }
-
-    container neighbors {
-      description
-        "RSVP neighbors container";
-      list neighbor {
-        key "address";
-        description
-          "List of RSVP neighbors";
-        leaf address {
-          type inet:ip-address;
+        list interface {
+          key "interface";
           description
-            "Neighbor address";
+            "RSVP interfaces.";
+          leaf interface {
+            type if:interface-ref;
+            description
+              "RSVP interface.";
+          }
+          uses intf-attributes;
         }
-        uses neighbor-attributes;
+      }
+
+      container sessions {
+        description
+          "RSVP sessions container";
+        list session {
+          key "dst_port source destination";
+          description
+            "List of RSVP sessions";
+          leaf dst_port {
+            type uint16;
+            description "RSVP destination port";
+            reference "RFC2205";
+          }
+          leaf source {
+            type inet:ip-address;
+            description "RSVP source address";
+            reference "RFC2205";
+          }
+          leaf destination {
+            type inet:ip-address;
+            description "RSVP destination address";
+            reference "RFC2205";
+          }
+          uses session-attributes;
+        }
+      }
+
+      container neighbors {
+        description
+          "RSVP neighbors container";
+        list neighbor {
+          key "address";
+          description
+            "List of RSVP neighbors";
+          leaf address {
+            type inet:ip-address;
+            description
+              "Neighbor address";
+          }
+          uses neighbor-attributes;
+        }
       }
     }
   }
