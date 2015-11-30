@@ -29,7 +29,7 @@ module ietf-te-topology {
   contact "TBD";
   description "TE topology model";
   
-  revision "2015-10-08" {
+  revision "2015-10-16" {
     description "Initial revision";
     reference "TBD";
   }
@@ -156,7 +156,9 @@ module ietf-te-topology {
     type inet:ip-address;
     description
       "An identifier for a node in a topology.
-       The identifier is represented as an IPv4 or IPv6 address.";
+       The identifier is represented as an IPv4 or IPv6 address.
+       This attribute is mapped to Router ID in
+       RFC3630, RFC5329, RFC5305, and RFC 6119.";
   }
 
   typedef te-oper-status {
@@ -342,6 +344,69 @@ module ietf-te-topology {
   /*
    * Groupings
    */
+  grouping network-ref {
+    description
+      "Contains the information necessary to reference a network,
+       for example an underlay network.";
+    leaf network-ref {
+      type leafref {
+        path "/nw:network/nw:network-id";
+      }
+      description
+        "Used to reference a network, for example an underlay
+         network.";
+    }
+  }
+
+  grouping node-ref {
+    description 
+      "Contains the information necessary to reference a node.";
+    leaf node-ref {
+      type leafref {
+        path "/nw:network[nw:network-id=current()/../network-ref]"+
+          "/nw:node/nw:node-id";
+      }
+      description
+        "Used to reference a node.  
+         Nodes are identified relative to the network they are
+         contained in.";
+    }
+    uses network-ref;
+  }
+
+  grouping link-ref {
+    description
+      "References a link in a specific network.";
+    leaf link-ref {
+      type leafref {
+        path "/nw:network[nw:network-id=current()/../"+
+          "network-ref]/nt:link/nt:link-id";
+      }
+      description
+        "A type for an absolute reference a link instance.
+         (This type should not be used for relative references.
+         In such a case, a relative path should be used instead.)";
+    }
+    uses network-ref;
+  }
+
+  grouping tp-ref {
+    description
+      "References a termination point in a specific node.";
+    leaf tp-ref {
+      type leafref {
+        path "/nw:network[nw:network-id=current()/../"+
+          "network-ref]/nw:node[nw:node-id=current()/../"+
+          "node-ref]/nt:termination-point/nt:tp-id";
+      }
+      description
+        "A type for an absolute reference to a termination point.
+         (This type should not be used for relative references.
+         In such a case, a relative path should be used instead.)";
+    }
+    uses node-ref;
+  }
+
   grouping information-source-attributes {
     description
       "The attributes identifying source that has provided the 
@@ -623,6 +688,9 @@ module ietf-te-topology {
         container bundled-links {
           description
             "A set of bundled links.";
+          reference
+            "RFC4201: Link Bundling in MPLS Traffic Engineering
+            (TE).";
           list bundled-link {
             key "sequence";
             description
@@ -733,6 +801,10 @@ module ietf-te-topology {
         presence 
           "Indicates the underlay exists for this link.";
         description "Attributes of the te-link underlay.";
+        reference
+          "RFC4206: Label Switched Paths (LSP) Hierarchy with
+           Generalized Multi-Protocol Label Switching (GMPLS)
+           Traffic Engineering (TE)";
 
         uses te-link-underlay-attributes;
       } // underlay
@@ -773,6 +845,10 @@ module ietf-te-topology {
       description
         "Maximum bandwidth that can be seen on this link in this
          direction. Units in bytes per second.";
+      reference
+        "RFC3630: Traffic Engineering (TE) Extensions to OSPF
+         Version 2.
+         RFC5305: IS-IS Extensions for Traffic Engineering.";
     }
     leaf max-resv-link-bandwidth {
       type decimal64 {
@@ -781,6 +857,10 @@ module ietf-te-topology {
       description
         "Maximum amount of bandwidth that can be reserved in this
          direction in this link. Units in bytes per second.";
+      reference
+        "RFC3630: Traffic Engineering (TE) Extensions to OSPF
+         Version 2.
+         RFC5305: IS-IS Extensions for Traffic Engineering.";
     }
     list unreserved-bandwidth {
       key "priority";
@@ -788,6 +868,10 @@ module ietf-te-topology {
       description
         "Unreserved bandwidth for 0-7 priority levels. Units in
          bytes per second.";
+      reference
+        "RFC3630: Traffic Engineering (TE) Extensions to OSPF
+         Version 2.
+         RFC5305: IS-IS Extensions for Traffic Engineering.";
       leaf priority {
         type uint8 {
           range "0..7";
@@ -1058,6 +1142,10 @@ module ietf-te-topology {
     
   grouping te-link-underlay-attributes {
     description "Attributes for  te-link underlay.";
+    reference
+      "RFC4206: Label Switched Paths (LSP) Hierarchy with
+       Generalized Multi-Protocol Label Switching (GMPLS)
+       Traffic Engineering (TE)";
     container underlay-primary-path {
       description 
         "The service path on the underlay topology that
@@ -1106,12 +1194,12 @@ module ietf-te-topology {
         "Underlay protection type desired for this link";
     }
     container underlay-trail-src {
-      uses nt:tp-ref;
+      uses tet:tp-ref;
       description
         "Source TE link of the underlay trail.";
     }
     container underlay-trail-des {
-      uses nt:tp-ref;
+      uses tet:tp-ref;
       description
         "Destination TE link of the underlay trail.";
     }
@@ -1184,12 +1272,12 @@ module ietf-te-topology {
           description "Identifies the connectivity-matrix entry.";
         }
         container from {
-          uses nt:tp-ref;
+          uses tet:tp-ref;
           description 
             "Reference to source NTP.";
         }
         container to {
-          uses nt:tp-ref;
+          uses tet:tp-ref;
           description 
             "Reference to destination NTP.";
         }
@@ -1253,7 +1341,7 @@ module ietf-te-topology {
       type empty;
       description
         "The presence of this attribute indicates that this TE node
-           is a pseudonode elected as a designated router.";
+         is a pseudonode elected as a designated router.";
       reference
         "RFC3630: Traffic Engineering (TE) Extensions to OSPF
          Version 2.
@@ -1547,7 +1635,7 @@ module ietf-te-topology {
       type te-topology-event-type;
       description "Event type.";
     }
-    uses nw:node-ref;
+    uses tet:node-ref;
     uses te-topology-type;
     uses tet:te-node-config-attributes;
     uses tet:te-node-state-derived;
@@ -1559,7 +1647,7 @@ module ietf-te-topology {
       type te-topology-event-type;
       description "Event type";
     }
-    uses nt:link-ref;
+    uses tet:link-ref;
     uses te-topology-type;
     uses tet:te-link-config-attributes;
     uses tet:te-link-state-derived;
