@@ -59,7 +59,7 @@ module ietf-te-topology {
 
   description "TE topology model";
   
-  revision "2015-12-09" {
+  revision "2015-12-10" {
     description "Initial revision";
     reference "TBD";
   }
@@ -1170,13 +1170,91 @@ module ietf-te-topology {
         description
           "The administrative state of the link.";
       }
+      uses te-node-connectivity-matrix;
       uses te-node-info-attributes;
     } // te-node-attributes
   } // te-node-config-attributes
     
-  grouping te-node-info-attributes {
-    description
-      "Advertised TE information attributes.";
+  grouping te-node-config-attributes-notification {
+    description 
+      "Configuration node attributes for template in a TE topology.";
+    container te-node-attributes {
+      description "Containing node attributes in a TE topology.";
+      uses sch:schedules;
+      leaf admin-status {
+        type te-admin-status;
+        description
+          "The administrative state of the link.";
+      }
+      uses te-node-connectivity-matrix-abs;
+      uses te-node-info-attributes;
+    } // te-node-attributes
+  } // te-node-config-attributes-notification
+
+  grouping te-node-config-attributes-template {
+    description 
+      "Configuration node attributes for template in a TE topology.";
+    container te-node-attributes {
+      description "Containing node attributes in a TE topology.";
+      uses sch:schedules;
+      leaf admin-status {
+        type te-admin-status;
+        description
+          "The administrative state of the link.";
+      }
+      uses te-node-info-attributes;
+    } // te-node-attributes
+  } // te-node-config-attributes-template
+
+  grouping te-node-connectivity-matrix {
+    description "Connectivity matrix on a TE node.";
+    list connectivity-matrix {
+      key "id";
+      description
+        "Represents node's switching limitations, i.e. limitations
+         in interconnecting network TE links across the node.";
+      reference
+        "RFC7579: General Network Element Constraint Encoding
+         for GMPLS-Controlled Networks.";
+      leaf id {
+        type uint32;
+        description "Identifies the connectivity-matrix entry.";
+      }
+      container from {
+        leaf tp-ref {
+          type leafref {
+            path "../../../../../../nt:termination-point/nt:tp-id";
+          }
+          description
+            "Relative reference to source termination point.";
+        }
+        description 
+          "Reference to source NTP.";
+      }
+      container to {
+        leaf tp-ref {
+          type leafref {
+            path "../../../../../../nt:termination-point/nt:tp-id";
+          }
+          description
+            "Relative reference to destination termination point.";
+        }
+        description 
+          "Reference to destination NTP.";
+      }
+      leaf is-allowed {
+        type boolean;
+        description
+          "true  - switching is allowed, 
+           false - switching is disallowed.";
+      }
+    }
+  } // te-node-connectivity-matrix
+    
+  grouping te-node-connectivity-matrix-abs {
+    description 
+      "Connectivity matrix on a TE node, using absolute
+       paths to reference termination points.";
     list connectivity-matrix {
       key "id";
       description
@@ -1206,6 +1284,11 @@ module ietf-te-topology {
            false - switching is disallowed.";
       }
     }
+  } // te-node-connectivity-matrix-abs
+
+  grouping te-node-info-attributes {
+    description
+      "Advertised TE information attributes.";
     leaf domain-id {
       type uint32;
       description
@@ -1267,9 +1350,39 @@ module ietf-te-topology {
       description
         "A list of information sources learned but not used.";
       uses information-source-attributes;
+      uses te-node-connectivity-matrix;
       uses te-node-info-attributes;
     }
   } // te-node-state-derived
+
+  grouping te-node-state-derived-notification {
+    description "Node state attributes in a TE topology.";
+    leaf oper-status {
+      type te-oper-status;
+      description
+        "The current operational state of the node.";
+    }
+    leaf is-multi-access-dr {
+      type empty;
+      description
+        "The presence of this attribute indicates that this TE node
+         is a pseudonode elected as a designated router.";
+      reference
+        "RFC3630: Traffic Engineering (TE) Extensions to OSPF
+         Version 2.
+         RFC1195: Use of OSI IS-IS for Routing in TCP/IP and Dual
+         Environments.";
+    }
+    uses information-source-attributes;
+    list alt-information-sources {
+      key "information-source";
+      description
+        "A list of information sources learned but not used.";
+      uses information-source-attributes;
+      uses te-node-connectivity-matrix-abs;
+      uses te-node-info-attributes;
+    }
+  } // te-node-state-derived-notification
 
   grouping te-path-element {
     description
@@ -1374,7 +1487,7 @@ module ietf-te-topology {
             "The list of TE node templates used to define sharable
              and reusable TE node attributes.";
           uses template-attributes;
-          uses te-node-config-attributes;
+          uses te-node-config-attributes-template;
         } // node-template
         
         list link-template {
@@ -1557,8 +1670,8 @@ module ietf-te-topology {
     }
     uses nw:node-ref;
     uses te-topology-type;
-    uses tet:te-node-config-attributes;
-    uses tet:te-node-state-derived;
+    uses tet:te-node-config-attributes-notification;
+    uses tet:te-node-state-derived-notification;
   }
   
   notification te-link-event {
