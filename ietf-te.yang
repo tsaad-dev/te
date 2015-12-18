@@ -51,7 +51,7 @@ module ietf-te {
       case value-admin-groups {
         choice value-admin-group-type {
           description "choice of admin-groups";
-          case value-admin-groups {
+          case admin-groups {
             description
               "Administrative group/Resource
               class/Color.";
@@ -61,7 +61,7 @@ module ietf-te {
                 "TE interface administrative group";
             }
           }
-          case value-extended-admin-groups {
+          case extended-admin-groups {
             if-feature ietf-te-types:extended-admin-groups;
             description
               "Extended administrative group/Resource
@@ -411,6 +411,21 @@ module ietf-te {
   grouping tunnel-params_config {
     description
       "Configuration parameters relating to TE tunnel";
+    leaf name {
+      type string;
+      description "TE tunnel name.";
+    }
+    leaf type {
+      type identityref {
+        base ietf-te-types:tunnel-type;
+      }
+      description "TE tunnel type.";
+    }
+    leaf identifier {
+      type uint16;
+      description
+        "TE tunnel Identifier.";
+    }
     leaf description {
       type string;
       description
@@ -437,35 +452,40 @@ module ietf-te {
         }
         /* P2P list of path(s) */
         list primary-paths {
-          key "preference";
+          key "name";
           description
-            "List of primary paths for this
-            tunnel.";
+            "List of primary paths for this tunnel.";
+
+          leaf name {
+            type string;
+            description "Path name";
+          }
           leaf preference {
             type uint8 {
               range "1..255";
             }
             description
-              "Specifies a preference for
-              this path. The lower the
-              number higher the
-              preference";
+              "Specifies a preference for this path. The lower the
+              number higher the preference";
           }
           uses tunnel-path-params_config;
           list secondary-paths {
-            key "preference";
+            key "name";
             description
               "List of secondary paths for this
               tunnel.";
+
+            leaf name {
+              type string;
+              description "Path name";
+            }
             leaf preference {
               type uint8 {
                 range "1..255";
               }
               description
-                "Specifies a preference for
-                this path. The lower the
-                number higher the
-                preference";
+                "Specifies a preference for this path. The lower the
+                number higher the preference";
             }
             uses tunnel-path-params_config;
           }
@@ -476,41 +496,45 @@ module ietf-te {
         list p2mp-paths {
           key "destination";
           description
-            "List of destinations and their
-            paths.";
+            "List of destinations and their paths.";
           leaf destination {
             type inet:ip-address;
             description
               "P2MP destination leaf address";
           }
           list primary-paths {
-            key "preference";
+            key "name";
             description
               "List of primary paths";
+
+            leaf name {
+              type string;
+              description "Path name";
+            }
             leaf preference {
               type uint8 {
                 range "1..255";
               }
               description
-                "Specifies a preference for
-                this path. The lower the
-                number higher the
-                preference";
+                "Specifies a preference for this path. The lower the
+                number higher the preference";
             }
             uses tunnel-path-params_config;
             list secondary-paths {
-              key "preference";
+              key "name";
               description
                 "List of secondary paths";
+              leaf name {
+                type string;
+                description "Path name";
+              }
               leaf preference {
                 type uint8 {
                   range "1..255";
                 }
                 description
-                  "Specifies a preference
-                  for this path. The lower
-                    the number higher
-                      the preference";
+                  "Specifies a preference for this path. The lower
+                   the number higher the preference";
               }
               uses tunnel-path-params_config;
             }
@@ -824,10 +848,10 @@ module ietf-te {
           "A string name that uniquely identifies a TE
           interface named admin-group";
       }
-      leaf group {
-        type ietf-te-types:admin-groups;
+      leaf bit-position {
+        type uint32;
         description
-          "An administrative group value";
+          "Bit position representing the administrative group";
       }
     }
   }
@@ -976,17 +1000,21 @@ module ietf-te {
         unique "identifier";
         description "TE tunnel.";
         leaf name {
-          type string;
+          type leafref {
+            path "../config/name";
+          }
           description "TE tunnel name.";
         }
         leaf type {
-          type identityref {
-            base ietf-te-types:tunnel-type;
+          type leafref {
+            path "../config/type";
           }
           description "TE tunnel type.";
         }
         leaf identifier {
-          type uint16;
+          type leafref {
+            path "../config/identifier";
+          }
           description
             "TE tunnel Identifier.";
         }

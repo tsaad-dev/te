@@ -3,8 +3,8 @@ module: ietf-te
       +--rw globals
       |  +--rw config
       |  |  +--rw named-admin-groups* [name] {ietf-te-types:extended-admin-groups,ietf-te-types:named-extended-admin-groups}?
-      |  |  |  +--rw name     string
-      |  |  |  +--rw group?   ietf-te-types:admin-groups
+      |  |  |  +--rw name            string
+      |  |  |  +--rw bit-position?   uint32
       |  |  +--rw named-srlgs* [name] {ietf-te-types:named-srlg-groups}?
       |  |  |  +--rw name     string
       |  |  |  +--rw group?   ietf-te-types:srlg
@@ -64,8 +64,8 @@ module: ietf-te
       |  |  +--rw lsp-cleanup-interval?   uint32
       |  +--ro state
       |     +--ro named-admin-groups* [name] {ietf-te-types:extended-admin-groups,ietf-te-types:named-extended-admin-groups}?
-      |     |  +--ro name     string
-      |     |  +--ro group?   ietf-te-types:admin-groups
+      |     |  +--ro name            string
+      |     |  +--ro bit-position?   uint32
       |     +--ro named-srlgs* [name] {ietf-te-types:named-srlg-groups}?
       |     |  +--ro name     string
       |     |  +--ro group?   ietf-te-types:srlg
@@ -163,9 +163,9 @@ module: ietf-te
       |     |  +--rw (admin-group-type)?
       |     |  |  +--:(value-admin-groups)
       |     |  |  |  +--rw (value-admin-group-type)?
-      |     |  |  |     +--:(value-admin-groups)
+      |     |  |  |     +--:(admin-groups)
       |     |  |  |     |  +--rw admin-group?              ietf-te-types:admin-group
-      |     |  |  |     +--:(value-extended-admin-groups) {ietf-te-types:extended-admin-groups}?
+      |     |  |  |     +--:(extended-admin-groups) {ietf-te-types:extended-admin-groups}?
       |     |  |  |        +--rw extended-admin-group?     ietf-te-types:extended-admin-group
       |     |  |  +--:(named-admin-groups)
       |     |  |     +--rw named-admin-groups* [named-admin-group] {ietf-te-types:extended-admin-groups,ietf-te-types:named-extended-admin-groups}?
@@ -199,9 +199,9 @@ module: ietf-te
       |        +--ro (admin-group-type)?
       |        |  +--:(value-admin-groups)
       |        |  |  +--ro (value-admin-group-type)?
-      |        |  |     +--:(value-admin-groups)
+      |        |  |     +--:(admin-groups)
       |        |  |     |  +--ro admin-group?               ietf-te-types:admin-group
-      |        |  |     +--:(value-extended-admin-groups) {ietf-te-types:extended-admin-groups}?
+      |        |  |     +--:(extended-admin-groups) {ietf-te-types:extended-admin-groups}?
       |        |  |        +--ro extended-admin-group?      ietf-te-types:extended-admin-group
       |        |  +--:(named-admin-groups)
       |        |     +--ro named-admin-groups* [named-admin-group] {ietf-te-types:extended-admin-groups,ietf-te-types:named-extended-admin-groups}?
@@ -239,10 +239,13 @@ module: ietf-te
       |              +--ro level-area    uint32
       +--rw tunnels
       |  +--rw tunnel* [name type]
-      |     +--rw name          string
-      |     +--rw type          identityref
-      |     +--rw identifier?   uint16
+      |     +--rw name          -> ../config/name
+      |     +--rw type          -> ../config/type
+      |     +--rw identifier?   -> ../config/identifier
       |     +--rw config
+      |     |  +--rw name?                   string
+      |     |  +--rw type?                   identityref
+      |     |  +--rw identifier?             uint16
       |     |  +--rw description?            string
       |     |  +--rw admin-status?           identityref
       |     |  +--rw (routing-choice)?
@@ -279,8 +282,9 @@ module: ietf-te
       |     |  +--rw (path-type)?
       |     |     +--:(p2p)
       |     |     |  +--rw destination?            inet:ip-address
-      |     |     |  +--rw primary-paths* [preference]
-      |     |     |     +--rw preference               uint8
+      |     |     |  +--rw primary-paths* [name]
+      |     |     |     +--rw name                     string
+      |     |     |     +--rw preference?              uint8
       |     |     |     +--rw path-named-constraint?   string {ietf-te-types:named-path-constraints}?
       |     |     |     +--rw path-selection
       |     |     |     |  +--rw topology?                 te-types:topology-id
@@ -318,8 +322,9 @@ module: ietf-te
       |     |     |     |     +--rw explicit-path-name?      string
       |     |     |     +--rw no-cspf?                 empty
       |     |     |     +--rw lockdown?                empty
-      |     |     |     +--rw secondary-paths* [preference]
-      |     |     |        +--rw preference               uint8
+      |     |     |     +--rw secondary-paths* [name]
+      |     |     |        +--rw name                     string
+      |     |     |        +--rw preference?              uint8
       |     |     |        +--rw path-named-constraint?   string {ietf-te-types:named-path-constraints}?
       |     |     |        +--rw path-selection
       |     |     |        |  +--rw topology?                 te-types:topology-id
@@ -360,8 +365,9 @@ module: ietf-te
       |     |     +--:(p2mp) {ietf-te-types:p2mp-te}?
       |     |        +--rw p2mp-paths* [destination]
       |     |           +--rw destination      inet:ip-address
-      |     |           +--rw primary-paths* [preference]
-      |     |              +--rw preference               uint8
+      |     |           +--rw primary-paths* [name]
+      |     |              +--rw name                     string
+      |     |              +--rw preference?              uint8
       |     |              +--rw path-named-constraint?   string {ietf-te-types:named-path-constraints}?
       |     |              +--rw path-selection
       |     |              |  +--rw topology?                 te-types:topology-id
@@ -399,8 +405,9 @@ module: ietf-te
       |     |              |     +--rw explicit-path-name?      string
       |     |              +--rw no-cspf?                 empty
       |     |              +--rw lockdown?                empty
-      |     |              +--rw secondary-paths* [preference]
-      |     |                 +--rw preference               uint8
+      |     |              +--rw secondary-paths* [name]
+      |     |                 +--rw name                     string
+      |     |                 +--rw preference?              uint8
       |     |                 +--rw path-named-constraint?   string {ietf-te-types:named-path-constraints}?
       |     |                 +--rw path-selection
       |     |                 |  +--rw topology?                 te-types:topology-id
@@ -439,6 +446,9 @@ module: ietf-te
       |     |                 +--rw no-cspf?                 empty
       |     |                 +--rw lockdown?                empty
       |     +--ro state
+      |        +--ro name?                   string
+      |        +--ro type?                   identityref
+      |        +--ro identifier?             uint16
       |        +--ro description?            string
       |        +--ro admin-status?           identityref
       |        +--ro (routing-choice)?
@@ -475,8 +485,9 @@ module: ietf-te
       |        +--ro (path-type)?
       |        |  +--:(p2p)
       |        |  |  +--ro destination?            inet:ip-address
-      |        |  |  +--ro primary-paths* [preference]
-      |        |  |     +--ro preference               uint8
+      |        |  |  +--ro primary-paths* [name]
+      |        |  |     +--ro name                     string
+      |        |  |     +--ro preference?              uint8
       |        |  |     +--ro path-named-constraint?   string {ietf-te-types:named-path-constraints}?
       |        |  |     +--ro path-selection
       |        |  |     |  +--ro topology?                 te-types:topology-id
@@ -514,8 +525,9 @@ module: ietf-te
       |        |  |     |     +--ro explicit-path-name?      string
       |        |  |     +--ro no-cspf?                 empty
       |        |  |     +--ro lockdown?                empty
-      |        |  |     +--ro secondary-paths* [preference]
-      |        |  |        +--ro preference               uint8
+      |        |  |     +--ro secondary-paths* [name]
+      |        |  |        +--ro name                     string
+      |        |  |        +--ro preference?              uint8
       |        |  |        +--ro path-named-constraint?   string {ietf-te-types:named-path-constraints}?
       |        |  |        +--ro path-selection
       |        |  |        |  +--ro topology?                 te-types:topology-id
@@ -556,8 +568,9 @@ module: ietf-te
       |        |  +--:(p2mp) {ietf-te-types:p2mp-te}?
       |        |     +--ro p2mp-paths* [destination]
       |        |        +--ro destination      inet:ip-address
-      |        |        +--ro primary-paths* [preference]
-      |        |           +--ro preference               uint8
+      |        |        +--ro primary-paths* [name]
+      |        |           +--ro name                     string
+      |        |           +--ro preference?              uint8
       |        |           +--ro path-named-constraint?   string {ietf-te-types:named-path-constraints}?
       |        |           +--ro path-selection
       |        |           |  +--ro topology?                 te-types:topology-id
@@ -595,8 +608,9 @@ module: ietf-te
       |        |           |     +--ro explicit-path-name?      string
       |        |           +--ro no-cspf?                 empty
       |        |           +--ro lockdown?                empty
-      |        |           +--ro secondary-paths* [preference]
-      |        |              +--ro preference               uint8
+      |        |           +--ro secondary-paths* [name]
+      |        |              +--ro name                     string
+      |        |              +--ro preference?              uint8
       |        |              +--ro path-named-constraint?   string {ietf-te-types:named-path-constraints}?
       |        |              +--ro path-selection
       |        |              |  +--ro topology?                 te-types:topology-id

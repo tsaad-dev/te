@@ -8,6 +8,10 @@ module ietf-rsvp-te-psc {
     prefix rsvp;
   }
 
+  import ietf-routing {
+    prefix "rt";
+  }
+
   import ietf-te {
     prefix ietf-te;
   }
@@ -207,26 +211,33 @@ module ietf-rsvp-te-psc {
     uses lsp-auto-bandwidth_config;
   }
 
+  grouping tunnel-properties-psc {
+    description
+      "Top level grouping for LSP properties.";
+      container config {
+        description
+          "Configuration parameters for tunnel RSVP-TE
+          properties";
+        uses lsp-bandwidth_config;
+        uses lsp-session-attributes-obj-flags-psc_config;
+        uses lsp-attributes-flags-psc_config;
+      }
+      container state {
+        description
+          "State parameters for tunnel RSVP-TE
+          properties";
+        uses lsp-bandwidth_config;
+        uses lsp-session-attributes-obj-flags-psc_config;
+        uses lsp-attributes-flags-psc_config;
+      }
+  }
+
   grouping lsp-properties-psc {
     description
       "Top level grouping for LSP properties.";
-    container config {
-      description
-        "Configuration parameters relating to
-        LSP properties";
       uses lsp-bandwidth_config;
       uses lsp-session-attributes-obj-flags-psc_config;
       uses lsp-attributes-flags-psc_config;
-    }
-    container state {
-      config false;
-      description
-        "State information associated with LSP
-        properties";
-      uses lsp-bandwidth_config;
-      uses lsp-session-attributes-obj-flags-psc_config;
-      uses lsp-attributes-flags-psc_config;
-    }
   }
   /* End of RSVP-TE LSPs packet groupings */
 
@@ -468,7 +479,8 @@ module ietf-rsvp-te-psc {
   }
 
   /* RSVP-TE global propeerties */
-  augment "/rsvp:rsvp/rsvp:globals" {
+  augment "/rt:routing/rt:routing-instance/rt:routing-protocols/"
+  + "rt:routing-protocol/rsvp:rsvp" {
     description
       "RSVP-TE augmentation to RSVP globals";
     uses globals-properties;
@@ -495,25 +507,29 @@ module ietf-rsvp-te-psc {
     }
   }
 
-  /* Linkage to the base RSVP all links */
-  augment "/rsvp:rsvp/rsvp:interfaces" {
+  /* Linkage to the base RSVP all interfaces */
+  augment "/rt:routing/rt:routing-instance/rt:routing-protocols/"
+  + "rt:routing-protocol/rsvp:rsvp/rsvp:interfaces" {
     description "TBD";
     /* To be added */
   }
 
-  /* Linkage to per RSVP link */
-  augment "/rsvp:rsvp/rsvp:interfaces/rsvp:interface" {
+  /* Linkage to per RSVP interface */
+  augment "/rt:routing/rt:routing-instance/rt:routing-protocols/"
+  + "rt:routing-protocol/rsvp:rsvp/rsvp:interfaces/rsvp:interface" {
     description "TBD";
     /* To be added */
   }
 
   /* add augmentation for sessions neighbors */
-  augment "/rsvp:rsvp/rsvp:sessions" {
+  augment "/rt:routing/rt:routing-instance/rt:routing-protocols/"
+  + "rt:routing-protocol/rsvp:rsvp/rsvp:sessions" {
     description "TBD";
     /* To be added */
   }
 
-  augment "/rsvp:rsvp/rsvp:neighbors" {
+  augment "/rt:routing/rt:routing-instance/rt:routing-protocols/"
+  + "rt:routing-protocol/rsvp:rsvp/rsvp:neighbors" {
     description "TBD";
     /* To be added */
   }
@@ -523,14 +539,7 @@ module ietf-rsvp-te-psc {
    */
   augment "/ietf-te:te/ietf-te:tunnels/ietf-te:tunnel" {
     description "TBD";
-    uses lsp-properties-psc;
-  }
-
-  augment "/ietf-te:te/ietf-te:interfaces/ietf-te:interface" {
-    description
-      "RSVP reservable bandwidth configuration properties";
-    uses rsvp-te-interface-attributes-psc;
-    uses rsvp-te-frr-backups;
+    uses tunnel-properties-psc;
   }
 
   augment "/ietf-te:te/ietf-te:lsps-state/ietf-te:lsp" {
@@ -538,5 +547,12 @@ module ietf-rsvp-te-psc {
       "RSVP-TE LSP state properties";
     uses lsp-properties-psc;
     uses lps-backup-info_state;
+  }
+
+  augment "/ietf-te:te/ietf-te:interfaces/ietf-te:interface" {
+    description
+      "RSVP reservable bandwidth configuration properties";
+    uses rsvp-te-interface-attributes-psc;
+    uses rsvp-te-frr-backups;
   }
 }

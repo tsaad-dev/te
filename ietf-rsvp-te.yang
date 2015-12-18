@@ -8,6 +8,10 @@ module ietf-rsvp-te {
     prefix rsvp;
   }
 
+  import ietf-routing {
+    prefix "rt";
+  }
+
   import ietf-te {
     prefix ietf-te;
   }
@@ -125,27 +129,27 @@ module ietf-rsvp-te {
       description "LSP rerouting types";
     }
     leaf lsp-integrety-required {
-      type empty;
+      type boolean;
       description "LSP integrity desired";
       reference "RFC4875";
     }
     leaf lsp-contiguous {
-      type empty;
+      type boolean;
       description "Contiguous LSP";
       reference "RFC5151";
     }
     leaf lsp-stitching-desired {
-      type empty;
+      type boolean;
       description "Stitched LSP";
       reference "RFC5150";
     }
     leaf lsp-preplanned {
-      type empty;
+      type boolean;
       description "Preplanned LSP";
       reference "RFC6001";
     }
     leaf lsp-oob-mapping {
-      type empty;
+      type boolean;
       description
         "Mapping is done out-of-band";
       reference "RFC6511";
@@ -159,22 +163,22 @@ module ietf-rsvp-te {
     reference
       "RFC4859: Registry for RSVP-TE Session Flags";
     leaf local-recording-desired {
-      type empty;
+      type boolean;
       description "Path recording is desired.";
       reference "RFC3209";
     }
     leaf se-style-desired {
-      type empty;
+      type boolean;
       description "SE Style desired";
       reference "RFC3209";
     }
     leaf path-reevaluation-request {
-      type empty;
+      type boolean;
       description "Path re-evaluation request";
       reference "RFC4736";
     }
     leaf soft-preemption-desired {
-      type empty;
+      type boolean;
       description "Soft-preemption is desired";
       reference "RFC5712";
     }
@@ -209,7 +213,11 @@ module ietf-rsvp-te {
       description
         "RSVP session attributes hold priority";
     }
-    uses lsp-session-attributes-obj-flags_config;
+    uses lsp-session-attributes-obj-flags_config {
+        when "../lsp-priority-hold = 7" {
+          description "foo";
+        }
+    }
     uses lsp-attributes-flags_config;
   }
 
@@ -300,20 +308,23 @@ module ietf-rsvp-te {
 
 
   /* RSVP-TE global propeerties */
-  augment "/rsvp:rsvp/rsvp:globals" {
+  augment "/rt:routing/rt:routing-instance/rt:routing-protocols/"
+  + "rt:routing-protocol/rsvp:rsvp/rsvp:globals" {
     description
       "RSVP-TE augmentation to RSVP globals";
   }
 
   /* Linkage to the base RSVP all links */
-  augment "/rsvp:rsvp/rsvp:interfaces" {
+  augment "/rt:routing/rt:routing-instance/rt:routing-protocols/"
+  + "rt:routing-protocol/rsvp:rsvp/rsvp:interfaces" {
     description
       "RSVP-TE generic data augmentation pertaining to interfaces";
     /* To be added */
   }
 
   /* Linkage to per RSVP interface */
-  augment "/rsvp:rsvp/rsvp:interfaces/rsvp:interface" {
+  augment "/rt:routing/rt:routing-instance/rt:routing-protocols/"
+  + "rt:routing-protocol/rsvp:rsvp/rsvp:interfaces/rsvp:interface" {
     description
       "RSVP-TE generic data augmentation pertaining to specific
        interface";
@@ -321,13 +332,15 @@ module ietf-rsvp-te {
   }
 
   /* add augmentation for sessions neighbors */
-  augment "/rsvp:rsvp/rsvp:sessions" {
+  augment "/rt:routing/rt:routing-instance/rt:routing-protocols/"
+  + "rt:routing-protocol/rsvp:rsvp/rsvp:sessions" {
     description
       "RSVP-TE generic data augmentation pertaining to session";
     /* To be added */
   }
 
-  augment "/rsvp:rsvp/rsvp:neighbors" {
+  augment "/rt:routing/rt:routing-instance/rt:routing-protocols/"
+  + "rt:routing-protocol/rsvp:rsvp/rsvp:neighbors" {
     description
       "RSVP-TE generic data augmentation pertaining to neighbors";
     /* To be added */
@@ -337,18 +350,14 @@ module ietf-rsvp-te {
    * RSVP-TE generic augmentations of generic TE model.
    */
 
+  /* TE tunnel augmentation */
   augment "/ietf-te:te/ietf-te:tunnels/ietf-te:tunnel" {
     description
       "RSVP-TE generic data augmentation pertaining to TE tunnels";
     uses tunnel-properties;
   }
 
-  augment "/ietf-te:te/ietf-te:interfaces/ietf-te:interface" {
-    description
-      "RSVP-TE generic data augmentation pertaining to specific TE
-       interface";
-  }
-
+  /* TE LSP augmentation */
   augment "/ietf-te:te/ietf-te:lsps-state/ietf-te:lsp" {
     description
       "RSVP-TE generic data augmentation pertaining to specific TE
@@ -357,4 +366,12 @@ module ietf-rsvp-te {
     uses lsp-explicit-route-information_state;
     uses lsp-record-route-information_state;
   }
+
+  /* TE interface augmentation */
+  augment "/ietf-te:te/ietf-te:interfaces/ietf-te:interface" {
+    description
+      "RSVP-TE generic data augmentation pertaining to specific TE
+       interface";
+  }
+
 }
