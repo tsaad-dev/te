@@ -59,7 +59,7 @@ module ietf-te-topology {
 
   description "TE topology model";
   
-  revision "2015-11-17" {
+  revision "2015-12-10" {
     description "Initial revision";
     reference "TBD";
   }
@@ -338,105 +338,9 @@ module ietf-te-topology {
    * Identities
    */
 
-  identity te-flag-base {
-    description "Base type for flags.";
-  }
-
-  identity te-link-flag {
-    base "te-flag-base";
-    description "TE link flag.";
-  }
-  
-  identity te-node-flag {
-    base "te-flag-base";
-    description "TE node flag.";
-  }
-
-  identity te-undefined-flag {
-    base "te-flag-base";
-    description "Undefined flag.";
-  }
-
-  typedef te-node-flag {
-    type identityref {
-      base "te-node-flag";
-    }
-    description "Type for TE node flags.";
-  }
-
-  typedef te-link-flag {
-    type identityref {
-      base "te-link-flag";
-    }
-    description "Type for TE link flags.";
-  }
-
   /*
    * Groupings
    */
-  grouping network-ref {
-    description
-      "Contains the information necessary to reference a network,
-       for example an underlay network.";
-    leaf network-ref {
-      type leafref {
-        path "/nw:network/nw:network-id";
-      }
-      description
-        "Used to reference a network, for example an underlay
-         network.";
-    }
-  }
-
-  grouping node-ref {
-    description 
-      "Contains the information necessary to reference a node.";
-    leaf node-ref {
-      type leafref {
-        path "/nw:network[nw:network-id=current()/../network-ref]"+
-          "/nw:node/nw:node-id";
-      }
-      description
-        "Used to reference a node.  
-         Nodes are identified relative to the network they are
-         contained in.";
-    }
-    uses network-ref;
-  }
-
-  grouping link-ref {
-    description
-      "References a link in a specific network.";
-    leaf link-ref {
-      type leafref {
-        path "/nw:network[nw:network-id=current()/../"+
-          "network-ref]/nt:link/nt:link-id";
-      }
-      description
-        "A type for an absolute reference a link instance.
-         (This type should not be used for relative references.
-         In such a case, a relative path should be used instead.)";
-    }
-    uses network-ref;
-  }
-
-  grouping tp-ref {
-    description
-      "References a termination point in a specific node.";
-    leaf tp-ref {
-      type leafref {
-        path "/nw:network[nw:network-id=current()/../"+
-          "network-ref]/nw:node[nw:node-id=current()/../"+
-          "node-ref]/nt:termination-point/nt:tp-id";
-      }
-      description
-        "A type for an absolute reference to a termination point.
-         (This type should not be used for relative references.
-         In such a case, a relative path should be used instead.)";
-    }
-    uses node-ref;
-  }
-
   grouping information-source-attributes {
     description
       "The attributes identifying source that has provided the 
@@ -814,10 +718,6 @@ module ietf-te-topology {
           "Link access type, which can be point-to-point or
            multi-access.";
       }
-      leaf-list flag {
-        type te-link-flag;
-        description "Link flags.";
-      }
       leaf is-abstract {
         type empty;
         description "Present if the link is abstract.";
@@ -1011,25 +911,6 @@ module ietf-te-topology {
             "Max LSP Bandwidth for this level";
         }
       }
-      container packet-switch-capable {
-        when "../switching-capability = 'switching-psc1' " {
-          description "Valid only for PSC";
-        }
-        description
-          "Interface has packet-switching capabilities.";
-        leaf minimum-lsp-bandwidth {
-          type decimal64 {
-            fraction-digits 2;
-          }
-          description
-            "Minimum LSP Bandwidth. Units in bytes per second";
-        }
-        leaf interface-mtu {
-          type uint16;
-          description
-            "Interface MTU.";
-        }
-      }
       container time-division-multiplex-capable {
         when "../switching-capability = 'TDM'" {
           description "Valid only for TDM";
@@ -1221,12 +1102,12 @@ module ietf-te-topology {
         "Underlay protection type desired for this link";
     }
     container underlay-trail-src {
-      uses tet:tp-ref;
+      uses nt:tp-ref;
       description
         "Source TE link of the underlay trail.";
     }
     container underlay-trail-des {
-      uses tet:tp-ref;
+      uses nt:tp-ref;
       description
         "Destination TE link of the underlay trail.";
     }
@@ -1289,13 +1170,44 @@ module ietf-te-topology {
         description
           "The administrative state of the link.";
       }
+      uses te-node-connectivity-matrix;
       uses te-node-info-attributes;
     } // te-node-attributes
   } // te-node-config-attributes
     
-  grouping te-node-info-attributes {
-    description
-      "Advertised TE information attributes.";
+  grouping te-node-config-attributes-notification {
+    description 
+      "Configuration node attributes for template in a TE topology.";
+    container te-node-attributes {
+      description "Containing node attributes in a TE topology.";
+      uses sch:schedules;
+      leaf admin-status {
+        type te-admin-status;
+        description
+          "The administrative state of the link.";
+      }
+      uses te-node-connectivity-matrix-abs;
+      uses te-node-info-attributes;
+    } // te-node-attributes
+  } // te-node-config-attributes-notification
+
+  grouping te-node-config-attributes-template {
+    description 
+      "Configuration node attributes for template in a TE topology.";
+    container te-node-attributes {
+      description "Containing node attributes in a TE topology.";
+      uses sch:schedules;
+      leaf admin-status {
+        type te-admin-status;
+        description
+          "The administrative state of the link.";
+      }
+      uses te-node-info-attributes;
+    } // te-node-attributes
+  } // te-node-config-attributes-template
+
+  grouping te-node-connectivity-matrix {
+    description "Connectivity matrix on a TE node.";
     list connectivity-matrix {
       key "id";
       description
@@ -1309,12 +1221,24 @@ module ietf-te-topology {
         description "Identifies the connectivity-matrix entry.";
       }
       container from {
-        uses tet:tp-ref;
+        leaf tp-ref {
+          type leafref {
+            path "../../../../../../nt:termination-point/nt:tp-id";
+          }
+          description
+            "Relative reference to source termination point.";
+        }
         description 
           "Reference to source NTP.";
       }
       container to {
-        uses tet:tp-ref;
+        leaf tp-ref {
+          type leafref {
+            path "../../../../../../nt:termination-point/nt:tp-id";
+          }
+          description
+            "Relative reference to destination termination point.";
+        }
         description 
           "Reference to destination NTP.";
       }
@@ -1325,6 +1249,46 @@ module ietf-te-topology {
            false - switching is disallowed.";
       }
     }
+  } // te-node-connectivity-matrix
+    
+  grouping te-node-connectivity-matrix-abs {
+    description 
+      "Connectivity matrix on a TE node, using absolute
+       paths to reference termination points.";
+    list connectivity-matrix {
+      key "id";
+      description
+        "Represents node's switching limitations, i.e. limitations
+         in interconnecting network TE links across the node.";
+      reference
+        "RFC7579: General Network Element Constraint Encoding
+         for GMPLS-Controlled Networks.";
+      leaf id {
+        type uint32;
+        description "Identifies the connectivity-matrix entry.";
+      }
+      container from {
+        uses nt:tp-ref;
+        description 
+          "Reference to source NTP.";
+      }
+      container to {
+        uses nt:tp-ref;
+        description 
+          "Reference to destination NTP.";
+      }
+      leaf is-allowed {
+        type boolean;
+        description
+          "true  - switching is allowed, 
+           false - switching is disallowed.";
+      }
+    }
+  } // te-node-connectivity-matrix-abs
+
+  grouping te-node-info-attributes {
+    description
+      "Advertised TE information attributes.";
     leaf domain-id {
       type uint32;
       description
@@ -1338,10 +1302,6 @@ module ietf-te-topology {
          System (AS) MPLS and GMPLS Traffic Engineering.
          RFC5316: ISIS Extensions in Support of Inter-Autonomous
          System (AS) MPLS and GMPLS Traffic Engineering.";
-    }
-    leaf-list flag {
-      type te-node-flag;
-      description "Node operational flags.";
     }
     leaf is-abstract {
       type empty;
@@ -1390,9 +1350,39 @@ module ietf-te-topology {
       description
         "A list of information sources learned but not used.";
       uses information-source-attributes;
+      uses te-node-connectivity-matrix;
       uses te-node-info-attributes;
     }
   } // te-node-state-derived
+
+  grouping te-node-state-derived-notification {
+    description "Node state attributes in a TE topology.";
+    leaf oper-status {
+      type te-oper-status;
+      description
+        "The current operational state of the node.";
+    }
+    leaf is-multi-access-dr {
+      type empty;
+      description
+        "The presence of this attribute indicates that this TE node
+         is a pseudonode elected as a designated router.";
+      reference
+        "RFC3630: Traffic Engineering (TE) Extensions to OSPF
+         Version 2.
+         RFC1195: Use of OSI IS-IS for Routing in TCP/IP and Dual
+         Environments.";
+    }
+    uses information-source-attributes;
+    list alt-information-sources {
+      key "information-source";
+      description
+        "A list of information sources learned but not used.";
+      uses information-source-attributes;
+      uses te-node-connectivity-matrix-abs;
+      uses te-node-info-attributes;
+    }
+  } // te-node-state-derived-notification
 
   grouping te-path-element {
     description
@@ -1497,7 +1487,7 @@ module ietf-te-topology {
             "The list of TE node templates used to define sharable
              and reusable TE node attributes.";
           uses template-attributes;
-          uses te-node-config-attributes;
+          uses te-node-config-attributes-template;
         } // node-template
         
         list link-template {
@@ -1529,7 +1519,7 @@ module ietf-te-topology {
       "References a TE topology.";
     leaf provider-id-ref {
       type leafref {
-        path "/nw:network/tet:te/tet:provider-id";
+        path "/nw:networks/nw:network/tet:te/tet:provider-id";
         require-instance false;
       }
       description
@@ -1537,7 +1527,7 @@ module ietf-te-topology {
     }
     leaf client-id-ref {
       type leafref {
-        path "/nw:network/tet:te/tet:client-id";
+        path "/nw:networks/nw:network/tet:te/tet:client-id";
         require-instance false;
       }
       description
@@ -1545,7 +1535,7 @@ module ietf-te-topology {
     }
     leaf te-topology-id-ref {
       type leafref {
-        path "/nw:network/tet:te/tet:te-topology-id";
+        path "/nw:networks/nw:network/tet:te/tet:te-topology-id";
         require-instance false;
       }
       description
@@ -1553,7 +1543,7 @@ module ietf-te-topology {
     }
     leaf network-id-ref {
       type leafref {
-        path "/nw:network/nw:network-id";
+        path "/nw:networks/nw:network/nw:network-id";
         require-instance false;
       }
       description
@@ -1613,13 +1603,13 @@ module ietf-te-topology {
   /*
    * Configuration data nodes
    */
-  augment "/nw:network/nw:network-types" {
+  augment "/nw:networks/nw:network/nw:network-types" {
     description
       "Introduce new network type for TE topology.";
     uses te-topology-type;
   }
 
-  augment "/nw:network" {
+  augment "/nw:networks/nw:network" {
     when "nw:network-types/te-topology" {
       description
         "Augmentation parameters apply only for networks with
@@ -1630,7 +1620,7 @@ module ietf-te-topology {
     uses te-topology-augment;
   }
   
-  augment "/nw:network/nw:node" {
+  augment "/nw:networks/nw:network/nw:node" {
     when "../nw:network-types/te-topology" {
       description
         "Augmentation parameters apply only for networks with
@@ -1641,7 +1631,7 @@ module ietf-te-topology {
     uses te-node-augment;
   }
 
-  augment "/nw:network/nt:link" {
+  augment "/nw:networks/nw:network/nt:link" {
     when "../nw:network-types/te-topology" {
       description
         "Augmentation parameters apply only for networks with
@@ -1652,8 +1642,8 @@ module ietf-te-topology {
     uses te-link-augment;
   }
 
-  augment "/nw:network/nw:node/"
-         +"nt:termination-point" {
+  augment "/nw:networks/nw:network/nw:node/"
+        + "nt:termination-point" {
     when "../../nw:network-types/te-topology" {
       description
         "Augmentation parameters apply only for networks with
@@ -1678,10 +1668,10 @@ module ietf-te-topology {
       type te-topology-event-type;
       description "Event type.";
     }
-    uses tet:node-ref;
+    uses nw:node-ref;
     uses te-topology-type;
-    uses tet:te-node-config-attributes;
-    uses tet:te-node-state-derived;
+    uses tet:te-node-config-attributes-notification;
+    uses tet:te-node-state-derived-notification;
   }
   
   notification te-link-event {
@@ -1690,7 +1680,7 @@ module ietf-te-topology {
       type te-topology-event-type;
       description "Event type";
     }
-    uses tet:link-ref;
+    uses nt:link-ref;
     uses te-topology-type;
     uses tet:te-link-config-attributes;
     uses tet:te-link-state-derived;
