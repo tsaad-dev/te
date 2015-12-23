@@ -39,27 +39,27 @@ module ietf-te-topology {
      WG Chair: Vishnu Pavan Beeram
                <mailto:vbeeram@juniper.net>
 
-     Editors:  Xufeng Liu
+     Editor:   Xufeng Liu
                <mailto:xufeng.liu@ericsson.com>
 
-               Igor Bryskin
-               <mailto:ibryskin@advaoptical.com>
+     Editor:   Igor Bryskin
+               <mailto:Igor.Bryskin@huawei.com>
 
-               Vishnu Pavan Beeram
+     Editor:   Vishnu Pavan Beeram
                <mailto:vbeeram@juniper.net>
 
-               Tarek Saad
+     Editor:   Tarek Saad
                <mailto:tsaad@cisco.com>
 
-               Himanshu Shah
+     Editor:   Himanshu Shah
                <mailto:hshah@ciena.com>
 
-               Oscar Gonzalez De Dios
+     Editor:   Oscar Gonzalez De Dios
                <mailto:oscar.gonzalezdedios@telefonica.com>";
 
   description "TE topology model";
   
-  revision "2015-12-10" {
+  revision "2015-12-22" {
     description "Initial revision";
     reference "TBD";
   }
@@ -589,7 +589,7 @@ module ietf-te-topology {
 
   grouping te-link-augment {
     description 
-      "Augmentatin for TE link.";
+      "Augmentation for TE link.";
     
     container te {
       presence "TE support.";
@@ -698,7 +698,7 @@ module ietf-te-topology {
     leaf-list te-link-template {
       if-feature template;
       type leafref {
-        path "../../../../te/templates/link-template/name";
+        path "../../../../../te/templates/link-template/name";
       }
       description
         "The reference to a TE link template.";
@@ -1115,7 +1115,7 @@ module ietf-te-topology {
 
   grouping te-node-augment {
     description
-      "Augmentatin for TE node.";
+      "Augmentation for TE node.";
     
     container te {
       presence "TE support.";
@@ -1152,7 +1152,7 @@ module ietf-te-topology {
     leaf-list te-node-template {
       if-feature template;
       type leafref {
-        path "../../../../te/templates/node-template/name";
+        path "../../../../../te/templates/node-template/name";
       }
       description
         "The reference to a TE node template.";
@@ -1393,7 +1393,7 @@ module ietf-te-topology {
   
   grouping te-termination-point-augment {
     description
-      "Augmentatin for TE termination point.";
+      "Augmentation for TE termination point.";
     
     container te {
       presence "TE support.";      
@@ -1428,9 +1428,56 @@ module ietf-te-topology {
     uses sch:schedules;
   } // te-termination-point-config
 
+  grouping te-topologies-augment {
+    description
+      "Augmentation for TE topologies.";
+    
+    container te {
+      presence "TE support.";
+      description 
+        "Indicates TE support.";
+
+      container templates {
+        description
+          "Configuration parameters for templates used for TE
+           topology.";
+
+        list node-template {
+          if-feature template;
+          key "name";
+          leaf name {
+            type te-template-name;
+            description
+              "The name to identify a TE node template.";
+          }
+          description
+            "The list of TE node templates used to define sharable
+             and reusable TE node attributes.";
+          uses template-attributes;
+          uses te-node-config-attributes-template;
+        } // node-template
+        
+        list link-template {
+          if-feature template;
+          key "name";
+          leaf name {
+            type te-template-name;
+            description
+              "The name to identify a TE link template.";
+          }
+          description
+            "The list of TE link templates used to define sharable
+             and reusable TE link attributes.";
+          uses template-attributes;
+          uses te-link-config-attributes;
+        } // link-template
+      } // templates
+    } // te
+  } // te-topologies-augment
+
   grouping te-topology-augment {
     description
-      "Augmentatin for TE topology.";
+      "Augmentation for TE topology.";
     
     container te {
       presence "TE support.";
@@ -1469,42 +1516,6 @@ module ietf-te-topology {
           "Operational state data.";
         uses te-topology-config;
       } // state
-
-      container templates {
-        description
-          "Configuration parameters for templates used for TE
-           topology.";
-
-        list node-template {
-          if-feature template;
-          key "name";
-          leaf name {
-            type te-template-name;
-            description
-              "The name to identify a TE node template.";
-          }
-          description
-            "The list of TE node templates used to define sharable
-             and reusable TE node attributes.";
-          uses template-attributes;
-          uses te-node-config-attributes-template;
-        } // node-template
-        
-        list link-template {
-          if-feature template;
-          key "name";
-          leaf name {
-            type te-template-name;
-            description
-              "The name to identify a TE link template.";
-          }
-          description
-            "The list of TE link templates used to define sharable
-             and reusable TE link attributes.";
-          uses template-attributes;
-          uses te-link-config-attributes;
-        } // link-template
-      } // templates
     } // te
   } // te-topology-augment
 
@@ -1512,6 +1523,14 @@ module ietf-te-topology {
     description 
       "TE topology configuration grouping.";
     uses sch:schedules;
+    leaf preference {
+      type uint8 {
+        range "1..255";
+      }
+      description
+        "Specifies a preference for this topology. A lower number
+         indicates a higher preference.";
+    }
   } // te-topology-config
 
   grouping te-topology-ref {
@@ -1607,6 +1626,12 @@ module ietf-te-topology {
     description
       "Introduce new network type for TE topology.";
     uses te-topology-type;
+  }
+
+  augment "/nw:networks" {
+    description
+      "Augmentation parameters for TE topologies.";
+    uses te-topologies-augment;
   }
 
   augment "/nw:networks/nw:network" {
