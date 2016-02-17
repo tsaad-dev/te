@@ -59,7 +59,7 @@ module ietf-te-topology {
 
   description "TE topology model";
   
-  revision "2015-12-22" {
+  revision "2016-02-09" {
     description "Initial revision";
     reference "TBD";
   }
@@ -1143,6 +1143,48 @@ module ietf-te-topology {
         uses te-node-config;
         uses te-node-state-derived;
       } // state
+
+      list tunnel-termination-point {
+        key "tunnel-tp-id";
+        description
+          "A termination point can terminate a tunnel.";
+        leaf tunnel-tp-id {
+          type binary;
+          description
+            "Tunnel termination point identifier.";
+        }
+
+        container config {
+          description
+            "Configuration data.";
+          uses te-node-tunnel-termination-capability;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data.";
+
+          uses te-node-tunnel-termination-capability;
+          leaf switching-capability {
+            type identityref {
+              base te-types:switching-capabilities;
+            }
+            mandatory true;
+            description
+              "Switching Capability.";
+          }
+          leaf encoding {
+            type identityref {
+              base te-types:lsp-encoding-types;
+            }
+            mandatory true;
+            description
+              "Encoding type.";
+          }
+        } // state
+        
+      } // tunnel-termination-point
     } // te
   } // te-node-augment
 
@@ -1384,10 +1426,32 @@ module ietf-te-topology {
     }
   } // te-node-state-derived-notification
 
+  grouping te-node-tunnel-termination-capability {
+    description 
+      "Termination capability of a tunnel termination point on a
+       TE node.";
+
+    list termination-capability {
+      key "link-tp";
+      description
+        "The termination capabilities between 
+         tunnel-termination-point and link termination-point.
+         The capability information can be used to compute
+         the tunnel path.";
+      leaf link-tp {
+        type leafref {
+          path "../../../../../nt:termination-point/nt:tp-id";
+        }
+        description
+          "Link termination point.";
+      }
+    } // termination-capability
+  } // te-node-tunnel-termination-capability
+
   grouping te-path-element {
     description
       "A group of attributes defining an element in a TE path
-      such as TE node, TE link, TE atomic resource or label.";
+       such as TE node, TE link, TE atomic resource or label.";
     uses te-types:explicit-route-subobject;
   } // te-path-element
   
@@ -1538,7 +1602,8 @@ module ietf-te-topology {
       "References a TE topology.";
     leaf provider-id-ref {
       type leafref {
-        path "/nw:networks/nw:network/tet:te/tet:provider-id";
+        path "/nw:networks/nw:network[nw:network-id = "
+          + "current()/../network-id-ref]/tet:te/tet:provider-id";
         require-instance false;
       }
       description
@@ -1546,7 +1611,8 @@ module ietf-te-topology {
     }
     leaf client-id-ref {
       type leafref {
-        path "/nw:networks/nw:network/tet:te/tet:client-id";
+        path "/nw:networks/nw:network[nw:network-id = "
+          + "current()/../network-id-ref]/tet:te/tet:client-id";
         require-instance false;
       }
       description
@@ -1554,7 +1620,8 @@ module ietf-te-topology {
     }
     leaf te-topology-id-ref {
       type leafref {
-        path "/nw:networks/nw:network/tet:te/tet:te-topology-id";
+        path "/nw:networks/nw:network[nw:network-id = "
+          + "current()/../network-id-ref]/tet:te/tet:te-topology-id";
         require-instance false;
       }
       description
