@@ -19,6 +19,10 @@ module ietf-te-device {
     prefix if;
   }
 
+  import ietf-inet-types {
+    prefix inet;
+  }
+
   organization
     "IETF TEAS Working Group";
 
@@ -32,6 +36,97 @@ module ietf-te-device {
   revision 2015-10-16 {
     description "Latest update to TE generic device YANG module.";
     reference "TBD";
+  }
+
+  /**
+   * TE LSP device state grouping
+   */
+  grouping lsps-device_state {
+    description "TE LSP device state grouping";
+    container lsp-timers {
+      when "../origin-type = 'ingress'" {
+        description "Applicable to ingress LSPs only";
+      }
+      description "Ingress LSP timers";
+      leaf life-time {
+        type uint32;
+        units seconds;
+        description
+          "lsp life time";
+      }
+
+      leaf time-to-install {
+        type uint32;
+        units seconds;
+        description
+          "lsp installation delay time";
+      }
+
+      leaf time-to-die {
+        type uint32;
+        units seconds;
+        description
+          "lsp expire delay time";
+      }
+    }
+
+    container downstream-info {
+      when "../../origin-type != 'egress'" {
+        description "Applicable to ingress LSPs only";
+      }
+      description
+        "downstream information";
+
+      leaf nhop {
+        type inet:ip-address;
+        description
+          "downstream nexthop.";
+      }
+
+      leaf outgoing-interface {
+        type if:interface-ref;
+        description
+          "downstream interface.";
+      }
+
+      leaf neighbor {
+        type inet:ip-address;
+        description
+          "downstream neighbor.";
+      }
+
+      leaf label {
+        type uint32;
+        description
+          "downstream label.";
+      }
+    }
+
+    container upstream-info {
+      when "../../origin-type != 'ingress'" {
+        description "Applicable to non-ingress LSPs only";
+      }
+      description
+        "upstream information";
+
+      leaf phop {
+        type inet:ip-address;
+        description
+          "upstream nexthop or previous-hop.";
+      }
+
+      leaf neighbor {
+        type inet:ip-address;
+        description
+          "upstream neighbor.";
+      }
+
+      leaf label {
+        type uint32;
+        description
+          "upstream label.";
+      }
+    }
   }
 
   /**
@@ -435,23 +530,10 @@ module ietf-te-device {
   }
 
   /* TE LSPs device state augmentation */
-  augment "/ietf-te:te/ietf-te:lsps-state/ietf-te:lsp/ietf-te:downstream-info" {
+  augment "/ietf-te:te/ietf-te:lsps-state/ietf-te:lsp" {
     description
       "LSP device dependent downstream info augmentation";
-    leaf outgoing-interface {
-      type if:interface-ref;
-      description
-        "downstream interface.";
-    }
-  }
-  augment "/ietf-te:te/ietf-te:lsps-state/ietf-te:lsp/ietf-te:upstream-info" {
-    description
-      "LSP device dependent upstream info augmentation";
-    leaf incoming-interface {
-      type if:interface-ref;
-      description
-        "upstream interface.";
-    }
+    uses lsps-device_state;
   }
 
   /* TE interfaces RPCs/execution Data */
