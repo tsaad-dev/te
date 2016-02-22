@@ -1109,13 +1109,22 @@ augment /rt:routing/rt:routing-instance/rt:routing-protocols/rt:routing-protocol
       +--rw globals
       |  +--rw config
       |  |  +--rw graceful-restart
-      |  |     +--rw enabled?   boolean
+      |  |     +--rw enabled?                  boolean
+      |  |     +--rw rsvp-ext:restart-time?    uint32
+      |  |     +--rw rsvp-ext:recovery-time?   uint32
       |  +--ro state
       |     +--ro graceful-restart
-      |     |  +--ro enabled?   boolean
+      |     |  +--ro enabled?                  boolean
+      |     |  +--ro rsvp-ext:restart-time?    uint32
+      |     |  +--ro rsvp-ext:recovery-time?   uint32
       |     +--ro packets-stats
-      |     |  +--ro sent?   yang:counter32
-      |     |  +--ro rcvd?   yang:counter32
+      |     |  +--ro sent?                          yang:counter32
+      |     |  +--ro rcvd?                          yang:counter32
+      |     |  +--ro rsvp-ext:discontinuity-time?   yang:date-and-time
+      |     |  +--ro rsvp-ext:tx-dropped?           yang:counter32
+      |     |  +--ro rsvp-ext:rx-dropped?           yang:counter32
+      |     |  +--ro rsvp-ext:tx-error?             yang:counter32
+      |     |  +--ro rsvp-ext:rx-error?             yang:counter32
       |     +--ro protocol-stats
       |     |  +--ro ack-sent?                   yang:counter32
       |     |  +--ro ack-rcvd?                   yang:counter32
@@ -1153,22 +1162,54 @@ augment /rt:routing/rt:routing-instance/rt:routing-protocols/rt:routing-protocol
       +--rw interfaces
       |  +--rw config
       |  |  +--rw refresh-reduction
-      |  |  |  +--rw enabled?   boolean
+      |  |  |  +--rw enabled?                             boolean
+      |  |  |  +--rw rsvp-ext:bundle-message-max-size?    uint32
+      |  |  |  +--rw rsvp-ext:reliable-ack-hold-time?     uint32
+      |  |  |  +--rw rsvp-ext:reliable-ack-max-size?      uint32
+      |  |  |  +--rw rsvp-ext:reliable-retransmit-time?   uint32
+      |  |  |  +--rw rsvp-ext:reliable-srefresh?          empty
+      |  |  |  +--rw rsvp-ext:summary-max-size?           uint32
       |  |  +--rw rsvp-hellos
-      |  |  |  +--rw enabled?   boolean
+      |  |  |  +--rw enabled?                    boolean
+      |  |  |  +--rw rsvp-ext:interface-based?   empty
+      |  |  |  +--rw rsvp-ext:hello-interval?    uint32
+      |  |  |  +--rw rsvp-ext:hello-misses?      uint32
       |  |  +--rw authentication
-      |  |     +--rw enabled?     boolean
-      |  |     +--rw password?    string
-      |  |     +--rw algorithm?   identityref
+      |  |  |  +--rw enabled?                boolean
+      |  |  |  +--rw password?               string
+      |  |  |  +--rw algorithm?              identityref
+      |  |  |  +--rw rsvp-ext:lifetime?      uint32
+      |  |  |  +--rw rsvp-ext:window-size?   uint32
+      |  |  |  +--rw rsvp-ext:challenge?     empty
+      |  |  |  +--rw rsvp-ext:retransmits?   uint32
+      |  |  |  +--rw rsvp-ext:key-chain?     string
+      |  |  +--rw rsvp-ext:refresh-interval?        uint32
+      |  |  +--rw rsvp-ext:refresh-misses?          uint32
+      |  |  +--rw rsvp-ext:checksum?                uint32
+      |  |  +--rw rsvp-ext:patherr-state-removal?   empty
       |  +--ro state
       |  |  +--ro refresh-reduction
-      |  |  |  +--ro enabled?   boolean
+      |  |  |  +--ro enabled?                             boolean
+      |  |  |  +--ro rsvp-ext:bundle-message-max-size?    uint32
+      |  |  |  +--ro rsvp-ext:reliable-ack-hold-time?     uint32
+      |  |  |  +--ro rsvp-ext:reliable-ack-max-size?      uint32
+      |  |  |  +--ro rsvp-ext:reliable-retransmit-time?   uint32
+      |  |  |  +--ro rsvp-ext:reliable-srefresh?          empty
+      |  |  |  +--ro rsvp-ext:summary-max-size?           uint32
       |  |  +--ro rsvp-hellos
-      |  |  |  +--ro enabled?   boolean
+      |  |  |  +--ro enabled?                    boolean
+      |  |  |  +--ro rsvp-ext:interface-based?   empty
+      |  |  |  +--ro rsvp-ext:hello-interval?    uint32
+      |  |  |  +--ro rsvp-ext:hello-misses?      uint32
       |  |  +--ro authentication
-      |  |  |  +--ro enabled?     boolean
-      |  |  |  +--ro password?    string
-      |  |  |  +--ro algorithm?   identityref
+      |  |  |  +--ro enabled?                boolean
+      |  |  |  +--ro password?               string
+      |  |  |  +--ro algorithm?              identityref
+      |  |  |  +--ro rsvp-ext:lifetime?      uint32
+      |  |  |  +--ro rsvp-ext:window-size?   uint32
+      |  |  |  +--ro rsvp-ext:challenge?     empty
+      |  |  |  +--ro rsvp-ext:retransmits?   uint32
+      |  |  |  +--ro rsvp-ext:key-chain?     string
       |  |  +--ro packets-stats
       |  |  |  +--ro sent?   yang:counter32
       |  |  |  +--ro rcvd?   yang:counter32
@@ -1203,29 +1244,65 @@ augment /rt:routing/rt:routing-instance/rt:routing-protocols/rt:routing-protocol
       |  |  |  +--ro summary-refresh-rcvd?       yang:counter32
       |  |  |  +--ro unknown-recv?               yang:counter32
       |  |  +--ro errors-stats
-      |  |     +--ro authenticate?   yang:counter64
-      |  |     +--ro checksum?       yang:counter64
-      |  |     +--ro packet-len?     yang:counter64
+      |  |  |  +--ro authenticate?   yang:counter64
+      |  |  |  +--ro checksum?       yang:counter64
+      |  |  |  +--ro packet-len?     yang:counter64
+      |  |  +--ro rsvp-ext:refresh-interval?        uint32
+      |  |  +--ro rsvp-ext:refresh-misses?          uint32
+      |  |  +--ro rsvp-ext:checksum?                uint32
+      |  |  +--ro rsvp-ext:patherr-state-removal?   empty
       |  +--rw interface* [interface]
       |     +--rw interface    if:interface-ref
       |     +--rw config
       |     |  +--rw refresh-reduction
-      |     |  |  +--rw enabled?   boolean
+      |     |  |  +--rw enabled?                             boolean
+      |     |  |  +--rw rsvp-ext:bundle-message-max-size?    uint32
+      |     |  |  +--rw rsvp-ext:reliable-ack-hold-time?     uint32
+      |     |  |  +--rw rsvp-ext:reliable-ack-max-size?      uint32
+      |     |  |  +--rw rsvp-ext:reliable-retransmit-time?   uint32
+      |     |  |  +--rw rsvp-ext:reliable-srefresh?          empty
+      |     |  |  +--rw rsvp-ext:summary-max-size?           uint32
       |     |  +--rw rsvp-hellos
-      |     |  |  +--rw enabled?   boolean
+      |     |  |  +--rw enabled?                    boolean
+      |     |  |  +--rw rsvp-ext:interface-based?   empty
+      |     |  |  +--rw rsvp-ext:hello-interval?    uint32
+      |     |  |  +--rw rsvp-ext:hello-misses?      uint32
       |     |  +--rw authentication
-      |     |     +--rw enabled?     boolean
-      |     |     +--rw password?    string
-      |     |     +--rw algorithm?   identityref
+      |     |  |  +--rw enabled?                boolean
+      |     |  |  +--rw password?               string
+      |     |  |  +--rw algorithm?              identityref
+      |     |  |  +--rw rsvp-ext:lifetime?      uint32
+      |     |  |  +--rw rsvp-ext:window-size?   uint32
+      |     |  |  +--rw rsvp-ext:challenge?     empty
+      |     |  |  +--rw rsvp-ext:retransmits?   uint32
+      |     |  |  +--rw rsvp-ext:key-chain?     string
+      |     |  +--rw rsvp-ext:refresh-interval?        uint32
+      |     |  +--rw rsvp-ext:refresh-misses?          uint32
+      |     |  +--rw rsvp-ext:checksum?                uint32
+      |     |  +--rw rsvp-ext:patherr-state-removal?   empty
       |     +--ro state
       |        +--ro refresh-reduction
-      |        |  +--ro enabled?   boolean
+      |        |  +--ro enabled?                             boolean
+      |        |  +--ro rsvp-ext:bundle-message-max-size?    uint32
+      |        |  +--ro rsvp-ext:reliable-ack-hold-time?     uint32
+      |        |  +--ro rsvp-ext:reliable-ack-max-size?      uint32
+      |        |  +--ro rsvp-ext:reliable-retransmit-time?   uint32
+      |        |  +--ro rsvp-ext:reliable-srefresh?          empty
+      |        |  +--ro rsvp-ext:summary-max-size?           uint32
       |        +--ro rsvp-hellos
-      |        |  +--ro enabled?   boolean
+      |        |  +--ro enabled?                    boolean
+      |        |  +--ro rsvp-ext:interface-based?   empty
+      |        |  +--ro rsvp-ext:hello-interval?    uint32
+      |        |  +--ro rsvp-ext:hello-misses?      uint32
       |        +--ro authentication
-      |        |  +--ro enabled?     boolean
-      |        |  +--ro password?    string
-      |        |  +--ro algorithm?   identityref
+      |        |  +--ro enabled?                boolean
+      |        |  +--ro password?               string
+      |        |  +--ro algorithm?              identityref
+      |        |  +--ro rsvp-ext:lifetime?      uint32
+      |        |  +--ro rsvp-ext:window-size?   uint32
+      |        |  +--ro rsvp-ext:challenge?     empty
+      |        |  +--ro rsvp-ext:retransmits?   uint32
+      |        |  +--ro rsvp-ext:key-chain?     string
       |        +--ro packets-stats
       |        |  +--ro sent?   yang:counter32
       |        |  +--ro rcvd?   yang:counter32
@@ -1260,9 +1337,13 @@ augment /rt:routing/rt:routing-instance/rt:routing-protocols/rt:routing-protocol
       |        |  +--ro summary-refresh-rcvd?       yang:counter32
       |        |  +--ro unknown-recv?               yang:counter32
       |        +--ro errors-stats
-      |           +--ro authenticate?   yang:counter64
-      |           +--ro checksum?       yang:counter64
-      |           +--ro packet-len?     yang:counter64
+      |        |  +--ro authenticate?   yang:counter64
+      |        |  +--ro checksum?       yang:counter64
+      |        |  +--ro packet-len?     yang:counter64
+      |        +--ro rsvp-ext:refresh-interval?        uint32
+      |        +--ro rsvp-ext:refresh-misses?          uint32
+      |        +--ro rsvp-ext:checksum?                uint32
+      |        +--ro rsvp-ext:patherr-state-removal?   empty
       +--rw sessions
       |  +--rw session* [dst_port source destination]
       |     +--rw dst_port       uint16
