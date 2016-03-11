@@ -7,7 +7,7 @@ module ietf-te {
 
   /* Import TE generic types */
   import ietf-te-types {
-    prefix ietf-te-types;
+    prefix te-types;
   }
 
   import ietf-inet-types {
@@ -38,13 +38,13 @@ module ietf-te {
     description
       "Tunnel path properties grouping";
     leaf path-named-constraint {
-      if-feature ietf-te-types:named-path-constraints;
+      if-feature te-types:named-path-constraints;
       type string;
       description
         "Reference to a globally defined named path
         constraint set";
     }
-    uses ietf-te-types:tunnel-path-selection;
+    uses te-types:tunnel-path-selection;
     choice type {
       description
         "Describes the path type";
@@ -75,11 +75,11 @@ module ietf-te {
           }
           leaf explicit-route-usage {
             type identityref {
-              base ietf-te-types:route-usage-type;
+              base te-types:route-usage-type;
             }
             description "An explicit-route hop action.";
           }
-          uses ietf-te-types:explicit-route-subobject;
+          uses te-types:explicit-route-subobject;
         }
 
 
@@ -110,7 +110,7 @@ module ietf-te {
     }
     leaf type {
       type identityref {
-        base ietf-te-types:tunnel-type;
+        base te-types:tunnel-type;
       }
       description "TE tunnel type.";
     }
@@ -124,14 +124,34 @@ module ietf-te {
       description
         "TE tunnel description.";
     }
+    leaf lsp-priority-setup {
+      type uint8 {
+        range "0..7";
+      }
+      description
+        "TE LSP setup priority";
+    }
+    leaf lsp-priority-hold {
+      type uint8 {
+        range "0..7";
+      }
+      description
+        "TE LSP hold priority";
+    }
+    leaf lsp-protection-type {
+      type identityref {
+        base te-types:lsp-prot-type;
+      }
+      description "LSP protection type.";
+    }
     leaf admin-status {
       type identityref {
-        base ietf-te-types:state-type;
+        base te-types:state-type;
       }
-      default ietf-te-types:state-up;
+      default te-types:state-up;
       description "TE tunnel administrative state.";
     }
-    uses ietf-te-types:tunnel-bidir-assoc-properties;
+    uses te-types:tunnel-bidir-assoc-properties;
     choice path-type {
       description
         "Describes the path type";
@@ -183,7 +203,7 @@ module ietf-te {
         }
       }
       case p2mp {
-        if-feature ietf-te-types:p2mp-te;
+        if-feature te-types:p2mp-te;
         list p2mp-paths {
           key "destination";
           description
@@ -240,7 +260,7 @@ module ietf-te {
       "State parameters relating to TE tunnel";
     leaf oper-status {
       type identityref {
-        base ietf-te-types:state-type;
+        base te-types:state-type;
       }
       description "TE tunnel operational state.";
     }
@@ -328,13 +348,31 @@ module ietf-te {
   /**
    * LSP related generic groupings
    */
+  grouping lsp-record-route-information_state {
+    description "recorded route information grouping";
+    container lsp-record-route {
+      description "RSVP recorded route object information";
+      list record-route-subobjects {
+        when "../origin-type != 'ingress'" {
+          description "Applicable on non-ingress LSPs only";
+        }
+        key "subobject-index";
+        description "";
+        leaf subobject-index {
+          type uint32;
+          description "RRO subobject index";
+        }
+        uses te-types:record-route-subobject;
+      }
+    }
+  }
 
   grouping lsp-properties_state {
     description
       "State parameters relating to LSP";
     leaf oper-status {
       type identityref {
-        base ietf-te-types:state-type;
+        base te-types:state-type;
       }
       description "LSP operational state.";
     }
@@ -378,7 +416,7 @@ module ietf-te {
       reference "rfc4872, section 4.2.1";
     }
 
-    leaf lsp-protection-status {
+    leaf lsp-protection-role {
       type enumeration {
         enum working {
           description
@@ -417,8 +455,8 @@ module ietf-te {
       "Global named administrative groups configuration
       grouping";
     list named-admin-groups {
-      if-feature ietf-te-types:extended-admin-groups;
-      if-feature ietf-te-types:named-extended-admin-groups;
+      if-feature te-types:extended-admin-groups;
+      if-feature te-types:named-extended-admin-groups;
       key "name";
       description
         "List of named TE admin-groups";
@@ -442,7 +480,7 @@ module ietf-te {
       "Global named SRLGs configuration
       grouping";
     list named-srlgs {
-      if-feature ietf-te-types:named-srlg-groups;
+      if-feature te-types:named-srlg-groups;
       key "name";
       description
         "A list of named SRLG groups";
@@ -453,7 +491,7 @@ module ietf-te {
           interface named srlg";
       }
       leaf group {
-        type ietf-te-types:srlg;
+        type te-types:srlg;
         description "An SRLG value";
       }
     }
@@ -487,11 +525,11 @@ module ietf-te {
         }
         leaf explicit-route-usage {
           type identityref {
-            base ietf-te-types:route-usage-type;
+            base te-types:route-usage-type;
           }
           description "An explicit-route hop action.";
         }
-        uses ietf-te-types:explicit-route-subobject;
+        uses te-types:explicit-route-subobject;
       }
     }
   }
@@ -502,7 +540,7 @@ module ietf-te {
       "Global named path constraints configuration
       grouping";
     list named-constraints {
-      if-feature ietf-te-types:named-path-constraints;
+      if-feature te-types:named-path-constraints;
       key "name";
       description
         "A list of named path constraints";
@@ -512,7 +550,7 @@ module ietf-te {
           "A string name that uniquely identifies a
           path constraint set";
       }
-      uses ietf-te-types:tunnel-path-selection;
+      uses te-types:tunnel-path-selection;
     }
   }
 
@@ -627,17 +665,18 @@ module ietf-te {
         }
         leaf extended-tunnel-id {
           type inet:ip-address;
-          description
+ c         description
             "Extended Tunnel ID of the LSP.";
           reference "RFC3209";
         }
         leaf type {
           type identityref {
-            base ietf-te-types:tunnel-type;
+            base te-types:tunnel-type;
           }
           description "The LSP type P2P or P2MP";
         }
         uses lsp-properties_state;
+        uses lsp-record-route-information_state;
       }
     }
   }
