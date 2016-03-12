@@ -33,7 +33,171 @@ module ietf-te {
    * TE tunnel generic groupings
    */
 
-  /* TE tunnel path configuration data */
+  grouping p2p-secondary-path-params {
+    description
+      "tunnel path properties.";
+    container config {
+      description
+        "Configuration parameters relating to
+        tunnel properties";
+      uses path-properties_config;
+      uses tunnel-path-params_config;
+    }
+    container state {
+      config false;
+      description
+        "State information associated with tunnel
+        properties";
+      uses path-properties_config;
+      uses tunnel-path-params_config;
+      uses p2p-secondary-path-params_state;
+    }
+  }
+
+  grouping p2p-primary-path-params {
+    description
+      "tunnel path properties.";
+    container config {
+      description
+        "Configuration parameters relating to
+        tunnel properties";
+      uses path-properties_config;
+      uses tunnel-path-params_config;
+    }
+    container state {
+      config false;
+      description
+        "State information associated with tunnel
+        properties";
+      uses tunnel-path-params_config;
+      uses p2p-primary-path-params_state;
+    }
+  }
+
+  grouping p2p-primary-path-params_state {
+    description "foo";
+    list lsp {
+      key "source";
+      description "List of LSPs associated with the tunnel.";
+
+      leaf source {
+        type leafref {
+          path "../../../../../../lsps-state/lsp/source";
+        }
+        description
+          "Tunnel sender address extracted from
+          SENDER_TEMPLATE  object";
+        reference "RFC3209";
+      }
+      leaf destination {
+        type leafref {
+          path "../../../../../../lsps-state/lsp/destination";
+        }
+        description
+          "Tunnel endpoint address extracted from
+          SESSION object";
+        reference "RFC3209";
+      }
+      leaf tunnel-id {
+        type leafref {
+          path "../../../../../../lsps-state/lsp/tunnel-id";
+        }
+        description
+          "Tunnel identifier used in the SESSION
+          that remains constant over the life
+          of the tunnel.";
+        reference "RFC3209";
+      }
+      leaf lsp-id {
+        type leafref {
+          path "../../../../../../lsps-state/lsp/lsp-id";
+        }
+        description
+          "Identifier used in the SENDER_TEMPLATE
+          and the FILTER_SPEC that can be changed
+          to allow a sender to share resources with
+          itself.";
+        reference "RFC3209";
+      }
+      leaf extended-tunnel-id {
+        type leafref {
+          path "../../../../../../lsps-state/lsp/extended-tunnel-id";
+        }
+        description
+          "Extended Tunnel ID of the LSP.";
+        reference "RFC3209";
+      }
+      leaf type {
+        type leafref {
+          path "../../../../../../lsps-state/lsp/type";
+        }
+        description "LSP type P2P or P2MP";
+      }
+    }
+  }
+
+  grouping p2p-secondary-path-params_state {
+    description "foo";
+    list lsp {
+      key "source";
+      description "List of LSPs associated with the tunnel.";
+
+      leaf source {
+        type leafref {
+          path "../../../../../../../lsps-state/lsp/source";
+        }
+        description
+          "Tunnel sender address extracted from
+          SENDER_TEMPLATE  object";
+        reference "RFC3209";
+      }
+      leaf destination {
+        type leafref {
+          path "../../../../../../../lsps-state/lsp/destination";
+        }
+        description
+          "Tunnel endpoint address extracted from
+          SESSION object";
+        reference "RFC3209";
+      }
+      leaf tunnel-id {
+        type leafref {
+          path "../../../../../../../lsps-state/lsp/tunnel-id";
+        }
+        description
+          "Tunnel identifier used in the SESSION
+          that remains constant over the life
+          of the tunnel.";
+        reference "RFC3209";
+      }
+      leaf lsp-id {
+        type leafref {
+          path "../../../../../../../lsps-state/lsp/lsp-id";
+        }
+        description
+          "Identifier used in the SENDER_TEMPLATE
+          and the FILTER_SPEC that can be changed
+          to allow a sender to share resources with
+          itself.";
+        reference "RFC3209";
+      }
+      leaf extended-tunnel-id {
+        type leafref {
+          path "../../../../../../../lsps-state/lsp/extended-tunnel-id";
+        }
+        description
+          "Extended Tunnel ID of the LSP.";
+        reference "RFC3209";
+      }
+      leaf type {
+        type leafref {
+          path "../../../../../../../lsps-state/lsp/type";
+        }
+        description "LSP type P2P or P2MP";
+      }
+    }
+  }
+
   grouping tunnel-path-params_config {
     description
       "Tunnel path properties grouping";
@@ -81,9 +245,6 @@ module ietf-te {
           }
           uses te-types:explicit-route-subobject;
         }
-
-
-
       }
     }
     leaf no-cspf {
@@ -156,119 +317,24 @@ module ietf-te {
       description
         "TE tunnel source address.";
     }
+    leaf destination {
+      /* Add when check */
+      type inet:ip-address;
+      description
+        "P2P tunnel destination address";
+    }
     leaf src-tp-id {
       type binary;
       description
         "TE tunnel source termination point identifier.";
     } 
-    uses te-types:tunnel-bidir-assoc-properties;
-
-    choice path-type {
+    leaf tunnel-dst-tp-id {
+      /* Add when check */
+      type binary;
       description
-        "Describes the path type";
-      case p2p {
-        leaf destination {
-          type inet:ip-address;
-          description
-            "P2P tunnel destination address";
-        }
-        leaf tunnel-dst-tp-id {
-          type binary;
-          description
-            "TE tunnel destination termination point identifier.";
-        } 
-        /* P2P list of path(s) */
-        list primary-paths {
-          key "name";
-          description
-            "List of primary paths for this tunnel.";
-
-          leaf name {
-            type string;
-            description "Path name";
-          }
-          leaf preference {
-            type uint8 {
-              range "1..255";
-            }
-            description
-              "Specifies a preference for this path. The lower the
-              number higher the preference";
-          }
-          uses tunnel-path-params_config;
-          list secondary-paths {
-            key "name";
-            description
-              "List of secondary paths for this
-              tunnel.";
-
-            leaf name {
-              type string;
-              description "Path name";
-            }
-            leaf preference {
-              type uint8 {
-                range "1..255";
-              }
-              description
-                "Specifies a preference for this path. The lower the
-                number higher the preference";
-            }
-            uses tunnel-path-params_config;
-          }
-        }
-      }
-      case p2mp {
-        if-feature te-types:p2mp-te;
-        list p2mp-paths {
-          key "destination";
-          description
-            "List of destinations and their paths.";
-          leaf destination {
-            type inet:ip-address;
-            description
-              "P2MP destination leaf address";
-          }
-          list primary-paths {
-            key "name";
-            description
-              "List of primary paths";
-
-            leaf name {
-              type string;
-              description "Path name";
-            }
-            leaf preference {
-              type uint8 {
-                range "1..255";
-              }
-              description
-                "Specifies a preference for this path. The lower the
-                number higher the preference";
-            }
-            uses tunnel-path-params_config;
-            list secondary-paths {
-              key "name";
-              description
-                "List of secondary paths";
-              leaf name {
-                type string;
-                description "Path name";
-              }
-              leaf preference {
-                type uint8 {
-                  range "1..255";
-                }
-                description
-                  "Specifies a preference for this path. The lower
-                   the number higher the preference";
-              }
-              uses tunnel-path-params_config;
-            }
-          }
-        }
-      }
-    }
+        "TE tunnel destination termination point identifier.";
+    } 
+    uses te-types:tunnel-bidir-assoc-properties;
   }
 
   grouping tunnel-params_state {
@@ -280,63 +346,21 @@ module ietf-te {
       }
       description "TE tunnel operational state.";
     }
-    list lsp {
-      key "source destination tunnel-id lsp-id";
-      description "List of LSPs associated with the tunnel.";
+  }
 
-      leaf source {
-        type leafref {
-          path "../../../../../lsps-state/lsp/source";
-        }
-        description
-          "Tunnel sender address extracted from
-          SENDER_TEMPLATE  object";
-        reference "RFC3209";
+  grouping path-properties_config {
+    description "TE path properties";
+    leaf name {
+      type string;
+      description "TE path name";
+    }
+    leaf preference {
+      type uint8 {
+        range "1..255";
       }
-      leaf destination {
-        type leafref {
-          path "../../../../../lsps-state/lsp/destination";
-        }
-        description
-          "Tunnel endpoint address extracted from
-          SESSION object";
-        reference "RFC3209";
-      }
-      leaf tunnel-id {
-        type leafref {
-          path "../../../../../lsps-state/lsp/tunnel-id";
-        }
-        description
-          "Tunnel identifier used in the SESSION
-          that remains constant over the life
-          of the tunnel.";
-        reference "RFC3209";
-      }
-      leaf lsp-id {
-        type leafref {
-          path "../../../../../lsps-state/lsp/lsp-id";
-        }
-        description
-          "Identifier used in the SENDER_TEMPLATE
-          and the FILTER_SPEC that can be changed
-          to allow a sender to share resources with
-          itself.";
-        reference "RFC3209";
-      }
-      leaf extended-tunnel-id {
-        type leafref {
-          path "../../../../../lsps-state/lsp/extended-tunnel-id";
-        }
-        description
-          "Extended Tunnel ID of the LSP.";
-        reference "RFC3209";
-      }
-      leaf type {
-        type leafref {
-          path "../../../../../lsps-state/lsp/type";
-        }
-        description "LSP type P2P or P2MP";
-      }
+      description
+        "Specifies a preference for this path. The lower the
+        number higher the preference";
     }
   }
 
@@ -356,7 +380,46 @@ module ietf-te {
         "State information associated with tunnel
         properties";
       uses tunnel-params_config;
-      uses tunnel-params_state;
+    }
+    list primary-paths {
+      key "name";
+      description
+        "List of primary paths for this tunnel.";
+      leaf name {
+        type leafref {
+          path "../config/name";
+        }
+        description "TE path name";
+      }
+      leaf preference {
+        type leafref {
+          path "../config/preference";
+        }
+        description
+          "Specifies a preference for this path. The lower the
+          number higher the preference";
+      }
+      uses p2p-primary-path-params;
+      list secondary-paths {
+        key "name";
+        description
+          "List of secondary paths for this tunnel.";
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description "TE path name";
+        }
+        leaf preference {
+          type leafref {
+            path "../config/preference";
+          }
+          description
+            "Specifies a preference for this path. The lower the
+            number higher the preference";
+        }
+        uses p2p-secondary-path-params;
+      }
     }
   }
   /*** End of TE tunnel groupings ***/
