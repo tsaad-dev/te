@@ -164,14 +164,8 @@ augment /nw:networks:
                |  |  +--rw priority     uint8
                |  |  +--rw bandwidth?   decimal64
                |  +--rw time-division-multiplex-capable
-               |  |  +--rw minimum-lsp-bandwidth?   decimal64
-               |  |  +--rw indication?              enumeration
-               |  +--rw interface-adjustment-capability* [upper-sc]
-               |     +--rw upper-sc             identityref
-               |     +--rw upper-encoding?      identityref
-               |     +--rw max-lsp-bandwidth* [priority]
-               |        +--rw priority     uint8
-               |        +--rw bandwidth?   decimal64
+               |     +--rw minimum-lsp-bandwidth?   decimal64
+               |     +--rw indication?              enumeration
                +--rw te-srlgs
                   +--rw values*   te-types:srlg
 augment /nw:networks/nw:network:
@@ -290,13 +284,25 @@ augment /nw:networks/nw:network/nw:node:
       +--rw tunnel-termination-point* [tunnel-tp-id]
          +--rw tunnel-tp-id    binary
          +--rw config
+         |  +--rw switching-capability?     identityref
+         |  +--rw encoding?                 identityref
+         |  +--rw inter-layer-lock-id?      uint32
+         |  +--rw protection-type?          identityref
          |  +--rw termination-capability* [link-tp]
-         |     +--rw link-tp    leafref
+         |     +--rw link-tp              leafref
+         |     +--rw max-lsp-bandwidth* [priority]
+         |        +--rw priority     uint8
+         |        +--rw bandwidth?   decimal64
          +--ro state
+            +--ro switching-capability?     identityref
+            +--ro encoding?                 identityref
+            +--ro inter-layer-lock-id?      uint32
+            +--ro protection-type?          identityref
             +--ro termination-capability* [link-tp]
-            |  +--ro link-tp    leafref
-            +--ro switching-capability      identityref
-            +--ro encoding                  identityref
+               +--ro link-tp              leafref
+               +--ro max-lsp-bandwidth* [priority]
+                  +--ro priority     uint8
+                  +--ro bandwidth?   decimal64
 augment /nw:networks/nw:network/nt:link:
    +--rw te!
       +--rw config
@@ -449,14 +455,8 @@ augment /nw:networks/nw:network/nt:link:
       |     |  |  +--rw priority     uint8
       |     |  |  +--rw bandwidth?   decimal64
       |     |  +--rw time-division-multiplex-capable
-      |     |  |  +--rw minimum-lsp-bandwidth?   decimal64
-      |     |  |  +--rw indication?              enumeration
-      |     |  +--rw interface-adjustment-capability* [upper-sc]
-      |     |     +--rw upper-sc             identityref
-      |     |     +--rw upper-encoding?      identityref
-      |     |     +--rw max-lsp-bandwidth* [priority]
-      |     |        +--rw priority     uint8
-      |     |        +--rw bandwidth?   decimal64
+      |     |     +--rw minimum-lsp-bandwidth?   decimal64
+      |     |     +--rw indication?              enumeration
       |     +--rw te-srlgs
       |        +--rw values*   te-types:srlg
       +--ro state
@@ -609,17 +609,12 @@ augment /nw:networks/nw:network/nt:link:
          |  |  |  +--ro priority     uint8
          |  |  |  +--ro bandwidth?   decimal64
          |  |  +--ro time-division-multiplex-capable
-         |  |  |  +--ro minimum-lsp-bandwidth?   decimal64
-         |  |  |  +--ro indication?              enumeration
-         |  |  +--ro interface-adjustment-capability* [upper-sc]
-         |  |     +--ro upper-sc             identityref
-         |  |     +--ro upper-encoding?      identityref
-         |  |     +--ro max-lsp-bandwidth* [priority]
-         |  |        +--ro priority     uint8
-         |  |        +--ro bandwidth?   decimal64
+         |  |     +--ro minimum-lsp-bandwidth?   decimal64
+         |  |     +--ro indication?              enumeration
          |  +--ro te-srlgs
          |     +--ro values*   te-types:srlg
          +--ro oper-status?                te-oper-status
+         +--ro is-transitional?            empty
          +--ro information-source?         enumeration
          +--ro information-source-state
          |  +--ro credibility-preference?   uint16
@@ -674,14 +669,8 @@ augment /nw:networks/nw:network/nt:link:
          |  |  |  +--ro priority     uint8
          |  |  |  +--ro bandwidth?   decimal64
          |  |  +--ro time-division-multiplex-capable
-         |  |  |  +--ro minimum-lsp-bandwidth?   decimal64
-         |  |  |  +--ro indication?              enumeration
-         |  |  +--ro interface-adjustment-capability* [upper-sc]
-         |  |     +--ro upper-sc             identityref
-         |  |     +--ro upper-encoding?      identityref
-         |  |     +--ro max-lsp-bandwidth* [priority]
-         |  |        +--ro priority     uint8
-         |  |        +--ro bandwidth?   decimal64
+         |  |     +--ro minimum-lsp-bandwidth?   decimal64
+         |  |     +--ro indication?              enumeration
          |  +--ro te-srlgs
          |     +--ro values*   te-types:srlg
          +--ro recovery
@@ -695,18 +684,38 @@ augment /nw:networks/nw:network/nw:node/nt:termination-point:
       +--rw te-tp-id    te-tp-id
       +--rw config
       |  +--rw schedules
-      |     +--rw schedule* [schedule-id]
-      |        +--rw schedule-id          uint32
-      |        +--rw start?               yang:date-and-time
-      |        +--rw schedule-duration?   string
-      |        +--rw repeat-interval?     string
+      |  |  +--rw schedule* [schedule-id]
+      |  |     +--rw schedule-id          uint32
+      |  |     +--rw start?               yang:date-and-time
+      |  |     +--rw schedule-duration?   string
+      |  |     +--rw repeat-interval?     string
+      |  +--rw interface-switching-capability* [switching-capability]
+      |  |  +--rw switching-capability               identityref
+      |  |  +--rw encoding?                          identityref
+      |  |  +--rw max-lsp-bandwidth* [priority]
+      |  |  |  +--rw priority     uint8
+      |  |  |  +--rw bandwidth?   decimal64
+      |  |  +--rw time-division-multiplex-capable
+      |  |     +--rw minimum-lsp-bandwidth?   decimal64
+      |  |     +--rw indication?              enumeration
+      |  +--rw inter-layer-lock-id?              uint32
       +--ro state
          +--ro schedules
-            +--ro schedule* [schedule-id]
-               +--ro schedule-id          uint32
-               +--ro start?               yang:date-and-time
-               +--ro schedule-duration?   string
-               +--ro repeat-interval?     string
+         |  +--ro schedule* [schedule-id]
+         |     +--ro schedule-id          uint32
+         |     +--ro start?               yang:date-and-time
+         |     +--ro schedule-duration?   string
+         |     +--ro repeat-interval?     string
+         +--ro interface-switching-capability* [switching-capability]
+         |  +--ro switching-capability               identityref
+         |  +--ro encoding?                          identityref
+         |  +--ro max-lsp-bandwidth* [priority]
+         |  |  +--ro priority     uint8
+         |  |  +--ro bandwidth?   decimal64
+         |  +--ro time-division-multiplex-capable
+         |     +--ro minimum-lsp-bandwidth?   decimal64
+         |     +--ro indication?              enumeration
+         +--ro inter-layer-lock-id?              uint32
 notifications:
    +---n te-node-event
    |  +--ro event-type?                 te-topology-event-type
@@ -924,17 +933,12 @@ notifications:
       |  |  |  +--ro priority     uint8
       |  |  |  +--ro bandwidth?   decimal64
       |  |  +--ro time-division-multiplex-capable
-      |  |  |  +--ro minimum-lsp-bandwidth?   decimal64
-      |  |  |  +--ro indication?              enumeration
-      |  |  +--ro interface-adjustment-capability* [upper-sc]
-      |  |     +--ro upper-sc             identityref
-      |  |     +--ro upper-encoding?      identityref
-      |  |     +--ro max-lsp-bandwidth* [priority]
-      |  |        +--ro priority     uint8
-      |  |        +--ro bandwidth?   decimal64
+      |  |     +--ro minimum-lsp-bandwidth?   decimal64
+      |  |     +--ro indication?              enumeration
       |  +--ro te-srlgs
       |     +--ro values*   te-types:srlg
       +--ro oper-status?                te-oper-status
+      +--ro is-transitional?            empty
       +--ro information-source?         enumeration
       +--ro information-source-state
       |  +--ro credibility-preference?   uint16
@@ -989,14 +993,8 @@ notifications:
       |  |  |  +--ro priority     uint8
       |  |  |  +--ro bandwidth?   decimal64
       |  |  +--ro time-division-multiplex-capable
-      |  |  |  +--ro minimum-lsp-bandwidth?   decimal64
-      |  |  |  +--ro indication?              enumeration
-      |  |  +--ro interface-adjustment-capability* [upper-sc]
-      |  |     +--ro upper-sc             identityref
-      |  |     +--ro upper-encoding?      identityref
-      |  |     +--ro max-lsp-bandwidth* [priority]
-      |  |        +--ro priority     uint8
-      |  |        +--ro bandwidth?   decimal64
+      |  |     +--ro minimum-lsp-bandwidth?   decimal64
+      |  |     +--ro indication?              enumeration
       |  +--ro te-srlgs
       |     +--ro values*   te-types:srlg
       +--ro recovery

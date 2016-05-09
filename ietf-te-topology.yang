@@ -59,7 +59,7 @@ module ietf-te-topology {
 
   description "TE topology model";
   
-  revision "2016-03-17" {
+  revision "2016-05-05" {
     description "Initial revision";
     reference "TBD";
   }
@@ -188,7 +188,7 @@ module ietf-te-topology {
       "An identifier for a node in a topology.
        The identifier is represented as an IPv4 or IPv6 address.
        This attribute is mapped to Router ID in
-       RFC3630, RFC5329, RFC5305, and RFC 6119.";
+       RFC3630, RFC5329, RFC5305, and RFC6119.";
   }
 
   typedef te-oper-status {
@@ -337,6 +337,44 @@ module ietf-te-topology {
   /*
    * Identities
    */
+  identity tunnel-protection-type {
+    description
+      "Base identity for tunnel protectiontype";
+    reference
+      "RFC4872: RSVP-TE Extensions in Support of End-to-End
+       Generalized Multi-Protocol Label Switching (GMPLS)
+       Recovery.";
+  }
+  
+  identity tunnel-protection-unprotected {
+    base tunnel-protection-type;
+    description "Unprotected";
+  }
+
+  identity tunnel-protection-rerouting {
+    base tunnel-protection-type;
+    description "Rerouting.";
+  }
+
+  identity tunnel-protection-rerouting-without-extra-traffic {
+    base tunnel-protection-type;
+    description "Rerouting without Extra-Traffic.";
+  }
+
+  identity tunnel-protection-1-for-n {
+    base tunnel-protection-type;
+    description "One for n protection with extra-traffic.";
+  }
+
+  identity tunnel-protection-1-plus-1-unidirectional {
+    base tunnel-protection-type;
+    description "One plus one unidirectional protection.";
+  }
+
+  identity tunnel-protection-1-plus-1-bidirectional {
+    base tunnel-protection-type;
+    description "One plus one bidirectional protection.";
+  }
 
   /*
    * Groupings
@@ -400,6 +438,86 @@ module ietf-te-topology {
       } // routing-information
     }
   } // information-source-attributes
+
+  grouping interface-switching-capability-list {
+    description
+      "List of Interface Switching Capabilities Descriptors (ISCD)";
+
+    list interface-switching-capability {
+      key "switching-capability";
+      description
+        "List of Interface Switching Capabilities Descriptors (ISCD)
+         for this link.";
+      reference
+        "RFC3471: Generalized Multi-Protocol Label Switching (GMPLS)
+         Signaling Functional Description.
+         RFC4203: OSPF Extensions in Support of Generalized 
+         Multi-Protocol Label Switching (GMPLS).";
+      leaf switching-capability {
+        type identityref {
+          base te-types:switching-capabilities;
+        }
+        description
+          "Switching Capability for this interface.";
+      }
+      leaf encoding {
+        type identityref {
+          base te-types:lsp-encoding-types;
+        }
+        description
+          "Encoding supported by this interface.";
+      }
+      list max-lsp-bandwidth {
+        key "priority";
+        max-elements "8";
+        description
+          "Maximum LSP Bandwidth at priorities 0-7.";
+        leaf priority {
+          type uint8 {
+            range "0..7";
+          }
+          description "Priority.";
+        }
+        leaf bandwidth {
+          type decimal64 {
+            fraction-digits 2;
+          }
+          description
+            "Max LSP Bandwidth for this level";
+        }
+      }
+      container time-division-multiplex-capable {
+        when "../switching-capability = 'TDM'" {
+          description "Valid only for TDM";
+        }
+        description
+          "Interface has time-division multiplex capabilities.";
+
+        leaf minimum-lsp-bandwidth {
+          type decimal64 {
+            fraction-digits 2;
+          }
+          description
+            "Minimum LSP Bandwidth. Units in bytes per second.";
+        }
+        leaf indication {
+          type enumeration {
+            enum "standard" {
+              description 
+                "Indicates support of standard SONET/SDH.";
+            }
+            enum "arbitrary" {
+              description 
+                "Indicates support of arbitrary SONET/SDH.";
+            }
+          }
+          description
+            "Indication whether the interface supports Standard or
+             Arbitrary SONET/SDH";
+        }
+      } // time-division-multiplex-capable
+    } // interface-switching-capability
+  } // interface-switching-capability-list
 
   grouping performance-metric-attributes {
     description
@@ -868,122 +986,7 @@ module ietf-te-topology {
         "RFC4202: Routing Extensions in Support of
          Generalized Multi-Protocol Label Switching (GMPLS).";
     }
-    list interface-switching-capability {
-      key "switching-capability";
-      description
-        "List of Interface Switching Capabilities Descriptors (ISCD)
-         for this link.";
-      reference
-        "RFC3471: Generalized Multi-Protocol Label Switching (GMPLS)
-         Signaling Functional Description.
-         RFC4203: OSPF Extensions in Support of Generalized 
-         Multi-Protocol Label Switching (GMPLS).";
-      leaf switching-capability {
-        type identityref {
-          base te-types:switching-capabilities;
-        }
-        description
-          "Switching Capability for this interface.";
-      }
-      leaf encoding {
-        type identityref {
-          base te-types:lsp-encoding-types;
-        }
-        description
-          "Encoding supported by this interface.";
-      }
-      list max-lsp-bandwidth {
-        key "priority";
-        max-elements "8";
-        description
-          "Maximum LSP Bandwidth at priorities 0-7.";
-        leaf priority {
-          type uint8 {
-            range "0..7";
-          }
-          description "Priority.";
-        }
-        leaf bandwidth {
-          type decimal64 {
-            fraction-digits 2;
-          }
-          description
-            "Max LSP Bandwidth for this level";
-        }
-      }
-      container time-division-multiplex-capable {
-        when "../switching-capability = 'TDM'" {
-          description "Valid only for TDM";
-        }
-        description
-          "Interface has time-division multiplex capabilities.";
-
-        leaf minimum-lsp-bandwidth {
-          type decimal64 {
-            fraction-digits 2;
-          }
-          description
-            "Minimum LSP Bandwidth. Units in bytes per second.";
-        }
-        leaf indication {
-          type enumeration {
-            enum "standard" {
-              description 
-                "Indicates support of standard SONET/SDH.";
-            }
-            enum "arbitrary" {
-              description 
-                "Indicates support of arbitrary SONET/SDH.";
-            }
-          }
-          description
-            "Indication whether the interface supports Standard or
-             Arbitrary SONET/SDH";
-        }
-      }
-      list interface-adjustment-capability {
-        key "upper-sc";
-        description
-          "List of Interface Adjustment Capability Descriptors (IACD)
-           for this link.";
-        reference
-          "RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
-           for Multi-Layer and Multi-Region Networks (MLN/MRN).";
-        leaf upper-sc {
-          type identityref {
-            base te-types:switching-capabilities;
-          }
-          description
-            "Switching Capability for this interface.";
-        }
-        leaf upper-encoding {
-          type identityref {
-            base te-types:lsp-encoding-types;
-          }
-          description
-            "Encoding supported by this interface.";
-        }
-        list max-lsp-bandwidth {
-          key "priority";
-          max-elements "8";
-          description
-            "Maximum LSP Bandwidth at priorities 0-7.";
-          leaf priority {
-            type uint8 {
-              range "0..7";
-            }
-            description "Priority.";
-          }
-          leaf bandwidth {
-            type decimal64 {
-              fraction-digits 2;
-            }
-            description
-              "Max LSP Bandwidth for this level.";
-          }
-        }
-      } // interface-adjustment-capability
-    } // interface-switching-capability
+    uses interface-switching-capability-list;
     container te-srlgs {
       description
         "A list of SLRGs.";
@@ -1004,6 +1007,19 @@ module ietf-te-topology {
       type te-oper-status;
       description
         "The current operational state of the link.";
+    }
+    leaf is-transitional {
+      type empty;
+      description 
+        "Present if the link is transitional, used as an 
+         alternative approach in lieu of inter-layer-lock-id 
+         for path computation in a TE topology covering multiple
+         layers or multiple regions.";
+      reference
+        "RFC5212: Requirements for GMPLS-Based Multi-Region and
+         Multi-Layer Networks (MRN/MLN).
+         RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
+         for Multi-Layer and Multi-Region Networks (MLN/MRN).";        
     }
     uses information-source-attributes;
     list alt-information-sources {
@@ -1166,22 +1182,6 @@ module ietf-te-topology {
             "Operational state data.";
 
           uses te-node-tunnel-termination-capability;
-          leaf switching-capability {
-            type identityref {
-              base te-types:switching-capabilities;
-            }
-            mandatory true;
-            description
-              "Switching Capability.";
-          }
-          leaf encoding {
-            type identityref {
-              base te-types:lsp-encoding-types;
-            }
-            mandatory true;
-            description
-              "Encoding type.";
-          }
         } // state
         
       } // tunnel-termination-point
@@ -1431,13 +1431,53 @@ module ietf-te-topology {
       "Termination capability of a tunnel termination point on a
        TE node.";
 
+    leaf switching-capability {
+      type identityref {
+        base te-types:switching-capabilities;
+      }
+      description
+        "Switching Capability for this interface.";
+    }
+    leaf encoding {
+      type identityref {
+        base te-types:lsp-encoding-types;
+      }
+      description
+        "Encoding supported by this interface.";
+    }
+    leaf inter-layer-lock-id {
+      type uint32;
+      description
+        "Inter layer lock ID, used for path computation in a TE
+         topology covering multiple layers or multiple regions.";
+      reference
+        "RFC5212: Requirements for GMPLS-Based Multi-Region and
+         Multi-Layer Networks (MRN/MLN).
+         RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
+         for Multi-Layer and Multi-Region Networks (MLN/MRN).";        
+    }
+    leaf protection-type {
+      type identityref {
+        base tunnel-protection-type;
+      }
+      description
+        "The protection type that this tunnel termination point
+         is capable of.";
+    }
+
     list termination-capability {
       key "link-tp";
       description
         "The termination capabilities between 
          tunnel-termination-point and link termination-point.
          The capability information can be used to compute
-         the tunnel path.";
+         the tunnel path.
+         The Interface Adjustment Capability Descriptors (IACD)
+         [RFC6001] on each link-tp can be derived from this 
+         termination-capability list.";
+      reference
+        "RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
+         for Multi-Layer and Multi-Region Networks (MLN/MRN).";
       leaf link-tp {
         type leafref {
           path "../../../../../nt:termination-point/nt:tp-id";
@@ -1445,6 +1485,29 @@ module ietf-te-topology {
         description
           "Link termination point.";
       }
+
+      list max-lsp-bandwidth {
+        key "priority";
+        max-elements "8";
+        description
+          "Maximum LSP Bandwidth at priorities 0-7.";
+        reference
+          "RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
+           for Multi-Layer and Multi-Region Networks (MLN/MRN).";
+        leaf priority {
+          type uint8 {
+            range "0..7";
+          }
+          description "Priority.";
+        }
+        leaf bandwidth {
+          type decimal64 {
+            fraction-digits 2;
+          }
+          description
+            "Max LSP Bandwidth for this level.";
+        }
+      } // max-lsp-bandwidth
     } // termination-capability
   } // te-node-tunnel-termination-capability
 
@@ -1490,6 +1553,18 @@ module ietf-te-topology {
     description 
       "TE termination point configuration grouping.";
     uses sch:schedules;
+    uses interface-switching-capability-list;
+    leaf inter-layer-lock-id {
+      type uint32;
+      description
+        "Inter layer lock ID, used for path computation in a TE
+         topology covering multiple layers or multiple regions.";
+      reference
+        "RFC5212: Requirements for GMPLS-Based Multi-Region and
+         Multi-Layer Networks (MRN/MLN).
+         RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
+         for Multi-Layer and Multi-Region Networks (MLN/MRN).";        
+    }
   } // te-termination-point-config
 
   grouping te-topologies-augment {
