@@ -20,19 +20,60 @@ module ietf-mpls-static {
     prefix "if";
   }
 
-  organization "TBD";
+  organization "IETF MPLS Working Group";
 
-  contact "TBD";
+  contact
+    "WG Web:   <http://tools.ietf.org/wg/mpls/>
+
+     WG List:  <mailto:mpls@ietf.org>
+
+     WG Chair: Loa Andersson
+               <mailto:loa@pi.nu>
+
+     WG Chair: Ross Callon
+               <mailto:rcallon@juniper.net>
+
+     WG Chair: George Swallow
+               <mailto:swallow.ietf@gmail.com>
+
+     Editor:   Tarek Saad
+               <mailto:tsaad@cisco.com>
+
+     Editor:   Kamran Raza
+               <mailto:skraza@cisco.com>
+
+     Editor:   Rakesh Gandhi
+               <mailto:rgandhi@cisco.com>
+
+     Editor:   Xufeng Liu
+               <mailto: xufeng.liu.ietf@gmail.com>
+
+     Editor:   Vishnu Pavan Beeram
+               <mailto:vbeeram@juniper.net>
+
+     Editor:   Himanshu Shah
+               <mailto:hshah@ciena.com>
+
+     Editor:   Igor Bryskin
+               <mailto: Igor.Bryskin@huawei.com>
+
+     Editor:   Xia Chen
+               <mailto:jescia.chenxia@huawei.com>
+
+     Editor:   Raqib Jones
+               <mailto:raqib@Brocade.com>
+
+     Editor:   Bin Wen
+               <mailto:Bin_Wen@cable.comcast.com>";
 
   description
      "This YANG module augments the 'ietf-routing' module with basic
      configuration and operational state data for MPLS static";
 
-  revision "2016-03-21" {
+  revision "2016-05-11" {
     description
-      "Initial revision";
-    reference
-      "RFC 3031: A YANG Data Model for MPLS Static";
+      "Latest revision:
+        - Addressed MPLS-RT review comments";
   }
 
   grouping path-basic_config {
@@ -62,13 +103,13 @@ module ietf-mpls-static {
     description
       "MPLS path properties";
     leaf path-index {
-      type uint32;
+      type uint16;
       description
         "Path identifier";
     }
 
     leaf backup-path-index {
-      type uint32;
+      type uint16;
       description
         "Backup path identifier";
     }
@@ -79,21 +120,11 @@ module ietf-mpls-static {
         "The address of the next-hop";
     }
 
-    list outgoing-labels {
-      key index;
+    leaf-list outgoing-labels {
+      type mpls:mpls-label;
+      ordered-by user;
       description
         "The outgoing MPLS labels to impose";
-      leaf index {
-        type uint32;
-        description
-          "The index of the label, lower indices are closer to
-           the top";
-      }
-      leaf label {
-        type mpls:mpls-label;
-        description
-          "The MPLS label value";
-      }
     }
 
     leaf outgoing-interface {
@@ -103,9 +134,12 @@ module ietf-mpls-static {
     }
 
     leaf loadshare {
-      type mpls:percent;
+      type uint16;
       description
-        "The percentage of total load tto carry on this path";
+        "This value is used to compute a loadshare to perform un-equal
+         load balancing when multiple outgoing path(s) are specified. A
+         share is computed as a ratio of this number to the total under
+         all configured path(s).";
     }
 
     leaf role {
