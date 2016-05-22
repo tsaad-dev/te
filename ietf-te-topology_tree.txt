@@ -131,6 +131,16 @@ augment /nw:networks:
                |     +--rw unidirectional-utilized-bandwidth?    decimal64
                +--rw link-index?                       uint64
                +--rw administrative-group?             te-types:admin-groups
+               +--rw interface-switching-capability* [switching-capability]
+               |  +--rw switching-capability               identityref
+               |  +--rw encoding?                          identityref
+               |  +--rw max-lsp-bandwidth* [priority]
+               |  |  +--rw priority     uint8
+               |  |  +--rw bandwidth?   decimal64
+               |  +--rw time-division-multiplex-capable
+               |     +--rw minimum-lsp-bandwidth?   decimal64
+               |     +--rw indication?              enumeration
+               +--rw link-protection-type?             enumeration
                +--rw max-link-bandwidth?               decimal64
                +--rw max-resv-link-bandwidth?          decimal64
                +--rw unreserved-bandwidth* [priority]
@@ -156,16 +166,6 @@ augment /nw:networks:
                |     +--rw unidirectional-residual-bandwidth?    performance-metric-normality
                |     +--rw unidirectional-available-bandwidth?   performance-metric-normality
                |     +--rw unidirectional-utilized-bandwidth?    performance-metric-normality
-               +--rw link-protection-type?             enumeration
-               +--rw interface-switching-capability* [switching-capability]
-               |  +--rw switching-capability               identityref
-               |  +--rw encoding?                          identityref
-               |  +--rw max-lsp-bandwidth* [priority]
-               |  |  +--rw priority     uint8
-               |  |  +--rw bandwidth?   decimal64
-               |  +--rw time-division-multiplex-capable
-               |     +--rw minimum-lsp-bandwidth?   decimal64
-               |     +--rw indication?              enumeration
                +--rw te-srlgs
                   +--rw values*   te-types:srlg
 augment /nw:networks/nw:network:
@@ -203,12 +203,39 @@ augment /nw:networks/nw:network/nw:node:
       |     |     +--rw repeat-interval?     string
       |     +--rw admin-status?          te-admin-status
       |     +--rw connectivity-matrix* [id]
-      |     |  +--rw id            uint32
+      |     |  +--rw id                         uint32
       |     |  +--rw from
       |     |  |  +--rw tp-ref?   leafref
       |     |  +--rw to
       |     |  |  +--rw tp-ref?   leafref
-      |     |  +--rw is-allowed?   boolean
+      |     |  +--rw is-allowed?                boolean
+      |     |  +--rw max-link-bandwidth?        decimal64
+      |     |  +--rw max-resv-link-bandwidth?   decimal64
+      |     |  +--rw unreserved-bandwidth* [priority]
+      |     |  |  +--rw priority     uint8
+      |     |  |  +--rw bandwidth?   decimal64
+      |     |  +--rw te-default-metric?         uint32
+      |     |  +--rw performance-metric {te-performance-metric}?
+      |     |  |  +--rw measurement
+      |     |  |  |  +--rw unidirectional-delay?                 uint32
+      |     |  |  |  +--rw unidirectional-min-delay?             uint32
+      |     |  |  |  +--rw unidirectional-max-delay?             uint32
+      |     |  |  |  +--rw unidirectional-delay-variation?       uint32
+      |     |  |  |  +--rw unidirectional-packet-loss?           decimal64
+      |     |  |  |  +--rw unidirectional-residual-bandwidth?    decimal64
+      |     |  |  |  +--rw unidirectional-available-bandwidth?   decimal64
+      |     |  |  |  +--rw unidirectional-utilized-bandwidth?    decimal64
+      |     |  |  +--rw normality
+      |     |  |     +--rw unidirectional-delay?                 performance-metric-normality
+      |     |  |     +--rw unidirectional-min-delay?             performance-metric-normality
+      |     |  |     +--rw unidirectional-max-delay?             performance-metric-normality
+      |     |  |     +--rw unidirectional-delay-variation?       performance-metric-normality
+      |     |  |     +--rw unidirectional-packet-loss?           performance-metric-normality
+      |     |  |     +--rw unidirectional-residual-bandwidth?    performance-metric-normality
+      |     |  |     +--rw unidirectional-available-bandwidth?   performance-metric-normality
+      |     |  |     +--rw unidirectional-utilized-bandwidth?    performance-metric-normality
+      |     |  +--rw te-srlgs
+      |     |     +--rw values*   te-types:srlg
       |     +--rw domain-id?             uint32
       |     +--rw is-abstract?           empty
       |     +--rw name?                  inet:domain-name
@@ -229,12 +256,39 @@ augment /nw:networks/nw:network/nw:node:
       |  |  |     +--ro repeat-interval?     string
       |  |  +--ro admin-status?          te-admin-status
       |  |  +--ro connectivity-matrix* [id]
-      |  |  |  +--ro id            uint32
+      |  |  |  +--ro id                         uint32
       |  |  |  +--ro from
       |  |  |  |  +--ro tp-ref?   leafref
       |  |  |  +--ro to
       |  |  |  |  +--ro tp-ref?   leafref
-      |  |  |  +--ro is-allowed?   boolean
+      |  |  |  +--ro is-allowed?                boolean
+      |  |  |  +--ro max-link-bandwidth?        decimal64
+      |  |  |  +--ro max-resv-link-bandwidth?   decimal64
+      |  |  |  +--ro unreserved-bandwidth* [priority]
+      |  |  |  |  +--ro priority     uint8
+      |  |  |  |  +--ro bandwidth?   decimal64
+      |  |  |  +--ro te-default-metric?         uint32
+      |  |  |  +--ro performance-metric {te-performance-metric}?
+      |  |  |  |  +--ro measurement
+      |  |  |  |  |  +--ro unidirectional-delay?                 uint32
+      |  |  |  |  |  +--ro unidirectional-min-delay?             uint32
+      |  |  |  |  |  +--ro unidirectional-max-delay?             uint32
+      |  |  |  |  |  +--ro unidirectional-delay-variation?       uint32
+      |  |  |  |  |  +--ro unidirectional-packet-loss?           decimal64
+      |  |  |  |  |  +--ro unidirectional-residual-bandwidth?    decimal64
+      |  |  |  |  |  +--ro unidirectional-available-bandwidth?   decimal64
+      |  |  |  |  |  +--ro unidirectional-utilized-bandwidth?    decimal64
+      |  |  |  |  +--ro normality
+      |  |  |  |     +--ro unidirectional-delay?                 performance-metric-normality
+      |  |  |  |     +--ro unidirectional-min-delay?             performance-metric-normality
+      |  |  |  |     +--ro unidirectional-max-delay?             performance-metric-normality
+      |  |  |  |     +--ro unidirectional-delay-variation?       performance-metric-normality
+      |  |  |  |     +--ro unidirectional-packet-loss?           performance-metric-normality
+      |  |  |  |     +--ro unidirectional-residual-bandwidth?    performance-metric-normality
+      |  |  |  |     +--ro unidirectional-available-bandwidth?   performance-metric-normality
+      |  |  |  |     +--ro unidirectional-utilized-bandwidth?    performance-metric-normality
+      |  |  |  +--ro te-srlgs
+      |  |  |     +--ro values*   te-types:srlg
       |  |  +--ro domain-id?             uint32
       |  |  +--ro is-abstract?           empty
       |  |  +--ro name?                  inet:domain-name
@@ -266,12 +320,39 @@ augment /nw:networks/nw:network/nw:node:
       |     |  |  +--ro network-id-ref?       leafref
       |     |  +--ro routing-instance?         string
       |     +--ro connectivity-matrix* [id]
-      |     |  +--ro id            uint32
+      |     |  +--ro id                         uint32
       |     |  +--ro from
       |     |  |  +--ro tp-ref?   leafref
       |     |  +--ro to
       |     |  |  +--ro tp-ref?   leafref
-      |     |  +--ro is-allowed?   boolean
+      |     |  +--ro is-allowed?                boolean
+      |     |  +--ro max-link-bandwidth?        decimal64
+      |     |  +--ro max-resv-link-bandwidth?   decimal64
+      |     |  +--ro unreserved-bandwidth* [priority]
+      |     |  |  +--ro priority     uint8
+      |     |  |  +--ro bandwidth?   decimal64
+      |     |  +--ro te-default-metric?         uint32
+      |     |  +--ro performance-metric {te-performance-metric}?
+      |     |  |  +--ro measurement
+      |     |  |  |  +--ro unidirectional-delay?                 uint32
+      |     |  |  |  +--ro unidirectional-min-delay?             uint32
+      |     |  |  |  +--ro unidirectional-max-delay?             uint32
+      |     |  |  |  +--ro unidirectional-delay-variation?       uint32
+      |     |  |  |  +--ro unidirectional-packet-loss?           decimal64
+      |     |  |  |  +--ro unidirectional-residual-bandwidth?    decimal64
+      |     |  |  |  +--ro unidirectional-available-bandwidth?   decimal64
+      |     |  |  |  +--ro unidirectional-utilized-bandwidth?    decimal64
+      |     |  |  +--ro normality
+      |     |  |     +--ro unidirectional-delay?                 performance-metric-normality
+      |     |  |     +--ro unidirectional-min-delay?             performance-metric-normality
+      |     |  |     +--ro unidirectional-max-delay?             performance-metric-normality
+      |     |  |     +--ro unidirectional-delay-variation?       performance-metric-normality
+      |     |  |     +--ro unidirectional-packet-loss?           performance-metric-normality
+      |     |  |     +--ro unidirectional-residual-bandwidth?    performance-metric-normality
+      |     |  |     +--ro unidirectional-available-bandwidth?   performance-metric-normality
+      |     |  |     +--ro unidirectional-utilized-bandwidth?    performance-metric-normality
+      |     |  +--ro te-srlgs
+      |     |     +--ro values*   te-types:srlg
       |     +--ro domain-id?                  uint32
       |     +--ro is-abstract?                empty
       |     +--ro name?                       inet:domain-name
@@ -422,6 +503,16 @@ augment /nw:networks/nw:network/nt:link:
       |     |     +--rw unidirectional-utilized-bandwidth?    decimal64
       |     +--rw link-index?                       uint64
       |     +--rw administrative-group?             te-types:admin-groups
+      |     +--rw interface-switching-capability* [switching-capability]
+      |     |  +--rw switching-capability               identityref
+      |     |  +--rw encoding?                          identityref
+      |     |  +--rw max-lsp-bandwidth* [priority]
+      |     |  |  +--rw priority     uint8
+      |     |  |  +--rw bandwidth?   decimal64
+      |     |  +--rw time-division-multiplex-capable
+      |     |     +--rw minimum-lsp-bandwidth?   decimal64
+      |     |     +--rw indication?              enumeration
+      |     +--rw link-protection-type?             enumeration
       |     +--rw max-link-bandwidth?               decimal64
       |     +--rw max-resv-link-bandwidth?          decimal64
       |     +--rw unreserved-bandwidth* [priority]
@@ -447,16 +538,6 @@ augment /nw:networks/nw:network/nt:link:
       |     |     +--rw unidirectional-residual-bandwidth?    performance-metric-normality
       |     |     +--rw unidirectional-available-bandwidth?   performance-metric-normality
       |     |     +--rw unidirectional-utilized-bandwidth?    performance-metric-normality
-      |     +--rw link-protection-type?             enumeration
-      |     +--rw interface-switching-capability* [switching-capability]
-      |     |  +--rw switching-capability               identityref
-      |     |  +--rw encoding?                          identityref
-      |     |  +--rw max-lsp-bandwidth* [priority]
-      |     |  |  +--rw priority     uint8
-      |     |  |  +--rw bandwidth?   decimal64
-      |     |  +--rw time-division-multiplex-capable
-      |     |     +--rw minimum-lsp-bandwidth?   decimal64
-      |     |     +--rw indication?              enumeration
       |     +--rw te-srlgs
       |        +--rw values*   te-types:srlg
       +--ro state
@@ -576,6 +657,16 @@ augment /nw:networks/nw:network/nt:link:
          |  |     +--ro unidirectional-utilized-bandwidth?    decimal64
          |  +--ro link-index?                       uint64
          |  +--ro administrative-group?             te-types:admin-groups
+         |  +--ro interface-switching-capability* [switching-capability]
+         |  |  +--ro switching-capability               identityref
+         |  |  +--ro encoding?                          identityref
+         |  |  +--ro max-lsp-bandwidth* [priority]
+         |  |  |  +--ro priority     uint8
+         |  |  |  +--ro bandwidth?   decimal64
+         |  |  +--ro time-division-multiplex-capable
+         |  |     +--ro minimum-lsp-bandwidth?   decimal64
+         |  |     +--ro indication?              enumeration
+         |  +--ro link-protection-type?             enumeration
          |  +--ro max-link-bandwidth?               decimal64
          |  +--ro max-resv-link-bandwidth?          decimal64
          |  +--ro unreserved-bandwidth* [priority]
@@ -601,16 +692,6 @@ augment /nw:networks/nw:network/nt:link:
          |  |     +--ro unidirectional-residual-bandwidth?    performance-metric-normality
          |  |     +--ro unidirectional-available-bandwidth?   performance-metric-normality
          |  |     +--ro unidirectional-utilized-bandwidth?    performance-metric-normality
-         |  +--ro link-protection-type?             enumeration
-         |  +--ro interface-switching-capability* [switching-capability]
-         |  |  +--ro switching-capability               identityref
-         |  |  +--ro encoding?                          identityref
-         |  |  +--ro max-lsp-bandwidth* [priority]
-         |  |  |  +--ro priority     uint8
-         |  |  |  +--ro bandwidth?   decimal64
-         |  |  +--ro time-division-multiplex-capable
-         |  |     +--ro minimum-lsp-bandwidth?   decimal64
-         |  |     +--ro indication?              enumeration
          |  +--ro te-srlgs
          |     +--ro values*   te-types:srlg
          +--ro oper-status?                te-oper-status
@@ -636,6 +717,16 @@ augment /nw:networks/nw:network/nt:link:
          |  |  +--ro routing-instance?         string
          |  +--ro link-index?                       uint64
          |  +--ro administrative-group?             te-types:admin-groups
+         |  +--ro interface-switching-capability* [switching-capability]
+         |  |  +--ro switching-capability               identityref
+         |  |  +--ro encoding?                          identityref
+         |  |  +--ro max-lsp-bandwidth* [priority]
+         |  |  |  +--ro priority     uint8
+         |  |  |  +--ro bandwidth?   decimal64
+         |  |  +--ro time-division-multiplex-capable
+         |  |     +--ro minimum-lsp-bandwidth?   decimal64
+         |  |     +--ro indication?              enumeration
+         |  +--ro link-protection-type?             enumeration
          |  +--ro max-link-bandwidth?               decimal64
          |  +--ro max-resv-link-bandwidth?          decimal64
          |  +--ro unreserved-bandwidth* [priority]
@@ -661,16 +752,6 @@ augment /nw:networks/nw:network/nt:link:
          |  |     +--ro unidirectional-residual-bandwidth?    performance-metric-normality
          |  |     +--ro unidirectional-available-bandwidth?   performance-metric-normality
          |  |     +--ro unidirectional-utilized-bandwidth?    performance-metric-normality
-         |  +--ro link-protection-type?             enumeration
-         |  +--ro interface-switching-capability* [switching-capability]
-         |  |  +--ro switching-capability               identityref
-         |  |  +--ro encoding?                          identityref
-         |  |  +--ro max-lsp-bandwidth* [priority]
-         |  |  |  +--ro priority     uint8
-         |  |  |  +--ro bandwidth?   decimal64
-         |  |  +--ro time-division-multiplex-capable
-         |  |     +--ro minimum-lsp-bandwidth?   decimal64
-         |  |     +--ro indication?              enumeration
          |  +--ro te-srlgs
          |     +--ro values*   te-types:srlg
          +--ro recovery
@@ -679,6 +760,7 @@ augment /nw:networks/nw:network/nt:link:
          +--ro underlay {te-topology-hierarchy}?
             +--ro dynamic?     boolean
             +--ro committed?   boolean
+
 augment /nw:networks/nw:network/nw:node/nt:termination-point:
    +--rw te!
       +--rw te-tp-id    te-tp-id
@@ -900,6 +982,16 @@ notifications:
       |  |     +--ro unidirectional-utilized-bandwidth?    decimal64
       |  +--ro link-index?                       uint64
       |  +--ro administrative-group?             te-types:admin-groups
+      |  +--ro interface-switching-capability* [switching-capability]
+      |  |  +--ro switching-capability               identityref
+      |  |  +--ro encoding?                          identityref
+      |  |  +--ro max-lsp-bandwidth* [priority]
+      |  |  |  +--ro priority     uint8
+      |  |  |  +--ro bandwidth?   decimal64
+      |  |  +--ro time-division-multiplex-capable
+      |  |     +--ro minimum-lsp-bandwidth?   decimal64
+      |  |     +--ro indication?              enumeration
+      |  +--ro link-protection-type?             enumeration
       |  +--ro max-link-bandwidth?               decimal64
       |  +--ro max-resv-link-bandwidth?          decimal64
       |  +--ro unreserved-bandwidth* [priority]
@@ -925,16 +1017,6 @@ notifications:
       |  |     +--ro unidirectional-residual-bandwidth?    performance-metric-normality
       |  |     +--ro unidirectional-available-bandwidth?   performance-metric-normality
       |  |     +--ro unidirectional-utilized-bandwidth?    performance-metric-normality
-      |  +--ro link-protection-type?             enumeration
-      |  +--ro interface-switching-capability* [switching-capability]
-      |  |  +--ro switching-capability               identityref
-      |  |  +--ro encoding?                          identityref
-      |  |  +--ro max-lsp-bandwidth* [priority]
-      |  |  |  +--ro priority     uint8
-      |  |  |  +--ro bandwidth?   decimal64
-      |  |  +--ro time-division-multiplex-capable
-      |  |     +--ro minimum-lsp-bandwidth?   decimal64
-      |  |     +--ro indication?              enumeration
       |  +--ro te-srlgs
       |     +--ro values*   te-types:srlg
       +--ro oper-status?                te-oper-status
@@ -960,6 +1042,16 @@ notifications:
       |  |  +--ro routing-instance?         string
       |  +--ro link-index?                       uint64
       |  +--ro administrative-group?             te-types:admin-groups
+      |  +--ro interface-switching-capability* [switching-capability]
+      |  |  +--ro switching-capability               identityref
+      |  |  +--ro encoding?                          identityref
+      |  |  +--ro max-lsp-bandwidth* [priority]
+      |  |  |  +--ro priority     uint8
+      |  |  |  +--ro bandwidth?   decimal64
+      |  |  +--ro time-division-multiplex-capable
+      |  |     +--ro minimum-lsp-bandwidth?   decimal64
+      |  |     +--ro indication?              enumeration
+      |  +--ro link-protection-type?             enumeration
       |  +--ro max-link-bandwidth?               decimal64
       |  +--ro max-resv-link-bandwidth?          decimal64
       |  +--ro unreserved-bandwidth* [priority]
@@ -985,16 +1077,6 @@ notifications:
       |  |     +--ro unidirectional-residual-bandwidth?    performance-metric-normality
       |  |     +--ro unidirectional-available-bandwidth?   performance-metric-normality
       |  |     +--ro unidirectional-utilized-bandwidth?    performance-metric-normality
-      |  +--ro link-protection-type?             enumeration
-      |  +--ro interface-switching-capability* [switching-capability]
-      |  |  +--ro switching-capability               identityref
-      |  |  +--ro encoding?                          identityref
-      |  |  +--ro max-lsp-bandwidth* [priority]
-      |  |  |  +--ro priority     uint8
-      |  |  |  +--ro bandwidth?   decimal64
-      |  |  +--ro time-division-multiplex-capable
-      |  |     +--ro minimum-lsp-bandwidth?   decimal64
-      |  |     +--ro indication?              enumeration
       |  +--ro te-srlgs
       |     +--ro values*   te-types:srlg
       +--ro recovery

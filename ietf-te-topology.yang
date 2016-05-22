@@ -59,7 +59,7 @@ module ietf-te-topology {
 
   description "TE topology model";
   
-  revision "2016-05-05" {
+  revision "2016-05-15" {
     description "Initial revision";
     reference "TBD";
   }
@@ -867,25 +867,9 @@ module ietf-te-topology {
     } // te-link-attributes
   } // te-link-config-attributes
 
-  grouping te-link-info-attributes {
+  grouping te-link-connectivity-attributes {
     description
-      "Advertised TE information attributes.";
-    leaf link-index {
-      type uint64;
-      description
-        "The link identifier.  If OSPF is used, this represents an
-         ospfLsdbID.  If IS-IS is used, this represents an isisLSPID.
-         If a locally configured link is used, this object represents
-         a unique value, which is locally defined in a router.";
-    }
-    leaf administrative-group {
-      type te-types:admin-groups;
-      description
-        "Administrative group or color of the link. 
-         This attribute covers both administrative group (defined in
-         RFC3630, RFC5329, and RFC5305), and extended administrative
-         group (defined in RFC7308).";
-    }
+      "Advertised TE connectivity attributes.";
     leaf max-link-bandwidth {
       type decimal64 {
         fraction-digits 2;
@@ -959,6 +943,39 @@ module ietf-te-topology {
         uses performance-metric-normality-attributes;
       }
     }
+    container te-srlgs {
+      description
+        "A list of SLRGs.";
+      leaf-list values {
+        type te-types:srlg;
+        description "SRLG value.";
+        reference
+          "RFC4202: Routing Extensions in Support of
+           Generalized Multi-Protocol Label Switching (GMPLS).";
+      }
+    }
+  } // te-link-connectivity-attributes
+
+  grouping te-link-info-attributes {
+    description
+      "Advertised TE information attributes.";
+    leaf link-index {
+      type uint64;
+      description
+        "The link identifier.  If OSPF is used, this represents an
+         ospfLsdbID.  If IS-IS is used, this represents an isisLSPID.
+         If a locally configured link is used, this object represents
+         a unique value, which is locally defined in a router.";
+    }
+    leaf administrative-group {
+      type te-types:admin-groups;
+      description
+        "Administrative group or color of the link. 
+         This attribute covers both administrative group (defined in
+         RFC3630, RFC5329, and RFC5305), and extended administrative
+         group (defined in RFC7308).";
+    }
+    uses interface-switching-capability-list;
     leaf link-protection-type {
       type enumeration {
         enum "unprotected" {
@@ -986,18 +1003,7 @@ module ietf-te-topology {
         "RFC4202: Routing Extensions in Support of
          Generalized Multi-Protocol Label Switching (GMPLS).";
     }
-    uses interface-switching-capability-list;
-    container te-srlgs {
-      description
-        "A list of SLRGs.";
-      leaf-list values {
-        type te-types:srlg;
-        description "SRLG value.";
-        reference
-          "RFC4202: Routing Extensions in Support of
-           Generalized Multi-Protocol Label Switching (GMPLS).";
-      }
-    }
+    uses te-link-connectivity-attributes;
   } // te-link-info-attributes
 
   grouping te-link-state-derived {
@@ -1290,6 +1296,7 @@ module ietf-te-topology {
           "true  - switching is allowed, 
            false - switching is disallowed.";
       }
+      uses te-link-connectivity-attributes;
     }
   } // te-node-connectivity-matrix
     
