@@ -59,7 +59,7 @@ module ietf-te-topology {
 
   description "TE topology model";
   
-  revision "2016-06-05" {
+  revision "2016-06-12" {
     description "Initial revision";
     reference "TBD";
   }
@@ -379,6 +379,53 @@ module ietf-te-topology {
   /*
    * Groupings
    */
+  grouping connectivity-label-restriction-list {
+    description
+      "List of abel restrictions specifying what labels may or may
+       not be used on a link connectivity.";
+    list label-restriction {
+      key "inclusive-exclusive label-start";
+      description
+        "List of abel restrictions specifying what labels may or may
+         not be used on a link connectivity.";
+      reference
+        "RFC7579: General Network Element Constraint Encoding
+         for GMPLS-Controlled Networks";
+      leaf inclusive-exclusive {
+        type enumeration {
+          enum inclusive {
+            description "The label or label range is inclusive.";
+          }
+          enum exclusive {
+            description "The label or label range is exclusive.";
+          }
+        }
+        description
+          "Whether the list item is inclusive or exclusive.";
+      }
+      leaf label-start {
+        type binary;
+        description
+          "This is the starting lable if a lable range is specified.
+           This is the lable value if a single lable is specified,
+           in which case, attribute 'label-end' is not set.";
+      }
+      leaf label-end {
+        type binary;
+        description
+          "The ending lable if a lable range is specified;
+           This attribute is not set, If a single lable is specified.";
+      }
+      leaf range-bitmap {
+        type binary;
+        description
+          "When there are gaps between label-start and label-end, 
+           this attribute is used to specified the possitions
+           of the used labels.";
+      }
+    }
+  } // connectivity-label-restrictions 
+
   grouping information-source-attributes {
     description
       "The attributes identifying source that has provided the 
@@ -1297,6 +1344,7 @@ module ietf-te-topology {
           "true  - switching is allowed, 
            false - switching is disallowed.";
       }
+      uses connectivity-label-restriction-list;
       uses te-link-connectivity-attributes;
     }
   } // te-node-connectivity-matrix
@@ -1495,6 +1543,8 @@ module ietf-te-topology {
         description
           "Link termination point.";
       }
+
+      uses connectivity-label-restriction-list;
 
       list max-lsp-bandwidth {
         key "priority";
