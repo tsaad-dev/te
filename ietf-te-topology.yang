@@ -59,7 +59,7 @@ module ietf-te-topology {
 
   description "TE topology model";
   
-  revision "2016-05-05" {
+  revision "2016-06-22" {
     description "Initial revision";
     reference "TBD";
   }
@@ -337,6 +337,29 @@ module ietf-te-topology {
   /*
    * Identities
    */
+  identity te-optimization-criterion {
+    description
+      "Base identity for TE optimization criterion.";
+    reference
+      "RFC3272: Overview and Principles of Internet Traffic
+       Engineering.";
+  }
+
+  identity not-optimized {
+    base te-optimization-criterion;
+    description "Optimization is not applied.";
+  }
+
+  identity cost {
+    base te-optimization-criterion;
+    description "Optimized on cost.";
+  }
+
+  identity delay {
+    base te-optimization-criterion;
+    description "Optimized on delay.";
+  }
+
   identity tunnel-protection-type {
     description
       "Base identity for tunnel protectiontype";
@@ -376,9 +399,57 @@ module ietf-te-topology {
     description "One plus one bidirectional protection.";
   }
 
+
   /*
    * Groupings
    */
+  grouping connectivity-label-restriction-list {
+    description
+      "List of abel restrictions specifying what labels may or may
+       not be used on a link connectivity.";
+    list label-restriction {
+      key "inclusive-exclusive label-start";
+      description
+        "List of abel restrictions specifying what labels may or may
+         not be used on a link connectivity.";
+      reference
+        "RFC7579: General Network Element Constraint Encoding
+         for GMPLS-Controlled Networks";
+      leaf inclusive-exclusive {
+        type enumeration {
+          enum inclusive {
+            description "The label or label range is inclusive.";
+          }
+          enum exclusive {
+            description "The label or label range is exclusive.";
+          }
+        }
+        description
+          "Whether the list item is inclusive or exclusive.";
+      }
+      leaf label-start {
+        type binary;
+        description
+          "This is the starting lable if a lable range is specified.
+           This is the lable value if a single lable is specified,
+           in which case, attribute 'label-end' is not set.";
+      }
+      leaf label-end {
+        type binary;
+        description
+          "The ending lable if a lable range is specified;
+           This attribute is not set, If a single lable is specified.";
+      }
+      leaf range-bitmap {
+        type binary;
+        description
+          "When there are gaps between label-start and label-end, 
+           this attribute is used to specified the possitions
+           of the used labels.";
+      }
+    }
+  } // connectivity-label-restrictions 
+
   grouping information-source-attributes {
     description
       "The attributes identifying source that has provided the 
@@ -836,6 +907,26 @@ module ietf-te-topology {
           "Link access type, which can be point-to-point or
            multi-access.";
       }
+      container external-domain {
+        description
+          "For an inter-domain link, specify the attributes of 
+           the remote end of link, to facilitate the signalling at
+           local end.";
+        leaf remote-te-node-id {
+          type te-node-id;
+          description
+            "Remote TE node identifier, used together with
+             remote-te-link-id to identify the remote link 
+             termination point in a different domain.";
+        }
+        leaf remote-te-link-tp-id {
+          type te-tp-id;
+          description
+            "Remote TE link termination point identifier, used
+             together with remote-te-node-id to identify the remote
+             link termination point in a different domain.";
+        }
+      }
       leaf is-abstract {
         type empty;
         description "Present if the link is abstract.";
@@ -867,25 +958,9 @@ module ietf-te-topology {
     } // te-link-attributes
   } // te-link-config-attributes
 
-  grouping te-link-info-attributes {
+  grouping te-link-connectivity-attributes {
     description
-      "Advertised TE information attributes.";
-    leaf link-index {
-      type uint64;
-      description
-        "The link identifier.  If OSPF is used, this represents an
-         ospfLsdbID.  If IS-IS is used, this represents an isisLSPID.
-         If a locally configured link is used, this object represents
-         a unique value, which is locally defined in a router.";
-    }
-    leaf administrative-group {
-      type te-types:admin-groups;
-      description
-        "Administrative group or color of the link. 
-         This attribute covers both administrative group (defined in
-         RFC3630, RFC5329, and RFC5305), and extended administrative
-         group (defined in RFC7308).";
-    }
+      "Advertised TE connectivity attributes.";
     leaf max-link-bandwidth {
       type decimal64 {
         fraction-digits 2;
@@ -959,6 +1034,39 @@ module ietf-te-topology {
         uses performance-metric-normality-attributes;
       }
     }
+    container te-srlgs {
+      description
+        "A list of SLRGs.";
+      leaf-list value {
+        type te-types:srlg;
+        description "SRLG value.";
+        reference
+          "RFC4202: Routing Extensions in Support of
+           Generalized Multi-Protocol Label Switching (GMPLS).";
+      }
+    }
+  } // te-link-connectivity-attributes
+
+  grouping te-link-info-attributes {
+    description
+      "Advertised TE information attributes.";
+    leaf link-index {
+      type uint64;
+      description
+        "The link identifier.  If OSPF is used, this represents an
+         ospfLsdbID.  If IS-IS is used, this represents an isisLSPID.
+         If a locally configured link is used, this object represents
+         a unique value, which is locally defined in a router.";
+    }
+    leaf administrative-group {
+      type te-types:admin-groups;
+      description
+        "Administrative group or color of the link. 
+         This attribute covers both administrative group (defined in
+         RFC3630, RFC5329, and RFC5305), and extended administrative
+         group (defined in RFC7308).";
+    }
+    uses interface-switching-capability-list;
     leaf link-protection-type {
       type enumeration {
         enum "unprotected" {
@@ -986,18 +1094,7 @@ module ietf-te-topology {
         "RFC4202: Routing Extensions in Support of
          Generalized Multi-Protocol Label Switching (GMPLS).";
     }
-    uses interface-switching-capability-list;
-    container te-srlgs {
-      description
-        "A list of SLRGs.";
-      leaf-list values {
-        type te-types:srlg;
-        description "SRLG value.";
-        reference
-          "RFC4202: Routing Extensions in Support of
-           Generalized Multi-Protocol Label Switching (GMPLS).";
-      }
-    }
+    uses te-link-connectivity-attributes;
   } // te-link-info-attributes
 
   grouping te-link-state-derived {
@@ -1022,10 +1119,11 @@ module ietf-te-topology {
          for Multi-Layer and Multi-Region Networks (MLN/MRN).";        
     }
     uses information-source-attributes;
-    list alt-information-sources {
+    list information-source-entry {
       key "information-source";
       description
-        "A list of information sources learned but not used.";
+        "A list of information sources learned, including the one
+         used.";
       uses information-source-attributes;
       uses te-link-info-attributes;
     }
@@ -1290,6 +1388,8 @@ module ietf-te-topology {
           "true  - switching is allowed, 
            false - switching is disallowed.";
       }
+      uses connectivity-label-restriction-list;
+      uses te-link-connectivity-attributes;
     }
   } // te-node-connectivity-matrix
     
@@ -1387,10 +1487,11 @@ module ietf-te-topology {
          Environments.";
     }
     uses information-source-attributes;
-    list alt-information-sources {
+    list information-source-entry {
       key "information-source";
       description
-        "A list of information sources learned but not used.";
+        "A list of information sources learned, including the one
+         used.";
       uses information-source-attributes;
       uses te-node-connectivity-matrix;
       uses te-node-info-attributes;
@@ -1416,10 +1517,11 @@ module ietf-te-topology {
          Environments.";
     }
     uses information-source-attributes;
-    list alt-information-sources {
+    list information-source-entry {
       key "information-source";
       description
-        "A list of information sources learned but not used.";
+        "A list of information sources learned, including the one
+         used.";
       uses information-source-attributes;
       uses te-node-connectivity-matrix-abs;
       uses te-node-info-attributes;
@@ -1485,6 +1587,8 @@ module ietf-te-topology {
         description
           "Link termination point.";
       }
+
+      uses connectivity-label-restriction-list;
 
       list max-lsp-bandwidth {
         key "priority";
@@ -1669,6 +1773,16 @@ module ietf-te-topology {
       description
         "Specifies a preference for this topology. A lower number
          indicates a higher preference.";
+    }
+    leaf optimization-criterion {
+      type identityref {
+        base te-optimization-criterion;
+      }
+      description
+        "Optimization criterion applied to this topology.";
+      reference
+        "RFC3272: Overview and Principles of Internet Traffic
+         Engineering.";
     }
   } // te-topology-config
 
