@@ -7,7 +7,7 @@ module ietf-te-device {
 
   /* Import TE generic types */
   import ietf-te {
-    prefix ietf-te;
+    prefix te;
   }
 
   /* Import TE generic types */
@@ -163,12 +163,20 @@ module ietf-te-device {
   }
 
   /**
-   * TE global device generic groupings
+   * Device general groupings.
    */
-  /* Global device specific configuration data */
-  grouping globals-device_config {
-    description
-      "Top level grouping for global config data.";
+  grouping tunnel-device_config {
+    description "Device TE tunnel configs";
+    leaf path-invalidation-action {
+      type identityref {
+        base te-types:path-invalidation-action-type;
+      }
+      description "Tunnel path invalidtion action";
+    }
+  }
+
+  grouping lsp-device-timers_config {
+    description "Device TE LSP timers configs";
     leaf lsp-install-interval {
       type uint32;
       units seconds;
@@ -181,6 +189,22 @@ module ietf-te-device {
       description
         "lsp cleanup delay time";
     }
+    leaf lsp-invalidation-interval {
+      type uint32;
+      units seconds;
+      description
+        "lsp path invalidation before taking action delay time";
+    }
+  }
+
+  /**
+   * TE global device generic groupings
+   */
+
+  /* Global device specific configuration data */
+  grouping globals-device_config {
+    description "Device globals configs";
+    uses lsp-device-timers_config;
   }
 
   /* Global device specific state data */
@@ -265,8 +289,8 @@ module ietf-te-device {
             "A list of named admin-group entries";
           leaf named-admin-group {
             type leafref {
-              path "../../../../../ietf-te:globals/ietf-te:config/" +
-                "ietf-te:named-admin-groups/ietf-te:name";
+              path "../../../../../te:globals/te:config/" +
+                "te:named-admin-groups/te:name";
             }
             description "A named admin-group entry";
           }
@@ -302,8 +326,8 @@ module ietf-te-device {
             "A list of named SRLG entries";
           leaf named-srlg {
             type leafref {
-              path "../../../../../ietf-te:globals/ietf-te:config/" +
-                "ietf-te:named-srlgs/ietf-te:name";
+              path "../../../../../te:globals/te:config/" +
+                "te:named-srlgs/te:name";
             }
             description
               "A named SRLG entry";
@@ -543,29 +567,41 @@ module ietf-te-device {
   /**
    * TE device augmentations
    */
-  augment "/ietf-te:te" {
+  augment "/te:te" {
     description "TE global container.";
     /* TE Interface Configuration Data */
     uses interfaces-grouping;
   }
 
   /* TE globals device augmentation */
-  augment "/ietf-te:te/ietf-te:globals/ietf-te:config" {
+  augment "/te:te/te:globals/te:config" {
     description
       "Global TE device specific configuration parameters";
     uses globals-device_config;
   }
-  augment "/ietf-te:te/ietf-te:globals/ietf-te:state" {
+  augment "/te:te/te:globals/te:state" {
     description
       "Global TE device specific state parameters";
     uses globals-device_config;
     uses globals-device_state;
   }
 
-  /* TE LSPs device state augmentation */
-  augment "/ietf-te:te/ietf-te:lsps-state/ietf-te:lsp" {
+  /* TE tunnels device configuration augmentation */
+  augment "/te:te/te:tunnels/te:tunnel/te:config" {
     description
-      "LSP device dependent downstream info augmentation";
+      "Tunnel device dependent augmentation";
+    uses lsp-device-timers_config;
+  }
+  augment "/te:te/te:tunnels/te:tunnel/te:state" {
+    description
+      "Tunnel device dependent augmentation";
+    uses lsp-device-timers_config;
+  }
+
+  /* TE LSPs device state augmentation */
+  augment "/te:te/te:lsps-state/te:lsp" {
+    description
+      "LSP device dependent augmentation";
     uses lsps-device_state;
   }
 
