@@ -63,7 +63,7 @@ module ietf-te-topology {
 
   description "TE topology model";
   
-  revision "2016-06-24" {
+  revision "2016-06-28" {
     description "Initial revision";
     reference "TBD";
   }
@@ -374,46 +374,6 @@ module ietf-te-topology {
     description "Optimized on delay.";
   }
 
-  identity tunnel-protection-type {
-    description
-      "Base identity for tunnel protectiontype";
-    reference
-      "RFC4872: RSVP-TE Extensions in Support of End-to-End
-       Generalized Multi-Protocol Label Switching (GMPLS)
-       Recovery.";
-  }
-  
-  identity tunnel-protection-unprotected {
-    base tunnel-protection-type;
-    description "Unprotected";
-  }
-
-  identity tunnel-protection-rerouting {
-    base tunnel-protection-type;
-    description "Rerouting.";
-  }
-
-  identity tunnel-protection-rerouting-without-extra-traffic {
-    base tunnel-protection-type;
-    description "Rerouting without Extra-Traffic.";
-  }
-
-  identity tunnel-protection-1-for-n {
-    base tunnel-protection-type;
-    description "One for n protection with extra-traffic.";
-  }
-
-  identity tunnel-protection-1-plus-1-unidirectional {
-    base tunnel-protection-type;
-    description "One plus one unidirectional protection.";
-  }
-
-  identity tunnel-protection-1-plus-1-bidirectional {
-    base tunnel-protection-type;
-    description "One plus one bidirectional protection.";
-  }
-
-
   /*
    * Groupings
    */
@@ -442,14 +402,14 @@ module ietf-te-topology {
           "Whether the list item is inclusive or exclusive.";
       }
       leaf label-start {
-        type binary;
+        type te-types:generalized-label;
         description
           "This is the starting lable if a lable range is specified.
            This is the lable value if a single lable is specified,
            in which case, attribute 'label-end' is not set.";
       }
       leaf label-end {
-        type binary;
+        type te-types:generalized-label;
         description
           "The ending lable if a lable range is specified;
            This attribute is not set, If a single lable is specified.";
@@ -951,6 +911,17 @@ module ietf-te-topology {
             "Remote TE link termination point identifier, used
              together with remote-te-node-id to identify the remote
              link termination point in a different domain.";
+        }
+        leaf plug-id {
+          type uint32;
+          description
+            "A topology-wide unique number that identifies on the
+             network a connectivity supporting a given inter-domain
+             TE link. This is more flexible alternative to specifying
+             remote-te-node-id and remote-te-link-tp-id, when the
+             provider does not know remote-te-node-id and
+             remote-te-link-tp-id or need to give client the
+             flexibility to mix-n-match multiple topologies.";
         }
       }
       leaf is-abstract {
@@ -1590,7 +1561,7 @@ module ietf-te-topology {
     }
     leaf protection-type {
       type identityref {
-        base tunnel-protection-type;
+        base te-types:lsp-prot-type;
       }
       description
         "The protection type that this tunnel termination point
