@@ -5,10 +5,6 @@ module ietf-te-topology {
   
   prefix "tet";
 
-  import ietf-yang-types {
-    prefix "yang";
-  }
-
   import ietf-inet-types {
     prefix "inet";
   }
@@ -63,7 +59,7 @@ module ietf-te-topology {
 
   description "TE topology model";
   
-  revision "2016-07-01" {
+  revision "2016-07-08" {
     description "Initial revision";
     reference "TBD";
   }
@@ -105,274 +101,10 @@ module ietf-te-topology {
   /*
    * Typedefs
    */
-  typedef performance-metric-normality {
-    type enumeration {
-      enum "unknown" {        
-        value 0;
-        description
-          "Unknown.";
-      }
-      enum "normal" {        
-        value 1;
-        description
-          "Normal.";
-      }
-      enum "abnormal" {        
-        value 2;
-        description
-          "Abnormal. The anomalous bit is set.";
-      }
-    }
-    description
-      "Indicates whether a performance metric is normal, abnormal, or
-       unknown.";
-    reference
-      "RFC7471: OSPF Traffic Engineering (TE) Metric Extensions.
-       RFC7810: IS-IS Traffic Engineering (TE) Metric Extensions.
-       RFC7823: Performance-Based Path Selection for Explicitly
-       Routed Label Switched Paths (LSPs) Using TE Metric
-       Extensions";
-  }
 
-  typedef te-admin-status {
-    type enumeration {
-      enum up {
-        description
-          "Enabled.";
-      }
-      enum down {
-        description
-          "Disabled.";
-      }
-      enum testing {
-        description
-          "In some test mode.";
-      }
-      enum preparing-maintenance {
-        description
-          "Resource is disabled in the control plane to prepare for
-           graceful shutdown for maintenance purposes.";
-        reference
-          "RFC5817: Graceful Shutdown in MPLS and Generalized MPLS
-           Traffic Engineering Networks";
-      }
-      enum maintenance {
-        description
-          "Resource is disabled in the data plane for maintenance
-           purposes.";
-      }
-    }
-    description
-      "Defines a type representing the administrative status of 
-       a TE resource.";
-  }
-
-  typedef te-global-id {
-    type uint32;
-    description
-      "An identifier to uniquely identify an operator, which can be
-       either a provider or a client.
-       The definition of this type is taken from RFC6370 and RFC5003.
-       This attribute type is used solely to provide a globally
-       unique context for TE topologies.";
-  }
-
-  typedef te-link-access-type {
-    type enumeration {
-      enum point-to-point {
-        description
-          "The link is point-to-point.";
-      }
-      enum multi-access {
-        description
-          "The link is multi-access, including broacast and NBMA.";
-      }
-    }
-    description
-      "Defines a type representing the access type of a TE link.";
-    reference
-      "RFC3630: Traffic Engineering (TE) Extensions to OSPF
-       Version 2.";
-  }
-
-  typedef te-node-id {
-    type yang:dotted-quad;
-    description
-      "An identifier for a node in a topology.
-       The identifier is represented as 32-bit unsigned integer in
-       the dotted-quad notation.
-       This attribute is mapped to Router ID in
-       RFC3630, RFC5329, RFC5305, and RFC6119.";
-  }
-
-  typedef te-oper-status {
-    type enumeration {
-      enum up {
-        description
-        "Operational up.";
-      }
-      enum down {
-        description
-        "Operational down.";
-      }
-      enum testing {
-        description
-        "In some test mode.";
-      }
-      enum unknown {
-        description
-        "Status cannot be determined for some reason.";
-      }
-      enum preparing-maintenance {
-        description
-          "Resource is disabled in the control plane to prepare for
-           graceful shutdown for maintenance purposes.";
-        reference
-          "RFC5817: Graceful Shutdown in MPLS and Generalized MPLS
-           Traffic Engineering Networks";
-      }
-      enum maintenance {
-        description
-          "Resource is disabled in the data plane for maintenance
-           purposes.";
-      }
-    }
-    description
-      "Defines a type representing the operational status of 
-       a TE resource.";
-  }
-
-  typedef te-recovery-status {
-    type enumeration {
-      enum normal {
-        description
-          "Both the recovery and working spans are fully
-           allocated and active, data traffic is being
-           transported over (or selected from) the working
-           span, and no trigger events are reported.";
-      }
-      enum recovery-started {
-        description
-          "The recovery action has been started, but not completed.";
-      }
-      enum recovery-succeeded {
-        description
-          "The recovery action has succeeded. The working span has
-           reported a failure/degrade condition and the user traffic
-           is being transported (or selected) on the recovery span.";
-      }
-      enum recovery-failed {
-        description
-          "The recovery action has failed.";
-      }
-      enum reversion-started {
-        description
-          "The reversion has started.";
-      }
-      enum reversion-failed {
-        description
-          "The reversion has failed.";
-      }
-      enum recovery-unavailable {
-        description
-          "The recovery is unavailable -- either as a result of an
-           operator Lockout command or a failure condition detected
-           on the recovery span.";
-      }
-      enum recovery-admin {
-        description
-          "The operator has issued a command switching the user
-           traffic to the recovery span.";
-      }
-      enum wait-to-restore {
-        description
-          "The recovery domain is recovering from a failuer/degrade
-           condition on the working span that is being controlled by
-           the Wait-to-Restore (WTR) timer.";
-      }
-    }
-    description
-      "Defines the status of a recovery action.";
-    reference
-      "RFC4427: Recovery (Protection and Restoration) Terminology
-       for Generalized Multi-Protocol Label Switching (GMPLS).
-       RFC6378: MPLS Transport Profile (MPLS-TP) Linear Protection";
-  }
-
-  typedef te-template-name {
-    type string {
-      pattern '/?([a-zA-Z0-9\-_.]+)(/[a-zA-Z0-9\-_.]+)*';
-    }
-    description
-      "A type for the name of a TE node template or TE link
-       template.";
-  }
-  
-  typedef te-topology-event-type {
-    type enumeration {
-      enum "add" {
-        value 0;
-        description 
-          "A TE node or te-link has been added.";
-      }
-      enum "remove" {
-        value 1;
-        description 
-          "A TE node or te-link has been removed.";
-      }
-      enum "update" {
-        value 2;
-        description 
-          "A TE node or te-link has been updated.";
-      }
-    }
-    description "TE  Event type for notifications";
-  } // te-topology-event-type
-  
-  typedef te-topology-id {
-    type string {
-      pattern '/?([a-zA-Z0-9\-_.]+)(/[a-zA-Z0-9\-_.]+)*';
-    }
-    description
-      "An identifier for a topology.";
-  }
-  
-  typedef te-tp-id {
-    type union {
-      type uint32;          // Unnumbered
-      type inet:ip-address; // IPv4 or IPv6 address
-    }
-    description
-      "An identifier for a TE link endpoint on a node.
-       This attribute is mapped to local or remote link identifier in
-       RFC3630 and RFC5305.";
-  }
-  
   /*
    * Identities
    */
-  identity te-optimization-criterion {
-    description
-      "Base identity for TE optimization criterion.";
-    reference
-      "RFC3272: Overview and Principles of Internet Traffic
-       Engineering.";
-  }
-
-  identity not-optimized {
-    base te-optimization-criterion;
-    description "Optimization is not applied.";
-  }
-
-  identity cost {
-    base te-optimization-criterion;
-    description "Optimized on cost.";
-  }
-
-  identity delay {
-    base te-optimization-criterion;
-    description "Optimized on delay.";
-  }
 
   /*
    * Groupings
@@ -412,8 +144,7 @@ module ietf-te-topology {
         type te-types:generalized-label;
         description
           "The ending lable if a lable range is specified;
-           This attribute is not set, If a single lable is
-           specified.";
+           This attribute is not set, If a single lable is specified.";
       }
       leaf range-bitmap {
         type binary;
@@ -652,35 +383,35 @@ module ietf-te-topology {
        Routed Label Switched Paths (LSPs) Using TE Metric
        Extensions";
     leaf unidirectional-delay {
-      type performance-metric-normality;
+      type te-types:performance-metric-normality;
       description "Delay normality.";
     }
     leaf unidirectional-min-delay {
-      type performance-metric-normality;
+      type te-types:performance-metric-normality;
       description "Minimum delay or latency normality.";
     }
     leaf unidirectional-max-delay {
-      type performance-metric-normality;
+      type te-types:performance-metric-normality;
       description "Maximum delay or latency normality.";
     }
     leaf unidirectional-delay-variation {
-      type performance-metric-normality;
+      type te-types:performance-metric-normality;
       description "Delay variation normality.";
     }
     leaf unidirectional-packet-loss {
-      type performance-metric-normality;
+      type te-types:performance-metric-normality;
       description "Packet loss normality.";
     }
     leaf unidirectional-residual-bandwidth {
-      type performance-metric-normality;
+      type te-types:performance-metric-normality;
       description "Residual bandwidth normality.";
     }
     leaf unidirectional-available-bandwidth {
-      type performance-metric-normality;
+      type te-types:performance-metric-normality;
       description "Available bandwidth normality.";
     }
     leaf unidirectional-utilized-bandwidth {
-      type performance-metric-normality;
+      type te-types:performance-metric-normality;
       description "Bandwidth utilization normality.";
     }
   } // performance-metric-normality-attributes
@@ -889,7 +620,7 @@ module ietf-te-topology {
       description "Link attributes in a TE topology.";
       uses sch:schedules;
       leaf access-type {
-        type te-link-access-type;
+        type te-types:te-link-access-type;
         description 
           "Link access type, which can be point-to-point or
            multi-access.";
@@ -900,14 +631,14 @@ module ietf-te-topology {
            the remote end of link, to facilitate the signalling at
            local end.";
         leaf remote-te-node-id {
-          type te-node-id;
+          type te-types:te-node-id;
           description
             "Remote TE node identifier, used together with
              remote-te-link-id to identify the remote link 
              termination point in a different domain.";
         }
         leaf remote-te-link-tp-id {
-          type te-tp-id;
+          type te-types:te-tp-id;
           description
             "Remote TE link termination point identifier, used
              together with remote-te-node-id to identify the remote
@@ -946,7 +677,7 @@ module ietf-te-topology {
         uses te-link-underlay-attributes;
       } // underlay
       leaf admin-status {
-        type te-admin-status;
+        type te-types:te-admin-status;
         description
           "The administrative state of the link.";
       }
@@ -1103,7 +834,7 @@ module ietf-te-topology {
     description 
       "Link state attributes in a TE topology.";
     leaf oper-status {
-      type te-oper-status;
+      type te-types:te-oper-status;
       description
         "The current operational state of the link.";
     }
@@ -1133,12 +864,12 @@ module ietf-te-topology {
       description
         "Status of the recovery process.";
       leaf restoration-status {
-        type te-recovery-status;
+        type te-types:te-recovery-status;
         description
           "Restoration status.";
       }
       leaf protection-status {
-        type te-recovery-status;
+        type te-types:te-recovery-status;
         description
           "Protection status.";
       }      
@@ -1239,7 +970,7 @@ module ietf-te-topology {
         "Indicates TE support.";
 
       leaf te-node-id {
-        type te-node-id;
+        type te-types:te-node-id;
         mandatory true;
         description
           "The identifier of a node in the TE topology.
@@ -1308,7 +1039,7 @@ module ietf-te-topology {
       description "Containing node attributes in a TE topology.";
       uses sch:schedules;
       leaf admin-status {
-        type te-admin-status;
+        type te-types:te-admin-status;
         description
           "The administrative state of the link.";
       }
@@ -1324,7 +1055,7 @@ module ietf-te-topology {
       description "Containing node attributes in a TE topology.";
       uses sch:schedules;
       leaf admin-status {
-        type te-admin-status;
+        type te-types:te-admin-status;
         description
           "The administrative state of the link.";
       }
@@ -1340,7 +1071,7 @@ module ietf-te-topology {
       description "Containing node attributes in a TE topology.";
       uses sch:schedules;
       leaf admin-status {
-        type te-admin-status;
+        type te-types:te-admin-status;
         description
           "The administrative state of the link.";
       }
@@ -1473,7 +1204,7 @@ module ietf-te-topology {
   grouping te-node-state-derived {
     description "Node state attributes in a TE topology.";
     leaf oper-status {
-      type te-oper-status;
+      type te-types:te-oper-status;
       description
         "The current operational state of the node.";
     }
@@ -1503,7 +1234,7 @@ module ietf-te-topology {
   grouping te-node-state-derived-notification {
     description "Node state attributes in a TE topology.";
     leaf oper-status {
-      type te-oper-status;
+      type te-types:te-oper-status;
       description
         "The current operational state of the node.";
     }
@@ -1634,7 +1365,7 @@ module ietf-te-topology {
         "Indicates TE support.";
 
       leaf te-tp-id {
-        type te-tp-id;
+        type te-types:te-tp-id;
         mandatory true;
         description
           "An identifier to uniquely identify a TE termination
@@ -1691,7 +1422,7 @@ module ietf-te-topology {
           if-feature template;
           key "name";
           leaf name {
-            type te-template-name;
+            type te-types:te-template-name;
             description
               "The name to identify a TE node template.";
           }
@@ -1706,7 +1437,7 @@ module ietf-te-topology {
           if-feature template;
           key "name";
           leaf name {
-            type te-template-name;
+            type te-types:te-template-name;
             description
               "The name to identify a TE link template.";
           }
@@ -1730,19 +1461,19 @@ module ietf-te-topology {
         "Indicates TE support.";
 
       leaf provider-id {
-        type te-global-id;
+        type te-types:te-global-id;
         mandatory true;
         description
           "An identifier to uniquely identify a provider.";
       }
       leaf client-id {
-        type te-global-id;
+        type te-types:te-global-id;
         mandatory true;
         description
           "An identifier to uniquely identify a client.";
       }
       leaf te-topology-id {
-        type te-topology-id;
+        type te-types:te-topology-id;
         mandatory true;
         description
           "It is presumed that a datastore will contain many
@@ -1778,7 +1509,7 @@ module ietf-te-topology {
     }
     leaf optimization-criterion {
       type identityref {
-        base te-optimization-criterion;
+        base te-types:te-optimization-criterion;
       }
       description
         "Optimization criterion applied to this topology.";
@@ -1948,7 +1679,7 @@ module ietf-te-topology {
   notification te-node-event {
     description "Notification event for TE node.";
     leaf event-type {
-      type te-topology-event-type;
+      type te-types:te-topology-event-type;
       description "Event type.";
     }
     uses nw:node-ref;
@@ -1960,7 +1691,7 @@ module ietf-te-topology {
   notification te-link-event {
     description "Notification event for TE link.";
     leaf event-type {
-      type te-topology-event-type;
+      type te-types:te-topology-event-type;
       description "Event type";
     }
     uses nt:link-ref;
