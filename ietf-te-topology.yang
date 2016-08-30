@@ -59,7 +59,7 @@ module ietf-te-topology {
 
   description "TE topology model";
   
-  revision "2016-07-28" {
+  revision "2016-08-25" {
     description "Initial revision";
     reference "TBD";
   }
@@ -251,55 +251,7 @@ module ietf-te-topology {
         description
           "Encoding supported by this interface.";
       }
-      list max-lsp-bandwidth {
-        key "priority";
-        max-elements "8";
-        description
-          "Maximum LSP Bandwidth at priorities 0-7.";
-        leaf priority {
-          type uint8 {
-            range "0..7";
-          }
-          description "Priority.";
-        }
-        leaf bandwidth {
-          type decimal64 {
-            fraction-digits 2;
-          }
-          description
-            "Max LSP Bandwidth for this level";
-        }
-      }
-      container time-division-multiplex-capable {
-        when "../switching-capability = 'TDM'" {
-          description "Valid only for TDM";
-        }
-        description
-          "Interface has time-division multiplex capabilities.";
-
-        leaf minimum-lsp-bandwidth {
-          type decimal64 {
-            fraction-digits 2;
-          }
-          description
-            "Minimum LSP Bandwidth. Units in bytes per second.";
-        }
-        leaf indication {
-          type enumeration {
-            enum "standard" {
-              description 
-                "Indicates support of standard SONET/SDH.";
-            }
-            enum "arbitrary" {
-              description 
-                "Indicates support of arbitrary SONET/SDH.";
-            }
-          }
-          description
-            "Indication whether the interface supports Standard or
-             Arbitrary SONET/SDH";
-        }
-      } // time-division-multiplex-capable
+      uses te-link-iscd-attributes;
     } // interface-switching-capability
   } // interface-switching-capability-list
 
@@ -837,6 +789,64 @@ module ietf-te-topology {
     uses te-link-connectivity-attributes;
   } // te-link-info-attributes
 
+  grouping te-link-iscd-attributes {
+    description
+      "TE link ISCD (Interface Switching Capability Descriptor)
+       attributes.";
+    reference
+      "Sec 1.4, RFC4203: OSPF Extensions in Support of Generalized
+       Multi-Protocol Label Switching (GMPLS). Section 1.4.";
+    list max-lsp-bandwidth {
+      key "priority";
+      max-elements "8";
+      description
+        "Maximum LSP Bandwidth at priorities 0-7.";
+      leaf priority {
+        type uint8 {
+          range "0..7";
+        }
+        description "Priority.";
+      }
+      leaf bandwidth {
+        type decimal64 {
+          fraction-digits 2;
+        }
+        description
+          "Max LSP Bandwidth for this level";
+      }
+    }
+    container time-division-multiplex-capable {
+      when "../switching-capability = 'TDM'" {
+        description "Valid only for TDM";
+      }
+      description
+        "Interface has time-division multiplex capabilities.";
+      
+      leaf minimum-lsp-bandwidth {
+        type decimal64 {
+          fraction-digits 2;
+        }
+        description
+          "Minimum LSP Bandwidth. Units in bytes per second.";
+      }
+      leaf indication {
+        type enumeration {
+          enum "standard" {
+            description 
+              "Indicates support of standard SONET/SDH.";
+          }
+          enum "arbitrary" {
+            description 
+              "Indicates support of arbitrary SONET/SDH.";
+          }
+        }
+        description
+          "Indication whether the interface supports Standard or
+           Arbitrary SONET/SDH";
+      }
+    } // time-division-multiplex-capable
+  } // te-link-iscd-attributes
+
   grouping te-link-state-derived {
     description 
       "Link state attributes in a TE topology.";
@@ -1329,29 +1339,8 @@ module ietf-te-topology {
       }
 
       uses connectivity-label-restriction-list;
-
-      list max-lsp-bandwidth {
-        key "priority";
-        max-elements "8";
-        description
-          "Maximum LSP Bandwidth at priorities 0-7.";
-        reference
-          "RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
-           for Multi-Layer and Multi-Region Networks (MLN/MRN).";
-        leaf priority {
-          type uint8 {
-            range "0..7";
-          }
-          description "Priority.";
-        }
-        leaf bandwidth {
-          type decimal64 {
-            fraction-digits 2;
-          }
-          description
-            "Max LSP Bandwidth for this level.";
-        }
-      } // max-lsp-bandwidth
+      uses te-link-iscd-attributes;
+      uses te-link-connectivity-attributes;
     } // termination-capability
   } // te-node-tunnel-termination-capability
 
@@ -1680,33 +1669,4 @@ module ietf-te-topology {
   /*
    * Notifications
    */
-
-  notification te-node-event {
-    description "Notification event for TE node.";
-    leaf event-type {
-      type te-types:te-topology-event-type;
-      description "Event type.";
-    }
-    uses nw:node-ref;
-    uses te-topology-type;
-    uses tet:te-node-config-attributes-notification;
-    uses tet:te-node-state-derived-notification;
-  }
-  
-  notification te-link-event {
-    description "Notification event for TE link.";
-    leaf event-type {
-      type te-types:te-topology-event-type;
-      description "Event type";
-    }
-    uses nt:link-ref;
-    uses te-topology-type;
-    uses tet:te-link-config-attributes;
-    uses tet:te-link-state-derived;
-  }
-
-  augment "/te-link-event/te-link-attributes/underlay" {
-    description "Add state attributes to te-link underlay.";
-    uses te-link-state-underlay-attributes;
-  }
 }
