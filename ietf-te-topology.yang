@@ -59,7 +59,7 @@ module ietf-te-topology {
 
   description "TE topology model";
   
-  revision "2016-09-08" {
+  revision "2016-09-19" {
     description "Initial revision";
     reference "TBD";
   }
@@ -101,6 +101,14 @@ module ietf-te-topology {
   /*
    * Typedefs
    */
+  typedef geographic-coordinate-degree {
+      type decimal64 {
+        fraction-digits 8;
+      }
+      description 
+        "Decimal degree (DD) used to express latitude and longitude
+         geographic coordinates.";
+  }
 
   /*
    * Identities
@@ -156,6 +164,35 @@ module ietf-te-topology {
       }
     }
   } // connectivity-label-restrictions 
+
+  grouping geolocation-container {
+    description
+      "A container containing a GPS location.";
+    container geolocation{
+      description
+        "A container containing a GPS location.";
+      leaf altitude {
+        type int64;
+        units millimeter;
+        description
+          "Distance above the sea level.";
+      }
+      leaf latitude {
+        type geographic-coordinate-degree {
+          range "-90..90";
+        }
+        description
+          "Relative position north or south on the Earth's surface.";
+      }
+      leaf longitude {
+        type geographic-coordinate-degree {
+          range "-180..180";
+        }
+        description
+          "Angular distance east or west on the Earth's surface.";
+      }      
+    } // gps-location
+  } // performance-metric-throttle-container
 
   grouping information-source-attributes {
     description
@@ -1032,7 +1069,7 @@ module ietf-te-topology {
         container config {
           description
             "Configuration data.";
-          uses te-node-tunnel-termination-capability;
+          uses te-node-tunnel-termination-attributes;
         }
 
         container state {
@@ -1040,7 +1077,8 @@ module ietf-te-topology {
           description
             "Operational state data.";
 
-          uses te-node-tunnel-termination-capability;
+          uses te-node-tunnel-termination-attributes;
+          uses geolocation-container;    
         } // state
         
       } // tunnel-termination-point
@@ -1150,6 +1188,18 @@ module ietf-te-topology {
            false - switching is disallowed.";
       }
       uses connectivity-label-restriction-list;
+      container underlay {
+        if-feature te-topology-hierarchy;
+        presence 
+          "Indicates the underlay exists for this link.";
+        description "Attributes of the te-link underlay.";
+        reference
+          "RFC4206: Label Switched Paths (LSP) Hierarchy with
+           Generalized Multi-Protocol Label Switching (GMPLS)
+           Traffic Engineering (TE)";
+
+        uses te-link-underlay-attributes;
+      } // underlay
       uses te-link-connectivity-attributes;
     }
   } // te-node-connectivity-matrix
@@ -1236,6 +1286,7 @@ module ietf-te-topology {
       description
         "The current operational state of the node.";
     }
+    uses geolocation-container;
     leaf is-multi-access-dr {
       type empty;
       description
@@ -1289,7 +1340,7 @@ module ietf-te-topology {
     }
   } // te-node-state-derived-notification
 
-  grouping te-node-tunnel-termination-capability {
+  grouping te-node-tunnel-termination-attributes {
     description 
       "Termination capability of a tunnel termination point on a
        TE node.";
@@ -1353,7 +1404,7 @@ module ietf-te-topology {
       uses te-link-iscd-attributes;
       uses te-link-connectivity-attributes;
     } // termination-capability
-  } // te-node-tunnel-termination-capability
+  } // te-node-tunnel-termination-attributes
 
   grouping te-path-element {
     description
@@ -1389,6 +1440,7 @@ module ietf-te-topology {
         description
           "Operational state data.";
         uses te-termination-point-config;
+        uses geolocation-container;
       } // state
     } // te
   } // te-termination-point-augment
@@ -1496,6 +1548,7 @@ module ietf-te-topology {
         description
           "Operational state data.";
         uses te-topology-config;
+        uses geolocation-container;
       } // state
     } // te
   } // te-topology-augment

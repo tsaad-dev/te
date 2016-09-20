@@ -199,6 +199,10 @@ augment /nw:networks/nw:network:
          |     +--ro repeat-interval?       string
          +--ro preference?               uint8
          +--ro optimization-criterion?   identityref
+         +--ro geolocation
+            +--ro altitude?    int64
+            +--ro latitude?    geographic-coordinate-degree
+            +--ro longitude?   geographic-coordinate-degree
 augment /nw:networks/nw:network/nw:node:
    +--rw te-node-id?   te-types:te-node-id
    +--rw te!
@@ -225,6 +229,63 @@ augment /nw:networks/nw:network/nw:node:
       |     |  |  +--rw label-start            te-types:generalized-label
       |     |  |  +--rw label-end?             te-types:generalized-label
       |     |  |  +--rw range-bitmap?          binary
+      |     |  +--rw underlay! {te-topology-hierarchy}?
+      |     |  |  +--rw underlay-primary-path
+      |     |  |  |  +--rw provider-id-ref?      leafref
+      |     |  |  |  +--rw client-id-ref?        leafref
+      |     |  |  |  +--rw te-topology-id-ref?   leafref
+      |     |  |  |  +--rw network-id-ref?       leafref
+      |     |  |  |  +--rw path-element* [path-element-id]
+      |     |  |  |     +--rw path-element-id     uint32
+      |     |  |  |     +--rw (type)?
+      |     |  |  |        +--:(ipv4-address)
+      |     |  |  |        |  +--rw v4-address?         inet:ipv4-address
+      |     |  |  |        |  +--rw v4-prefix-length?   uint8
+      |     |  |  |        |  +--rw v4-loose?           boolean
+      |     |  |  |        +--:(ipv6-address)
+      |     |  |  |        |  +--rw v6-address?         inet:ipv6-address
+      |     |  |  |        |  +--rw v6-prefix-length?   uint8
+      |     |  |  |        |  +--rw v6-loose?           boolean
+      |     |  |  |        +--:(as-number)
+      |     |  |  |        |  +--rw as-number?          uint16
+      |     |  |  |        +--:(unnumbered-link)
+      |     |  |  |        |  +--rw router-id?          inet:ip-address
+      |     |  |  |        |  +--rw interface-id?       uint32
+      |     |  |  |        +--:(label)
+      |     |  |  |           +--rw value?              uint32
+      |     |  |  +--rw underlay-backup-path* [index]
+      |     |  |  |  +--rw index                 uint32
+      |     |  |  |  +--rw provider-id-ref?      leafref
+      |     |  |  |  +--rw client-id-ref?        leafref
+      |     |  |  |  +--rw te-topology-id-ref?   leafref
+      |     |  |  |  +--rw network-id-ref?       leafref
+      |     |  |  |  +--rw path-element* [path-element-id]
+      |     |  |  |     +--rw path-element-id     uint32
+      |     |  |  |     +--rw (type)?
+      |     |  |  |        +--:(ipv4-address)
+      |     |  |  |        |  +--rw v4-address?         inet:ipv4-address
+      |     |  |  |        |  +--rw v4-prefix-length?   uint8
+      |     |  |  |        |  +--rw v4-loose?           boolean
+      |     |  |  |        +--:(ipv6-address)
+      |     |  |  |        |  +--rw v6-address?         inet:ipv6-address
+      |     |  |  |        |  +--rw v6-prefix-length?   uint8
+      |     |  |  |        |  +--rw v6-loose?           boolean
+      |     |  |  |        +--:(as-number)
+      |     |  |  |        |  +--rw as-number?          uint16
+      |     |  |  |        +--:(unnumbered-link)
+      |     |  |  |        |  +--rw router-id?          inet:ip-address
+      |     |  |  |        |  +--rw interface-id?       uint32
+      |     |  |  |        +--:(label)
+      |     |  |  |           +--rw value?              uint32
+      |     |  |  +--rw underlay-protection-type?   uint16
+      |     |  |  +--rw underlay-tunnel-src
+      |     |  |  |  +--rw tp-ref?        leafref
+      |     |  |  |  +--rw node-ref?      leafref
+      |     |  |  |  +--rw network-ref?   leafref
+      |     |  |  +--rw underlay-tunnel-des
+      |     |  |     +--rw tp-ref?        leafref
+      |     |  |     +--rw node-ref?      leafref
+      |     |  |     +--rw network-ref?   leafref
       |     |  +--rw max-link-bandwidth?        decimal64
       |     |  +--rw max-resv-link-bandwidth?   decimal64
       |     |  +--rw unreserved-bandwidth* [priority]
@@ -284,6 +345,63 @@ augment /nw:networks/nw:network/nw:node:
       |  |  |  |  +--ro label-start            te-types:generalized-label
       |  |  |  |  +--ro label-end?             te-types:generalized-label
       |  |  |  |  +--ro range-bitmap?          binary
+      |  |  |  +--ro underlay! {te-topology-hierarchy}?
+      |  |  |  |  +--ro underlay-primary-path
+      |  |  |  |  |  +--ro provider-id-ref?      leafref
+      |  |  |  |  |  +--ro client-id-ref?        leafref
+      |  |  |  |  |  +--ro te-topology-id-ref?   leafref
+      |  |  |  |  |  +--ro network-id-ref?       leafref
+      |  |  |  |  |  +--ro path-element* [path-element-id]
+      |  |  |  |  |     +--ro path-element-id     uint32
+      |  |  |  |  |     +--ro (type)?
+      |  |  |  |  |        +--:(ipv4-address)
+      |  |  |  |  |        |  +--ro v4-address?         inet:ipv4-address
+      |  |  |  |  |        |  +--ro v4-prefix-length?   uint8
+      |  |  |  |  |        |  +--ro v4-loose?           boolean
+      |  |  |  |  |        +--:(ipv6-address)
+      |  |  |  |  |        |  +--ro v6-address?         inet:ipv6-address
+      |  |  |  |  |        |  +--ro v6-prefix-length?   uint8
+      |  |  |  |  |        |  +--ro v6-loose?           boolean
+      |  |  |  |  |        +--:(as-number)
+      |  |  |  |  |        |  +--ro as-number?          uint16
+      |  |  |  |  |        +--:(unnumbered-link)
+      |  |  |  |  |        |  +--ro router-id?          inet:ip-address
+      |  |  |  |  |        |  +--ro interface-id?       uint32
+      |  |  |  |  |        +--:(label)
+      |  |  |  |  |           +--ro value?              uint32
+      |  |  |  |  +--ro underlay-backup-path* [index]
+      |  |  |  |  |  +--ro index                 uint32
+      |  |  |  |  |  +--ro provider-id-ref?      leafref
+      |  |  |  |  |  +--ro client-id-ref?        leafref
+      |  |  |  |  |  +--ro te-topology-id-ref?   leafref
+      |  |  |  |  |  +--ro network-id-ref?       leafref
+      |  |  |  |  |  +--ro path-element* [path-element-id]
+      |  |  |  |  |     +--ro path-element-id     uint32
+      |  |  |  |  |     +--ro (type)?
+      |  |  |  |  |        +--:(ipv4-address)
+      |  |  |  |  |        |  +--ro v4-address?         inet:ipv4-address
+      |  |  |  |  |        |  +--ro v4-prefix-length?   uint8
+      |  |  |  |  |        |  +--ro v4-loose?           boolean
+      |  |  |  |  |        +--:(ipv6-address)
+      |  |  |  |  |        |  +--ro v6-address?         inet:ipv6-address
+      |  |  |  |  |        |  +--ro v6-prefix-length?   uint8
+      |  |  |  |  |        |  +--ro v6-loose?           boolean
+      |  |  |  |  |        +--:(as-number)
+      |  |  |  |  |        |  +--ro as-number?          uint16
+      |  |  |  |  |        +--:(unnumbered-link)
+      |  |  |  |  |        |  +--ro router-id?          inet:ip-address
+      |  |  |  |  |        |  +--ro interface-id?       uint32
+      |  |  |  |  |        +--:(label)
+      |  |  |  |  |           +--ro value?              uint32
+      |  |  |  |  +--ro underlay-protection-type?   uint16
+      |  |  |  |  +--ro underlay-tunnel-src
+      |  |  |  |  |  +--ro tp-ref?        leafref
+      |  |  |  |  |  +--ro node-ref?      leafref
+      |  |  |  |  |  +--ro network-ref?   leafref
+      |  |  |  |  +--ro underlay-tunnel-des
+      |  |  |  |     +--ro tp-ref?        leafref
+      |  |  |  |     +--ro node-ref?      leafref
+      |  |  |  |     +--ro network-ref?   leafref
       |  |  |  +--ro max-link-bandwidth?        decimal64
       |  |  |  +--ro max-resv-link-bandwidth?   decimal64
       |  |  |  +--ro unreserved-bandwidth* [priority]
@@ -321,6 +439,10 @@ augment /nw:networks/nw:network/nw:node:
       |  |     +--ro te-topology-id-ref?   leafref
       |  |     +--ro network-id-ref?       leafref
       |  +--ro oper-status?                te-types:te-oper-status
+      |  +--ro geolocation
+      |  |  +--ro altitude?    int64
+      |  |  +--ro latitude?    geographic-coordinate-degree
+      |  |  +--ro longitude?   geographic-coordinate-degree
       |  +--ro is-multi-access-dr?         empty
       |  +--ro information-source?         enumeration
       |  +--ro information-source-state
@@ -353,6 +475,63 @@ augment /nw:networks/nw:network/nw:node:
       |     |  |  +--ro label-start            te-types:generalized-label
       |     |  |  +--ro label-end?             te-types:generalized-label
       |     |  |  +--ro range-bitmap?          binary
+      |     |  +--ro underlay! {te-topology-hierarchy}?
+      |     |  |  +--ro underlay-primary-path
+      |     |  |  |  +--ro provider-id-ref?      leafref
+      |     |  |  |  +--ro client-id-ref?        leafref
+      |     |  |  |  +--ro te-topology-id-ref?   leafref
+      |     |  |  |  +--ro network-id-ref?       leafref
+      |     |  |  |  +--ro path-element* [path-element-id]
+      |     |  |  |     +--ro path-element-id     uint32
+      |     |  |  |     +--ro (type)?
+      |     |  |  |        +--:(ipv4-address)
+      |     |  |  |        |  +--ro v4-address?         inet:ipv4-address
+      |     |  |  |        |  +--ro v4-prefix-length?   uint8
+      |     |  |  |        |  +--ro v4-loose?           boolean
+      |     |  |  |        +--:(ipv6-address)
+      |     |  |  |        |  +--ro v6-address?         inet:ipv6-address
+      |     |  |  |        |  +--ro v6-prefix-length?   uint8
+      |     |  |  |        |  +--ro v6-loose?           boolean
+      |     |  |  |        +--:(as-number)
+      |     |  |  |        |  +--ro as-number?          uint16
+      |     |  |  |        +--:(unnumbered-link)
+      |     |  |  |        |  +--ro router-id?          inet:ip-address
+      |     |  |  |        |  +--ro interface-id?       uint32
+      |     |  |  |        +--:(label)
+      |     |  |  |           +--ro value?              uint32
+      |     |  |  +--ro underlay-backup-path* [index]
+      |     |  |  |  +--ro index                 uint32
+      |     |  |  |  +--ro provider-id-ref?      leafref
+      |     |  |  |  +--ro client-id-ref?        leafref
+      |     |  |  |  +--ro te-topology-id-ref?   leafref
+      |     |  |  |  +--ro network-id-ref?       leafref
+      |     |  |  |  +--ro path-element* [path-element-id]
+      |     |  |  |     +--ro path-element-id     uint32
+      |     |  |  |     +--ro (type)?
+      |     |  |  |        +--:(ipv4-address)
+      |     |  |  |        |  +--ro v4-address?         inet:ipv4-address
+      |     |  |  |        |  +--ro v4-prefix-length?   uint8
+      |     |  |  |        |  +--ro v4-loose?           boolean
+      |     |  |  |        +--:(ipv6-address)
+      |     |  |  |        |  +--ro v6-address?         inet:ipv6-address
+      |     |  |  |        |  +--ro v6-prefix-length?   uint8
+      |     |  |  |        |  +--ro v6-loose?           boolean
+      |     |  |  |        +--:(as-number)
+      |     |  |  |        |  +--ro as-number?          uint16
+      |     |  |  |        +--:(unnumbered-link)
+      |     |  |  |        |  +--ro router-id?          inet:ip-address
+      |     |  |  |        |  +--ro interface-id?       uint32
+      |     |  |  |        +--:(label)
+      |     |  |  |           +--ro value?              uint32
+      |     |  |  +--ro underlay-protection-type?   uint16
+      |     |  |  +--ro underlay-tunnel-src
+      |     |  |  |  +--ro tp-ref?        leafref
+      |     |  |  |  +--ro node-ref?      leafref
+      |     |  |  |  +--ro network-ref?   leafref
+      |     |  |  +--ro underlay-tunnel-des
+      |     |  |     +--ro tp-ref?        leafref
+      |     |  |     +--ro node-ref?      leafref
+      |     |  |     +--ro network-ref?   leafref
       |     |  +--ro max-link-bandwidth?        decimal64
       |     |  +--ro max-resv-link-bandwidth?   decimal64
       |     |  +--ro unreserved-bandwidth* [priority]
@@ -442,45 +621,49 @@ augment /nw:networks/nw:network/nw:node:
             +--ro inter-layer-lock-id?      uint32
             +--ro protection-type?          identityref
             +--ro termination-capability* [link-tp]
-               +--ro link-tp                            leafref
-               +--ro label-restriction* [inclusive-exclusive label-start]
-               |  +--ro inclusive-exclusive    enumeration
-               |  +--ro label-start            te-types:generalized-label
-               |  +--ro label-end?             te-types:generalized-label
-               |  +--ro range-bitmap?          binary
-               +--ro max-lsp-bandwidth* [priority]
-               |  +--ro priority     uint8
-               |  +--ro bandwidth?   decimal64
-               +--ro time-division-multiplex-capable
-               |  +--ro minimum-lsp-bandwidth?   decimal64
-               |  +--ro indication?              enumeration
-               +--ro max-link-bandwidth?                decimal64
-               +--ro max-resv-link-bandwidth?           decimal64
-               +--ro unreserved-bandwidth* [priority]
-               |  +--ro priority     uint8
-               |  +--ro bandwidth?   decimal64
-               +--ro te-default-metric?                 uint32
-               +--ro performance-metric {te-performance-metric}?
-               |  +--ro measurement
-               |  |  +--ro unidirectional-delay?                 uint32
-               |  |  +--ro unidirectional-min-delay?             uint32
-               |  |  +--ro unidirectional-max-delay?             uint32
-               |  |  +--ro unidirectional-delay-variation?       uint32
-               |  |  +--ro unidirectional-packet-loss?           decimal64
-               |  |  +--ro unidirectional-residual-bandwidth?    decimal64
-               |  |  +--ro unidirectional-available-bandwidth?   decimal64
-               |  |  +--ro unidirectional-utilized-bandwidth?    decimal64
-               |  +--ro normality
-               |     +--ro unidirectional-delay?                 te-types:performance-metric-normality
-               |     +--ro unidirectional-min-delay?             te-types:performance-metric-normality
-               |     +--ro unidirectional-max-delay?             te-types:performance-metric-normality
-               |     +--ro unidirectional-delay-variation?       te-types:performance-metric-normality
-               |     +--ro unidirectional-packet-loss?           te-types:performance-metric-normality
-               |     +--ro unidirectional-residual-bandwidth?    te-types:performance-metric-normality
-               |     +--ro unidirectional-available-bandwidth?   te-types:performance-metric-normality
-               |     +--ro unidirectional-utilized-bandwidth?    te-types:performance-metric-normality
-               +--ro te-srlgs
-                  +--ro value*   te-types:srlg
+            |  +--ro link-tp                            leafref
+            |  +--ro label-restriction* [inclusive-exclusive label-start]
+            |  |  +--ro inclusive-exclusive    enumeration
+            |  |  +--ro label-start            te-types:generalized-label
+            |  |  +--ro label-end?             te-types:generalized-label
+            |  |  +--ro range-bitmap?          binary
+            |  +--ro max-lsp-bandwidth* [priority]
+            |  |  +--ro priority     uint8
+            |  |  +--ro bandwidth?   decimal64
+            |  +--ro time-division-multiplex-capable
+            |  |  +--ro minimum-lsp-bandwidth?   decimal64
+            |  |  +--ro indication?              enumeration
+            |  +--ro max-link-bandwidth?                decimal64
+            |  +--ro max-resv-link-bandwidth?           decimal64
+            |  +--ro unreserved-bandwidth* [priority]
+            |  |  +--ro priority     uint8
+            |  |  +--ro bandwidth?   decimal64
+            |  +--ro te-default-metric?                 uint32
+            |  +--ro performance-metric {te-performance-metric}?
+            |  |  +--ro measurement
+            |  |  |  +--ro unidirectional-delay?                 uint32
+            |  |  |  +--ro unidirectional-min-delay?             uint32
+            |  |  |  +--ro unidirectional-max-delay?             uint32
+            |  |  |  +--ro unidirectional-delay-variation?       uint32
+            |  |  |  +--ro unidirectional-packet-loss?           decimal64
+            |  |  |  +--ro unidirectional-residual-bandwidth?    decimal64
+            |  |  |  +--ro unidirectional-available-bandwidth?   decimal64
+            |  |  |  +--ro unidirectional-utilized-bandwidth?    decimal64
+            |  |  +--ro normality
+            |  |     +--ro unidirectional-delay?                 te-types:performance-metric-normality
+            |  |     +--ro unidirectional-min-delay?             te-types:performance-metric-normality
+            |  |     +--ro unidirectional-max-delay?             te-types:performance-metric-normality
+            |  |     +--ro unidirectional-delay-variation?       te-types:performance-metric-normality
+            |  |     +--ro unidirectional-packet-loss?           te-types:performance-metric-normality
+            |  |     +--ro unidirectional-residual-bandwidth?    te-types:performance-metric-normality
+            |  |     +--ro unidirectional-available-bandwidth?   te-types:performance-metric-normality
+            |  |     +--ro unidirectional-utilized-bandwidth?    te-types:performance-metric-normality
+            |  +--ro te-srlgs
+            |     +--ro value*   te-types:srlg
+            +--ro geolocation
+               +--ro altitude?    int64
+               +--ro latitude?    geographic-coordinate-degree
+               +--ro longitude?   geographic-coordinate-degree
 augment /nw:networks/nw:network/nt:link:
    +--rw te!
       +--rw config
@@ -907,3 +1090,7 @@ augment /nw:networks/nw:network/nw:node/nt:termination-point:
          |     +--ro minimum-lsp-bandwidth?   decimal64
          |     +--ro indication?              enumeration
          +--ro inter-layer-lock-id?              uint32
+         +--ro geolocation
+            +--ro altitude?    int64
+            +--ro latitude?    geographic-coordinate-degree
+            +--ro longitude?   geographic-coordinate-degree
