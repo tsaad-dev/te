@@ -1,5 +1,7 @@
 module ietf-routing {
 
+  yang-version "1.1";
+
   namespace "urn:ietf:params:xml:ns:yang:ietf-routing";
 
   prefix "rt";
@@ -17,13 +19,11 @@ module ietf-routing {
 
   contact
     "WG Web:   <http://tools.ietf.org/wg/netmod/>
+
      WG List:  <mailto:netmod@ietf.org>
 
      WG Chair: Lou Berger
                <mailto:lberger@labn.net>
-
-     WG Chair: Juergen Schoenwaelder
-               <mailto:j.schoenwaelder@jacobs-university.de>
 
      WG Chair: Kent Watsen
                <mailto:kwatsen@juniper.net>
@@ -57,7 +57,7 @@ module ietf-routing {
      (http://tools.ietf.org/html/rfcXXXX); see the RFC itself for
      full legal notices.";
 
-  revision 2016-03-09 {
+  revision 2016-08-18 {
     description
       "Initial revision.";
     reference
@@ -68,6 +68,7 @@ module ietf-routing {
 
   feature multiple-ribs {
     description
+
       "This feature indicates that the server supports user-defined
        RIBs.
 
@@ -108,13 +109,18 @@ module ietf-routing {
       "This identity represents IPv6 address family.";
   }
 
-  identity routing-protocol {
+  identity control-plane-protocol {
     description
-      "Base identity from which routing protocol identities are
+      "Base identity from which control plane protocol identities are
        derived.";
+  }
 
+  identity routing-protocol {
+    base control-plane-protocol;
 
-
+    description
+      "Identity from which Layer 3 routing protocol identities are
+       derived.";
   }
 
   identity direct {
@@ -160,13 +166,10 @@ module ietf-routing {
     leaf router-id {
       type yang:dotted-quad;
       description
+
         "A 32-bit number in the form of a dotted quad that is used by
          some routing protocols identifying a router.";
       reference
-
-
-
-
         "RFC 2328: OSPF Version 2.";
     }
   }
@@ -211,23 +214,53 @@ module ietf-routing {
       description
         "Options for next-hops in static routes.
 
-         Modules for address families MUST augment this choice with
-         the 'next-hop-address' case, which is a leaf containing a
-         gateway address of that address family.
-
-
-
-
          It is expected that further cases will be added through
-         augments from other modules, e.g., for Equal-Cost Multipath
-         routing (ECMP).";
-      leaf outgoing-interface {
-        type if:interface-ref;
+
+         augments from other modules.";
+      case simple-next-hop {
         description
-          "Name of the outgoing interface.";
+          "This case represents a simple next hop consisting of the
+           next-hop address and/or outgoing interface.
+
+           Modules for address families MUST augment this case with a
+           leaf containing a next-hop address of that address
+           family.";
+        leaf outgoing-interface {
+          type if:interface-ref;
+          description
+            "Name of the outgoing interface.";
+        }
       }
       case special-next-hop {
         uses special-next-hop;
+      }
+      case next-hop-list {
+        container next-hop-list {
+          description
+            "Container for multiple next-hops.";
+          list next-hop {
+            key "index";
+            description
+              "An entry of a next-hop list.
+
+               Modules for address families MUST augment this list
+               with a leaf containing a next-hop address of that
+               address family.";
+            leaf index {
+              type string;
+              description
+                "An user-specified identifier utilised to uniquely
+                 reference the next-hop entry in the next-hop list.
+                 The value of this index has no semantic meaning
+                 other than for referencing the entry.";
+            }
+            leaf outgoing-interface {
+              type if:interface-ref;
+              description
+                "Name of the outgoing interface.";
+            }
+          }
+        }
       }
     }
   }
@@ -240,22 +273,47 @@ module ietf-routing {
       description
         "Options for next-hops in state data.
 
-         Modules for address families MUST augment this choice with
-         the 'next-hop-address' case, which is a leaf containing a
-         gateway address of that address family.
-
          It is expected that further cases will be added through
-         augments from other modules, e.g., for ECMP or recursive
+         augments from other modules, e.g., for recursive
          next-hops.";
-      leaf outgoing-interface {
-        type if:interface-state-ref;
+      case simple-next-hop {
         description
-          "Name of the outgoing interface.";
+          "This case represents a simple next hop consisting of the
+           next-hop address and/or outgoing interface.
+
+           Modules for address families MUST augment this case with a
+           leaf containing a next-hop address of that address
+           family.";
+        leaf outgoing-interface {
+          type if:interface-state-ref;
+          description
+            "Name of the outgoing interface.";
+        }
       }
       case special-next-hop {
         uses special-next-hop;
       }
+      case next-hop-list {
+        container next-hop-list {
+          description
+            "Container for multiple next-hops.";
+          list next-hop {
+            description
+              "An entry of a next-hop list.
+
+               Modules for address families MUST augment this list
+               with a leaf containing a next-hop address of that
+               address family.";
+            leaf outgoing-interface {
+              type if:interface-state-ref;
+              description
+                "Name of the outgoing interface.";
+            }
+          }
+        }
+      }
     }
+
   }
 
   grouping route-metadata {
@@ -266,9 +324,6 @@ module ietf-routing {
         base routing-protocol;
       }
       mandatory "true";
-
-
-
       description
         "Type of the routing protocol from which the route
          originated.";
@@ -307,36 +362,35 @@ module ietf-routing {
         "Network layer interfaces used for routing.";
       leaf-list interface {
         type if:interface-state-ref;
+
         description
           "Each entry is a reference to the name of a configured
            network layer interface.";
       }
     }
-    container routing-protocols {
+    container control-plane-protocols {
       description
         "Container for the list of routing protocol instances.";
-      list routing-protocol {
+      list control-plane-protocol {
         key "type name";
-
-
-
         description
-          "State data of a routing protocol instance.
+          "State data of a control plane protocol instance.
 
            An implementation MUST provide exactly one
-           system-controlled instance of the type 'direct'. Other
-           instances MAY be created by configuration.";
+           system-controlled instance of the 'direct'
+           pseudo-protocol. Instances of other control plane
+           protocols MAY be created by configuration.";
         leaf type {
           type identityref {
-            base routing-protocol;
+            base control-plane-protocol;
           }
           description
-            "Type of the routing protocol.";
+            "Type of the control plane protocol.";
         }
         leaf name {
           type string;
           description
-            "The name of the routing protocol instance.
+            "The name of the control plane protocol instance.
 
              For system-controlled instances this name is persistent,
              i.e., it SHOULD NOT change across reboots.";
@@ -357,24 +411,22 @@ module ietf-routing {
            An implementation SHOULD provide one system-controlled
            default RIB for each supported address family.";
         leaf name {
+
           type string;
           description
             "The name of the RIB.";
         }
         uses address-family;
         leaf default-rib {
-          if-feature multiple-ribs;
+          if-feature "multiple-ribs";
           type boolean;
           default "true";
           description
             "This flag has the value of 'true' if and only if the RIB
-
-
-
              is the default RIB for the given address family.
 
-             A default RIB always receives direct routes. By default
-             it also receives routes from all routing protocols.";
+             By default, control plane protocols place their routes
+             in the default RIBs.";
         }
         container routes {
           description
@@ -400,6 +452,33 @@ module ietf-routing {
             uses route-metadata;
           }
         }
+        action active-route {
+          description
+            "Return the active RIB route that is used for the
+             destination address.
+
+             Address family specific modules MUST augment input
+             parameters with a leaf named 'destination-address'.";
+          output {
+
+            container route {
+              description
+                "The active RIB route for the specified destination.
+
+                 If no route exists in the RIB for the destination
+                 address, no output is returned.
+
+                 Address family specific modules MUST augment this
+                 container with appropriate route contents.";
+              container next-hop {
+                description
+                  "Route's next-hop attribute.";
+                uses next-hop-state-content;
+              }
+              uses route-metadata;
+            }
+          }
+        }
       }
     }
   }
@@ -410,43 +489,43 @@ module ietf-routing {
     description
       "Configuration parameters for the routing subsystem.";
     uses router-id {
-      if-feature router-id;
+      if-feature "router-id";
       description
         "Configuration of the global router ID. Routing protocols
          that use router ID can use this parameter or override it
          with another value.";
     }
-    container routing-protocols {
+    container control-plane-protocols {
       description
-        "Configuration of routing protocol instances.";
-
-
-
-      list routing-protocol {
+        "Configuration of control plane protocol instances.";
+      list control-plane-protocol {
         key "type name";
         description
-          "Each entry contains configuration of a routing protocol
-           instance.";
+          "Each entry contains configuration of a control plane
+           protocol instance.";
         leaf type {
           type identityref {
-            base routing-protocol;
+            base control-plane-protocol;
           }
           description
-            "Type of the routing protocol - an identity derived from
-             the 'routing-protocol' base identity.";
+            "Type of the control plane protocol - an identity derived
+
+             from the 'control-plane-protocol' base identity.";
         }
         leaf name {
           type string;
           description
-            "An arbitrary name of the routing protocol instance.";
+            "An arbitrary name of the control plane protocol
+             instance.";
         }
         leaf description {
           type string;
           description
-            "Textual description of the routing protocol instance.";
+            "Textual description of the control plane protocol
+             instance.";
         }
         container static-routes {
-          when "../type='rt:static'" {
+          when "derived-from-or-self(../type, 'rt:static')" {
             description
               "This container is only valid for the 'static' routing
                protocol.";
@@ -470,9 +549,6 @@ module ietf-routing {
 
            Entries having the same key as a system-controlled entry
            of the list /routing-state/ribs/rib are used for
-
-
-
            configuring parameters of that entry. Other entries define
            additional user-controlled RIBs.";
         leaf name {
@@ -482,6 +558,7 @@ module ietf-routing {
 
              For system-controlled entries, the value of this leaf
              must be the same as the name of the corresponding entry
+
              in state data.
 
              For user-controlled entries, an arbitrary name can be
@@ -507,45 +584,5 @@ module ietf-routing {
       }
     }
   }
-
-  /* RPC operations */
-
-  rpc fib-route {
-    description
-      "Return the active FIB route that is used for sending packets
-       to a destination address.";
-    input {
-      container destination-address {
-        description
-          "Network layer destination address.
-
-           Address family specific modules MUST augment this
-           container with a leaf named 'address'.";
-
-
-
-        uses address-family;
-      }
-    }
-    output {
-      container route {
-        description
-          "The active FIB route for the specified destination.
-
-           If no active FIB route exists for the destination address,
-           no output is returned - the server SHALL send an
-           <rpc-reply> containing a single element <ok>.
-
-           Address family specific modules MUST augment this list
-           with appropriate route contents.";
-        uses address-family;
-        container next-hop {
-          description
-            "Route's next-hop attribute.";
-          uses next-hop-state-content;
-        }
-        uses route-metadata;
-      }
-    }
-  }
 }
+
