@@ -56,7 +56,7 @@ module ietf-te {
     "YANG data module for TE configuration,
     state, RPC and notifications.";
 
-  revision "2016-07-05" {
+  revision "2016-10-03" {
     description "Latest update to TE generic YANG module.";
     reference "TBD";
   }
@@ -68,6 +68,15 @@ module ietf-te {
     description
       "This type is used by data models that need to reference
        configured TE tunnel.";
+  }
+
+  typedef tunnel-p2mp-ref {
+    type leafref {
+      path "/te:te/te:tunnels/te:tunnel-p2mp/te:name";
+    }
+    description
+      "This type is used by data models that need to reference
+       configured P2MP TE tunnel.";
   }
 
   /**
@@ -82,7 +91,6 @@ module ietf-te {
         "Configuration parameters relating to
         tunnel properties";
       uses path-properties_config;
-      uses path-params_config;
     }
     container state {
       config false;
@@ -90,7 +98,6 @@ module ietf-te {
         "State information associated with tunnel
         properties";
       uses path-properties_config;
-      uses path-params_config;
       uses p2p-secondary-path-params_state;
     }
   }
@@ -103,14 +110,13 @@ module ietf-te {
         "Configuration parameters relating to
         tunnel properties";
       uses path-properties_config;
-      uses path-params_config;
     }
     container state {
       config false;
       description
         "State information associated with tunnel
         properties";
-      uses path-params_config;
+      uses path-properties_config;
       uses p2p-primary-path-params_state;
     }
   }
@@ -241,17 +247,36 @@ module ietf-te {
     }
   }
 
-  grouping path-params_config {
+  grouping path-properties_config {
     description
-      "TE tunnel path parameters configuration grouping";
-    leaf path-named-constraint {
+      "TE tunnel path properties configuration grouping";
+    leaf name {
+      type string;
+      description "TE path name";
+    }
+    leaf preference {
+      type uint8 {
+        range "1..255";
+      }
+      description
+        "Specifies a preference for this path. The lower the
+        number higher the preference";
+    }
+    leaf compute-only {
+      type empty;
+      description
+        "When set, the path is computed and updated whenever
+         the topology is updated. No resources are committed
+         or reserved in the network.";
+    }
+    leaf named-path-constraint {
       if-feature te-types:named-path-constraints;
       type string;
       description
         "Reference to a globally defined named path
         constraint set";
     }
-    uses te-types:tunnel-path-selection;
+    uses te-types:path-constraints;
     choice type {
       description
         "Describes the path type";
@@ -305,6 +330,58 @@ module ietf-te {
   }
 
   /* TE tunnel configuration data */
+  grouping tunnel-p2mp-params_config {
+    description
+      "Configuration parameters relating to TE tunnel";
+    leaf name {
+      type string;
+      description "TE tunnel name.";
+    }
+    leaf type {
+      type identityref {
+        base te-types:tunnel-type;
+      }
+      description "TE tunnel type.";
+    }
+    leaf identifier {
+      type uint16;
+      description
+        "TE tunnel Identifier.";
+    }
+    leaf description {
+      type string;
+      description
+        "Textual description for this TE tunnel";
+    }
+    leaf lsp-priority-setup {
+      type uint8 {
+        range "0..7";
+      }
+      description
+        "TE LSP setup priority";
+    }
+    leaf lsp-priority-hold {
+      type uint8 {
+        range "0..7";
+      }
+      description
+        "TE LSP hold priority";
+    }
+    leaf lsp-protection-type {
+      type identityref {
+        base te-types:lsp-prot-type;
+      }
+      description "LSP protection type.";
+    }
+    leaf admin-status {
+      type identityref {
+        base te-types:state-type;
+      }
+      default te-types:state-up;
+      description "TE tunnel administrative state.";
+    }
+  }
+
   grouping tunnel-params_config {
     description
       "Configuration parameters relating to TE tunnel";
@@ -404,7 +481,7 @@ module ietf-te {
              vital to have UNIQUE topology identifiers.";
         }
     }
-    uses te-types:tunnel-bidir-assoc-properties;
+    uses te-types:bidir-assoc-properties;
   }
 
   grouping tunnel-params_state {
@@ -418,24 +495,26 @@ module ietf-te {
     }
   }
 
-  grouping path-properties_config {
-    description "TE path properties grouping";
-    leaf name {
-      type string;
-      description "TE path name";
-    }
-    leaf preference {
-      type uint8 {
-        range "1..255";
-      }
+  /* TE tunnel configuration/state grouping */
+  grouping tunnel-p2mp-properties {
+    description
+      "Top level grouping for P2MP tunnel properties.";
+    container config {
       description
-        "Specifies a preference for this path. The lower the
-        number higher the preference";
+        "Configuration parameters relating to
+         tunnel P2MP properties";
+      uses tunnel-p2mp-params_config;
+    }
+    container state {
+      config false;
+      description
+        "State information associated with tunnel
+         properties";
+      uses tunnel-p2mp-params_config;
     }
   }
 
-  /* TE tunnel configuration/state grouping */
-  grouping tunnel-properties {
+  grouping tunnel-p2p-properties {
     description
       "Top level grouping for tunnel properties.";
     container config {
@@ -503,7 +582,7 @@ module ietf-te {
     container lsp-record-route {
       description "RSVP recorded route object information";
       list record-route-subobjects {
-        when "../origin-type != 'ingress'" {
+        when "../../origin-type != 'ingress'" {
           description "Applicable on non-ingress LSPs only";
         }
         key "subobject-index";
@@ -700,7 +779,7 @@ module ietf-te {
           "A string name that uniquely identifies a
           path constraint set";
       }
-      uses te-types:tunnel-path-selection;
+      uses te-types:path-constraints;
     }
   }
 
@@ -741,20 +820,14 @@ module ietf-te {
         "Tunnels TE configuration data container";
 
       list tunnel {
-        key "name type";
+        key "name";
         unique "identifier";
-        description "TE tunnel.";
+        description "P2P TE tunnels list.";
         leaf name {
           type leafref {
             path "../config/name";
           }
           description "TE tunnel name.";
-        }
-        leaf type {
-          type leafref {
-            path "../config/type";
-          }
-          description "TE tunnel type.";
         }
         leaf identifier {
           type leafref {
@@ -763,7 +836,26 @@ module ietf-te {
           description
             "TE tunnel Identifier.";
         }
-        uses tunnel-properties;
+        uses tunnel-p2p-properties;
+      }
+      list tunnel-p2mp {
+        key "name";
+        unique "identifier";
+        description "P2MP TE tunnels list.";
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description "TE tunnel name.";
+        }
+        leaf identifier {
+          type leafref {
+            path "../config/identifier";
+          }
+          description
+            "TE tunnel Identifier.";
+        }
+        uses tunnel-p2mp-properties;
       }
     }
   }
@@ -865,7 +957,50 @@ module ietf-te {
   /* TE Tunnel RPCs/execution Data */
   rpc tunnels-rpc {
     description
-      "TE tunnels RPC nodes";
+    "TE tunnels RPC nodes";
+    input {
+      container tunnel-info {
+        description "Tunnel Identification";
+        choice type {
+					description
+						"Basic FEC choice";
+					case tunnel-p2p {
+						leaf p2p-id {
+							type te:tunnel-ref;
+							description "P2P TE tunnel";
+						}
+					}
+					case tunnel-p2mp {
+						leaf p2mp-id {
+							type te:tunnel-p2mp-ref;
+							description "P2MP TE tunnel";
+						}
+					}
+				}
+			}
+		}
+    output {
+      container result {
+        description "The container result of the RPC operation";
+        leaf result {
+					type enumeration {
+						enum success {
+							description
+								"Origin ingress";
+						}
+						enum in-progress {
+							description
+								"Origin egress";
+						}
+						enum fail {
+							description
+								"transit";
+						}
+					}
+          description "The result of the RPC operation";
+				}
+      }
+    }
   }
 
   /* TE Global Notification Data */

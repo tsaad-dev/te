@@ -1,52 +1,66 @@
-module: ietf-mpls-static
-augment /rt:routing/mpls:mpls:
-   +--rw static-lsps
-      +--rw static-lsp* [name]
-         +--rw name      string
-         +--rw config
-         |  +--rw in-segment
-         |  |  +--rw (type)?
-                  |
-                  +--: tunnel-name
-                  |
-         |  |     +--:(ip-prefix)
-         |  |     |  +--rw ip-prefix?        inet:ip-prefix
-         |  |     +--:(mpls-label)
-         |  |        +--rw incoming-label?   mpls:mpls-label
-         |  +--rw operation?            enumeration
-         |  +--rw (out-segment)?
-         |     +--:(simple-path)
-         |     |  +--rw next-hop?             inet:ip-address
-         |     |  +--rw outgoing-label?       mpls:mpls-label
-         |     |  +--rw outgoing-interface?   if:interface-ref
-         |     +--:(path-list)
-         |        +--rw paths* [path-index]
-         |           +--rw path-index            uint16
-         |           +--rw backup-path-index?    uint16
-         |           +--rw next-hop?             inet:ip-address
-         |           +--rw outgoing-labels*      mpls:mpls-label
-         |           +--rw outgoing-interface?   if:interface-ref
-         |           +--rw loadshare?            uint16
-         |           +--rw role?                 enumeration
-         +--ro state
-            +--ro in-segment
-            |  +--ro (type)?
-            |     +--:(ip-prefix)
-            |     |  +--ro ip-prefix?        inet:ip-prefix
-            |     +--:(mpls-label)
-            |        +--ro incoming-label?   mpls:mpls-label
-            +--ro operation?            enumeration
-            +--ro (out-segment)?
-               +--:(simple-path)
-               |  +--ro next-hop?             inet:ip-address
-               |  +--ro outgoing-label?       mpls:mpls-label
-               |  +--ro outgoing-interface?   if:interface-ref
-               +--:(path-list)
-                  +--ro paths* [path-index]
-                     +--ro path-index            uint16
-                     +--ro backup-path-index?    uint16
-                     +--ro next-hop?             inet:ip-address
-                     +--ro outgoing-labels*      mpls:mpls-label
-                     +--ro outgoing-interface?   if:interface-ref
-                     +--ro loadshare?            uint16
-                     +--ro role?                 enumeration
+module: ietf-mpls
+augment /rt:routing:
+   +--rw mpls
+      +--rw interface* [name]
+      |  +--rw name      if:interface-ref
+      |  +--rw config
+      |  |  +--rw enabled?   boolean
+      |  |  +--rw mtu?       uint32
+      |  +--ro state
+      |     +--ro enabled?   boolean
+      |     +--ro mtu?       uint32
+      +--rw mpls-static:static-lsps
+         +--rw mpls-static:static-lsp* [name]
+            +--rw mpls-static:name      string
+            +--rw mpls-static:config
+            |  +--rw mpls-static:in-segment
+            |  |  +--rw (mpls-static:type)?
+            |  |  |  +--:(mpls-static:ip-prefix)
+            |  |  |  |  +--rw mpls-static:ip-prefix?            inet:ip-prefix
+            |  |  |  +--:(mpls-static:mpls-label)
+            |  |  |  |  +--rw mpls-static:incoming-label?       mpls:mpls-label
+            |  |  |  +--:(mpls-static:tunnel)
+            |  |  |     +--rw mpls-static:tunnel?               te:tunnel-ref
+            |  |  +--rw mpls-static:incoming-interface?   if:interface-ref
+            |  +--rw mpls-static:operation?            enumeration
+            |  +--rw (mpls-static:out-segment)?
+            |     +--:(mpls-static:simple-path)
+            |     |  +--rw mpls-static:next-hop?             inet:ip-address
+            |     |  +--rw mpls-static:outgoing-label?       mpls:mpls-label
+            |     |  +--rw mpls-static:outgoing-interface?   if:interface-ref
+            |     +--:(mpls-static:path-list)
+            |        +--rw mpls-static:paths* [path-index]
+            |           +--rw mpls-static:path-index            uint16
+            |           +--rw mpls-static:backup-path-index?    uint16
+            |           +--rw mpls-static:next-hop?             inet:ip-address
+            |           +--rw mpls-static:outgoing-labels*      mpls:mpls-label
+            |           +--rw mpls-static:outgoing-interface?   if:interface-ref
+            |           +--rw mpls-static:loadshare?            uint16
+            |           +--rw mpls-static:role?                 enumeration
+            +--ro mpls-static:state
+               +--ro mpls-static:in-segment
+               |  +--ro (mpls-static:type)?
+               |  |  +--:(mpls-static:ip-prefix)
+               |  |  |  +--ro mpls-static:ip-prefix?            inet:ip-prefix
+               |  |  +--:(mpls-static:mpls-label)
+               |  |  |  +--ro mpls-static:incoming-label?       mpls:mpls-label
+               |  |  +--:(mpls-static:tunnel)
+               |  |     +--ro mpls-static:tunnel?               te:tunnel-ref
+               |  +--ro mpls-static:incoming-interface?   if:interface-ref
+               +--ro mpls-static:operation?            enumeration
+               +--ro (mpls-static:out-segment)?
+                  +--:(mpls-static:simple-path)
+                  |  +--ro mpls-static:next-hop?             inet:ip-address
+                  |  +--ro mpls-static:outgoing-label?       mpls:mpls-label
+                  |  +--ro mpls-static:outgoing-interface?   if:interface-ref
+                  +--:(mpls-static:path-list)
+                     +--ro mpls-static:paths* [path-index]
+                        +--ro mpls-static:path-index            uint16
+                        +--ro mpls-static:backup-path-index?    uint16
+                        +--ro mpls-static:next-hop?             inet:ip-address
+                        +--ro mpls-static:outgoing-labels*      mpls:mpls-label
+                        +--ro mpls-static:outgoing-interface?   if:interface-ref
+                        +--ro mpls-static:loadshare?            uint16
+                        +--ro mpls-static:role?                 enumeration
+augment /rt:routing-state:
+   +--ro mpls
