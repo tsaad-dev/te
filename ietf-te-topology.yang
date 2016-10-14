@@ -63,7 +63,7 @@ module ietf-te-topology {
 
   description "TE topology model";
 
-  revision "2016-10-11" {
+  revision "2016-10-12" {
     description "Initial revision";
     reference "TBD";
   }
@@ -101,6 +101,30 @@ module ietf-te-topology {
         "Decimal degree (DD) used to express latitude and longitude
          geographic coordinates.";
   } // geographic-coordinate-degree
+
+  typedef te-bandwidth {
+    type string {
+      pattern
+	'0[xX](0((\.0?)?[pP](\+)?0?|(\.0?))|'
+      + '1(\.([\da-fA-F]{0,5}[02468aAcCeE]?)?)?[pP](\+)?(12[0-7]|'
+      + '1[01]\d|0?\d?\d)?)|0[xX][\da-fA-F]{1,8}|\d+'
+      + '(,(0[xX](0((\.0?)?[pP](\+)?0?|(\.0?))|'
+      + '1(\.([\da-fA-F]{0,5}[02468aAcCeE]?)?)?[pP](\+)?(12[0-7]|'
+      + '1[01]\d|0?\d?\d)?)|0[xX][\da-fA-F]{1,8}|\d+))*';
+    }
+    description
+      "This is the generic bandwidth type that is a string containing
+       a list of numbers separated by commas, with each of these
+       number can be non-negative decimal, hex integer, or hex float:
+       (dec | hex | float)[*(','(dec | hex | float))]
+       For packet switching type, a float number is used, such as
+       0x1p10.
+       For OTN switching type, a list of integers can be used, such
+       as '0,2,3,1', indicating 2 odu0's and 1 odu3.
+       For DWDM, a list of pairs of slot number and width can be 
+       used, such as '0, 2, 3, 3', indicating a frequency slot 0 with
+       slot width 2 and a frequency slot 3 with slot width 3.";
+  } // te-bandwidth
 
   typedef te-info-source {
     type enumeration {
@@ -851,9 +875,7 @@ module ietf-te-topology {
     description
       "Advertised TE connectivity attributes.";
     leaf max-link-bandwidth {
-      type decimal64 {
-        fraction-digits 2;
-      }
+      type te-bandwidth;
       description
         "Maximum bandwidth that can be seen on this link in this
          direction. Units in bytes per second.";
@@ -863,9 +885,7 @@ module ietf-te-topology {
          RFC5305: IS-IS Extensions for Traffic Engineering.";
     }
     leaf max-resv-link-bandwidth {
-      type decimal64 {
-        fraction-digits 2;
-      }
+      type te-bandwidth;
       description
         "Maximum amount of bandwidth that can be reserved in this
          direction in this link. Units in bytes per second.";
@@ -891,9 +911,7 @@ module ietf-te-topology {
         description "Priority.";
       }
       leaf bandwidth {
-        type decimal64 {
-          fraction-digits 2;
-        }
+        type te-bandwidth;
         description
           "Unreserved bandwidth for this level.";
       }
@@ -990,9 +1008,7 @@ module ietf-te-topology {
         description "Priority.";
       }
       leaf bandwidth {
-        type decimal64 {
-          fraction-digits 2;
-        }
+        type te-bandwidth;
         description
           "Max LSP Bandwidth for this level";
       }
@@ -1005,9 +1021,7 @@ module ietf-te-topology {
         "Interface has time-division multiplex capabilities.";
 
       leaf minimum-lsp-bandwidth {
-        type decimal64 {
-          fraction-digits 2;
-        }
+        type te-bandwidth;
         description
           "Minimum LSP Bandwidth. Units in bytes per second.";
       }
