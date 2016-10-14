@@ -2,15 +2,19 @@ module ietf-te-topology {
   yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-te-topology";
   // replace with IANA namespace when assigned
-  
+
   prefix "tet";
+
+  import ietf-yang-types {
+    prefix "yang";
+  }
 
   import ietf-inet-types {
     prefix "inet";
   }
 
-  import ietf-schedule { 
-    prefix "sch"; 
+  import ietf-schedule {
+    prefix "sch";
   }
 
   import ietf-te-types {
@@ -58,8 +62,8 @@ module ietf-te-topology {
                <mailto:oscar.gonzalezdedios@telefonica.com>";
 
   description "TE topology model";
-  
-  revision "2016-09-20" {
+
+  revision "2016-10-04" {
     description "Initial revision";
     reference "TBD";
   }
@@ -70,7 +74,7 @@ module ietf-te-topology {
 
   feature configuration-schedule {
     description
-      "This feature indicates that the system supports 
+      "This feature indicates that the system supports
        configuration scheduling.";
   }
 
@@ -82,7 +86,7 @@ module ietf-te-topology {
 
   feature template {
     description
-      "This feature indicates that the system supports 
+      "This feature indicates that the system supports
        template configuration.";
   }
 
@@ -93,7 +97,7 @@ module ietf-te-topology {
       type decimal64 {
         fraction-digits 8;
       }
-      description 
+      description
         "Decimal degree (DD) used to express latitude and longitude
          geographic coordinates.";
   }
@@ -146,12 +150,12 @@ module ietf-te-topology {
       leaf range-bitmap {
         type binary;
         description
-          "When there are gaps between label-start and label-end, 
+          "When there are gaps between label-start and label-end,
            this attribute is used to specified the possitions
            of the used labels.";
       }
     }
-  } // connectivity-label-restrictions 
+  } // connectivity-label-restrictions
 
   grouping geolocation-container {
     description
@@ -178,13 +182,13 @@ module ietf-te-topology {
         }
         description
           "Angular distance east or west on the Earth's surface.";
-      }      
+      }
     } // gps-location
   } // geolocation-container
 
   grouping information-source-attributes {
     description
-      "The attributes identifying source that has provided the 
+      "The attributes identifying source that has provided the
        related information, and the source credibility.";
     leaf information-source {
       type enumeration {
@@ -216,24 +220,24 @@ module ietf-te-topology {
           description "Other source.";
         }
       }
-      description 
+      description
         "Indicates the source of the information.";
     }
     container information-source-state {
       description
-        "The container contains state attributes related to 
+        "The container contains state attributes related to
          the information source.";
       leaf credibility-preference {
         type uint16;
         description
-          "The preference value to calculate the traffic 
-           engineering database credibility value used for 
-           tie-break selection between different 
+          "The preference value to calculate the traffic
+           engineering database credibility value used for
+           tie-break selection between different
            information-source values.
            Higher value is more preferable.";
-      }      
+      }
       container topology {
-        description 
+        description
           "When the information is processed by the system,
            the attributes in this container indicate which topology
            is used to process to generate the result information.";
@@ -260,7 +264,7 @@ module ietf-te-topology {
       reference
         "RFC3471: Generalized Multi-Protocol Label Switching (GMPLS)
          Signaling Functional Description.
-         RFC4203: OSPF Extensions in Support of Generalized 
+         RFC4203: OSPF Extensions in Support of Generalized
          Multi-Protocol Label Switching (GMPLS).";
       leaf switching-capability {
         type identityref {
@@ -280,13 +284,314 @@ module ietf-te-topology {
     } // interface-switching-capability
   } // interface-switching-capability-list
 
+  grouping statistics-per-link {
+    description
+      "Statistics attributes per TE link.";
+    leaf discontinuity-time {
+      type yang:date-and-time;
+      mandatory true;
+      description
+        "The time on the most recent occasion at which any one or
+         more of this interface's counters suffered a
+         discontinuity.  If no such discontinuities have occurred
+         since the last re-initialization of the local management
+         subsystem, then this node contains the time the local
+         management subsystem re-initialized itself.";
+    }
+    /* Administrative attributes */
+    leaf disables {
+      type yang:counter32;
+      description
+        "Number of times that link was disabled.";
+    }
+    leaf enables {
+      type yang:counter32;
+      description
+        "Number of times that link was enabled.";
+    }
+    leaf maintenance-clears {
+      type yang:counter32;
+      description
+        "Number of times that link was put out of maintenance.";
+    }
+    leaf maintenance-sets {
+      type yang:counter32;
+      description
+        "Number of times that link was put in maintenance.";
+      }
+    leaf modifies {
+      type yang:counter32;
+      description
+        "Number of times that link was modified.";
+    }
+    /* Operational attributes */
+    leaf downs {
+      type yang:counter32;
+      description
+        "Number of times that link was set to operational down.";
+    }
+    leaf ups {
+      type yang:counter32;
+      description
+        "Number of times that link was set to operational up.";
+    }
+    /* Recovery attributes */
+    leaf fault-clears {
+      type yang:counter32;
+      description
+        "Number of times that link experienced fault clear event.";
+    }
+    leaf fault-detects {
+      type yang:counter32;
+      description
+        "Number of times that link experienced fault detection.";
+    }
+    leaf protection-switches {
+      type yang:counter32;
+      description
+        "Number of times that link experienced protection
+         switchover.";
+    }
+    leaf protection-reverts {
+      type yang:counter32;
+      description
+        "Number of times that link experienced protection
+         reversion.";
+    }
+    leaf restoration-failures {
+      type yang:counter32;
+      description
+        "Number of times that link experienced restoration
+         failure.";
+    }
+    leaf restoration-starts {
+      type yang:counter32;
+      description
+        "Number of times that link experienced restoration
+         start.";
+    }
+    leaf restoration-successes {
+      type yang:counter32;
+      description
+        "Number of times that link experienced restoration
+         success.";
+    }
+    leaf restoration-reversion-failures {
+      type yang:counter32;
+      description
+        "Number of times that link experienced restoration reversion
+         failure.";
+    }
+    leaf restoration-reversion-starts {
+      type yang:counter32;
+      description
+        "Number of times that link experienced restoration reversion
+         start.";
+    }
+    leaf restoration-reversion-successes {
+      type yang:counter32;
+      description
+        "Number of times that link experienced restoration reversion
+         success.";
+    }
+  } // statistics-per-link
+
+  grouping statistics-per-node {
+    description
+      "Statistics attributes per TE node.";
+    leaf discontinuity-time {
+      type yang:date-and-time;
+      mandatory true;
+      description
+        "The time on the most recent occasion at which any one or
+         more of this interface's counters suffered a
+         discontinuity.  If no such discontinuities have occurred
+         since the last re-initialization of the local management
+         subsystem, then this node contains the time the local
+         management subsystem re-initialized itself.";
+    }
+    container node {
+      description
+        "Containing TE node level statistics attributes.";
+      leaf disables {
+        type yang:counter32;
+        description
+          "Number of times that node was disabled.";
+      }
+      leaf enables {
+        type yang:counter32;
+        description
+          "Number of times that node was enabled.";
+      }
+      leaf maintenance-sets {
+        type yang:counter32;
+        description
+          "Number of times that node was put in maintenance.";
+      }
+      leaf maintenance-clears {
+        type yang:counter32;
+        description
+          "Number of times that node was put out of maintenance.";
+      }
+      leaf modifies {
+        type yang:counter32;
+        description
+          "Number of times that node was modified.";
+      }
+    } // node
+    container connectivity-matrix-entry {
+      description
+        "Containing connectivity matrix entry level statistics
+         attributes.";
+      leaf creates {
+        type yang:counter32;
+        description
+          "Number of times that a connectivity matrix entry was
+           created.";
+        reference
+          "RFC6241. Section 7.2 for 'create' operation. ";
+      }
+      leaf deletes {
+        type yang:counter32;
+        description
+          "Number of times that a connectivity matrix entry was
+           deleted.";
+        reference
+          "RFC6241. Section 7.2 for 'delete' operation. ";
+      }
+      leaf disables {
+        type yang:counter32;
+        description
+          "Number of times that a connectivity matrix entry was
+           disabled.";
+      }
+      leaf enables {
+        type yang:counter32;
+        description
+          "Number of times that a connectivity matrix entry was
+           enabled.";
+      }
+      leaf modifies {
+        type yang:counter32;
+        description
+          "Number of times that a connectivity matrix entry was
+           modified.";
+      }
+    } // connectivity-matrix-entry
+  } // statistics-per-node
+
+  grouping statistics-per-ttp {
+    description
+      "Statistics attributes per TE TTP (Tunnel Termination Point).";
+    leaf discontinuity-time {
+      type yang:date-and-time;
+      mandatory true;
+      description
+        "The time on the most recent occasion at which any one or
+         more of this interface's counters suffered a
+         discontinuity.  If no such discontinuities have occurred
+         since the last re-initialization of the local management
+         subsystem, then this node contains the time the local
+         management subsystem re-initialized itself.";
+    }
+    container tunnel-termination-point {
+      description
+        "Containing TE TTP (Tunnel Termination Point) level
+         statistics attributes.";
+      /* Administrative attributes */
+      leaf disables {
+        type yang:counter32;
+        description
+          "Number of times that TTP was disabled.";
+      }
+      leaf enables {
+        type yang:counter32;
+        description
+          "Number of times that TTP was enabled.";
+      }
+      leaf maintenance-clears {
+        type yang:counter32;
+        description
+          "Number of times that TTP was put out of maintenance.";
+      }
+      leaf maintenance-sets {
+        type yang:counter32;
+        description
+          "Number of times that TTP was put in maintenance.";
+      }
+      leaf modifies {
+        type yang:counter32;
+        description
+          "Number of times that TTP was modified.";
+      }
+      /* Operational attributes */
+      leaf downs {
+        type yang:counter32;
+        description
+          "Number of times that TTP was set to operational down.";
+      }
+      leaf ups {
+        type yang:counter32;
+        description
+          "Number of times that TTP was set to operational up.";
+      }
+      leaf in-service-clears {
+        type yang:counter32;
+        description
+          "Number of times that TTP was taken out of service
+           (TE tunnel was released).";
+      }
+      leaf in-service-sets {
+        type yang:counter32;
+        description
+          "Number of times that TTP was put in service by a TE
+           tunnel (TE tunnel was set up).";
+      }
+    } // tunnel-termination-point
+
+    container local-link-connectivity {
+      description
+        "Containing TE LLCL (Local Link Connectivity List) level
+         statistics attributes.";
+      leaf creates {
+        type yang:counter32;
+        description
+          "Number of times that an LLCL entry was created.";
+        reference
+          "RFC6241. Section 7.2 for 'create' operation. ";
+      }
+      leaf deletes {
+        type yang:counter32;
+        description
+          "Number of times that an LLCL entry was deleted.";
+        reference
+          "RFC6241. Section 7.2 for 'delete' operation.";
+      }
+      leaf disables {
+        type yang:counter32;
+        description
+          "Number of times that an LLCL  entry was disabled.";
+      }
+      leaf enables {
+        type yang:counter32;
+        description
+          "Number of times that an LLCL  entry was enabled.";
+      }
+      leaf modifies {
+        type yang:counter32;
+        description
+          "Number of times that an LLCL  entry was modified.";
+      }
+    } // local-link-connectivity
+  } // statistics-per-ttp
+
   grouping te-link-augment {
-    description 
+    description
       "Augmentation for TE link.";
-    
+
     container te {
       presence "TE support.";
-      description 
+      description
         "Indicates TE support.";
 
       container config {
@@ -301,14 +606,20 @@ module ietf-te-topology {
         uses te-link-config;
         uses te-link-state-derived;
       } // state
+      container statistics {
+        config false;
+        description
+          "Statistics data.";
+        uses statistics-per-link;
+      } // statistics
     } // te
   } // te-link-augment
-  
+
   grouping te-link-config {
     description
       "TE link configuration grouping.";
     choice bundle-stack-level {
-      description 
+      description
         "The TE link can be partitioned into bundled
          links, or component links.";
       case bundle {
@@ -365,7 +676,7 @@ module ietf-te-topology {
               "Specify a component interface that is
                sufficient to unambiguously identify the
                appropriate resources";
-            
+
             leaf sequence {
               type uint32;
               description
@@ -387,7 +698,7 @@ module ietf-te-topology {
         }
       }
     } // bundle-stack-level
-    
+
     leaf-list te-link-template {
       if-feature template;
       type leafref {
@@ -400,27 +711,27 @@ module ietf-te-topology {
   } // te-link-config
 
   grouping te-link-config-attributes {
-    description 
+    description
       "Link configuration attributes in a TE topology.";
     container te-link-attributes {
       description "Link attributes in a TE topology.";
       uses sch:schedules;
       leaf access-type {
         type te-types:te-link-access-type;
-        description 
+        description
           "Link access type, which can be point-to-point or
            multi-access.";
       }
       container external-domain {
         description
-          "For an inter-domain link, specify the attributes of 
+          "For an inter-domain link, specify the attributes of
            the remote end of link, to facilitate the signalling at
            local end.";
         leaf remote-te-node-id {
           type te-types:te-node-id;
           description
             "Remote TE node identifier, used together with
-             remote-te-link-id to identify the remote link 
+             remote-te-link-id to identify the remote link
              termination point in a different domain.";
         }
         leaf remote-te-link-tp-id {
@@ -452,7 +763,7 @@ module ietf-te-topology {
       }
       container underlay {
         if-feature te-topology-hierarchy;
-        presence 
+        presence
           "Indicates the underlay exists for this link.";
         description "Attributes of the te-link underlay.";
         reference
@@ -467,7 +778,7 @@ module ietf-te-topology {
         description
           "The administrative state of the link.";
       }
-      
+
       uses te-link-info-attributes;
     } // te-link-attributes
   } // te-link-config-attributes
@@ -560,7 +871,7 @@ module ietf-te-topology {
     leaf administrative-group {
       type te-types:admin-groups;
       description
-        "Administrative group or color of the link. 
+        "Administrative group or color of the link.
          This attribute covers both administrative group (defined in
          RFC3630, RFC5329, and RFC5305), and extended administrative
          group (defined in RFC7308).";
@@ -628,7 +939,7 @@ module ietf-te-topology {
       }
       description
         "Interface has time-division multiplex capabilities.";
-      
+
       leaf minimum-lsp-bandwidth {
         type decimal64 {
           fraction-digits 2;
@@ -639,11 +950,11 @@ module ietf-te-topology {
       leaf indication {
         type enumeration {
           enum "standard" {
-            description 
+            description
               "Indicates support of standard SONET/SDH.";
           }
           enum "arbitrary" {
-            description 
+            description
               "Indicates support of arbitrary SONET/SDH.";
           }
         }
@@ -655,7 +966,7 @@ module ietf-te-topology {
   } // te-link-iscd-attributes
 
   grouping te-link-state-derived {
-    description 
+    description
       "Link state attributes in a TE topology.";
     leaf oper-status {
       type te-types:te-oper-status;
@@ -664,16 +975,16 @@ module ietf-te-topology {
     }
     leaf is-transitional {
       type empty;
-      description 
-        "Present if the link is transitional, used as an 
-         alternative approach in lieu of inter-layer-lock-id 
+      description
+        "Present if the link is transitional, used as an
+         alternative approach in lieu of inter-layer-lock-id
          for path computation in a TE topology covering multiple
          layers or multiple regions.";
       reference
         "RFC5212: Requirements for GMPLS-Based Multi-Region and
          Multi-Layer Networks (MRN/MLN).
          RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
-         for Multi-Layer and Multi-Region Networks (MLN/MRN).";        
+         for Multi-Layer and Multi-Region Networks (MLN/MRN).";
     }
     uses information-source-attributes;
     list information-source-entry {
@@ -696,7 +1007,7 @@ module ietf-te-topology {
         type te-types:te-recovery-status;
         description
           "Protection status.";
-      }      
+      }
     }
     container underlay {
       if-feature te-topology-hierarchy;
@@ -709,12 +1020,12 @@ module ietf-te-topology {
     description "State attributes for te-link underlay.";
     leaf dynamic {
       type boolean;
-      description 
+      description
         "true if the underlay is dynamically created.";
     }
     leaf committed {
       type boolean;
-      description 
+      description
         "true if the underlay is committed.";
     }
     leaf tunnel-id {
@@ -729,7 +1040,7 @@ module ietf-te-topology {
       reference "RFC3209";
     }
   } // te-link-state-underlay-attributes
-    
+
   grouping te-link-underlay-attributes {
     description "Attributes for  te-link underlay.";
     reference
@@ -737,13 +1048,13 @@ module ietf-te-topology {
        Generalized Multi-Protocol Label Switching (GMPLS)
        Traffic Engineering (TE)";
     container underlay-primary-path {
-      description 
+      description
         "The service path on the underlay topology that
          supports this link.";
       uses te-topology-ref;
       list path-element {
         key "path-element-id";
-        description 
+        description
           "A list of path elements describing the service path.";
         leaf path-element-id {
           type uint32;
@@ -754,10 +1065,10 @@ module ietf-te-topology {
     } // underlay-primary-path
     list underlay-backup-path {
       key "index";
-      description 
+      description
         "A list of backup service paths on the underlay topology that
          protect the underlay primary path. If the primary path is
-         not protected, the list contains zero elements. If the 
+         not protected, the list contains zero elements. If the
          primary path is protected, the list contains one or more
          elements.";
       leaf index {
@@ -768,8 +1079,8 @@ module ietf-te-topology {
       uses te-topology-ref;
       list path-element {
         key "path-element-id";
-        description 
-          "A list of path elements describing the backup service 
+        description
+          "A list of path elements describing the backup service
            path";
         leaf path-element-id {
           type uint32;
@@ -798,7 +1109,7 @@ module ietf-te-topology {
   grouping te-node-augment {
     description
       "Augmentation for TE node.";
-    
+
     leaf te-node-id {
       type te-types:te-node-id;
       description
@@ -809,7 +1120,7 @@ module ietf-te-topology {
     container te {
       must "../te-node-id";
       presence "TE support.";
-      description 
+      description
         "Indicates TE support.";
 
       container config {
@@ -825,6 +1136,12 @@ module ietf-te-topology {
         uses te-node-config;
         uses te-node-state-derived;
       } // state
+      container statistics {
+        config false;
+        description
+          "Statistics data.";
+        uses statistics-per-node;
+      } // statistics
 
       list tunnel-termination-point {
         key "tunnel-tp-id";
@@ -841,16 +1158,20 @@ module ietf-te-topology {
             "Configuration data.";
           uses te-node-tunnel-termination-attributes;
         }
-
         container state {
           config false;
           description
             "Operational state data.";
 
           uses te-node-tunnel-termination-attributes;
-          uses geolocation-container;    
+          uses geolocation-container;
         } // state
-        
+        container statistics {
+          config false;
+          description
+            "Statistics data.";
+          uses statistics-per-ttp;
+        } // statistics
       } // tunnel-termination-point
     } // te
   } // te-node-augment
@@ -883,9 +1204,9 @@ module ietf-te-topology {
       uses te-node-info-attributes;
     } // te-node-attributes
   } // te-node-config-attributes
-    
+
   grouping te-node-config-attributes-notification {
-    description 
+    description
       "Configuration node attributes for template in a TE topology.";
     container te-node-attributes {
       description "Containing node attributes in a TE topology.";
@@ -901,7 +1222,7 @@ module ietf-te-topology {
   } // te-node-config-attributes-notification
 
   grouping te-node-config-attributes-template {
-    description 
+    description
       "Configuration node attributes for template in a TE topology.";
     container te-node-attributes {
       description "Containing node attributes in a TE topology.";
@@ -937,7 +1258,7 @@ module ietf-te-topology {
           description
             "Relative reference to source termination point.";
         }
-        description 
+        description
           "Reference to source NTP.";
       }
       container to {
@@ -948,19 +1269,19 @@ module ietf-te-topology {
           description
             "Relative reference to destination termination point.";
         }
-        description 
+        description
           "Reference to destination NTP.";
       }
       leaf is-allowed {
         type boolean;
         description
-          "true  - switching is allowed, 
+          "true  - switching is allowed,
            false - switching is disallowed.";
       }
       uses connectivity-label-restriction-list;
       container underlay {
         if-feature te-topology-hierarchy;
-        presence 
+        presence
           "Indicates the underlay exists for this link.";
         description "Attributes of the te-link underlay.";
         reference
@@ -973,9 +1294,9 @@ module ietf-te-topology {
       uses te-link-connectivity-attributes;
     }
   } // te-node-connectivity-matrix
-    
+
   grouping te-node-connectivity-matrix-abs {
-    description 
+    description
       "Connectivity matrix on a TE node, using absolute
        paths to reference termination points.";
     list connectivity-matrix {
@@ -992,18 +1313,18 @@ module ietf-te-topology {
       }
       container from {
         uses nt:tp-ref;
-        description 
+        description
           "Reference to source NTP.";
       }
       container to {
         uses nt:tp-ref;
-        description 
+        description
           "Reference to destination NTP.";
       }
       leaf is-allowed {
         type boolean;
         description
-          "true  - switching is allowed, 
+          "true  - switching is allowed,
            false - switching is disallowed.";
       }
     }
@@ -1028,7 +1349,7 @@ module ietf-te-topology {
     }
     leaf is-abstract {
       type empty;
-      description 
+      description
         "Present if the node is abstract, not present if the node
          is actual.";
     }
@@ -1042,13 +1363,13 @@ module ietf-te-topology {
     }
     container underlay-topology {
       if-feature te-topology-hierarchy;
-      description 
-        "When an abstract node encapsulates a topology, 
+      description
+        "When an abstract node encapsulates a topology,
          the attributes in this container point to said topology.";
       uses te-topology-ref;
     }
   } // te-node-info-attributes
-    
+
   grouping te-node-state-derived {
     description "Node state attributes in a TE topology.";
     leaf oper-status {
@@ -1111,7 +1432,7 @@ module ietf-te-topology {
   } // te-node-state-derived-notification
 
   grouping te-node-tunnel-termination-attributes {
-    description 
+    description
       "Termination capability of a tunnel termination point on a
        TE node.";
 
@@ -1138,7 +1459,7 @@ module ietf-te-topology {
         "RFC5212: Requirements for GMPLS-Based Multi-Region and
          Multi-Layer Networks (MRN/MLN).
          RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
-         for Multi-Layer and Multi-Region Networks (MLN/MRN).";        
+         for Multi-Layer and Multi-Region Networks (MLN/MRN).";
     }
     leaf protection-type {
       type identityref {
@@ -1149,20 +1470,20 @@ module ietf-te-topology {
          is capable of.";
     }
 
-    list termination-capability {
-      key "link-tp";
+    list local-link-connectivity {
+      key "link-tp-ref";
       description
-        "The termination capabilities between 
+        "The termination capabilities between
          tunnel-termination-point and link termination-point.
          The capability information can be used to compute
          the tunnel path.
          The Interface Adjustment Capability Descriptors (IACD)
-         [RFC6001] on each link-tp can be derived from this 
-         termination-capability list.";
+         [RFC6001] on each link-tp can be derived from this
+         local-link-connectivity list.";
       reference
         "RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
          for Multi-Layer and Multi-Region Networks (MLN/MRN).";
-      leaf link-tp {
+      leaf link-tp-ref {
         type leafref {
           path "../../../../../nt:termination-point/nt:tp-id";
         }
@@ -1182,11 +1503,11 @@ module ietf-te-topology {
        such as TE node, TE link, TE atomic resource or label.";
     uses te-types:explicit-route-subobject;
   } // te-path-element
-  
+
   grouping te-termination-point-augment {
     description
       "Augmentation for TE termination point.";
-    
+
     leaf te-tp-id {
       type te-types:te-tp-id;
       description
@@ -1196,8 +1517,8 @@ module ietf-te-topology {
 
     container te {
       must "../te-tp-id";
-      presence "TE support.";      
-      description 
+      presence "TE support.";
+      description
         "Indicates TE support.";
 
       container config {
@@ -1216,7 +1537,7 @@ module ietf-te-topology {
   } // te-termination-point-augment
 
   grouping te-termination-point-config {
-    description 
+    description
       "TE termination point configuration grouping.";
     uses sch:schedules;
     uses interface-switching-capability-list;
@@ -1229,17 +1550,17 @@ module ietf-te-topology {
         "RFC5212: Requirements for GMPLS-Based Multi-Region and
          Multi-Layer Networks (MRN/MLN).
          RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
-         for Multi-Layer and Multi-Region Networks (MLN/MRN).";        
+         for Multi-Layer and Multi-Region Networks (MLN/MRN).";
     }
   } // te-termination-point-config
 
   grouping te-topologies-augment {
     description
       "Augmentation for TE topologies.";
-    
+
     container te {
       presence "TE support.";
-      description 
+      description
         "Indicates TE support.";
 
       container templates {
@@ -1261,7 +1582,7 @@ module ietf-te-topology {
           uses template-attributes;
           uses te-node-config-attributes-template;
         } // node-template
-        
+
         list link-template {
           if-feature template;
           key "name";
@@ -1283,7 +1604,7 @@ module ietf-te-topology {
   grouping te-topology-augment {
     description
       "Augmentation for TE topology.";
-    
+
     leaf provider-id {
       type te-types:te-global-id;
       description
@@ -1301,11 +1622,11 @@ module ietf-te-topology {
          topologies. To distinguish between topologies it is
          vital to have UNIQUE topology identifiers.";
     }
-    
+
     container te {
       must "../provider-id and ../client-id and ../te-topology-id";
       presence "TE support.";
-      description 
+      description
         "Indicates TE support.";
 
       container config {
@@ -1324,7 +1645,7 @@ module ietf-te-topology {
   } // te-topology-augment
 
   grouping te-topology-config {
-    description 
+    description
       "TE topology configuration grouping.";
     uses sch:schedules;
     leaf preference {
@@ -1396,16 +1717,16 @@ module ietf-te-topology {
         "Its presence identifies the TE topology type.";
     }
   } // te-topology-type
-  
+
   grouping template-attributes {
-    description 
+    description
       "Common attributes for all templates.";
 
     leaf priority {
       type uint16;
       description
         "The preference value to resolve conflicts between different
-         templates. When two or more templates specify values for 
+         templates. When two or more templates specify values for
          one configuration attribute, the value from the template
          with the highest priority is used.";
     }
@@ -1413,8 +1734,8 @@ module ietf-te-topology {
       type enumeration {
         enum no-action {
           description
-            "When an attribute changes in this template, the 
-             configuration node referring to this template does 
+            "When an attribute changes in this template, the
+             configuration node referring to this template does
              not take any action.";
         }
         enum not-allowed {
@@ -1424,9 +1745,9 @@ module ietf-te-topology {
         }
         enum cascade {
           description
-            "When an attribute changes in this template, the 
+            "When an attribute changes in this template, the
              configuration object referring to this template applies
-             the new attribute value to the corresponding 
+             the new attribute value to the corresponding
              configuration.";
         }
       }
@@ -1461,7 +1782,7 @@ module ietf-te-topology {
       "Configuration parameters for TE topology.";
     uses te-topology-augment;
   }
-  
+
   augment "/nw:networks/nw:network/nw:node" {
     when "../nw:network-types/te-topology" {
       description

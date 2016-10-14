@@ -464,15 +464,29 @@ augment /nw:networks/nw:network/nw:node:
       |        +--ro client-id-ref?        leafref
       |        +--ro te-topology-id-ref?   leafref
       |        +--ro network-id-ref?       leafref
+      +--ro statistics
+      |  +--ro discontinuity-time           yang:date-and-time
+      |  +--ro node
+      |  |  +--ro disables?             yang:counter32
+      |  |  +--ro enables?              yang:counter32
+      |  |  +--ro maintenance-sets?     yang:counter32
+      |  |  +--ro maintenance-clears?   yang:counter32
+      |  |  +--ro modifies?             yang:counter32
+      |  +--ro connectivity-matrix-entry
+      |     +--ro creates?    yang:counter32
+      |     +--ro deletes?    yang:counter32
+      |     +--ro disables?   yang:counter32
+      |     +--ro enables?    yang:counter32
+      |     +--ro modifies?   yang:counter32
       +--rw tunnel-termination-point* [tunnel-tp-id]
          +--rw tunnel-tp-id    binary
          +--rw config
-         |  +--rw switching-capability?     identityref
-         |  +--rw encoding?                 identityref
-         |  +--rw inter-layer-lock-id?      uint32
-         |  +--rw protection-type?          identityref
-         |  +--rw termination-capability* [link-tp]
-         |     +--rw link-tp                            leafref
+         |  +--rw switching-capability?      identityref
+         |  +--rw encoding?                  identityref
+         |  +--rw inter-layer-lock-id?       uint32
+         |  +--rw protection-type?           identityref
+         |  +--rw local-link-connectivity* [link-tp-ref]
+         |     +--rw link-tp-ref                        leafref
          |     +--rw label-restriction* [inclusive-exclusive label-start]
          |     |  +--rw inclusive-exclusive    enumeration
          |     |  +--rw label-start            te-types:generalized-label
@@ -494,36 +508,54 @@ augment /nw:networks/nw:network/nw:node:
          |     +--rw te-srlgs
          |        +--rw value*   te-types:srlg
          +--ro state
-            +--ro switching-capability?     identityref
-            +--ro encoding?                 identityref
-            +--ro inter-layer-lock-id?      uint32
-            +--ro protection-type?          identityref
-            +--ro termination-capability* [link-tp]
-            |  +--ro link-tp                            leafref
-            |  +--ro label-restriction* [inclusive-exclusive label-start]
-            |  |  +--ro inclusive-exclusive    enumeration
-            |  |  +--ro label-start            te-types:generalized-label
-            |  |  +--ro label-end?             te-types:generalized-label
-            |  |  +--ro range-bitmap?          binary
-            |  +--ro max-lsp-bandwidth* [priority]
-            |  |  +--ro priority     uint8
-            |  |  +--ro bandwidth?   decimal64
-            |  +--ro time-division-multiplex-capable
-            |  |  +--ro minimum-lsp-bandwidth?   decimal64
-            |  |  +--ro indication?              enumeration
-            |  +--ro max-link-bandwidth?                decimal64
-            |  +--ro max-resv-link-bandwidth?           decimal64
-            |  +--ro unreserved-bandwidth* [priority]
-            |  |  +--ro priority     uint8
-            |  |  +--ro bandwidth?   decimal64
-            |  +--ro te-default-metric?                 uint32
-            |  +--ro te-delay-metric?                   uint32
-            |  +--ro te-srlgs
-            |     +--ro value*   te-types:srlg
-            +--ro geolocation
-               +--ro altitude?    int64
-               +--ro latitude?    geographic-coordinate-degree
-               +--ro longitude?   geographic-coordinate-degree
+         |  +--ro switching-capability?      identityref
+         |  +--ro encoding?                  identityref
+         |  +--ro inter-layer-lock-id?       uint32
+         |  +--ro protection-type?           identityref
+         |  +--ro local-link-connectivity* [link-tp-ref]
+         |  |  +--ro link-tp-ref                        leafref
+         |  |  +--ro label-restriction* [inclusive-exclusive label-start]
+         |  |  |  +--ro inclusive-exclusive    enumeration
+         |  |  |  +--ro label-start            te-types:generalized-label
+         |  |  |  +--ro label-end?             te-types:generalized-label
+         |  |  |  +--ro range-bitmap?          binary
+         |  |  +--ro max-lsp-bandwidth* [priority]
+         |  |  |  +--ro priority     uint8
+         |  |  |  +--ro bandwidth?   decimal64
+         |  |  +--ro time-division-multiplex-capable
+         |  |  |  +--ro minimum-lsp-bandwidth?   decimal64
+         |  |  |  +--ro indication?              enumeration
+         |  |  +--ro max-link-bandwidth?                decimal64
+         |  |  +--ro max-resv-link-bandwidth?           decimal64
+         |  |  +--ro unreserved-bandwidth* [priority]
+         |  |  |  +--ro priority     uint8
+         |  |  |  +--ro bandwidth?   decimal64
+         |  |  +--ro te-default-metric?                 uint32
+         |  |  +--ro te-delay-metric?                   uint32
+         |  |  +--ro te-srlgs
+         |  |     +--ro value*   te-types:srlg
+         |  +--ro geolocation
+         |     +--ro altitude?    int64
+         |     +--ro latitude?    geographic-coordinate-degree
+         |     +--ro longitude?   geographic-coordinate-degree
+         +--ro statistics
+            +--ro discontinuity-time          yang:date-and-time
+            +--ro tunnel-termination-point
+            |  +--ro disables?             yang:counter32
+            |  +--ro enables?              yang:counter32
+            |  +--ro maintenance-clears?   yang:counter32
+            |  +--ro maintenance-sets?     yang:counter32
+            |  +--ro modifies?             yang:counter32
+            |  +--ro downs?                yang:counter32
+            |  +--ro ups?                  yang:counter32
+            |  +--ro in-service-clears?    yang:counter32
+            |  +--ro in-service-sets?      yang:counter32
+            +--ro local-link-connectivity
+               +--ro creates?    yang:counter32
+               +--ro deletes?    yang:counter32
+               +--ro disables?   yang:counter32
+               +--ro enables?    yang:counter32
+               +--ro modifies?   yang:counter32
 augment /nw:networks/nw:network/nt:link:
    +--rw te!
       +--rw config
@@ -636,163 +668,182 @@ augment /nw:networks/nw:network/nt:link:
       |     +--rw te-srlgs
       |        +--rw value*   te-types:srlg
       +--ro state
-         +--ro (bundle-stack-level)?
-         |  +--:(bundle)
-         |  |  +--ro bundled-links
-         |  |     +--ro bundled-link* [sequence]
-         |  |        +--ro sequence      uint32
-         |  |        +--ro src-tp-ref?   leafref
-         |  |        +--ro des-tp-ref?   leafref
-         |  +--:(component)
-         |     +--ro component-links
-         |        +--ro component-link* [sequence]
-         |           +--ro sequence             uint32
-         |           +--ro src-interface-ref?   string
-         |           +--ro des-interface-ref?   string
-         +--ro te-link-template*           leafref {template}?
-         +--ro te-link-attributes
-         |  +--ro schedules
-         |  |  +--ro schedule* [schedule-id]
-         |  |     +--ro schedule-id            uint32
-         |  |     +--ro inclusive-exclusive?   enumeration
-         |  |     +--ro start?                 yang:date-and-time
-         |  |     +--ro schedule-duration?     string
-         |  |     +--ro repeat-interval?       string
-         |  +--ro access-type?                      te-types:te-link-access-type
-         |  +--ro external-domain
-         |  |  +--ro remote-te-node-id?      te-types:te-node-id
-         |  |  +--ro remote-te-link-tp-id?   te-types:te-tp-id
-         |  |  +--ro plug-id?                uint32
-         |  +--ro is-abstract?                      empty
-         |  +--ro name?                             string
-         |  +--ro underlay! {te-topology-hierarchy}?
-         |  |  +--ro underlay-primary-path
-         |  |  |  +--ro provider-id-ref?      leafref
-         |  |  |  +--ro client-id-ref?        leafref
-         |  |  |  +--ro te-topology-id-ref?   leafref
-         |  |  |  +--ro network-id-ref?       leafref
-         |  |  |  +--ro path-element* [path-element-id]
-         |  |  |     +--ro path-element-id     uint32
-         |  |  |     +--ro (type)?
-         |  |  |        +--:(ipv4-address)
-         |  |  |        |  +--ro v4-address?         inet:ipv4-address
-         |  |  |        |  +--ro v4-prefix-length?   uint8
-         |  |  |        |  +--ro v4-loose?           boolean
-         |  |  |        +--:(ipv6-address)
-         |  |  |        |  +--ro v6-address?         inet:ipv6-address
-         |  |  |        |  +--ro v6-prefix-length?   uint8
-         |  |  |        |  +--ro v6-loose?           boolean
-         |  |  |        +--:(as-number)
-         |  |  |        |  +--ro as-number?          uint16
-         |  |  |        +--:(unnumbered-link)
-         |  |  |        |  +--ro router-id?          inet:ip-address
-         |  |  |        |  +--ro interface-id?       uint32
-         |  |  |        +--:(label)
-         |  |  |           +--ro value?              uint32
-         |  |  +--ro underlay-backup-path* [index]
-         |  |  |  +--ro index                 uint32
-         |  |  |  +--ro provider-id-ref?      leafref
-         |  |  |  +--ro client-id-ref?        leafref
-         |  |  |  +--ro te-topology-id-ref?   leafref
-         |  |  |  +--ro network-id-ref?       leafref
-         |  |  |  +--ro path-element* [path-element-id]
-         |  |  |     +--ro path-element-id     uint32
-         |  |  |     +--ro (type)?
-         |  |  |        +--:(ipv4-address)
-         |  |  |        |  +--ro v4-address?         inet:ipv4-address
-         |  |  |        |  +--ro v4-prefix-length?   uint8
-         |  |  |        |  +--ro v4-loose?           boolean
-         |  |  |        +--:(ipv6-address)
-         |  |  |        |  +--ro v6-address?         inet:ipv6-address
-         |  |  |        |  +--ro v6-prefix-length?   uint8
-         |  |  |        |  +--ro v6-loose?           boolean
-         |  |  |        +--:(as-number)
-         |  |  |        |  +--ro as-number?          uint16
-         |  |  |        +--:(unnumbered-link)
-         |  |  |        |  +--ro router-id?          inet:ip-address
-         |  |  |        |  +--ro interface-id?       uint32
-         |  |  |        +--:(label)
-         |  |  |           +--ro value?              uint32
-         |  |  +--ro underlay-protection-type?   uint16
-         |  |  +--ro underlay-tunnel-src
-         |  |  |  +--ro tp-ref?        leafref
-         |  |  |  +--ro node-ref?      leafref
-         |  |  |  +--ro network-ref?   leafref
-         |  |  +--ro underlay-tunnel-des
-         |  |     +--ro tp-ref?        leafref
-         |  |     +--ro node-ref?      leafref
-         |  |     +--ro network-ref?   leafref
-         |  +--ro admin-status?                     te-types:te-admin-status
-         |  +--ro link-index?                       uint64
-         |  +--ro administrative-group?             te-types:admin-groups
-         |  +--ro interface-switching-capability* [switching-capability]
-         |  |  +--ro switching-capability               identityref
-         |  |  +--ro encoding?                          identityref
-         |  |  +--ro max-lsp-bandwidth* [priority]
-         |  |  |  +--ro priority     uint8
-         |  |  |  +--ro bandwidth?   decimal64
-         |  |  +--ro time-division-multiplex-capable
-         |  |     +--ro minimum-lsp-bandwidth?   decimal64
-         |  |     +--ro indication?              enumeration
-         |  +--ro link-protection-type?             enumeration
-         |  +--ro max-link-bandwidth?               decimal64
-         |  +--ro max-resv-link-bandwidth?          decimal64
-         |  +--ro unreserved-bandwidth* [priority]
-         |  |  +--ro priority     uint8
-         |  |  +--ro bandwidth?   decimal64
-         |  +--ro te-default-metric?                uint32
-         |  +--ro te-delay-metric?                  uint32
-         |  +--ro te-srlgs
-         |     +--ro value*   te-types:srlg
-         +--ro oper-status?                te-types:te-oper-status
-         +--ro is-transitional?            empty
-         +--ro information-source?         enumeration
-         +--ro information-source-state
-         |  +--ro credibility-preference?   uint16
-         |  +--ro topology
-         |  |  +--ro provider-id-ref?      leafref
-         |  |  +--ro client-id-ref?        leafref
-         |  |  +--ro te-topology-id-ref?   leafref
-         |  |  +--ro network-id-ref?       leafref
-         |  +--ro routing-instance?         string
-         +--ro information-source-entry* [information-source]
-         |  +--ro information-source                enumeration
-         |  +--ro information-source-state
-         |  |  +--ro credibility-preference?   uint16
-         |  |  +--ro topology
-         |  |  |  +--ro provider-id-ref?      leafref
-         |  |  |  +--ro client-id-ref?        leafref
-         |  |  |  +--ro te-topology-id-ref?   leafref
-         |  |  |  +--ro network-id-ref?       leafref
-         |  |  +--ro routing-instance?         string
-         |  +--ro link-index?                       uint64
-         |  +--ro administrative-group?             te-types:admin-groups
-         |  +--ro interface-switching-capability* [switching-capability]
-         |  |  +--ro switching-capability               identityref
-         |  |  +--ro encoding?                          identityref
-         |  |  +--ro max-lsp-bandwidth* [priority]
-         |  |  |  +--ro priority     uint8
-         |  |  |  +--ro bandwidth?   decimal64
-         |  |  +--ro time-division-multiplex-capable
-         |  |     +--ro minimum-lsp-bandwidth?   decimal64
-         |  |     +--ro indication?              enumeration
-         |  +--ro link-protection-type?             enumeration
-         |  +--ro max-link-bandwidth?               decimal64
-         |  +--ro max-resv-link-bandwidth?          decimal64
-         |  +--ro unreserved-bandwidth* [priority]
-         |  |  +--ro priority     uint8
-         |  |  +--ro bandwidth?   decimal64
-         |  +--ro te-default-metric?                uint32
-         |  +--ro te-delay-metric?                  uint32
-         |  +--ro te-srlgs
-         |     +--ro value*   te-types:srlg
-         +--ro recovery
-         |  +--ro restoration-status?   te-types:te-recovery-status
-         |  +--ro protection-status?    te-types:te-recovery-status
-         +--ro underlay {te-topology-hierarchy}?
-            +--ro dynamic?     boolean
-            +--ro committed?   boolean
-            +--ro tunnel-id?   uint16
+      |  +--ro (bundle-stack-level)?
+      |  |  +--:(bundle)
+      |  |  |  +--ro bundled-links
+      |  |  |     +--ro bundled-link* [sequence]
+      |  |  |        +--ro sequence      uint32
+      |  |  |        +--ro src-tp-ref?   leafref
+      |  |  |        +--ro des-tp-ref?   leafref
+      |  |  +--:(component)
+      |  |     +--ro component-links
+      |  |        +--ro component-link* [sequence]
+      |  |           +--ro sequence             uint32
+      |  |           +--ro src-interface-ref?   string
+      |  |           +--ro des-interface-ref?   string
+      |  +--ro te-link-template*           leafref {template}?
+      |  +--ro te-link-attributes
+      |  |  +--ro schedules
+      |  |  |  +--ro schedule* [schedule-id]
+      |  |  |     +--ro schedule-id            uint32
+      |  |  |     +--ro inclusive-exclusive?   enumeration
+      |  |  |     +--ro start?                 yang:date-and-time
+      |  |  |     +--ro schedule-duration?     string
+      |  |  |     +--ro repeat-interval?       string
+      |  |  +--ro access-type?                      te-types:te-link-access-type
+      |  |  +--ro external-domain
+      |  |  |  +--ro remote-te-node-id?      te-types:te-node-id
+      |  |  |  +--ro remote-te-link-tp-id?   te-types:te-tp-id
+      |  |  |  +--ro plug-id?                uint32
+      |  |  +--ro is-abstract?                      empty
+      |  |  +--ro name?                             string
+      |  |  +--ro underlay! {te-topology-hierarchy}?
+      |  |  |  +--ro underlay-primary-path
+      |  |  |  |  +--ro provider-id-ref?      leafref
+      |  |  |  |  +--ro client-id-ref?        leafref
+      |  |  |  |  +--ro te-topology-id-ref?   leafref
+      |  |  |  |  +--ro network-id-ref?       leafref
+      |  |  |  |  +--ro path-element* [path-element-id]
+      |  |  |  |     +--ro path-element-id     uint32
+      |  |  |  |     +--ro (type)?
+      |  |  |  |        +--:(ipv4-address)
+      |  |  |  |        |  +--ro v4-address?         inet:ipv4-address
+      |  |  |  |        |  +--ro v4-prefix-length?   uint8
+      |  |  |  |        |  +--ro v4-loose?           boolean
+      |  |  |  |        +--:(ipv6-address)
+      |  |  |  |        |  +--ro v6-address?         inet:ipv6-address
+      |  |  |  |        |  +--ro v6-prefix-length?   uint8
+      |  |  |  |        |  +--ro v6-loose?           boolean
+      |  |  |  |        +--:(as-number)
+      |  |  |  |        |  +--ro as-number?          uint16
+      |  |  |  |        +--:(unnumbered-link)
+      |  |  |  |        |  +--ro router-id?          inet:ip-address
+      |  |  |  |        |  +--ro interface-id?       uint32
+      |  |  |  |        +--:(label)
+      |  |  |  |           +--ro value?              uint32
+      |  |  |  +--ro underlay-backup-path* [index]
+      |  |  |  |  +--ro index                 uint32
+      |  |  |  |  +--ro provider-id-ref?      leafref
+      |  |  |  |  +--ro client-id-ref?        leafref
+      |  |  |  |  +--ro te-topology-id-ref?   leafref
+      |  |  |  |  +--ro network-id-ref?       leafref
+      |  |  |  |  +--ro path-element* [path-element-id]
+      |  |  |  |     +--ro path-element-id     uint32
+      |  |  |  |     +--ro (type)?
+      |  |  |  |        +--:(ipv4-address)
+      |  |  |  |        |  +--ro v4-address?         inet:ipv4-address
+      |  |  |  |        |  +--ro v4-prefix-length?   uint8
+      |  |  |  |        |  +--ro v4-loose?           boolean
+      |  |  |  |        +--:(ipv6-address)
+      |  |  |  |        |  +--ro v6-address?         inet:ipv6-address
+      |  |  |  |        |  +--ro v6-prefix-length?   uint8
+      |  |  |  |        |  +--ro v6-loose?           boolean
+      |  |  |  |        +--:(as-number)
+      |  |  |  |        |  +--ro as-number?          uint16
+      |  |  |  |        +--:(unnumbered-link)
+      |  |  |  |        |  +--ro router-id?          inet:ip-address
+      |  |  |  |        |  +--ro interface-id?       uint32
+      |  |  |  |        +--:(label)
+      |  |  |  |           +--ro value?              uint32
+      |  |  |  +--ro underlay-protection-type?   uint16
+      |  |  |  +--ro underlay-tunnel-src
+      |  |  |  |  +--ro tp-ref?        leafref
+      |  |  |  |  +--ro node-ref?      leafref
+      |  |  |  |  +--ro network-ref?   leafref
+      |  |  |  +--ro underlay-tunnel-des
+      |  |  |     +--ro tp-ref?        leafref
+      |  |  |     +--ro node-ref?      leafref
+      |  |  |     +--ro network-ref?   leafref
+      |  |  +--ro admin-status?                     te-types:te-admin-status
+      |  |  +--ro link-index?                       uint64
+      |  |  +--ro administrative-group?             te-types:admin-groups
+      |  |  +--ro interface-switching-capability* [switching-capability]
+      |  |  |  +--ro switching-capability               identityref
+      |  |  |  +--ro encoding?                          identityref
+      |  |  |  +--ro max-lsp-bandwidth* [priority]
+      |  |  |  |  +--ro priority     uint8
+      |  |  |  |  +--ro bandwidth?   decimal64
+      |  |  |  +--ro time-division-multiplex-capable
+      |  |  |     +--ro minimum-lsp-bandwidth?   decimal64
+      |  |  |     +--ro indication?              enumeration
+      |  |  +--ro link-protection-type?             enumeration
+      |  |  +--ro max-link-bandwidth?               decimal64
+      |  |  +--ro max-resv-link-bandwidth?          decimal64
+      |  |  +--ro unreserved-bandwidth* [priority]
+      |  |  |  +--ro priority     uint8
+      |  |  |  +--ro bandwidth?   decimal64
+      |  |  +--ro te-default-metric?                uint32
+      |  |  +--ro te-delay-metric?                  uint32
+      |  |  +--ro te-srlgs
+      |  |     +--ro value*   te-types:srlg
+      |  +--ro oper-status?                te-types:te-oper-status
+      |  +--ro is-transitional?            empty
+      |  +--ro information-source?         enumeration
+      |  +--ro information-source-state
+      |  |  +--ro credibility-preference?   uint16
+      |  |  +--ro topology
+      |  |  |  +--ro provider-id-ref?      leafref
+      |  |  |  +--ro client-id-ref?        leafref
+      |  |  |  +--ro te-topology-id-ref?   leafref
+      |  |  |  +--ro network-id-ref?       leafref
+      |  |  +--ro routing-instance?         string
+      |  +--ro information-source-entry* [information-source]
+      |  |  +--ro information-source                enumeration
+      |  |  +--ro information-source-state
+      |  |  |  +--ro credibility-preference?   uint16
+      |  |  |  +--ro topology
+      |  |  |  |  +--ro provider-id-ref?      leafref
+      |  |  |  |  +--ro client-id-ref?        leafref
+      |  |  |  |  +--ro te-topology-id-ref?   leafref
+      |  |  |  |  +--ro network-id-ref?       leafref
+      |  |  |  +--ro routing-instance?         string
+      |  |  +--ro link-index?                       uint64
+      |  |  +--ro administrative-group?             te-types:admin-groups
+      |  |  +--ro interface-switching-capability* [switching-capability]
+      |  |  |  +--ro switching-capability               identityref
+      |  |  |  +--ro encoding?                          identityref
+      |  |  |  +--ro max-lsp-bandwidth* [priority]
+      |  |  |  |  +--ro priority     uint8
+      |  |  |  |  +--ro bandwidth?   decimal64
+      |  |  |  +--ro time-division-multiplex-capable
+      |  |  |     +--ro minimum-lsp-bandwidth?   decimal64
+      |  |  |     +--ro indication?              enumeration
+      |  |  +--ro link-protection-type?             enumeration
+      |  |  +--ro max-link-bandwidth?               decimal64
+      |  |  +--ro max-resv-link-bandwidth?          decimal64
+      |  |  +--ro unreserved-bandwidth* [priority]
+      |  |  |  +--ro priority     uint8
+      |  |  |  +--ro bandwidth?   decimal64
+      |  |  +--ro te-default-metric?                uint32
+      |  |  +--ro te-delay-metric?                  uint32
+      |  |  +--ro te-srlgs
+      |  |     +--ro value*   te-types:srlg
+      |  +--ro recovery
+      |  |  +--ro restoration-status?   te-types:te-recovery-status
+      |  |  +--ro protection-status?    te-types:te-recovery-status
+      |  +--ro underlay {te-topology-hierarchy}?
+      |     +--ro dynamic?     boolean
+      |     +--ro committed?   boolean
+      |     +--ro tunnel-id?   uint16
+      +--ro statistics
+         +--ro discontinuity-time                 yang:date-and-time
+         +--ro disables?                          yang:counter32
+         +--ro enables?                           yang:counter32
+         +--ro maintenance-clears?                yang:counter32
+         +--ro maintenance-sets?                  yang:counter32
+         +--ro modifies?                          yang:counter32
+         +--ro downs?                             yang:counter32
+         +--ro ups?                               yang:counter32
+         +--ro fault-clears?                      yang:counter32
+         +--ro fault-detects?                     yang:counter32
+         +--ro protection-switches?               yang:counter32
+         +--ro protection-reverts?                yang:counter32
+         +--ro restoration-failures?              yang:counter32
+         +--ro restoration-starts?                yang:counter32
+         +--ro restoration-successes?             yang:counter32
+         +--ro restoration-reversion-failures?    yang:counter32
+         +--ro restoration-reversion-starts?      yang:counter32
+         +--ro restoration-reversion-successes?   yang:counter32
 augment /nw:networks/nw:network/nw:node/nt:termination-point:
    +--rw te-tp-id?   te-types:te-tp-id
    +--rw te!
