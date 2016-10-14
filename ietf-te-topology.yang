@@ -63,7 +63,7 @@ module ietf-te-topology {
 
   description "TE topology model";
 
-  revision "2016-10-04" {
+  revision "2016-10-11" {
     description "Initial revision";
     reference "TBD";
   }
@@ -100,7 +100,42 @@ module ietf-te-topology {
       description
         "Decimal degree (DD) used to express latitude and longitude
          geographic coordinates.";
-  }
+  } // geographic-coordinate-degree
+
+  typedef te-info-source {
+    type enumeration {
+      enum "unknown" {
+        description "The source is unknown.";
+      }
+      enum "locally-configured" {
+        description "Configured entity.";
+      }
+      enum "ospfv2" {
+        description "OSPFv2.";
+      }
+      enum "ospfv3" {
+        description "OSPFv3.";
+      }
+      enum "isis" {
+        description "ISIS.";
+      }
+      enum "bgp-ls" {
+        description "BGP-LS.";
+        reference
+          "RFC7752: North-Bound Distribution of Link-State and
+           Traffic Engineering (TE) Information Using BGP";
+      }
+      enum "system-processed" {
+        description "System processed entity.";
+      }
+      enum "other" {
+        description "Other source.";
+      }
+    }
+    description
+      "Describining the type of source that has provided the
+       related information, and the source credibility.";
+  } // te-info-source
 
   /*
    * Identities
@@ -186,40 +221,40 @@ module ietf-te-topology {
     } // gps-location
   } // geolocation-container
 
-  grouping information-source-attributes {
+  grouping information-source-state-attributes {
     description
       "The attributes identifying source that has provided the
        related information, and the source credibility.";
+    leaf credibility-preference {
+      type uint16;
+      description
+        "The preference value to calculate the traffic
+         engineering database credibility value used for
+         tie-break selection between different
+         information-source values.
+         Higher value is more preferable.";
+    }
+    leaf logical-network-element {
+      type string;
+      description
+        "When applicable, this is the name of a logical network
+         element from which the information is learned.";
+    } // logical-network-element
+    leaf network-instance {
+      type string;
+      description
+        "When applicable, this is the name of a network-instance
+         from which the information is learned.";
+    } // network-instance
+  } // information-source-state-attributes
+
+  grouping information-source-per-link-attributes {
+    description
+      "Per node container of the attributes identifying source that
+       has provided the related information, and the source
+       credibility.";
     leaf information-source {
-      type enumeration {
-        enum "unknown" {
-          description "The source is unknown.";
-        }
-        enum "locally-configured" {
-          description "Configured entity.";
-        }
-        enum "ospfv2" {
-          description "OSPFv2.";
-        }
-        enum "ospfv3" {
-          description "OSPFv3.";
-        }
-        enum "isis" {
-          description "ISIS.";
-        }
-        enum "bgp-ls" {
-          description "BGP-LS.";
-          reference
-            "RFC7752: North-Bound Distribution of Link-State and
-             Traffic Engineering (TE) Information Using BGP";
-        }
-        enum "system-processed" {
-          description "System processed entity.";
-        }
-        enum "other" {
-          description "Other source.";
-        }
-      }
+      type te-info-source;
       description
         "Indicates the source of the information.";
     }
@@ -227,30 +262,59 @@ module ietf-te-topology {
       description
         "The container contains state attributes related to
          the information source.";
-      leaf credibility-preference {
-        type uint16;
-        description
-          "The preference value to calculate the traffic
-           engineering database credibility value used for
-           tie-break selection between different
-           information-source values.
-           Higher value is more preferable.";
-      }
+      uses information-source-state-attributes;
       container topology {
         description
           "When the information is processed by the system,
            the attributes in this container indicate which topology
            is used to process to generate the result information.";
         uses te-topology-ref;
+        leaf link-ref {
+          type leafref {
+            path "/nw:networks/nw:network[nw:network-id = "
+              + "current()/../network-ref]/nt:link/nt:link-id";
+            require-instance false;
+          }
+          description
+            "A reference to a link-id.";
+        }
       } // topology
-      leaf routing-instance {
-        type string;
-        description
-          "When applicable, this is the name of a routing instance
-           from which the information is learned.";
-      } // routing-information
+    } // information-source-state
+  } // information-source-per-link-attributes
+
+  grouping information-source-per-node-attributes {
+    description
+      "Per node container of the attributes identifying source that
+       has provided the related information, and the source
+       credibility.";
+    leaf information-source {
+      type te-info-source;
+      description
+        "Indicates the source of the information.";
     }
-  } // information-source-attributes
+    container information-source-state {
+      description
+        "The container contains state attributes related to
+         the information source.";
+      uses information-source-state-attributes;
+      container topology {
+        description
+          "When the information is processed by the system,
+           the attributes in this container indicate which topology
+           is used to process to generate the result information.";
+        uses te-topology-ref;
+        leaf node-ref {
+          type leafref {
+            path "/nw:networks/nw:network[nw:network-id = "
+              + "current()/../network-ref]/nw:node/nw:node-id";
+            require-instance false;
+          }
+          description
+            "A reference to a node-id.";
+        }
+      } // topology
+    } // information-source-state
+  } // information-source-per-node-attributes
 
   grouping interface-switching-capability-list {
     description
@@ -986,13 +1050,13 @@ module ietf-te-topology {
          RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
          for Multi-Layer and Multi-Region Networks (MLN/MRN).";
     }
-    uses information-source-attributes;
+    uses information-source-per-link-attributes;
     list information-source-entry {
       key "information-source";
       description
         "A list of information sources learned, including the one
          used.";
-      uses information-source-attributes;
+      uses information-source-per-link-attributes;
       uses te-link-info-attributes;
     }
     container recovery {
@@ -1389,13 +1453,13 @@ module ietf-te-topology {
          RFC1195: Use of OSI IS-IS for Routing in TCP/IP and Dual
          Environments.";
     }
-    uses information-source-attributes;
+    uses information-source-per-node-attributes;
     list information-source-entry {
       key "information-source";
       description
         "A list of information sources learned, including the one
          used.";
-      uses information-source-attributes;
+      uses information-source-per-node-attributes;
       uses te-node-connectivity-matrix;
       uses te-node-info-attributes;
     }
@@ -1419,13 +1483,13 @@ module ietf-te-topology {
          RFC1195: Use of OSI IS-IS for Routing in TCP/IP and Dual
          Environments.";
     }
-    uses information-source-attributes;
+    uses information-source-per-node-attributes;
     list information-source-entry {
       key "information-source";
       description
         "A list of information sources learned, including the one
          used.";
-      uses information-source-attributes;
+      uses information-source-per-node-attributes;
       uses te-node-connectivity-matrix-abs;
       uses te-node-info-attributes;
     }
@@ -1671,34 +1735,34 @@ module ietf-te-topology {
   grouping te-topology-ref {
     description
       "References a TE topology.";
-    leaf provider-id-ref {
+    leaf provider-ref {
       type leafref {
         path "/nw:networks/nw:network[nw:network-id = "
-          + "current()/../network-id-ref]/tet:provider-id";
+          + "current()/../network-ref]/tet:provider-id";
         require-instance false;
       }
       description
         "A reference to a provider-id.";
     }
-    leaf client-id-ref {
+    leaf client-ref {
       type leafref {
         path "/nw:networks/nw:network[nw:network-id = "
-          + "current()/../network-id-ref]/tet:client-id";
+          + "current()/../network-ref]/tet:client-id";
         require-instance false;
       }
       description
         "A reference to a client-id.";
     }
-    leaf te-topology-id-ref {
+    leaf te-topology-ref {
       type leafref {
         path "/nw:networks/nw:network[nw:network-id = "
-          + "current()/../network-id-ref]/tet:te-topology-id";
+          + "current()/../network-ref]/tet:te-topology-id";
         require-instance false;
       }
       description
         "A reference to a te-topology-id.";
     }
-    leaf network-id-ref {
+    leaf network-ref {
       type leafref {
         path "/nw:networks/nw:network/nw:network-id";
         require-instance false;
