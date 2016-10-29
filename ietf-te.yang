@@ -1,4 +1,5 @@
 module ietf-te {
+  yang-version 1.1;
 
   namespace "urn:ietf:params:xml:ns:yang:ietf-te";
 
@@ -56,7 +57,7 @@ module ietf-te {
     "YANG data module for TE configuration,
     state, RPC and notifications.";
 
-  revision "2016-10-03" {
+  revision "2016-10-26" {
     description "Latest update to TE generic YANG module.";
     reference "TBD";
   }
@@ -232,7 +233,8 @@ module ietf-te {
       }
       leaf extended-tunnel-id {
         type leafref {
-          path "../../../../../../../lsps-state/lsp/extended-tunnel-id";
+          path "../../../../../../../lsps-state/lsp" +
+               "/extended-tunnel-id";
         }
         description
           "Extended Tunnel ID of the LSP.";
@@ -572,6 +574,29 @@ module ietf-te {
       }
     }
   }
+
+  grouping tunnel-actions {
+    description "Tunnel actions";
+    action tunnel-action {
+      description "Tunnel action";
+      input {
+        leaf action-type {
+          type identityref {
+            base te-types:tunnel-action-type;
+          }
+          description "Tunnel action type";
+        }
+      }
+      output {
+        leaf action-result {
+          type identityref {
+            base te-types:te-action-result;
+          }
+          description "The result of the RPC operation";
+        }
+      }
+    }
+  }
   /*** End of TE tunnel groupings ***/
 
   /**
@@ -665,7 +690,7 @@ module ietf-te {
       reference "rfc4872, section 4.2.1";
     }
 
-    leaf lsp-operational-status {
+    leaf lsp-carry-normal-traffic {
       type empty;
       description
         "This bit is set when a protecting LSP is carrying the normal
@@ -837,6 +862,7 @@ module ietf-te {
             "TE tunnel Identifier.";
         }
         uses tunnel-p2p-properties;
+        uses tunnel-actions;
       }
       list tunnel-p2mp {
         key "name";
@@ -956,49 +982,45 @@ module ietf-te {
 
   /* TE Tunnel RPCs/execution Data */
   rpc tunnels-rpc {
-    description
-    "TE tunnels RPC nodes";
+    description "TE tunnels RPC nodes";
     input {
       container tunnel-info {
         description "Tunnel Identification";
         choice type {
-					description
-						"Basic FEC choice";
-					case tunnel-p2p {
-						leaf p2p-id {
-							type te:tunnel-ref;
-							description "P2P TE tunnel";
-						}
-					}
-					case tunnel-p2mp {
-						leaf p2mp-id {
-							type te:tunnel-p2mp-ref;
-							description "P2MP TE tunnel";
-						}
-					}
-				}
-			}
-		}
+          description "Tunnel information type";
+          case tunnel-p2p {
+            leaf p2p-id {
+              type te:tunnel-ref;
+              description "P2P TE tunnel";
+            }
+          }
+          case tunnel-p2mp {
+            leaf p2mp-id {
+              type te:tunnel-p2mp-ref;
+              description "P2MP TE tunnel";
+            }
+          }
+        }
+      }
+    }
     output {
       container result {
-        description "The container result of the RPC operation";
+        description
+          "The container result of the RPC operation";
         leaf result {
-					type enumeration {
-						enum success {
-							description
-								"Origin ingress";
-						}
-						enum in-progress {
-							description
-								"Origin egress";
-						}
-						enum fail {
-							description
-								"transit";
-						}
-					}
+          type enumeration {
+            enum success {
+              description "Origin ingress";
+            }
+            enum in-progress {
+              description "Origin egress";
+            }
+            enum fail {
+              description "transit";
+            }
+          }
           description "The result of the RPC operation";
-				}
+        }
       }
     }
   }
