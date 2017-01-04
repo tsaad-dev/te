@@ -58,7 +58,7 @@ module ietf-te-topology {
 
   description "TE topology model";
 
-  revision "2016-10-21" {
+  revision "2016-12-16" {
     description "Initial revision";
     reference "TBD";
   }
@@ -66,6 +66,12 @@ module ietf-te-topology {
   /*
    * Features
    */
+  feature nsrlg {
+    description
+      "This feature indicates that the system supports NSRLG
+       (Not Sharing Risk Link Group).";
+  }
+
   feature te-topology-hierarchy {
     description
       "This feature indicates that the system allows underlay
@@ -93,7 +99,7 @@ module ietf-te-topology {
   typedef te-bandwidth {
     type string {
       pattern
-	'0[xX](0((\.0?)?[pP](\+)?0?|(\.0?))|'
+        '0[xX](0((\.0?)?[pP](\+)?0?|(\.0?))|'
       + '1(\.([\da-fA-F]{0,5}[02468aAcCeE]?)?)?[pP](\+)?(12[0-7]|'
       + '1[01]\d|0?\d?\d)?)|0[xX][\da-fA-F]{1,8}|\d+'
       + '(,(0[xX](0((\.0?)?[pP](\+)?0?|(\.0?))|'
@@ -109,7 +115,7 @@ module ietf-te-topology {
        0x1p10.
        For OTN switching type, a list of integers can be used, such
        as '0,2,3,1', indicating 2 odu0's and 1 odu3.
-       For DWDM, a list of pairs of slot number and width can be 
+       For DWDM, a list of pairs of slot number and width can be
        used, such as '0, 2, 3, 3', indicating a frequency slot 0 with
        slot width 2 and a frequency slot 3 with slot width 3.";
   } // te-bandwidth
@@ -148,6 +154,29 @@ module ietf-te-topology {
       "Describining the type of source that has provided the
        related information, and the source credibility.";
   } // te-info-source
+
+  typedef te-path-disjointness {
+    type bits {
+      bit node {
+        position 0;
+        description "Node disjoint.";
+      }
+      bit link {
+        position 1;
+        description "Link disjoint.";
+      }
+      bit srlg {
+        position 2;
+        description "SRLG (Shared Risk Link Group) disjoint.";
+      }
+    }
+    description
+      "Type of the resource disjointness for a TE tunnel path.";
+    reference
+      "RFC4872: RSVP-TE Extensions in Support of End-to-End
+       Generalized Multi-Protocol Label Switching (GMPLS)
+       Recovery";
+  } // te-path-disjointness
 
   /*
    * Groupings
@@ -199,6 +228,31 @@ module ietf-te-topology {
       }
     }
   } // connectivity-label-restrictions
+
+  grouping connectivity-matrix-entry-attributes {
+    description
+      "Attributes of connectivity matrix entry.";
+    leaf is-allowed {
+      type boolean;
+      description
+        "true  - switching is allowed,
+         false - switching is disallowed.";
+    }
+    uses connectivity-label-restriction-list;
+    container underlay {
+      if-feature te-topology-hierarchy;
+      presence
+        "Indicates the underlay exists for this link.";
+      description "Attributes of the te-link underlay.";
+      reference
+        "RFC4206: Label Switched Paths (LSP) Hierarchy with
+         Generalized Multi-Protocol Label Switching (GMPLS)
+         Traffic Engineering (TE)";
+      
+      uses te-link-underlay-attributes;
+    } // underlay
+    uses te-link-connectivity-attributes;
+  } // connectivity-matrix-entry-attributes
 
   grouping geolocation-container {
     description
@@ -798,6 +852,7 @@ module ietf-te-topology {
           "For an inter-domain link, specify the attributes of
            the remote end of link, to facilitate the signalling at
            local end.";
+        uses te-topology-ref;
         leaf remote-te-node-id {
           type te-types:te-node-id;
           description
@@ -911,13 +966,31 @@ module ietf-te-topology {
     }
     container te-srlgs {
       description
-        "A list of SLRGs.";
+        "Containing a list of SLRGs.";
       leaf-list value {
         type te-types:srlg;
         description "SRLG value.";
         reference
           "RFC4202: Routing Extensions in Support of
            Generalized Multi-Protocol Label Switching (GMPLS).";
+      }
+    }
+    container te-nsrlgs {
+      if-feature nsrlg;
+      description
+        "Containing a list of NSRLGs (Not Sharing Risk Link
+         Groups).
+         When an abstract TE link is configured, this list specifies
+         the request that underlay TE paths need to be mutually
+         disjoint with other TE links in the same groups.";
+      leaf-list id {
+        type uint32;
+        description 
+          "NSRLG ID, uniquely configured within a topology.";
+        reference
+          "RFC4872: RSVP-TE Extensions in Support of End-to-End
+           Generalized Multi-Protocol Label Switching (GMPLS)
+           Recovery";
       }
     }
   } // te-link-connectivity-attributes
@@ -1061,17 +1134,6 @@ module ietf-te-topology {
       description
         "true if the underlay is committed.";
     }
-    leaf tunnel-id {
-      type uint16;
-      description
-        "Tunnel identifier used in the SESSION that remains constant
-         over the life of the tunnel.
-         This attribute is used together with underlay-tunnel-src
-         and underlay-tunnel-src.
-         The detailed information of this tunnel can be retrieved
-         from the ietf-te model.";
-      reference "RFC3209";
-    }
   } // te-link-state-underlay-attributes
 
   grouping te-link-underlay-attributes {
@@ -1080,7 +1142,7 @@ module ietf-te-topology {
       "RFC4206: Label Switched Paths (LSP) Hierarchy with
        Generalized Multi-Protocol Label Switching (GMPLS)
        Traffic Engineering (TE)";
-    container underlay-primary-path {
+    container primary-path {
       description
         "The service path on the underlay topology that
          supports this link.";
@@ -1095,8 +1157,8 @@ module ietf-te-topology {
         }
         uses te-path-element;
       }
-    } // underlay-primary-path
-    list underlay-backup-path {
+    } // primary-path
+    list backup-path {
       key "index";
       description
         "A list of backup service paths on the underlay topology that
@@ -1122,20 +1184,41 @@ module ietf-te-topology {
         uses te-path-element;
       }
     } // underlay-backup-path
-    leaf underlay-protection-type {
+    leaf protection-type {
       type uint16;
       description
         "Underlay protection type desired for this link";
     }
-    container underlay-tunnel-src {
-      uses nt:tp-ref;
+    container tunnel-src {
+      uses te-tunnel-tp-ref;
       description
-        "Source TE link of the underlay tunnel.";
+        "Source tunnel termination point of the underlay
+         tunnel.";
     }
-    container underlay-tunnel-des {
-      uses nt:tp-ref;
+    container tunnel-des {
+      uses te-tunnel-tp-ref;
       description
-        "Destination TE link of the underlay tunnel.";
+        "Destination tunnel termination point of the underlay
+         tunnel.";
+    }
+    leaf tunnel-id {
+      type uint16;
+      description
+        "Tunnel identifier used in the SESSION that remains constant
+         over the life of the tunnel.
+         This attribute is used together with underlay tunnel-src
+         and underlay tunnel-src.
+         The detailed information of this tunnel can be retrieved
+         from the ietf-te model.";
+      reference "RFC3209";
+    }
+    leaf tunnel-sharing {
+      type boolean;
+      description
+        "'true' if the underlay tunnel can be shared with other
+         TE links;
+         'false' if the underlay tunnel is dedicated to this 
+         TE link.";
     }
   } // te-link-underlay-attributes
 
@@ -1205,6 +1288,44 @@ module ietf-te-topology {
             "Statistics data.";
           uses statistics-per-ttp;
         } // statistics
+        
+        // Relations to other tunnel termination points
+        list supporting-tunnel-termination-point {
+          key "network-ref node-ref tunnel-tp-ref";
+          description
+            "Identifies the tunnel termination points, that this
+             tunnel termination point is depending on.";
+          leaf network-ref {
+            type leafref {
+              path "../../../../nw:supporting-node/nw:network-ref";
+              require-instance false;
+            }
+            description
+              "This leaf identifies in which topology the
+               supporting tunnel termination point is present.";
+          }
+          leaf node-ref {
+            type leafref {
+              path "../../../../nw:supporting-node/nw:node-ref";
+              require-instance false;
+            }
+            description
+              "This leaf identifies in which node the supporting
+               tunnel termination point is present.";
+          }
+          leaf tunnel-tp-ref {
+            type leafref {
+              path "/nw:networks/nw:network"+
+                "[nw:network-id=current()/../network-ref]/"+
+                "nw:node[nw:node-id=current()/../node-ref]/te/"+
+                "tunnel-termination-point/tunnel-tp-id";
+              require-instance false;
+            }
+            description
+              "Reference to the underlay node, must be in a
+               different topology";
+          }
+        } // supporting-tunnel-termination-point
       } // tunnel-termination-point
     } // te
   } // te-node-augment
@@ -1253,61 +1374,59 @@ module ietf-te-topology {
 
   grouping te-node-connectivity-matrix {
     description "Connectivity matrix on a TE node.";
-    list connectivity-matrix {
-      key "id";
+    container connectivity-matrices {
       description
-        "Represents node's switching limitations, i.e. limitations
-         in interconnecting network TE links across the node.";
-      reference
-        "RFC7579: General Network Element Constraint Encoding
-         for GMPLS-Controlled Networks.";
-      leaf id {
-        type uint32;
-        description "Identifies the connectivity-matrix entry.";
-      }
-      container from {
-        leaf tp-ref {
-          type leafref {
-            path "../../../../../../nt:termination-point/nt:tp-id";
-          }
-          description
-            "Relative reference to source termination point.";
-        }
+        "Containing connectivity matrix on a TE node.";
+      leaf number-of-entries {
+        type uint16;
         description
-          "Reference to source NTP.";
+          "The number of connectivity matrix entries.
+           If this number is speficied in the configuration request,
+           the number is requested number of entries, which may not
+           all be listed in the list;
+           if this number is reported in the state data,
+           the number is the current number of operational entries.";
       }
-      container to {
-        leaf tp-ref {
-          type leafref {
-            path "../../../../../../nt:termination-point/nt:tp-id";
-          }
-          description
-            "Relative reference to destination termination point.";
-        }
+      uses connectivity-matrix-entry-attributes;
+      list connectivity-matrix {
+        key "id";
         description
-          "Reference to destination NTP.";
-      }
-      leaf is-allowed {
-        type boolean;
-        description
-          "true  - switching is allowed,
-           false - switching is disallowed.";
-      }
-      uses connectivity-label-restriction-list;
-      container underlay {
-        if-feature te-topology-hierarchy;
-        presence
-          "Indicates the underlay exists for this link.";
-        description "Attributes of the te-link underlay.";
+          "Represents node's switching limitations, i.e. limitations
+           in interconnecting network TE links across the node.";
         reference
-          "RFC4206: Label Switched Paths (LSP) Hierarchy with
-           Generalized Multi-Protocol Label Switching (GMPLS)
-           Traffic Engineering (TE)";
-
-        uses te-link-underlay-attributes;
-      } // underlay
-      uses te-link-connectivity-attributes;
-    }
+          "RFC7579: General Network Element Constraint Encoding
+           for GMPLS-Controlled Networks.";
+        leaf id {
+          type uint32;
+          description "Identifies the connectivity-matrix entry.";
+        }
+        container from {
+          leaf tp-ref {
+            type leafref {
+              path "../../../../../../../nt:termination-point/"+
+                "nt:tp-id";
+            }
+            description
+              "Relative reference to source termination point.";
+          }
+          description
+            "Reference to source NTP.";
+        }
+        container to {
+          leaf tp-ref {
+            type leafref {
+              path "../../../../../../../nt:termination-point/"+
+                "nt:tp-id";
+            }
+            description
+              "Relative reference to destination termination point.";
+          }
+          description
+            "Reference to destination NTP.";
+        }
+        uses connectivity-matrix-entry-attributes;
+      } // connectivity-matrix
+    } // connectivity-matrices
   } // te-node-connectivity-matrix
 
   grouping te-node-connectivity-matrix-abs {
@@ -1509,7 +1628,7 @@ module ietf-te-topology {
       uses connectivity-label-restriction-list;
       uses te-link-iscd-attributes;
       uses te-link-connectivity-attributes;
-    } // termination-capability
+    } // local-link-connectivity
   } // te-node-tunnel-termination-attributes
 
   grouping te-path-element {
@@ -1679,38 +1798,31 @@ module ietf-te-topology {
         "RFC3272: Overview and Principles of Internet Traffic
          Engineering.";
     }
+    list nsrlg {
+      if-feature nsrlg;
+      key "id";
+      description
+        "List of NSRLGs (Not Sharing Risk Link Groups).";
+      reference
+        "RFC4872: RSVP-TE Extensions in Support of End-to-End
+         Generalized Multi-Protocol Label Switching (GMPLS)
+         Recovery";
+      leaf id {
+        type uint32;
+        description
+          "Identify the NSRLG entry.";
+      }
+      leaf disjointness {
+        type te-path-disjointness;
+        description
+          "The type of resource disjointness.";
+      }
+    } // nsrlg
   } // te-topology-config
 
   grouping te-topology-ref {
     description
       "References a TE topology.";
-    leaf provider-ref {
-      type leafref {
-        path "/nw:networks/nw:network[nw:network-id = "
-          + "current()/../network-ref]/tet:provider-id";
-        require-instance false;
-      }
-      description
-        "A reference to a provider-id.";
-    }
-    leaf client-ref {
-      type leafref {
-        path "/nw:networks/nw:network[nw:network-id = "
-          + "current()/../network-ref]/tet:client-id";
-        require-instance false;
-      }
-      description
-        "A reference to a client-id.";
-    }
-    leaf te-topology-ref {
-      type leafref {
-        path "/nw:networks/nw:network[nw:network-id = "
-          + "current()/../network-ref]/tet:te-topology-id";
-        require-instance false;
-      }
-      description
-        "A reference to a te-topology-id.";
-    }
     leaf network-ref {
       type leafref {
         path "/nw:networks/nw:network/nw:network-id";
@@ -1730,6 +1842,24 @@ module ietf-te-topology {
         "Its presence identifies the TE topology type.";
     }
   } // te-topology-type
+
+  grouping te-tunnel-tp-ref {
+    description
+      "References a tunnel termination point in a TE topology.";
+    leaf tunnel-tp-ref {
+      type leafref {
+        path "/nw:networks/nw:network[nw:network-id=current()/../"+
+          "network-ref]/nw:node[nw:node-id=current()/../node-ref]/"+
+          "te/tunnel-termination-point/tunnel-tp-id";
+        require-instance false;
+      }
+      description
+        "An absolute reference to a tunnel termination point.
+         (This should not be used for relative references.
+         In such a case, a relative path should be used instead.)";
+    }
+    uses nw:node-ref;
+  } // te-tunnel-tp-ref
 
   grouping template-attributes {
     description

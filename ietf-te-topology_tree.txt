@@ -15,10 +15,7 @@ augment /nw:networks:
          |     +--rw name?                inet:domain-name
          |     +--rw signaling-address*   inet:ip-address
          |     +--rw underlay-topology {te-topology-hierarchy}?
-         |        +--rw provider-ref?      leafref
-         |        +--rw client-ref?        leafref
-         |        +--rw te-topology-ref?   leafref
-         |        +--rw network-ref?       leafref
+         |        +--rw network-ref?   leafref
          +--rw link-template* [name] {template}?
             +--rw name                       te-types:te-template-name
             +--rw priority?                  uint16
@@ -26,17 +23,15 @@ augment /nw:networks:
             +--rw te-link-attributes
                +--rw access-type?                      te-types:te-link-access-type
                +--rw external-domain
+               |  +--rw network-ref?            leafref
                |  +--rw remote-te-node-id?      te-types:te-node-id
                |  +--rw remote-te-link-tp-id?   te-types:te-tp-id
                |  +--rw plug-id?                uint32
                +--rw is-abstract?                      empty
                +--rw name?                             string
                +--rw underlay! {te-topology-hierarchy}?
-               |  +--rw underlay-primary-path
-               |  |  +--rw provider-ref?      leafref
-               |  |  +--rw client-ref?        leafref
-               |  |  +--rw te-topology-ref?   leafref
-               |  |  +--rw network-ref?       leafref
+               |  +--rw primary-path
+               |  |  +--rw network-ref?    leafref
                |  |  +--rw path-element* [path-element-id]
                |  |     +--rw path-element-id     uint32
                |  |     +--rw (type)?
@@ -55,12 +50,9 @@ augment /nw:networks:
                |  |        |  +--rw interface-id?       uint32
                |  |        +--:(label)
                |  |           +--rw value?              uint32
-               |  +--rw underlay-backup-path* [index]
-               |  |  +--rw index              uint32
-               |  |  +--rw provider-ref?      leafref
-               |  |  +--rw client-ref?        leafref
-               |  |  +--rw te-topology-ref?   leafref
-               |  |  +--rw network-ref?       leafref
+               |  +--rw backup-path* [index]
+               |  |  +--rw index           uint32
+               |  |  +--rw network-ref?    leafref
                |  |  +--rw path-element* [path-element-id]
                |  |     +--rw path-element-id     uint32
                |  |     +--rw (type)?
@@ -79,15 +71,17 @@ augment /nw:networks:
                |  |        |  +--rw interface-id?       uint32
                |  |        +--:(label)
                |  |           +--rw value?              uint32
-               |  +--rw underlay-protection-type?   uint16
-               |  +--rw underlay-tunnel-src
-               |  |  +--rw tp-ref?        leafref
-               |  |  +--rw node-ref?      leafref
-               |  |  +--rw network-ref?   leafref
-               |  +--rw underlay-tunnel-des
-               |     +--rw tp-ref?        leafref
-               |     +--rw node-ref?      leafref
-               |     +--rw network-ref?   leafref
+               |  +--rw protection-type?   uint16
+               |  +--rw tunnel-src
+               |  |  +--rw tunnel-tp-ref?   leafref
+               |  |  +--rw node-ref?        leafref
+               |  |  +--rw network-ref?     leafref
+               |  +--rw tunnel-des
+               |  |  +--rw tunnel-tp-ref?   leafref
+               |  |  +--rw node-ref?        leafref
+               |  |  +--rw network-ref?     leafref
+               |  +--rw tunnel-id?         uint16
+               |  +--rw tunnel-sharing?    boolean
                +--rw admin-status?                     te-types:te-admin-status
                +--rw link-index?                       uint64
                +--rw administrative-group?             te-types:admin-groups
@@ -106,7 +100,9 @@ augment /nw:networks:
                +--rw te-default-metric?                uint32
                +--rw te-delay-metric?                  uint32
                +--rw te-srlgs
-                  +--rw value*   te-types:srlg
+               |  +--rw value*   te-types:srlg
+               +--rw te-nsrlgs {nsrlg}?
+                  +--rw id*   uint32
 augment /nw:networks/nw:network:
    +--rw provider-id?      te-types:te-global-id
    +--rw client-id?        te-types:te-global-id
@@ -115,9 +111,15 @@ augment /nw:networks/nw:network:
       +--rw config
       |  +--rw preference?               uint8
       |  +--rw optimization-criterion?   identityref
+      |  +--rw nsrlg* [id] {nsrlg}?
+      |     +--rw id              uint32
+      |     +--rw disjointness?   te-path-disjointness
       +--ro state
          +--ro preference?               uint8
          +--ro optimization-criterion?   identityref
+         +--ro nsrlg* [id] {nsrlg}?
+         |  +--ro id              uint32
+         |  +--ro disjointness?   te-path-disjointness
          +--ro geolocation
             +--ro altitude?    int64
             +--ro latitude?    geographic-coordinate-degree
@@ -128,13 +130,9 @@ augment /nw:networks/nw:network/nw:node:
       +--rw config
       |  +--rw te-node-template*     leafref {template}?
       |  +--rw te-node-attributes
-      |     +--rw admin-status?          te-types:te-admin-status
-      |     +--rw connectivity-matrix* [id]
-      |     |  +--rw id                         uint32
-      |     |  +--rw from
-      |     |  |  +--rw tp-ref?   leafref
-      |     |  +--rw to
-      |     |  |  +--rw tp-ref?   leafref
+      |     +--rw admin-status?            te-types:te-admin-status
+      |     +--rw connectivity-matrices
+      |     |  +--rw number-of-entries?         uint16
       |     |  +--rw is-allowed?                boolean
       |     |  +--rw label-restriction* [inclusive-exclusive label-start]
       |     |  |  +--rw inclusive-exclusive    enumeration
@@ -142,11 +140,8 @@ augment /nw:networks/nw:network/nw:node:
       |     |  |  +--rw label-end?             te-types:generalized-label
       |     |  |  +--rw range-bitmap?          binary
       |     |  +--rw underlay! {te-topology-hierarchy}?
-      |     |  |  +--rw underlay-primary-path
-      |     |  |  |  +--rw provider-ref?      leafref
-      |     |  |  |  +--rw client-ref?        leafref
-      |     |  |  |  +--rw te-topology-ref?   leafref
-      |     |  |  |  +--rw network-ref?       leafref
+      |     |  |  +--rw primary-path
+      |     |  |  |  +--rw network-ref?    leafref
       |     |  |  |  +--rw path-element* [path-element-id]
       |     |  |  |     +--rw path-element-id     uint32
       |     |  |  |     +--rw (type)?
@@ -165,12 +160,9 @@ augment /nw:networks/nw:network/nw:node:
       |     |  |  |        |  +--rw interface-id?       uint32
       |     |  |  |        +--:(label)
       |     |  |  |           +--rw value?              uint32
-      |     |  |  +--rw underlay-backup-path* [index]
-      |     |  |  |  +--rw index              uint32
-      |     |  |  |  +--rw provider-ref?      leafref
-      |     |  |  |  +--rw client-ref?        leafref
-      |     |  |  |  +--rw te-topology-ref?   leafref
-      |     |  |  |  +--rw network-ref?       leafref
+      |     |  |  +--rw backup-path* [index]
+      |     |  |  |  +--rw index           uint32
+      |     |  |  |  +--rw network-ref?    leafref
       |     |  |  |  +--rw path-element* [path-element-id]
       |     |  |  |     +--rw path-element-id     uint32
       |     |  |  |     +--rw (type)?
@@ -189,15 +181,17 @@ augment /nw:networks/nw:network/nw:node:
       |     |  |  |        |  +--rw interface-id?       uint32
       |     |  |  |        +--:(label)
       |     |  |  |           +--rw value?              uint32
-      |     |  |  +--rw underlay-protection-type?   uint16
-      |     |  |  +--rw underlay-tunnel-src
-      |     |  |  |  +--rw tp-ref?        leafref
-      |     |  |  |  +--rw node-ref?      leafref
-      |     |  |  |  +--rw network-ref?   leafref
-      |     |  |  +--rw underlay-tunnel-des
-      |     |  |     +--rw tp-ref?        leafref
-      |     |  |     +--rw node-ref?      leafref
-      |     |  |     +--rw network-ref?   leafref
+      |     |  |  +--rw protection-type?   uint16
+      |     |  |  +--rw tunnel-src
+      |     |  |  |  +--rw tunnel-tp-ref?   leafref
+      |     |  |  |  +--rw node-ref?        leafref
+      |     |  |  |  +--rw network-ref?     leafref
+      |     |  |  +--rw tunnel-des
+      |     |  |  |  +--rw tunnel-tp-ref?   leafref
+      |     |  |  |  +--rw node-ref?        leafref
+      |     |  |  |  +--rw network-ref?     leafref
+      |     |  |  +--rw tunnel-id?         uint16
+      |     |  |  +--rw tunnel-sharing?    boolean
       |     |  +--rw max-link-bandwidth?        te-bandwidth
       |     |  +--rw max-resv-link-bandwidth?   te-bandwidth
       |     |  +--rw unreserved-bandwidth* [priority]
@@ -206,26 +200,97 @@ augment /nw:networks/nw:network/nw:node:
       |     |  +--rw te-default-metric?         uint32
       |     |  +--rw te-delay-metric?           uint32
       |     |  +--rw te-srlgs
-      |     |     +--rw value*   te-types:srlg
-      |     +--rw domain-id?             uint32
-      |     +--rw is-abstract?           empty
-      |     +--rw name?                  inet:domain-name
-      |     +--rw signaling-address*     inet:ip-address
+      |     |  |  +--rw value*   te-types:srlg
+      |     |  +--rw te-nsrlgs {nsrlg}?
+      |     |  |  +--rw id*   uint32
+      |     |  +--rw connectivity-matrix* [id]
+      |     |     +--rw id                         uint32
+      |     |     +--rw from
+      |     |     |  +--rw tp-ref?   leafref
+      |     |     +--rw to
+      |     |     |  +--rw tp-ref?   leafref
+      |     |     +--rw is-allowed?                boolean
+      |     |     +--rw label-restriction* [inclusive-exclusive label-start]
+      |     |     |  +--rw inclusive-exclusive    enumeration
+      |     |     |  +--rw label-start            te-types:generalized-label
+      |     |     |  +--rw label-end?             te-types:generalized-label
+      |     |     |  +--rw range-bitmap?          binary
+      |     |     +--rw underlay! {te-topology-hierarchy}?
+      |     |     |  +--rw primary-path
+      |     |     |  |  +--rw network-ref?    leafref
+      |     |     |  |  +--rw path-element* [path-element-id]
+      |     |     |  |     +--rw path-element-id     uint32
+      |     |     |  |     +--rw (type)?
+      |     |     |  |        +--:(ipv4-address)
+      |     |     |  |        |  +--rw v4-address?         inet:ipv4-address
+      |     |     |  |        |  +--rw v4-prefix-length?   uint8
+      |     |     |  |        |  +--rw v4-loose?           boolean
+      |     |     |  |        +--:(ipv6-address)
+      |     |     |  |        |  +--rw v6-address?         inet:ipv6-address
+      |     |     |  |        |  +--rw v6-prefix-length?   uint8
+      |     |     |  |        |  +--rw v6-loose?           boolean
+      |     |     |  |        +--:(as-number)
+      |     |     |  |        |  +--rw as-number?          uint16
+      |     |     |  |        +--:(unnumbered-link)
+      |     |     |  |        |  +--rw router-id?          inet:ip-address
+      |     |     |  |        |  +--rw interface-id?       uint32
+      |     |     |  |        +--:(label)
+      |     |     |  |           +--rw value?              uint32
+      |     |     |  +--rw backup-path* [index]
+      |     |     |  |  +--rw index           uint32
+      |     |     |  |  +--rw network-ref?    leafref
+      |     |     |  |  +--rw path-element* [path-element-id]
+      |     |     |  |     +--rw path-element-id     uint32
+      |     |     |  |     +--rw (type)?
+      |     |     |  |        +--:(ipv4-address)
+      |     |     |  |        |  +--rw v4-address?         inet:ipv4-address
+      |     |     |  |        |  +--rw v4-prefix-length?   uint8
+      |     |     |  |        |  +--rw v4-loose?           boolean
+      |     |     |  |        +--:(ipv6-address)
+      |     |     |  |        |  +--rw v6-address?         inet:ipv6-address
+      |     |     |  |        |  +--rw v6-prefix-length?   uint8
+      |     |     |  |        |  +--rw v6-loose?           boolean
+      |     |     |  |        +--:(as-number)
+      |     |     |  |        |  +--rw as-number?          uint16
+      |     |     |  |        +--:(unnumbered-link)
+      |     |     |  |        |  +--rw router-id?          inet:ip-address
+      |     |     |  |        |  +--rw interface-id?       uint32
+      |     |     |  |        +--:(label)
+      |     |     |  |           +--rw value?              uint32
+      |     |     |  +--rw protection-type?   uint16
+      |     |     |  +--rw tunnel-src
+      |     |     |  |  +--rw tunnel-tp-ref?   leafref
+      |     |     |  |  +--rw node-ref?        leafref
+      |     |     |  |  +--rw network-ref?     leafref
+      |     |     |  +--rw tunnel-des
+      |     |     |  |  +--rw tunnel-tp-ref?   leafref
+      |     |     |  |  +--rw node-ref?        leafref
+      |     |     |  |  +--rw network-ref?     leafref
+      |     |     |  +--rw tunnel-id?         uint16
+      |     |     |  +--rw tunnel-sharing?    boolean
+      |     |     +--rw max-link-bandwidth?        te-bandwidth
+      |     |     +--rw max-resv-link-bandwidth?   te-bandwidth
+      |     |     +--rw unreserved-bandwidth* [priority]
+      |     |     |  +--rw priority     uint8
+      |     |     |  +--rw bandwidth?   te-bandwidth
+      |     |     +--rw te-default-metric?         uint32
+      |     |     +--rw te-delay-metric?           uint32
+      |     |     +--rw te-srlgs
+      |     |     |  +--rw value*   te-types:srlg
+      |     |     +--rw te-nsrlgs {nsrlg}?
+      |     |        +--rw id*   uint32
+      |     +--rw domain-id?               uint32
+      |     +--rw is-abstract?             empty
+      |     +--rw name?                    inet:domain-name
+      |     +--rw signaling-address*       inet:ip-address
       |     +--rw underlay-topology {te-topology-hierarchy}?
-      |        +--rw provider-ref?      leafref
-      |        +--rw client-ref?        leafref
-      |        +--rw te-topology-ref?   leafref
-      |        +--rw network-ref?       leafref
+      |        +--rw network-ref?   leafref
       +--ro state
       |  +--ro te-node-template*           leafref {template}?
       |  +--ro te-node-attributes
-      |  |  +--ro admin-status?          te-types:te-admin-status
-      |  |  +--ro connectivity-matrix* [id]
-      |  |  |  +--ro id                         uint32
-      |  |  |  +--ro from
-      |  |  |  |  +--ro tp-ref?   leafref
-      |  |  |  +--ro to
-      |  |  |  |  +--ro tp-ref?   leafref
+      |  |  +--ro admin-status?            te-types:te-admin-status
+      |  |  +--ro connectivity-matrices
+      |  |  |  +--ro number-of-entries?         uint16
       |  |  |  +--ro is-allowed?                boolean
       |  |  |  +--ro label-restriction* [inclusive-exclusive label-start]
       |  |  |  |  +--ro inclusive-exclusive    enumeration
@@ -233,11 +298,8 @@ augment /nw:networks/nw:network/nw:node:
       |  |  |  |  +--ro label-end?             te-types:generalized-label
       |  |  |  |  +--ro range-bitmap?          binary
       |  |  |  +--ro underlay! {te-topology-hierarchy}?
-      |  |  |  |  +--ro underlay-primary-path
-      |  |  |  |  |  +--ro provider-ref?      leafref
-      |  |  |  |  |  +--ro client-ref?        leafref
-      |  |  |  |  |  +--ro te-topology-ref?   leafref
-      |  |  |  |  |  +--ro network-ref?       leafref
+      |  |  |  |  +--ro primary-path
+      |  |  |  |  |  +--ro network-ref?    leafref
       |  |  |  |  |  +--ro path-element* [path-element-id]
       |  |  |  |  |     +--ro path-element-id     uint32
       |  |  |  |  |     +--ro (type)?
@@ -256,12 +318,9 @@ augment /nw:networks/nw:network/nw:node:
       |  |  |  |  |        |  +--ro interface-id?       uint32
       |  |  |  |  |        +--:(label)
       |  |  |  |  |           +--ro value?              uint32
-      |  |  |  |  +--ro underlay-backup-path* [index]
-      |  |  |  |  |  +--ro index              uint32
-      |  |  |  |  |  +--ro provider-ref?      leafref
-      |  |  |  |  |  +--ro client-ref?        leafref
-      |  |  |  |  |  +--ro te-topology-ref?   leafref
-      |  |  |  |  |  +--ro network-ref?       leafref
+      |  |  |  |  +--ro backup-path* [index]
+      |  |  |  |  |  +--ro index           uint32
+      |  |  |  |  |  +--ro network-ref?    leafref
       |  |  |  |  |  +--ro path-element* [path-element-id]
       |  |  |  |  |     +--ro path-element-id     uint32
       |  |  |  |  |     +--ro (type)?
@@ -280,15 +339,17 @@ augment /nw:networks/nw:network/nw:node:
       |  |  |  |  |        |  +--ro interface-id?       uint32
       |  |  |  |  |        +--:(label)
       |  |  |  |  |           +--ro value?              uint32
-      |  |  |  |  +--ro underlay-protection-type?   uint16
-      |  |  |  |  +--ro underlay-tunnel-src
-      |  |  |  |  |  +--ro tp-ref?        leafref
-      |  |  |  |  |  +--ro node-ref?      leafref
-      |  |  |  |  |  +--ro network-ref?   leafref
-      |  |  |  |  +--ro underlay-tunnel-des
-      |  |  |  |     +--ro tp-ref?        leafref
-      |  |  |  |     +--ro node-ref?      leafref
-      |  |  |  |     +--ro network-ref?   leafref
+      |  |  |  |  +--ro protection-type?   uint16
+      |  |  |  |  +--ro tunnel-src
+      |  |  |  |  |  +--ro tunnel-tp-ref?   leafref
+      |  |  |  |  |  +--ro node-ref?        leafref
+      |  |  |  |  |  +--ro network-ref?     leafref
+      |  |  |  |  +--ro tunnel-des
+      |  |  |  |  |  +--ro tunnel-tp-ref?   leafref
+      |  |  |  |  |  +--ro node-ref?        leafref
+      |  |  |  |  |  +--ro network-ref?     leafref
+      |  |  |  |  +--ro tunnel-id?         uint16
+      |  |  |  |  +--ro tunnel-sharing?    boolean
       |  |  |  +--ro max-link-bandwidth?        te-bandwidth
       |  |  |  +--ro max-resv-link-bandwidth?   te-bandwidth
       |  |  |  +--ro unreserved-bandwidth* [priority]
@@ -297,16 +358,91 @@ augment /nw:networks/nw:network/nw:node:
       |  |  |  +--ro te-default-metric?         uint32
       |  |  |  +--ro te-delay-metric?           uint32
       |  |  |  +--ro te-srlgs
-      |  |  |     +--ro value*   te-types:srlg
-      |  |  +--ro domain-id?             uint32
-      |  |  +--ro is-abstract?           empty
-      |  |  +--ro name?                  inet:domain-name
-      |  |  +--ro signaling-address*     inet:ip-address
+      |  |  |  |  +--ro value*   te-types:srlg
+      |  |  |  +--ro te-nsrlgs {nsrlg}?
+      |  |  |  |  +--ro id*   uint32
+      |  |  |  +--ro connectivity-matrix* [id]
+      |  |  |     +--ro id                         uint32
+      |  |  |     +--ro from
+      |  |  |     |  +--ro tp-ref?   leafref
+      |  |  |     +--ro to
+      |  |  |     |  +--ro tp-ref?   leafref
+      |  |  |     +--ro is-allowed?                boolean
+      |  |  |     +--ro label-restriction* [inclusive-exclusive label-start]
+      |  |  |     |  +--ro inclusive-exclusive    enumeration
+      |  |  |     |  +--ro label-start            te-types:generalized-label
+      |  |  |     |  +--ro label-end?             te-types:generalized-label
+      |  |  |     |  +--ro range-bitmap?          binary
+      |  |  |     +--ro underlay! {te-topology-hierarchy}?
+      |  |  |     |  +--ro primary-path
+      |  |  |     |  |  +--ro network-ref?    leafref
+      |  |  |     |  |  +--ro path-element* [path-element-id]
+      |  |  |     |  |     +--ro path-element-id     uint32
+      |  |  |     |  |     +--ro (type)?
+      |  |  |     |  |        +--:(ipv4-address)
+      |  |  |     |  |        |  +--ro v4-address?         inet:ipv4-address
+      |  |  |     |  |        |  +--ro v4-prefix-length?   uint8
+      |  |  |     |  |        |  +--ro v4-loose?           boolean
+      |  |  |     |  |        +--:(ipv6-address)
+      |  |  |     |  |        |  +--ro v6-address?         inet:ipv6-address
+      |  |  |     |  |        |  +--ro v6-prefix-length?   uint8
+      |  |  |     |  |        |  +--ro v6-loose?           boolean
+      |  |  |     |  |        +--:(as-number)
+      |  |  |     |  |        |  +--ro as-number?          uint16
+      |  |  |     |  |        +--:(unnumbered-link)
+      |  |  |     |  |        |  +--ro router-id?          inet:ip-address
+      |  |  |     |  |        |  +--ro interface-id?       uint32
+      |  |  |     |  |        +--:(label)
+      |  |  |     |  |           +--ro value?              uint32
+      |  |  |     |  +--ro backup-path* [index]
+      |  |  |     |  |  +--ro index           uint32
+      |  |  |     |  |  +--ro network-ref?    leafref
+      |  |  |     |  |  +--ro path-element* [path-element-id]
+      |  |  |     |  |     +--ro path-element-id     uint32
+      |  |  |     |  |     +--ro (type)?
+      |  |  |     |  |        +--:(ipv4-address)
+      |  |  |     |  |        |  +--ro v4-address?         inet:ipv4-address
+      |  |  |     |  |        |  +--ro v4-prefix-length?   uint8
+      |  |  |     |  |        |  +--ro v4-loose?           boolean
+      |  |  |     |  |        +--:(ipv6-address)
+      |  |  |     |  |        |  +--ro v6-address?         inet:ipv6-address
+      |  |  |     |  |        |  +--ro v6-prefix-length?   uint8
+      |  |  |     |  |        |  +--ro v6-loose?           boolean
+      |  |  |     |  |        +--:(as-number)
+      |  |  |     |  |        |  +--ro as-number?          uint16
+      |  |  |     |  |        +--:(unnumbered-link)
+      |  |  |     |  |        |  +--ro router-id?          inet:ip-address
+      |  |  |     |  |        |  +--ro interface-id?       uint32
+      |  |  |     |  |        +--:(label)
+      |  |  |     |  |           +--ro value?              uint32
+      |  |  |     |  +--ro protection-type?   uint16
+      |  |  |     |  +--ro tunnel-src
+      |  |  |     |  |  +--ro tunnel-tp-ref?   leafref
+      |  |  |     |  |  +--ro node-ref?        leafref
+      |  |  |     |  |  +--ro network-ref?     leafref
+      |  |  |     |  +--ro tunnel-des
+      |  |  |     |  |  +--ro tunnel-tp-ref?   leafref
+      |  |  |     |  |  +--ro node-ref?        leafref
+      |  |  |     |  |  +--ro network-ref?     leafref
+      |  |  |     |  +--ro tunnel-id?         uint16
+      |  |  |     |  +--ro tunnel-sharing?    boolean
+      |  |  |     +--ro max-link-bandwidth?        te-bandwidth
+      |  |  |     +--ro max-resv-link-bandwidth?   te-bandwidth
+      |  |  |     +--ro unreserved-bandwidth* [priority]
+      |  |  |     |  +--ro priority     uint8
+      |  |  |     |  +--ro bandwidth?   te-bandwidth
+      |  |  |     +--ro te-default-metric?         uint32
+      |  |  |     +--ro te-delay-metric?           uint32
+      |  |  |     +--ro te-srlgs
+      |  |  |     |  +--ro value*   te-types:srlg
+      |  |  |     +--ro te-nsrlgs {nsrlg}?
+      |  |  |        +--ro id*   uint32
+      |  |  +--ro domain-id?               uint32
+      |  |  +--ro is-abstract?             empty
+      |  |  +--ro name?                    inet:domain-name
+      |  |  +--ro signaling-address*       inet:ip-address
       |  |  +--ro underlay-topology {te-topology-hierarchy}?
-      |  |     +--ro provider-ref?      leafref
-      |  |     +--ro client-ref?        leafref
-      |  |     +--ro te-topology-ref?   leafref
-      |  |     +--ro network-ref?       leafref
+      |  |     +--ro network-ref?   leafref
       |  +--ro oper-status?                te-types:te-oper-status
       |  +--ro geolocation
       |  |  +--ro altitude?    int64
@@ -319,11 +455,8 @@ augment /nw:networks/nw:network/nw:node:
       |  |  +--ro logical-network-element?   string
       |  |  +--ro network-instance?          string
       |  |  +--ro topology
-      |  |     +--ro provider-ref?      leafref
-      |  |     +--ro client-ref?        leafref
-      |  |     +--ro te-topology-ref?   leafref
-      |  |     +--ro network-ref?       leafref
-      |  |     +--ro node-ref?          leafref
+      |  |     +--ro network-ref?   leafref
+      |  |     +--ro node-ref?      leafref
       |  +--ro information-source-entry* [information-source]
       |     +--ro information-source          te-info-source
       |     +--ro information-source-state
@@ -331,17 +464,10 @@ augment /nw:networks/nw:network/nw:node:
       |     |  +--ro logical-network-element?   string
       |     |  +--ro network-instance?          string
       |     |  +--ro topology
-      |     |     +--ro provider-ref?      leafref
-      |     |     +--ro client-ref?        leafref
-      |     |     +--ro te-topology-ref?   leafref
-      |     |     +--ro network-ref?       leafref
-      |     |     +--ro node-ref?          leafref
-      |     +--ro connectivity-matrix* [id]
-      |     |  +--ro id                         uint32
-      |     |  +--ro from
-      |     |  |  +--ro tp-ref?   leafref
-      |     |  +--ro to
-      |     |  |  +--ro tp-ref?   leafref
+      |     |     +--ro network-ref?   leafref
+      |     |     +--ro node-ref?      leafref
+      |     +--ro connectivity-matrices
+      |     |  +--ro number-of-entries?         uint16
       |     |  +--ro is-allowed?                boolean
       |     |  +--ro label-restriction* [inclusive-exclusive label-start]
       |     |  |  +--ro inclusive-exclusive    enumeration
@@ -349,11 +475,8 @@ augment /nw:networks/nw:network/nw:node:
       |     |  |  +--ro label-end?             te-types:generalized-label
       |     |  |  +--ro range-bitmap?          binary
       |     |  +--ro underlay! {te-topology-hierarchy}?
-      |     |  |  +--ro underlay-primary-path
-      |     |  |  |  +--ro provider-ref?      leafref
-      |     |  |  |  +--ro client-ref?        leafref
-      |     |  |  |  +--ro te-topology-ref?   leafref
-      |     |  |  |  +--ro network-ref?       leafref
+      |     |  |  +--ro primary-path
+      |     |  |  |  +--ro network-ref?    leafref
       |     |  |  |  +--ro path-element* [path-element-id]
       |     |  |  |     +--ro path-element-id     uint32
       |     |  |  |     +--ro (type)?
@@ -372,12 +495,9 @@ augment /nw:networks/nw:network/nw:node:
       |     |  |  |        |  +--ro interface-id?       uint32
       |     |  |  |        +--:(label)
       |     |  |  |           +--ro value?              uint32
-      |     |  |  +--ro underlay-backup-path* [index]
-      |     |  |  |  +--ro index              uint32
-      |     |  |  |  +--ro provider-ref?      leafref
-      |     |  |  |  +--ro client-ref?        leafref
-      |     |  |  |  +--ro te-topology-ref?   leafref
-      |     |  |  |  +--ro network-ref?       leafref
+      |     |  |  +--ro backup-path* [index]
+      |     |  |  |  +--ro index           uint32
+      |     |  |  |  +--ro network-ref?    leafref
       |     |  |  |  +--ro path-element* [path-element-id]
       |     |  |  |     +--ro path-element-id     uint32
       |     |  |  |     +--ro (type)?
@@ -396,15 +516,17 @@ augment /nw:networks/nw:network/nw:node:
       |     |  |  |        |  +--ro interface-id?       uint32
       |     |  |  |        +--:(label)
       |     |  |  |           +--ro value?              uint32
-      |     |  |  +--ro underlay-protection-type?   uint16
-      |     |  |  +--ro underlay-tunnel-src
-      |     |  |  |  +--ro tp-ref?        leafref
-      |     |  |  |  +--ro node-ref?      leafref
-      |     |  |  |  +--ro network-ref?   leafref
-      |     |  |  +--ro underlay-tunnel-des
-      |     |  |     +--ro tp-ref?        leafref
-      |     |  |     +--ro node-ref?      leafref
-      |     |  |     +--ro network-ref?   leafref
+      |     |  |  +--ro protection-type?   uint16
+      |     |  |  +--ro tunnel-src
+      |     |  |  |  +--ro tunnel-tp-ref?   leafref
+      |     |  |  |  +--ro node-ref?        leafref
+      |     |  |  |  +--ro network-ref?     leafref
+      |     |  |  +--ro tunnel-des
+      |     |  |  |  +--ro tunnel-tp-ref?   leafref
+      |     |  |  |  +--ro node-ref?        leafref
+      |     |  |  |  +--ro network-ref?     leafref
+      |     |  |  +--ro tunnel-id?         uint16
+      |     |  |  +--ro tunnel-sharing?    boolean
       |     |  +--ro max-link-bandwidth?        te-bandwidth
       |     |  +--ro max-resv-link-bandwidth?   te-bandwidth
       |     |  +--ro unreserved-bandwidth* [priority]
@@ -413,16 +535,91 @@ augment /nw:networks/nw:network/nw:node:
       |     |  +--ro te-default-metric?         uint32
       |     |  +--ro te-delay-metric?           uint32
       |     |  +--ro te-srlgs
-      |     |     +--ro value*   te-types:srlg
+      |     |  |  +--ro value*   te-types:srlg
+      |     |  +--ro te-nsrlgs {nsrlg}?
+      |     |  |  +--ro id*   uint32
+      |     |  +--ro connectivity-matrix* [id]
+      |     |     +--ro id                         uint32
+      |     |     +--ro from
+      |     |     |  +--ro tp-ref?   leafref
+      |     |     +--ro to
+      |     |     |  +--ro tp-ref?   leafref
+      |     |     +--ro is-allowed?                boolean
+      |     |     +--ro label-restriction* [inclusive-exclusive label-start]
+      |     |     |  +--ro inclusive-exclusive    enumeration
+      |     |     |  +--ro label-start            te-types:generalized-label
+      |     |     |  +--ro label-end?             te-types:generalized-label
+      |     |     |  +--ro range-bitmap?          binary
+      |     |     +--ro underlay! {te-topology-hierarchy}?
+      |     |     |  +--ro primary-path
+      |     |     |  |  +--ro network-ref?    leafref
+      |     |     |  |  +--ro path-element* [path-element-id]
+      |     |     |  |     +--ro path-element-id     uint32
+      |     |     |  |     +--ro (type)?
+      |     |     |  |        +--:(ipv4-address)
+      |     |     |  |        |  +--ro v4-address?         inet:ipv4-address
+      |     |     |  |        |  +--ro v4-prefix-length?   uint8
+      |     |     |  |        |  +--ro v4-loose?           boolean
+      |     |     |  |        +--:(ipv6-address)
+      |     |     |  |        |  +--ro v6-address?         inet:ipv6-address
+      |     |     |  |        |  +--ro v6-prefix-length?   uint8
+      |     |     |  |        |  +--ro v6-loose?           boolean
+      |     |     |  |        +--:(as-number)
+      |     |     |  |        |  +--ro as-number?          uint16
+      |     |     |  |        +--:(unnumbered-link)
+      |     |     |  |        |  +--ro router-id?          inet:ip-address
+      |     |     |  |        |  +--ro interface-id?       uint32
+      |     |     |  |        +--:(label)
+      |     |     |  |           +--ro value?              uint32
+      |     |     |  +--ro backup-path* [index]
+      |     |     |  |  +--ro index           uint32
+      |     |     |  |  +--ro network-ref?    leafref
+      |     |     |  |  +--ro path-element* [path-element-id]
+      |     |     |  |     +--ro path-element-id     uint32
+      |     |     |  |     +--ro (type)?
+      |     |     |  |        +--:(ipv4-address)
+      |     |     |  |        |  +--ro v4-address?         inet:ipv4-address
+      |     |     |  |        |  +--ro v4-prefix-length?   uint8
+      |     |     |  |        |  +--ro v4-loose?           boolean
+      |     |     |  |        +--:(ipv6-address)
+      |     |     |  |        |  +--ro v6-address?         inet:ipv6-address
+      |     |     |  |        |  +--ro v6-prefix-length?   uint8
+      |     |     |  |        |  +--ro v6-loose?           boolean
+      |     |     |  |        +--:(as-number)
+      |     |     |  |        |  +--ro as-number?          uint16
+      |     |     |  |        +--:(unnumbered-link)
+      |     |     |  |        |  +--ro router-id?          inet:ip-address
+      |     |     |  |        |  +--ro interface-id?       uint32
+      |     |     |  |        +--:(label)
+      |     |     |  |           +--ro value?              uint32
+      |     |     |  +--ro protection-type?   uint16
+      |     |     |  +--ro tunnel-src
+      |     |     |  |  +--ro tunnel-tp-ref?   leafref
+      |     |     |  |  +--ro node-ref?        leafref
+      |     |     |  |  +--ro network-ref?     leafref
+      |     |     |  +--ro tunnel-des
+      |     |     |  |  +--ro tunnel-tp-ref?   leafref
+      |     |     |  |  +--ro node-ref?        leafref
+      |     |     |  |  +--ro network-ref?     leafref
+      |     |     |  +--ro tunnel-id?         uint16
+      |     |     |  +--ro tunnel-sharing?    boolean
+      |     |     +--ro max-link-bandwidth?        te-bandwidth
+      |     |     +--ro max-resv-link-bandwidth?   te-bandwidth
+      |     |     +--ro unreserved-bandwidth* [priority]
+      |     |     |  +--ro priority     uint8
+      |     |     |  +--ro bandwidth?   te-bandwidth
+      |     |     +--ro te-default-metric?         uint32
+      |     |     +--ro te-delay-metric?           uint32
+      |     |     +--ro te-srlgs
+      |     |     |  +--ro value*   te-types:srlg
+      |     |     +--ro te-nsrlgs {nsrlg}?
+      |     |        +--ro id*   uint32
       |     +--ro domain-id?                  uint32
       |     +--ro is-abstract?                empty
       |     +--ro name?                       inet:domain-name
       |     +--ro signaling-address*          inet:ip-address
       |     +--ro underlay-topology {te-topology-hierarchy}?
-      |        +--ro provider-ref?      leafref
-      |        +--ro client-ref?        leafref
-      |        +--ro te-topology-ref?   leafref
-      |        +--ro network-ref?       leafref
+      |        +--ro network-ref?   leafref
       +--ro statistics
       |  +--ro discontinuity-time           yang:date-and-time
       |  +--ro node
@@ -438,7 +635,7 @@ augment /nw:networks/nw:network/nw:node:
       |     +--ro enables?    yang:counter32
       |     +--ro modifies?   yang:counter32
       +--rw tunnel-termination-point* [tunnel-tp-id]
-         +--rw tunnel-tp-id    binary
+         +--rw tunnel-tp-id                           binary
          +--rw config
          |  +--rw switching-capability?      identityref
          |  +--rw encoding?                  identityref
@@ -462,7 +659,9 @@ augment /nw:networks/nw:network/nw:node:
          |     +--rw te-default-metric?         uint32
          |     +--rw te-delay-metric?           uint32
          |     +--rw te-srlgs
-         |        +--rw value*   te-types:srlg
+         |     |  +--rw value*   te-types:srlg
+         |     +--rw te-nsrlgs {nsrlg}?
+         |        +--rw id*   uint32
          +--ro state
          |  +--ro switching-capability?      identityref
          |  +--ro encoding?                  identityref
@@ -486,29 +685,35 @@ augment /nw:networks/nw:network/nw:node:
          |  |  +--ro te-default-metric?         uint32
          |  |  +--ro te-delay-metric?           uint32
          |  |  +--ro te-srlgs
-         |  |     +--ro value*   te-types:srlg
+         |  |  |  +--ro value*   te-types:srlg
+         |  |  +--ro te-nsrlgs {nsrlg}?
+         |  |     +--ro id*   uint32
          |  +--ro geolocation
          |     +--ro altitude?    int64
          |     +--ro latitude?    geographic-coordinate-degree
          |     +--ro longitude?   geographic-coordinate-degree
          +--ro statistics
-            +--ro discontinuity-time          yang:date-and-time
-            +--ro tunnel-termination-point
-            |  +--ro disables?             yang:counter32
-            |  +--ro enables?              yang:counter32
-            |  +--ro maintenance-clears?   yang:counter32
-            |  +--ro maintenance-sets?     yang:counter32
-            |  +--ro modifies?             yang:counter32
-            |  +--ro downs?                yang:counter32
-            |  +--ro ups?                  yang:counter32
-            |  +--ro in-service-clears?    yang:counter32
-            |  +--ro in-service-sets?      yang:counter32
-            +--ro local-link-connectivity
-               +--ro creates?    yang:counter32
-               +--ro deletes?    yang:counter32
-               +--ro disables?   yang:counter32
-               +--ro enables?    yang:counter32
-               +--ro modifies?   yang:counter32
+         |  +--ro discontinuity-time          yang:date-and-time
+         |  +--ro tunnel-termination-point
+         |  |  +--ro disables?             yang:counter32
+         |  |  +--ro enables?              yang:counter32
+         |  |  +--ro maintenance-clears?   yang:counter32
+         |  |  +--ro maintenance-sets?     yang:counter32
+         |  |  +--ro modifies?             yang:counter32
+         |  |  +--ro downs?                yang:counter32
+         |  |  +--ro ups?                  yang:counter32
+         |  |  +--ro in-service-clears?    yang:counter32
+         |  |  +--ro in-service-sets?      yang:counter32
+         |  +--ro local-link-connectivity
+         |     +--ro creates?    yang:counter32
+         |     +--ro deletes?    yang:counter32
+         |     +--ro disables?   yang:counter32
+         |     +--ro enables?    yang:counter32
+         |     +--ro modifies?   yang:counter32
+         +--rw supporting-tunnel-termination-point* [network-ref node-ref tunnel-tp-ref]
+            +--rw network-ref      leafref
+            +--rw node-ref         leafref
+            +--rw tunnel-tp-ref    leafref
 augment /nw:networks/nw:network/nt:link:
    +--rw te!
       +--rw config
@@ -529,17 +734,15 @@ augment /nw:networks/nw:network/nt:link:
       |  +--rw te-link-attributes
       |     +--rw access-type?                      te-types:te-link-access-type
       |     +--rw external-domain
+      |     |  +--rw network-ref?            leafref
       |     |  +--rw remote-te-node-id?      te-types:te-node-id
       |     |  +--rw remote-te-link-tp-id?   te-types:te-tp-id
       |     |  +--rw plug-id?                uint32
       |     +--rw is-abstract?                      empty
       |     +--rw name?                             string
       |     +--rw underlay! {te-topology-hierarchy}?
-      |     |  +--rw underlay-primary-path
-      |     |  |  +--rw provider-ref?      leafref
-      |     |  |  +--rw client-ref?        leafref
-      |     |  |  +--rw te-topology-ref?   leafref
-      |     |  |  +--rw network-ref?       leafref
+      |     |  +--rw primary-path
+      |     |  |  +--rw network-ref?    leafref
       |     |  |  +--rw path-element* [path-element-id]
       |     |  |     +--rw path-element-id     uint32
       |     |  |     +--rw (type)?
@@ -558,12 +761,9 @@ augment /nw:networks/nw:network/nt:link:
       |     |  |        |  +--rw interface-id?       uint32
       |     |  |        +--:(label)
       |     |  |           +--rw value?              uint32
-      |     |  +--rw underlay-backup-path* [index]
-      |     |  |  +--rw index              uint32
-      |     |  |  +--rw provider-ref?      leafref
-      |     |  |  +--rw client-ref?        leafref
-      |     |  |  +--rw te-topology-ref?   leafref
-      |     |  |  +--rw network-ref?       leafref
+      |     |  +--rw backup-path* [index]
+      |     |  |  +--rw index           uint32
+      |     |  |  +--rw network-ref?    leafref
       |     |  |  +--rw path-element* [path-element-id]
       |     |  |     +--rw path-element-id     uint32
       |     |  |     +--rw (type)?
@@ -582,15 +782,17 @@ augment /nw:networks/nw:network/nt:link:
       |     |  |        |  +--rw interface-id?       uint32
       |     |  |        +--:(label)
       |     |  |           +--rw value?              uint32
-      |     |  +--rw underlay-protection-type?   uint16
-      |     |  +--rw underlay-tunnel-src
-      |     |  |  +--rw tp-ref?        leafref
-      |     |  |  +--rw node-ref?      leafref
-      |     |  |  +--rw network-ref?   leafref
-      |     |  +--rw underlay-tunnel-des
-      |     |     +--rw tp-ref?        leafref
-      |     |     +--rw node-ref?      leafref
-      |     |     +--rw network-ref?   leafref
+      |     |  +--rw protection-type?   uint16
+      |     |  +--rw tunnel-src
+      |     |  |  +--rw tunnel-tp-ref?   leafref
+      |     |  |  +--rw node-ref?        leafref
+      |     |  |  +--rw network-ref?     leafref
+      |     |  +--rw tunnel-des
+      |     |  |  +--rw tunnel-tp-ref?   leafref
+      |     |  |  +--rw node-ref?        leafref
+      |     |  |  +--rw network-ref?     leafref
+      |     |  +--rw tunnel-id?         uint16
+      |     |  +--rw tunnel-sharing?    boolean
       |     +--rw admin-status?                     te-types:te-admin-status
       |     +--rw link-index?                       uint64
       |     +--rw administrative-group?             te-types:admin-groups
@@ -609,7 +811,9 @@ augment /nw:networks/nw:network/nt:link:
       |     +--rw te-default-metric?                uint32
       |     +--rw te-delay-metric?                  uint32
       |     +--rw te-srlgs
-      |        +--rw value*   te-types:srlg
+      |     |  +--rw value*   te-types:srlg
+      |     +--rw te-nsrlgs {nsrlg}?
+      |        +--rw id*   uint32
       +--ro state
       |  +--ro (bundle-stack-level)?
       |  |  +--:(bundle)
@@ -628,17 +832,15 @@ augment /nw:networks/nw:network/nt:link:
       |  +--ro te-link-attributes
       |  |  +--ro access-type?                      te-types:te-link-access-type
       |  |  +--ro external-domain
+      |  |  |  +--ro network-ref?            leafref
       |  |  |  +--ro remote-te-node-id?      te-types:te-node-id
       |  |  |  +--ro remote-te-link-tp-id?   te-types:te-tp-id
       |  |  |  +--ro plug-id?                uint32
       |  |  +--ro is-abstract?                      empty
       |  |  +--ro name?                             string
       |  |  +--ro underlay! {te-topology-hierarchy}?
-      |  |  |  +--ro underlay-primary-path
-      |  |  |  |  +--ro provider-ref?      leafref
-      |  |  |  |  +--ro client-ref?        leafref
-      |  |  |  |  +--ro te-topology-ref?   leafref
-      |  |  |  |  +--ro network-ref?       leafref
+      |  |  |  +--ro primary-path
+      |  |  |  |  +--ro network-ref?    leafref
       |  |  |  |  +--ro path-element* [path-element-id]
       |  |  |  |     +--ro path-element-id     uint32
       |  |  |  |     +--ro (type)?
@@ -657,12 +859,9 @@ augment /nw:networks/nw:network/nt:link:
       |  |  |  |        |  +--ro interface-id?       uint32
       |  |  |  |        +--:(label)
       |  |  |  |           +--ro value?              uint32
-      |  |  |  +--ro underlay-backup-path* [index]
-      |  |  |  |  +--ro index              uint32
-      |  |  |  |  +--ro provider-ref?      leafref
-      |  |  |  |  +--ro client-ref?        leafref
-      |  |  |  |  +--ro te-topology-ref?   leafref
-      |  |  |  |  +--ro network-ref?       leafref
+      |  |  |  +--ro backup-path* [index]
+      |  |  |  |  +--ro index           uint32
+      |  |  |  |  +--ro network-ref?    leafref
       |  |  |  |  +--ro path-element* [path-element-id]
       |  |  |  |     +--ro path-element-id     uint32
       |  |  |  |     +--ro (type)?
@@ -681,15 +880,17 @@ augment /nw:networks/nw:network/nt:link:
       |  |  |  |        |  +--ro interface-id?       uint32
       |  |  |  |        +--:(label)
       |  |  |  |           +--ro value?              uint32
-      |  |  |  +--ro underlay-protection-type?   uint16
-      |  |  |  +--ro underlay-tunnel-src
-      |  |  |  |  +--ro tp-ref?        leafref
-      |  |  |  |  +--ro node-ref?      leafref
-      |  |  |  |  +--ro network-ref?   leafref
-      |  |  |  +--ro underlay-tunnel-des
-      |  |  |     +--ro tp-ref?        leafref
-      |  |  |     +--ro node-ref?      leafref
-      |  |  |     +--ro network-ref?   leafref
+      |  |  |  +--ro protection-type?   uint16
+      |  |  |  +--ro tunnel-src
+      |  |  |  |  +--ro tunnel-tp-ref?   leafref
+      |  |  |  |  +--ro node-ref?        leafref
+      |  |  |  |  +--ro network-ref?     leafref
+      |  |  |  +--ro tunnel-des
+      |  |  |  |  +--ro tunnel-tp-ref?   leafref
+      |  |  |  |  +--ro node-ref?        leafref
+      |  |  |  |  +--ro network-ref?     leafref
+      |  |  |  +--ro tunnel-id?         uint16
+      |  |  |  +--ro tunnel-sharing?    boolean
       |  |  +--ro admin-status?                     te-types:te-admin-status
       |  |  +--ro link-index?                       uint64
       |  |  +--ro administrative-group?             te-types:admin-groups
@@ -708,7 +909,9 @@ augment /nw:networks/nw:network/nt:link:
       |  |  +--ro te-default-metric?                uint32
       |  |  +--ro te-delay-metric?                  uint32
       |  |  +--ro te-srlgs
-      |  |     +--ro value*   te-types:srlg
+      |  |  |  +--ro value*   te-types:srlg
+      |  |  +--ro te-nsrlgs {nsrlg}?
+      |  |     +--ro id*   uint32
       |  +--ro oper-status?                te-types:te-oper-status
       |  +--ro is-transitional?            empty
       |  +--ro information-source?         te-info-source
@@ -717,11 +920,8 @@ augment /nw:networks/nw:network/nt:link:
       |  |  +--ro logical-network-element?   string
       |  |  +--ro network-instance?          string
       |  |  +--ro topology
-      |  |     +--ro provider-ref?      leafref
-      |  |     +--ro client-ref?        leafref
-      |  |     +--ro te-topology-ref?   leafref
-      |  |     +--ro network-ref?       leafref
-      |  |     +--ro link-ref?          leafref
+      |  |     +--ro network-ref?   leafref
+      |  |     +--ro link-ref?      leafref
       |  +--ro information-source-entry* [information-source]
       |  |  +--ro information-source                te-info-source
       |  |  +--ro information-source-state
@@ -729,11 +929,8 @@ augment /nw:networks/nw:network/nt:link:
       |  |  |  +--ro logical-network-element?   string
       |  |  |  +--ro network-instance?          string
       |  |  |  +--ro topology
-      |  |  |     +--ro provider-ref?      leafref
-      |  |  |     +--ro client-ref?        leafref
-      |  |  |     +--ro te-topology-ref?   leafref
-      |  |  |     +--ro network-ref?       leafref
-      |  |  |     +--ro link-ref?          leafref
+      |  |  |     +--ro network-ref?   leafref
+      |  |  |     +--ro link-ref?      leafref
       |  |  +--ro link-index?                       uint64
       |  |  +--ro administrative-group?             te-types:admin-groups
       |  |  +--ro interface-switching-capability* [switching-capability]
@@ -751,14 +948,15 @@ augment /nw:networks/nw:network/nt:link:
       |  |  +--ro te-default-metric?                uint32
       |  |  +--ro te-delay-metric?                  uint32
       |  |  +--ro te-srlgs
-      |  |     +--ro value*   te-types:srlg
+      |  |  |  +--ro value*   te-types:srlg
+      |  |  +--ro te-nsrlgs {nsrlg}?
+      |  |     +--ro id*   uint32
       |  +--ro recovery
       |  |  +--ro restoration-status?   te-types:te-recovery-status
       |  |  +--ro protection-status?    te-types:te-recovery-status
       |  +--ro underlay {te-topology-hierarchy}?
       |     +--ro dynamic?     boolean
       |     +--ro committed?   boolean
-      |     +--ro tunnel-id?   uint16
       +--ro statistics
          +--ro discontinuity-time                 yang:date-and-time
          +--ro disables?                          yang:counter32
