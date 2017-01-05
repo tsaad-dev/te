@@ -12,6 +12,10 @@ module ietf-mpls {
     prefix "if";
   }
 
+  import ietf-yang-types {
+    prefix "yang";
+  }
+
   import ietf-inet-types {
     prefix inet;
   }
@@ -133,9 +137,9 @@ module ietf-mpls {
       "The MPLS operation to be executed on the incoming packet";
   }
 
-  grouping nhlfe-properties {
+  grouping nhlfe-contents {
     description
-      "MPLS NHLFE properties";
+      "MPLS NHLFE contents";
     leaf index {
       type string;
       description
@@ -192,32 +196,38 @@ module ietf-mpls {
     }
   }
 
+  grouping ilm-contents {
+    description "ILM entry contents grouping";
+    leaf label {
+      type mpls-label;
+      description "The ILM label";
+    }
+    leaf incoming-interface {
+      type if:interface-ref;
+      description
+        "Optional incoming interface if restricted to traffic incoming
+         on a specific interface";
+    }
+    leaf-list nhlfes {
+      type leafref {
+        path "../../nhlfe-table/index";
+      }
+      min-elements "1";
+      description "The list of referenced NHLFE(s)";
+    }
+  }
+
   grouping ilm-table {
     description "The Incoming Label Map table grouping";
     list ilm-table {
       key "label";
       description "The Incoming Label Map table";
-      leaf label {
-        type mpls-label;
-        description "The ILM label";
-      }
-      leaf incoming-interface {
-        type if:interface-ref;
-        description
-          "Optional incoming interface if restricted to traffic incoming
-           on a specific interface";
-      }
-      leaf-list nhlfes {
-        type leafref {
-          path "../../nhlfe-table/index";
-        }
-        min-elements "1";
-        description "The list of referenced NHLFE(s)";
-      }
+      uses ilm-contents;
+      uses route-metadata;
     }
   }
 
-  grouping fec-properties {
+  grouping fec-contents {
     description "Table of FECs";
     choice type {
       description
@@ -255,36 +265,68 @@ module ietf-mpls {
     list nhlfe-table {
       key index;
       description "NHLFE table";
-      uses nhlfe-properties;
+      uses nhlfe-contents;
+    }
+  }
+
+  grouping ftn-contents {
+    description "The FEC-to-NHLFE entry contents";
+    leaf index {
+      type string;
+      description
+        "A user-specified identifier utilised to uniquely
+         reference the backup next-hop entry in the NHLFE list.
+         The value of this index has no semantic meaning
+         other than for referencing the entry.";
+    }
+    uses fec-contents;
+    leaf-list nhlfes {
+      type leafref {
+        path "../../nhlfe-table/index";
+      }
+      min-elements "1";
+      description "The list of referenced NHLFE(s)";
     }
   }
 
   grouping ftn-table {
     description "FTN table grouping";
     list ftn-table {
-      key index;
-      description "NHLFE table";
-      leaf index {
-        type string;
-        description
-          "A user-specified identifier utilised to uniquely
-           reference the backup next-hop entry in the NHLFE list.
-           The value of this index has no semantic meaning
-           other than for referencing the entry.";
-      }
-      uses fec-properties;
-      leaf-list nhlfes {
-        type leafref {
-          path "../../nhlfe-table/index";
-        }
-        min-elements "1";
-        description "The list of referenced NHLFE(s)";
-      }
+      key "index";
+      description
+        "The MPLS Next-hop Label Forwarding Entries table";
+      uses ftn-contents;
+      uses route-metadata;
+    }
+  }
+
+  grouping route-metadata {
+    description
+     "Common route metadata.";
+    leaf source-protocol {
+     type string;
+     description
+       "Type of the routing protocol from which the route
+        originated.";
+    }
+    leaf active {
+     type empty;
+     description
+       "Presence of this leaf indicates that the route is preferred
+        among all routes in the same RIB that have the same
+        destination prefix.";
+    }
+    leaf last-updated {
+     type yang:date-and-time;
+     description
+       "Time stamp of the last modification of the route. If the
+        route was never modified, it is the time when the route was
+        inserted into the RIB.";
     }
   }
 
   grouping interface-mpls {
-    description "MPLS interface properties grouping";
+    description "MPLS interface contents grouping";
     leaf enabled {
       type boolean;
       description
