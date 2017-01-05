@@ -12,6 +12,14 @@ module ietf-mpls {
     prefix "if";
   }
 
+  import ietf-inet-types {
+    prefix inet;
+  }
+
+  import ietf-te {
+    prefix te;
+  }
+
   organization "IETF MPLS Working Group";
 
   contact
@@ -77,6 +85,204 @@ module ietf-mpls {
       "The MPLS label range";
   }
 
+  typedef nhlfe-role {
+    type enumeration {
+      enum PRIMARY {
+        description
+          "Next-hop acts as primary traffic carrying";
+      }
+      enum BACKUP {
+        description
+          "Next-hop acts as backup";
+      }
+      enum PRIMARY_AND_BACKUP {
+        description
+          "Next-hop acts as primary and backup simultaneously";
+      }
+    }
+    description "The next-hop role";
+  }
+
+  typedef label-operation {
+    type enumeration {
+      enum impose-and-forward {
+        description
+          "Operation impose outgoing label(s) and forward to
+           next-hop";
+      }
+      enum pop-and-forward {
+        description
+          "Operation pop incoming label and forward to next-hop";
+      }
+      enum pop-impose-and-forward {
+        description
+          "Operation pop incoming label, impose one or more
+           outgoing label(s) and forward to next-hop";
+      }
+      enum swap-and-forward {
+        description
+          "Operation swap incoming label, with outgoing label and
+           forward to next-hop";
+      }
+      enum pop-and-lookup {
+        description
+          "Operation pop incoming label and perform a lookup";
+      }
+    }
+    description
+      "The MPLS operation to be executed on the incoming packet";
+  }
+
+  grouping nhlfe-properties {
+    description
+      "MPLS NHLFE properties";
+    leaf index {
+      type string;
+      description
+        "A user-specified identifier utilised to uniquely
+         reference the next-hop entry in the next-hop list.
+         The value of this index has no semantic meaning
+         other than for referencing the entry.";
+    }
+
+    leaf backup-index {
+      type string;
+      description
+        "A user-specified identifier utilised to uniquely
+         reference the backup next-hop entry in the NHLFE list.
+         The value of this index has no semantic meaning
+         other than for referencing the entry.";
+    }
+
+    leaf next-hop {
+      type inet:ip-address;
+      description
+        "The IP address of the next-hop";
+    }
+
+    leaf operation {
+      type label-operation;
+      description
+        "The MPLS label operation to be executed on the incoming packet";
+    }
+
+    leaf-list labels {
+      type mpls-label;
+      description "The MPLS label stack";
+    }
+
+    leaf outgoing-interface {
+      type if:interface-ref;
+      description
+        "The outgoing interface";
+    }
+
+    leaf loadshare {
+      type uint16;
+      description
+        "This value is used to compute a loadshare to perform un-equal
+         load balancing when multiple outgoing next-hop(s) are specified. A
+         share is computed as a ratio of this number to the total under
+         all next-hops(s).";
+    }
+
+    leaf role {
+      type nhlfe-role;
+      description "NHLFE role";
+    }
+  }
+
+  grouping ilm-table {
+    description "The Incoming Label Map table grouping";
+    list ilm-table {
+      key "label";
+      description "The Incoming Label Map table";
+      leaf label {
+        type mpls-label;
+        description "The ILM label";
+      }
+      leaf incoming-interface {
+        type if:interface-ref;
+        description
+          "Optional incoming interface if restricted to traffic incoming
+           on a specific interface";
+      }
+      leaf-list nhlfes {
+        type leafref {
+          path "../../nhlfe-table/index";
+        }
+        min-elements "1";
+        description "The list of referenced NHLFE(s)";
+      }
+    }
+  }
+
+  grouping fec-properties {
+    description "Table of FECs";
+    choice type {
+      description
+        "Basic FEC choice";
+      case ip-prefix {
+        leaf ip-prefix {
+          type inet:ip-prefix;
+          description "An IP prefix";
+        }
+      }
+      case mpls-label {
+        leaf incoming-label {
+          type mpls-label;
+          description "label value on the incoming packet";
+        }
+      }
+      case tunnel {
+        leaf tunnel {
+          type te:tunnel-ref;
+          description "TE tunnel FEC mapping";
+        }
+      }
+    }
+
+    leaf incoming-interface {
+      type if:interface-ref;
+      description
+        "Optional incoming interface if FEC is restricted
+         to traffic incoming on a specific interface";
+    }
+  }
+
+  grouping nhlfe-table {
+    description "NHLFE table grouping";
+    list nhlfe-table {
+      key index;
+      description "NHLFE table";
+      uses nhlfe-properties;
+    }
+  }
+
+  grouping ftn-table {
+    description "FTN table grouping";
+    list ftn-table {
+      key index;
+      description "NHLFE table";
+      leaf index {
+        type string;
+        description
+          "A user-specified identifier utilised to uniquely
+           reference the backup next-hop entry in the NHLFE list.
+           The value of this index has no semantic meaning
+           other than for referencing the entry.";
+      }
+      uses fec-properties;
+      leaf-list nhlfes {
+        type leafref {
+          path "../../nhlfe-table/index";
+        }
+        min-elements "1";
+        description "The list of referenced NHLFE(s)";
+      }
+    }
+  }
+
   grouping interface-mpls {
     description "MPLS interface properties grouping";
     leaf enabled {
@@ -93,6 +299,20 @@ module ietf-mpls {
     }
   }
 
+  grouping interfaces-mpls {
+    description "List of MPLS interfaces";
+    list interface {
+      key "name";
+      description "List of MPLS interfaces";
+      leaf name {
+        type if:interface-ref;
+        description
+          "The name of a configured MPLS interface";
+      }
+      uses interface-mpls;
+    }
+  }
+
   augment "/rt:routing" {
     description "MPLS augmentation.";
     container mpls {
@@ -100,25 +320,7 @@ module ietf-mpls {
         "MPLS container, to be used as an augmentation target node
          other MPLS sub-features config, e.g. MPLS static LSP, MPLS
          LDP LSPs, and Trafic Engineering MPLS LSP Tunnels, etc.";
-
-      list interface {
-        key "name";
-        description "List of MPLS interfaces";
-        leaf name {
-          type if:interface-ref;
-          description
-            "The name of a configured MPLS interface";
-        }
-        container config {
-          description "Holds intended configuration";
-          uses interface-mpls;
-        }
-        container state {
-          config false;
-          description "Holds inuse configuration";
-          uses interface-mpls;
-        }
-      }
+      uses interfaces-mpls;
     }
   }
 
@@ -129,6 +331,10 @@ module ietf-mpls {
       description
         "MPLS container, to be used as an augmentation target node
          other MPLS sub-features state";
+      uses interfaces-mpls;
+      uses nhlfe-table;
+      uses ilm-table;
+      uses ftn-table;
     }
   }
 }
