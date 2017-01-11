@@ -58,7 +58,7 @@ module ietf-te-topology {
 
   description "TE topology model";
 
-  revision "2016-12-16" {
+  revision "2017-01-09" {
     description "Initial revision";
     reference "TBD";
   }
@@ -716,6 +716,12 @@ module ietf-te-topology {
       "Augmentation for TE link.";
 
     container te {
+      must "count(../nt:supporting-link)<=1" {
+        description
+          "For a link in a TE topology, there cannot be more
+           than 1 supporting link. If one or more link paths are
+           abstracted, the underlay is used.";
+      }
       presence "TE support.";
       description
         "Indicates TE support.";
@@ -1234,7 +1240,16 @@ module ietf-te-topology {
     }
 
     container te {
-      must "../te-node-id";
+      must "../te-node-id" {
+        description
+          "te-node-id is mandatory.";
+      }
+      must "count(../nw:supporting-node)<=1" {
+        description
+          "For a node in a TE topology, there cannot be more
+           than 1 supporting node. If multiple nodes are abstracted,
+           the underlay-topology is used.";
+      }
       presence "TE support.";
       description
         "Indicates TE support.";
@@ -1291,19 +1306,10 @@ module ietf-te-topology {
         
         // Relations to other tunnel termination points
         list supporting-tunnel-termination-point {
-          key "network-ref node-ref tunnel-tp-ref";
+          key "node-ref tunnel-tp-ref";
           description
             "Identifies the tunnel termination points, that this
              tunnel termination point is depending on.";
-          leaf network-ref {
-            type leafref {
-              path "../../../../nw:supporting-node/nw:network-ref";
-              require-instance false;
-            }
-            description
-              "This leaf identifies in which topology the
-               supporting tunnel termination point is present.";
-          }
           leaf node-ref {
             type leafref {
               path "../../../../nw:supporting-node/nw:node-ref";
@@ -1316,7 +1322,9 @@ module ietf-te-topology {
           leaf tunnel-tp-ref {
             type leafref {
               path "/nw:networks/nw:network"+
-                "[nw:network-id=current()/../network-ref]/"+
+                "[nw:network-id="+
+                "current()/../../../../nw:supporting-node/"+
+                "nw:network-ref]/"+
                 "nw:node[nw:node-id=current()/../node-ref]/te/"+
                 "tunnel-termination-point/tunnel-tp-id";
               require-instance false;
