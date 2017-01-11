@@ -58,7 +58,7 @@ module ietf-te-topology {
 
   description "TE topology model";
 
-  revision "2017-01-09" {
+  revision "2017-01-10" {
     description "Initial revision";
     reference "TBD";
   }
@@ -251,6 +251,7 @@ module ietf-te-topology {
       
       uses te-link-underlay-attributes;
     } // underlay
+    uses te-link-iscd-attributes;
     uses te-link-connectivity-attributes;
   } // connectivity-matrix-entry-attributes
 
@@ -1612,31 +1613,45 @@ module ietf-te-topology {
          is capable of.";
     }
 
-    list local-link-connectivity {
-      key "link-tp-ref";
+    container local-link-connectivities {
       description
-        "The termination capabilities between
-         tunnel-termination-point and link termination-point.
-         The capability information can be used to compute
-         the tunnel path.
-         The Interface Adjustment Capability Descriptors (IACD)
-         [RFC6001] on each link-tp can be derived from this
-         local-link-connectivity list.";
-      reference
-        "RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
-         for Multi-Layer and Multi-Region Networks (MLN/MRN).";
-      leaf link-tp-ref {
-        type leafref {
-          path "../../../../../nt:termination-point/nt:tp-id";
-        }
+        "Containing local link connectivity list for
+         a tunnel termination point on a TE node.";
+      leaf number-of-entries {
+        type uint16;
         description
-          "Link termination point.";
+          "The number of local link connectivity list entries.
+           If this number is speficied in the configuration request,
+           the number is requested number of entries, which may not
+           all be listed in the list;
+           if this number is reported in the state data,
+           the number is the current number of operational entries.";
       }
-
-      uses connectivity-label-restriction-list;
-      uses te-link-iscd-attributes;
-      uses te-link-connectivity-attributes;
-    } // local-link-connectivity
+      uses connectivity-matrix-entry-attributes;
+      list local-link-connectivity {
+        key "link-tp-ref";
+        description
+          "The termination capabilities between
+           tunnel-termination-point and link termination-point.
+           The capability information can be used to compute
+           the tunnel path.
+           The Interface Adjustment Capability Descriptors (IACD)
+           [RFC6001] on each link-tp can be derived from this
+           local-link-connectivity list.";
+        reference
+          "RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
+           for Multi-Layer and Multi-Region Networks (MLN/MRN).";
+        leaf link-tp-ref {
+          type leafref {
+            path "../../../../../../nt:termination-point/nt:tp-id";
+          }
+          description
+            "Link termination point.";
+        }
+        
+        uses connectivity-matrix-entry-attributes;
+      } // local-link-connectivity
+    } // local-link-connectivities
   } // te-node-tunnel-termination-attributes
 
   grouping te-path-element {

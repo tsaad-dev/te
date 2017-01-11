@@ -192,6 +192,9 @@ augment /nw:networks/nw:network/nw:node:
       |     |  |  |  +--rw network-ref?     leafref
       |     |  |  +--rw tunnel-id?         uint16
       |     |  |  +--rw tunnel-sharing?    boolean
+      |     |  +--rw max-lsp-bandwidth* [priority]
+      |     |  |  +--rw priority     uint8
+      |     |  |  +--rw bandwidth?   te-bandwidth
       |     |  +--rw max-link-bandwidth?        te-bandwidth
       |     |  +--rw max-resv-link-bandwidth?   te-bandwidth
       |     |  +--rw unreserved-bandwidth* [priority]
@@ -268,6 +271,9 @@ augment /nw:networks/nw:network/nw:node:
       |     |     |  |  +--rw network-ref?     leafref
       |     |     |  +--rw tunnel-id?         uint16
       |     |     |  +--rw tunnel-sharing?    boolean
+      |     |     +--rw max-lsp-bandwidth* [priority]
+      |     |     |  +--rw priority     uint8
+      |     |     |  +--rw bandwidth?   te-bandwidth
       |     |     +--rw max-link-bandwidth?        te-bandwidth
       |     |     +--rw max-resv-link-bandwidth?   te-bandwidth
       |     |     +--rw unreserved-bandwidth* [priority]
@@ -350,6 +356,9 @@ augment /nw:networks/nw:network/nw:node:
       |  |  |  |  |  +--ro network-ref?     leafref
       |  |  |  |  +--ro tunnel-id?         uint16
       |  |  |  |  +--ro tunnel-sharing?    boolean
+      |  |  |  +--ro max-lsp-bandwidth* [priority]
+      |  |  |  |  +--ro priority     uint8
+      |  |  |  |  +--ro bandwidth?   te-bandwidth
       |  |  |  +--ro max-link-bandwidth?        te-bandwidth
       |  |  |  +--ro max-resv-link-bandwidth?   te-bandwidth
       |  |  |  +--ro unreserved-bandwidth* [priority]
@@ -426,6 +435,9 @@ augment /nw:networks/nw:network/nw:node:
       |  |  |     |  |  +--ro network-ref?     leafref
       |  |  |     |  +--ro tunnel-id?         uint16
       |  |  |     |  +--ro tunnel-sharing?    boolean
+      |  |  |     +--ro max-lsp-bandwidth* [priority]
+      |  |  |     |  +--ro priority     uint8
+      |  |  |     |  +--ro bandwidth?   te-bandwidth
       |  |  |     +--ro max-link-bandwidth?        te-bandwidth
       |  |  |     +--ro max-resv-link-bandwidth?   te-bandwidth
       |  |  |     +--ro unreserved-bandwidth* [priority]
@@ -527,6 +539,9 @@ augment /nw:networks/nw:network/nw:node:
       |     |  |  |  +--ro network-ref?     leafref
       |     |  |  +--ro tunnel-id?         uint16
       |     |  |  +--ro tunnel-sharing?    boolean
+      |     |  +--ro max-lsp-bandwidth* [priority]
+      |     |  |  +--ro priority     uint8
+      |     |  |  +--ro bandwidth?   te-bandwidth
       |     |  +--ro max-link-bandwidth?        te-bandwidth
       |     |  +--ro max-resv-link-bandwidth?   te-bandwidth
       |     |  +--ro unreserved-bandwidth* [priority]
@@ -603,6 +618,9 @@ augment /nw:networks/nw:network/nw:node:
       |     |     |  |  +--ro network-ref?     leafref
       |     |     |  +--ro tunnel-id?         uint16
       |     |     |  +--ro tunnel-sharing?    boolean
+      |     |     +--ro max-lsp-bandwidth* [priority]
+      |     |     |  +--ro priority     uint8
+      |     |     |  +--ro bandwidth?   te-bandwidth
       |     |     +--ro max-link-bandwidth?        te-bandwidth
       |     |     +--ro max-resv-link-bandwidth?   te-bandwidth
       |     |     +--ro unreserved-bandwidth* [priority]
@@ -637,17 +655,71 @@ augment /nw:networks/nw:network/nw:node:
       +--rw tunnel-termination-point* [tunnel-tp-id]
          +--rw tunnel-tp-id                           binary
          +--rw config
-         |  +--rw switching-capability?      identityref
-         |  +--rw encoding?                  identityref
-         |  +--rw inter-layer-lock-id?       uint32
-         |  +--rw protection-type?           identityref
-         |  +--rw local-link-connectivity* [link-tp-ref]
-         |     +--rw link-tp-ref                leafref
+         |  +--rw switching-capability?        identityref
+         |  +--rw encoding?                    identityref
+         |  +--rw inter-layer-lock-id?         uint32
+         |  +--rw protection-type?             identityref
+         |  +--rw local-link-connectivities
+         |     +--rw number-of-entries?         uint16
+         |     +--rw is-allowed?                boolean
          |     +--rw label-restriction* [inclusive-exclusive label-start]
          |     |  +--rw inclusive-exclusive    enumeration
          |     |  +--rw label-start            te-types:generalized-label
          |     |  +--rw label-end?             te-types:generalized-label
          |     |  +--rw range-bitmap?          binary
+         |     +--rw underlay! {te-topology-hierarchy}?
+         |     |  +--rw primary-path
+         |     |  |  +--rw network-ref?    leafref
+         |     |  |  +--rw path-element* [path-element-id]
+         |     |  |     +--rw path-element-id     uint32
+         |     |  |     +--rw (type)?
+         |     |  |        +--:(ipv4-address)
+         |     |  |        |  +--rw v4-address?         inet:ipv4-address
+         |     |  |        |  +--rw v4-prefix-length?   uint8
+         |     |  |        |  +--rw v4-loose?           boolean
+         |     |  |        +--:(ipv6-address)
+         |     |  |        |  +--rw v6-address?         inet:ipv6-address
+         |     |  |        |  +--rw v6-prefix-length?   uint8
+         |     |  |        |  +--rw v6-loose?           boolean
+         |     |  |        +--:(as-number)
+         |     |  |        |  +--rw as-number?          uint16
+         |     |  |        +--:(unnumbered-link)
+         |     |  |        |  +--rw router-id?          inet:ip-address
+         |     |  |        |  +--rw interface-id?       uint32
+         |     |  |        +--:(label)
+         |     |  |           +--rw value?              uint32
+         |     |  +--rw backup-path* [index]
+         |     |  |  +--rw index           uint32
+         |     |  |  +--rw network-ref?    leafref
+         |     |  |  +--rw path-element* [path-element-id]
+         |     |  |     +--rw path-element-id     uint32
+         |     |  |     +--rw (type)?
+         |     |  |        +--:(ipv4-address)
+         |     |  |        |  +--rw v4-address?         inet:ipv4-address
+         |     |  |        |  +--rw v4-prefix-length?   uint8
+         |     |  |        |  +--rw v4-loose?           boolean
+         |     |  |        +--:(ipv6-address)
+         |     |  |        |  +--rw v6-address?         inet:ipv6-address
+         |     |  |        |  +--rw v6-prefix-length?   uint8
+         |     |  |        |  +--rw v6-loose?           boolean
+         |     |  |        +--:(as-number)
+         |     |  |        |  +--rw as-number?          uint16
+         |     |  |        +--:(unnumbered-link)
+         |     |  |        |  +--rw router-id?          inet:ip-address
+         |     |  |        |  +--rw interface-id?       uint32
+         |     |  |        +--:(label)
+         |     |  |           +--rw value?              uint32
+         |     |  +--rw protection-type?   uint16
+         |     |  +--rw tunnel-src
+         |     |  |  +--rw tunnel-tp-ref?   leafref
+         |     |  |  +--rw node-ref?        leafref
+         |     |  |  +--rw network-ref?     leafref
+         |     |  +--rw tunnel-des
+         |     |  |  +--rw tunnel-tp-ref?   leafref
+         |     |  |  +--rw node-ref?        leafref
+         |     |  |  +--rw network-ref?     leafref
+         |     |  +--rw tunnel-id?         uint16
+         |     |  +--rw tunnel-sharing?    boolean
          |     +--rw max-lsp-bandwidth* [priority]
          |     |  +--rw priority     uint8
          |     |  +--rw bandwidth?   te-bandwidth
@@ -661,19 +733,148 @@ augment /nw:networks/nw:network/nw:node:
          |     +--rw te-srlgs
          |     |  +--rw value*   te-types:srlg
          |     +--rw te-nsrlgs {nsrlg}?
-         |        +--rw id*   uint32
+         |     |  +--rw id*   uint32
+         |     +--rw local-link-connectivity* [link-tp-ref]
+         |        +--rw link-tp-ref                leafref
+         |        +--rw is-allowed?                boolean
+         |        +--rw label-restriction* [inclusive-exclusive label-start]
+         |        |  +--rw inclusive-exclusive    enumeration
+         |        |  +--rw label-start            te-types:generalized-label
+         |        |  +--rw label-end?             te-types:generalized-label
+         |        |  +--rw range-bitmap?          binary
+         |        +--rw underlay! {te-topology-hierarchy}?
+         |        |  +--rw primary-path
+         |        |  |  +--rw network-ref?    leafref
+         |        |  |  +--rw path-element* [path-element-id]
+         |        |  |     +--rw path-element-id     uint32
+         |        |  |     +--rw (type)?
+         |        |  |        +--:(ipv4-address)
+         |        |  |        |  +--rw v4-address?         inet:ipv4-address
+         |        |  |        |  +--rw v4-prefix-length?   uint8
+         |        |  |        |  +--rw v4-loose?           boolean
+         |        |  |        +--:(ipv6-address)
+         |        |  |        |  +--rw v6-address?         inet:ipv6-address
+         |        |  |        |  +--rw v6-prefix-length?   uint8
+         |        |  |        |  +--rw v6-loose?           boolean
+         |        |  |        +--:(as-number)
+         |        |  |        |  +--rw as-number?          uint16
+         |        |  |        +--:(unnumbered-link)
+         |        |  |        |  +--rw router-id?          inet:ip-address
+         |        |  |        |  +--rw interface-id?       uint32
+         |        |  |        +--:(label)
+         |        |  |           +--rw value?              uint32
+         |        |  +--rw backup-path* [index]
+         |        |  |  +--rw index           uint32
+         |        |  |  +--rw network-ref?    leafref
+         |        |  |  +--rw path-element* [path-element-id]
+         |        |  |     +--rw path-element-id     uint32
+         |        |  |     +--rw (type)?
+         |        |  |        +--:(ipv4-address)
+         |        |  |        |  +--rw v4-address?         inet:ipv4-address
+         |        |  |        |  +--rw v4-prefix-length?   uint8
+         |        |  |        |  +--rw v4-loose?           boolean
+         |        |  |        +--:(ipv6-address)
+         |        |  |        |  +--rw v6-address?         inet:ipv6-address
+         |        |  |        |  +--rw v6-prefix-length?   uint8
+         |        |  |        |  +--rw v6-loose?           boolean
+         |        |  |        +--:(as-number)
+         |        |  |        |  +--rw as-number?          uint16
+         |        |  |        +--:(unnumbered-link)
+         |        |  |        |  +--rw router-id?          inet:ip-address
+         |        |  |        |  +--rw interface-id?       uint32
+         |        |  |        +--:(label)
+         |        |  |           +--rw value?              uint32
+         |        |  +--rw protection-type?   uint16
+         |        |  +--rw tunnel-src
+         |        |  |  +--rw tunnel-tp-ref?   leafref
+         |        |  |  +--rw node-ref?        leafref
+         |        |  |  +--rw network-ref?     leafref
+         |        |  +--rw tunnel-des
+         |        |  |  +--rw tunnel-tp-ref?   leafref
+         |        |  |  +--rw node-ref?        leafref
+         |        |  |  +--rw network-ref?     leafref
+         |        |  +--rw tunnel-id?         uint16
+         |        |  +--rw tunnel-sharing?    boolean
+         |        +--rw max-lsp-bandwidth* [priority]
+         |        |  +--rw priority     uint8
+         |        |  +--rw bandwidth?   te-bandwidth
+         |        +--rw max-link-bandwidth?        te-bandwidth
+         |        +--rw max-resv-link-bandwidth?   te-bandwidth
+         |        +--rw unreserved-bandwidth* [priority]
+         |        |  +--rw priority     uint8
+         |        |  +--rw bandwidth?   te-bandwidth
+         |        +--rw te-default-metric?         uint32
+         |        +--rw te-delay-metric?           uint32
+         |        +--rw te-srlgs
+         |        |  +--rw value*   te-types:srlg
+         |        +--rw te-nsrlgs {nsrlg}?
+         |           +--rw id*   uint32
          +--ro state
-         |  +--ro switching-capability?      identityref
-         |  +--ro encoding?                  identityref
-         |  +--ro inter-layer-lock-id?       uint32
-         |  +--ro protection-type?           identityref
-         |  +--ro local-link-connectivity* [link-tp-ref]
-         |  |  +--ro link-tp-ref                leafref
+         |  +--ro switching-capability?        identityref
+         |  +--ro encoding?                    identityref
+         |  +--ro inter-layer-lock-id?         uint32
+         |  +--ro protection-type?             identityref
+         |  +--ro local-link-connectivities
+         |  |  +--ro number-of-entries?         uint16
+         |  |  +--ro is-allowed?                boolean
          |  |  +--ro label-restriction* [inclusive-exclusive label-start]
          |  |  |  +--ro inclusive-exclusive    enumeration
          |  |  |  +--ro label-start            te-types:generalized-label
          |  |  |  +--ro label-end?             te-types:generalized-label
          |  |  |  +--ro range-bitmap?          binary
+         |  |  +--ro underlay! {te-topology-hierarchy}?
+         |  |  |  +--ro primary-path
+         |  |  |  |  +--ro network-ref?    leafref
+         |  |  |  |  +--ro path-element* [path-element-id]
+         |  |  |  |     +--ro path-element-id     uint32
+         |  |  |  |     +--ro (type)?
+         |  |  |  |        +--:(ipv4-address)
+         |  |  |  |        |  +--ro v4-address?         inet:ipv4-address
+         |  |  |  |        |  +--ro v4-prefix-length?   uint8
+         |  |  |  |        |  +--ro v4-loose?           boolean
+         |  |  |  |        +--:(ipv6-address)
+         |  |  |  |        |  +--ro v6-address?         inet:ipv6-address
+         |  |  |  |        |  +--ro v6-prefix-length?   uint8
+         |  |  |  |        |  +--ro v6-loose?           boolean
+         |  |  |  |        +--:(as-number)
+         |  |  |  |        |  +--ro as-number?          uint16
+         |  |  |  |        +--:(unnumbered-link)
+         |  |  |  |        |  +--ro router-id?          inet:ip-address
+         |  |  |  |        |  +--ro interface-id?       uint32
+         |  |  |  |        +--:(label)
+         |  |  |  |           +--ro value?              uint32
+         |  |  |  +--ro backup-path* [index]
+         |  |  |  |  +--ro index           uint32
+         |  |  |  |  +--ro network-ref?    leafref
+         |  |  |  |  +--ro path-element* [path-element-id]
+         |  |  |  |     +--ro path-element-id     uint32
+         |  |  |  |     +--ro (type)?
+         |  |  |  |        +--:(ipv4-address)
+         |  |  |  |        |  +--ro v4-address?         inet:ipv4-address
+         |  |  |  |        |  +--ro v4-prefix-length?   uint8
+         |  |  |  |        |  +--ro v4-loose?           boolean
+         |  |  |  |        +--:(ipv6-address)
+         |  |  |  |        |  +--ro v6-address?         inet:ipv6-address
+         |  |  |  |        |  +--ro v6-prefix-length?   uint8
+         |  |  |  |        |  +--ro v6-loose?           boolean
+         |  |  |  |        +--:(as-number)
+         |  |  |  |        |  +--ro as-number?          uint16
+         |  |  |  |        +--:(unnumbered-link)
+         |  |  |  |        |  +--ro router-id?          inet:ip-address
+         |  |  |  |        |  +--ro interface-id?       uint32
+         |  |  |  |        +--:(label)
+         |  |  |  |           +--ro value?              uint32
+         |  |  |  +--ro protection-type?   uint16
+         |  |  |  +--ro tunnel-src
+         |  |  |  |  +--ro tunnel-tp-ref?   leafref
+         |  |  |  |  +--ro node-ref?        leafref
+         |  |  |  |  +--ro network-ref?     leafref
+         |  |  |  +--ro tunnel-des
+         |  |  |  |  +--ro tunnel-tp-ref?   leafref
+         |  |  |  |  +--ro node-ref?        leafref
+         |  |  |  |  +--ro network-ref?     leafref
+         |  |  |  +--ro tunnel-id?         uint16
+         |  |  |  +--ro tunnel-sharing?    boolean
          |  |  +--ro max-lsp-bandwidth* [priority]
          |  |  |  +--ro priority     uint8
          |  |  |  +--ro bandwidth?   te-bandwidth
@@ -687,7 +888,82 @@ augment /nw:networks/nw:network/nw:node:
          |  |  +--ro te-srlgs
          |  |  |  +--ro value*   te-types:srlg
          |  |  +--ro te-nsrlgs {nsrlg}?
-         |  |     +--ro id*   uint32
+         |  |  |  +--ro id*   uint32
+         |  |  +--ro local-link-connectivity* [link-tp-ref]
+         |  |     +--ro link-tp-ref                leafref
+         |  |     +--ro is-allowed?                boolean
+         |  |     +--ro label-restriction* [inclusive-exclusive label-start]
+         |  |     |  +--ro inclusive-exclusive    enumeration
+         |  |     |  +--ro label-start            te-types:generalized-label
+         |  |     |  +--ro label-end?             te-types:generalized-label
+         |  |     |  +--ro range-bitmap?          binary
+         |  |     +--ro underlay! {te-topology-hierarchy}?
+         |  |     |  +--ro primary-path
+         |  |     |  |  +--ro network-ref?    leafref
+         |  |     |  |  +--ro path-element* [path-element-id]
+         |  |     |  |     +--ro path-element-id     uint32
+         |  |     |  |     +--ro (type)?
+         |  |     |  |        +--:(ipv4-address)
+         |  |     |  |        |  +--ro v4-address?         inet:ipv4-address
+         |  |     |  |        |  +--ro v4-prefix-length?   uint8
+         |  |     |  |        |  +--ro v4-loose?           boolean
+         |  |     |  |        +--:(ipv6-address)
+         |  |     |  |        |  +--ro v6-address?         inet:ipv6-address
+         |  |     |  |        |  +--ro v6-prefix-length?   uint8
+         |  |     |  |        |  +--ro v6-loose?           boolean
+         |  |     |  |        +--:(as-number)
+         |  |     |  |        |  +--ro as-number?          uint16
+         |  |     |  |        +--:(unnumbered-link)
+         |  |     |  |        |  +--ro router-id?          inet:ip-address
+         |  |     |  |        |  +--ro interface-id?       uint32
+         |  |     |  |        +--:(label)
+         |  |     |  |           +--ro value?              uint32
+         |  |     |  +--ro backup-path* [index]
+         |  |     |  |  +--ro index           uint32
+         |  |     |  |  +--ro network-ref?    leafref
+         |  |     |  |  +--ro path-element* [path-element-id]
+         |  |     |  |     +--ro path-element-id     uint32
+         |  |     |  |     +--ro (type)?
+         |  |     |  |        +--:(ipv4-address)
+         |  |     |  |        |  +--ro v4-address?         inet:ipv4-address
+         |  |     |  |        |  +--ro v4-prefix-length?   uint8
+         |  |     |  |        |  +--ro v4-loose?           boolean
+         |  |     |  |        +--:(ipv6-address)
+         |  |     |  |        |  +--ro v6-address?         inet:ipv6-address
+         |  |     |  |        |  +--ro v6-prefix-length?   uint8
+         |  |     |  |        |  +--ro v6-loose?           boolean
+         |  |     |  |        +--:(as-number)
+         |  |     |  |        |  +--ro as-number?          uint16
+         |  |     |  |        +--:(unnumbered-link)
+         |  |     |  |        |  +--ro router-id?          inet:ip-address
+         |  |     |  |        |  +--ro interface-id?       uint32
+         |  |     |  |        +--:(label)
+         |  |     |  |           +--ro value?              uint32
+         |  |     |  +--ro protection-type?   uint16
+         |  |     |  +--ro tunnel-src
+         |  |     |  |  +--ro tunnel-tp-ref?   leafref
+         |  |     |  |  +--ro node-ref?        leafref
+         |  |     |  |  +--ro network-ref?     leafref
+         |  |     |  +--ro tunnel-des
+         |  |     |  |  +--ro tunnel-tp-ref?   leafref
+         |  |     |  |  +--ro node-ref?        leafref
+         |  |     |  |  +--ro network-ref?     leafref
+         |  |     |  +--ro tunnel-id?         uint16
+         |  |     |  +--ro tunnel-sharing?    boolean
+         |  |     +--ro max-lsp-bandwidth* [priority]
+         |  |     |  +--ro priority     uint8
+         |  |     |  +--ro bandwidth?   te-bandwidth
+         |  |     +--ro max-link-bandwidth?        te-bandwidth
+         |  |     +--ro max-resv-link-bandwidth?   te-bandwidth
+         |  |     +--ro unreserved-bandwidth* [priority]
+         |  |     |  +--ro priority     uint8
+         |  |     |  +--ro bandwidth?   te-bandwidth
+         |  |     +--ro te-default-metric?         uint32
+         |  |     +--ro te-delay-metric?           uint32
+         |  |     +--ro te-srlgs
+         |  |     |  +--ro value*   te-types:srlg
+         |  |     +--ro te-nsrlgs {nsrlg}?
+         |  |        +--ro id*   uint32
          |  +--ro geolocation
          |     +--ro altitude?    int64
          |     +--ro latitude?    geographic-coordinate-degree
