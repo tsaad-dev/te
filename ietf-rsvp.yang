@@ -92,6 +92,28 @@ module ietf-rsvp {
     reference "NIST, FIPS PUB 180-1: Secure Hash Standard";
   }
 
+  identity reservation-style {
+    description "Base indentity for reservation style";
+  }
+
+  identity reservation-wildcard-filter {
+    base reservation-style;
+    description "Wildcard-Filter (WF) Style";
+    reference "RFC2205";
+  }
+
+  identity reservation-fixed-filter {
+    base reservation-style;
+    description "Fixed-Filter (FF) Style";
+    reference "RFC2205";
+  }
+
+  identity reservation-shared-explicit {
+    base reservation-style;
+    description "Shared Explicit (SE) Style";
+    reference "RFC2205";
+  }
+
   grouping graceful-restart_config {
     description
       "Base configuration parameters relating to RSVP
@@ -212,15 +234,105 @@ module ietf-rsvp {
   grouping session-attributes {
     description
       "Top level grouping for RSVP session properties";
-    container config {
+    leaf psb-count {
+      type uint32;
       description
-        "Configuration for session properties";
+        "Number of Path State Block associated with this
+         session";
     }
-    container state {
-      config false;
+    leaf rsb-count {
+      type uint32;
       description
-        "State information associated with RSVP
-         session properties";
+        "Number of Reservation State Block associated with
+         this session";
+    }
+    container psbs {
+      description "Path State Block container";
+      list psb {
+        description "List of path state blocks";
+        leaf source-port {
+          type uint16;
+          description "RSVP source port";
+          reference "RFC2205";
+        }
+        leaf tspec-avg-rate {
+          type uint32;
+          description "Tspec Token Bucket Average Rate";
+          reference "RFC2210";
+        }
+        leaf tspec-burst {
+          type uint32;
+          description "Tspec Token Bucket Burst Rate";
+          reference "RFC2210";
+        }
+        leaf tspec-peak-rate {
+          type uint32;
+          description "Tspec Token Bucket Peak Data Rate";
+          reference "RFC2210";
+        }
+        leaf min-policed-unit {
+          type uint32;
+          description "Tspec Minimum Policed Unit";
+          reference "RFC2210";
+        }
+        leaf max-packet-size {
+          type uint32;
+          description "Tspec Maximum Packet Size";
+          reference "RFC2210";
+        }
+        leaf expires-in {
+          type uint32;
+          units seconds;
+          description "Time to reservation expiry (in seconds)";
+        }
+      }
+    }
+    container rsbs {
+      description "Reservation State Block container";
+      list rsb {
+        description "List of reservation state blocks";
+        leaf source-port {
+          type uint16;
+          description "RSVP source port";
+          reference "RFC2205";
+        }
+        leaf fspec-avg-rate {
+          type uint32;
+          description "Fspec Token Bucket Average Rate";
+          reference "RFC2210";
+        }
+        leaf fspec-burst {
+          type uint32;
+          description "Fspec Token Bucket Burst Rate";
+          reference "RFC2210";
+        }
+        leaf fspec-peak-rate {
+          type uint32;
+          description "Fspec Token Bucket Peak Data Rate";
+          reference "RFC2210";
+        }
+        leaf min-policed-unit {
+          type uint32;
+          description "Fspec Minimum Policed Unit";
+          reference "RFC2210";
+        }
+        leaf max-packet-size {
+          type uint32;
+          description "Fspec Maximum Packet Size";
+          reference "RFC2210";
+        }
+        leaf reservation-style {
+          type identityref {
+            base reservation-style;
+          }
+          description "RSVP reservation style";
+        }
+        leaf expires-in {
+          type uint32;
+          units seconds;
+          description "Time to reservation expiry (in seconds)";
+        }
+      }
     }
   }
 
@@ -686,11 +798,6 @@ module ietf-rsvp {
         list session {
           description
             "List of RSVP sessions";
-          leaf source-port {
-            type uint16;
-            description "RSVP source port";
-            reference "RFC2205";
-          }
           leaf destination-port {
             type uint16;
             description "RSVP destination port";
@@ -706,7 +813,7 @@ module ietf-rsvp {
             description "RSVP destination address";
             reference "RFC2205";
           }
-          // uses session-attributes;
+          uses session-attributes;
         }
       }
     }
