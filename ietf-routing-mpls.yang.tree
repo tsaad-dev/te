@@ -1,0 +1,135 @@
+module: ietf-routing
+   +--ro routing-state
+   |  +--ro router-id?                 yang:dotted-quad
+   |  +--ro interfaces
+   |  |  +--ro interface*   if:interface-state-ref
+   |  +--ro control-plane-protocols
+   |  |  +--ro control-plane-protocol* [type name]
+   |  |     +--ro type    identityref
+   |  |     +--ro name    string
+   |  +--ro ribs
+   |     +--ro rib* [name]
+   |        +--ro name              string
+   |        +--ro address-family    identityref
+   |        +--ro default-rib?      boolean {multiple-ribs}?
+   |        +--ro routes
+   |        |  +--ro route*
+   |        |     +--ro route-preference?          route-preference
+   |        |     +--ro next-hop
+   |        |     |  +--ro (next-hop-options)
+   |        |     |     +--:(simple-next-hop)
+   |        |     |     |  +--ro outgoing-interface?      if:interface-state-ref
+   |        |     |     |  +--ro v4ur:next-hop-address?   inet:ipv4-address
+   |        |     |     |  +--ro mpls:remote-labels*      mpls-label
+   |        |     |     |  +--ro mpls:operation?          label-operation
+   |        |     |     +--:(special-next-hop)
+   |        |     |     |  +--ro special-next-hop?        enumeration
+   |        |     |     +--:(next-hop-list)
+   |        |     |        +--ro next-hop-list
+   |        |     |           +--ro next-hop*
+   |        |     |              +--ro outgoing-interface?   if:interface-state-ref
+   |        |     |              +--ro v4ur:address?         inet:ipv4-address
+   |        |     |              +--ro mpls:index?           string
+   |        |     |              +--ro mpls:backup-index?    string
+   |        |     |              +--ro mpls:loadshare?       uint16
+   |        |     |              +--ro mpls:role?            nhlfe-role
+   |        |     |              +--ro mpls:remote-labels*   mpls-label
+   |        |     |              +--ro mpls:operation?       label-operation
+   |        |     +--ro source-protocol            identityref
+   |        |     +--ro active?                    empty
+   |        |     +--ro last-updated?              yang:date-and-time
+   |        |     +--ro v4ur:destination-prefix?   inet:ipv4-prefix
+   |        |     +--ro mpls:local-label?          mpls-label
+   |        +---x active-route
+   |           +---w input
+   |           |  +---w v4ur:destination-address?   inet:ipv4-address
+   |           |  +---w mpls:index?                 string
+   |           |  +---w mpls:backup-index?          string
+   |           |  +---w mpls:loadshare?             uint16
+   |           |  +---w mpls:role?                  nhlfe-role
+   |           |  +---w mpls:remote-labels*         mpls-label
+   |           |  +---w mpls:operation?             label-operation
+   |           +--ro output
+   |              +--ro route
+   |                 +--ro next-hop
+   |                 |  +--ro (next-hop-options)
+   |                 |     +--:(simple-next-hop)
+   |                 |     |  +--ro outgoing-interface?      if:interface-state-ref
+   |                 |     |  +--ro v4ur:next-hop-address?   inet:ipv4-address
+   |                 |     +--:(special-next-hop)
+   |                 |     |  +--ro special-next-hop?        enumeration
+   |                 |     +--:(next-hop-list)
+   |                 |        +--ro next-hop-list
+   |                 |           +--ro next-hop*
+   |                 |              +--ro outgoing-interface?      if:interface-state-ref
+   |                 |              +--ro v4ur:next-hop-address?   inet:ipv4-address
+   |                 +--ro source-protocol            identityref
+   |                 +--ro active?                    empty
+   |                 +--ro last-updated?              yang:date-and-time
+   |                 +--ro v4ur:destination-prefix?   inet:ipv4-prefix
+   |                 +--ro mpls:index?                string
+   |                 +--ro mpls:backup-index?         string
+   |                 +--ro mpls:loadshare?            uint16
+   |                 +--ro mpls:role?                 nhlfe-role
+   |                 +--ro mpls:remote-labels*        mpls-label
+   |                 +--ro mpls:operation?            label-operation
+   +--rw routing
+      +--rw router-id?                 yang:dotted-quad
+      +--rw control-plane-protocols
+      |  +--rw control-plane-protocol* [type name]
+      |     +--rw type             identityref
+      |     +--rw name             string
+      |     +--rw description?     string
+      |     +--rw static-routes
+      |        +--rw v4ur:ipv4
+      |           +--rw v4ur:route* [destination-prefix]
+      |              +--rw v4ur:destination-prefix    inet:ipv4-prefix
+      |              +--rw v4ur:description?          string
+      |              +--rw v4ur:next-hop
+      |                 +--rw (v4ur:next-hop-options)
+      |                    +--:(v4ur:simple-next-hop)
+      |                    |  +--rw v4ur:outgoing-interface?   if:interface-ref
+      |                    |  +--rw v4ur:next-hop-address?     inet:ipv4-address
+      |                    +--:(v4ur:special-next-hop)
+      |                    |  +--rw v4ur:special-next-hop?     enumeration
+      |                    +--:(v4ur:next-hop-list)
+      |                       +--rw v4ur:next-hop-list
+      |                          +--rw v4ur:next-hop* [index]
+      |                             +--rw v4ur:index                 string
+      |                             +--rw v4ur:outgoing-interface?   if:interface-ref
+      |                             +--rw v4ur:next-hop-address?     inet:ipv4-address
+      +--rw ribs
+      |  +--rw rib* [name]
+      |     +--rw name              string
+      |     +--rw address-family?   identityref
+      |     +--rw description?      string
+      +--rw mpls:mpls
+         +--rw mpls:config
+         |  +--rw mpls:ttl-propagate?   boolean
+         +--ro mpls:state
+         |  +--ro mpls:ttl-propagate?   boolean
+         +--rw mpls:label-blocks
+         |  +--rw mpls:label-block* [index]
+         |     +--rw mpls:index          -> ../config/index
+         |     +--rw mpls:start-label?   -> ../config/start-label
+         |     +--rw mpls:end-label?     -> ../config/end-label
+         |     +--rw mpls:config
+         |     |  +--rw mpls:index?                   string
+         |     |  +--rw mpls:start-label?             mpls-label
+         |     |  +--rw mpls:end-label?               mpls-label
+         |     |  +--rw mpls:block-allocation-mode?   identityref
+         |     +--ro mpls:state
+         |        +--ro mpls:index?                   string
+         |        +--ro mpls:start-label?             mpls-label
+         |        +--ro mpls:end-label?               mpls-label
+         |        +--ro mpls:block-allocation-mode?   identityref
+         |        +--ro mpls:free-labels-count?       uint32
+         |        +--ro mpls:inuse-labels-count?      uint32
+         +--rw mpls:interface* [name]
+            +--rw mpls:name      if:interface-ref
+            +--rw mpls:config
+            |  +--rw mpls:enabled?   boolean
+            |  +--rw mpls:mtu?       uint32
+            +--ro mpls:state
+               +--ro mpls:enabled?   boolean
+               +--ro mpls:mtu?       uint32
