@@ -16,6 +16,10 @@ module ietf-rsvp-extended {
     prefix "yang";
   }
 
+  import ietf-key-chain {
+    prefix "key-chain";
+  }
+
   organization
     "IETF Traffic Engineering Architecture and Signaling (TEAS)
      Working Group";
@@ -96,13 +100,13 @@ module ietf-rsvp-extended {
   feature refresh-reduction {
     description
       "Indicates support for RSVP refresh reduction 
-      (RFC2961).";
+       (RFC2961).";
   }
 
   feature refresh-reduction-extended {
     description
       "Indicates support for RSVP refresh reduction 
-      (RFC2961).";
+       (RFC2961).";
   }
 
   feature per-interface-statistics {
@@ -113,7 +117,7 @@ module ietf-rsvp-extended {
   grouping graceful-restart-extended_config {
     description
       "Configuration parameters relating to RSVP
-      Graceful-Restart";
+       Graceful-Restart";
     leaf restart-time {
       type uint32;
       units seconds;
@@ -121,11 +125,12 @@ module ietf-rsvp-extended {
         "Graceful restart time (seconds).";
       reference
         "RFC 5495: Description of the Resource
-        Reservation Protocol - Traffic-Engineered
-        (RSVP-TE) Graceful Restart Procedures";
+         Reservation Protocol - Traffic-Engineered
+         (RSVP-TE) Graceful Restart Procedures";
     }
     leaf recovery-time {
       type uint32;
+      units seconds;
       description
         "RSVP state recovery time";
     }
@@ -139,6 +144,7 @@ module ietf-rsvp-extended {
       type uint32 {
         range "30..86400";
       }
+			units seconds;
       description
         "Life time for each security association";
       reference
@@ -151,10 +157,10 @@ module ietf-rsvp-extended {
       }
       description
         "Window-size to limit number of out-of-order
-        messages.";
+         messages.";
       reference
         "RFC 2747: RSVP Cryptographic
-        Authentication";
+         Authentication";
     }
     leaf challenge {
       type empty;
@@ -162,7 +168,7 @@ module ietf-rsvp-extended {
         "Enable challenge messages.";
       reference
         "RFC 2747: RSVP Cryptographic
-        Authentication";
+         Authentication";
     }
     leaf retransmits {
       type uint32 {
@@ -170,45 +176,42 @@ module ietf-rsvp-extended {
       }
       description
         "Number of retransmits when messages are
-        dropped.";
+         dropped.";
       reference
         "RFC 2747: RSVP Cryptographic
-        Authentication";
+         Authentication";
     }
     leaf key-chain {
-      type string {
-        length "1..32";
-      }
+			type key-chain:key-chain-ref;
       description
         "Key chain name to authenticate RSVP
-        signaling messages.";
+         signaling messages.";
       reference
         "RFC 2747: RSVP Cryptographic
-        Authentication";
+         Authentication";
     }
   }
 
-  grouping rsvp-hellos-extended_config {
+  grouping hellos-extended_config {
     description
       "Configuration parameters relating to RSVP
-      hellos";
+       hellos";
     leaf interface-based {
       type empty;
-      description "Enable interface-based
-        Hello adjacency if present.";
+      description
+        "Enable interface-based Hello adjacency if present.";
     }
     leaf hello-interval {
       type uint32;
       units milliseconds;
       description
         "Configure interval between successive Hello
-        messages in milliseconds.";
+         messages in milliseconds.";
       reference
-        "RFC 3209: RSVP-TE: Extensions to RSVP for
-        LSP Tunnels.
-        RFC 5495: Description of the Resource
-        Reservation Protocol - Traffic-Engineered
-        (RSVP-TE) Graceful Restart Procedures";
+        "RFC 3209: RSVP-TE: Extensions to RSVP for LSP Tunnels.
+         RFC 5495: Description of the Resource
+         Reservation Protocol - Traffic-Engineered
+         (RSVP-TE) Graceful Restart Procedures";
     }
     leaf hello-misses {
       type uint32 {
@@ -216,20 +219,20 @@ module ietf-rsvp-extended {
       }
       description
         "Configure max number of consecutive missed
-        Hello messages.";
+         Hello messages.";
       reference
         "RFC 3209: RSVP-TE: Extensions to RSVP for
-        LSP Tunnels RFC 5495: Description of the
-        Resource Reservation Protocol - Traffic-
-        Engineered (RSVP-TE) Graceful Restart
-        Procedures";
+         LSP Tunnels RFC 5495: Description of the
+         Resource Reservation Protocol - Traffic-
+         Engineered (RSVP-TE) Graceful Restart
+         Procedures";
     }
   }
 
   grouping signaling-parameters-extended_config {
     description
       "Configuration parameters relating to RSVP
-      signaling";
+       signaling";
     leaf refresh-interval {
       type uint32;
       description
@@ -242,7 +245,7 @@ module ietf-rsvp-extended {
         messages for state expiry";
     }
     leaf checksum {
-      type uint32;
+      type boolean;
       description
         "Enable RSVP message checksum computation";
     }
@@ -389,7 +392,7 @@ module ietf-rsvp-extended {
   }
   augment "/rt:routing/rt:control-plane-protocols/" +
           "rt:control-plane-protocol/rsvp:rsvp/rsvp:globals/" +
-          "rsvp:state/rsvp:protocol-stats" {
+          "rsvp:state/rsvp:messages" {
     description
       "RSVP protocol message stats extensions";
     uses statistics-protocol-extended_state;
@@ -442,17 +445,17 @@ module ietf-rsvp-extended {
   /* RSVP hellos extension */
   augment "/rt:routing/rt:control-plane-protocols/"
       + "rt:control-plane-protocol/rsvp:rsvp/rsvp:interfaces/"
-      + "rsvp:config/rsvp:rsvp-hellos" {
+      + "rsvp:config/rsvp:hellos" {
     description
       "RSVP hello all interfaces configuration extensions";
-    uses rsvp-hellos-extended_config;
+    uses hellos-extended_config;
   }
   augment "/rt:routing/rt:control-plane-protocols/"
       + "rt:control-plane-protocol/rsvp:rsvp/rsvp:interfaces/"
-      + "rsvp:state/rsvp:rsvp-hellos" {
+      + "rsvp:state/rsvp:hellos" {
     description
       "RSVP hello all interfaces state extensions";
-    uses rsvp-hellos-extended_config;
+    uses hellos-extended_config;
   }
 
   /* RSVP authentication extension */
@@ -510,17 +513,17 @@ module ietf-rsvp-extended {
   /* RSVP hellos extension */
   augment "/rt:routing/rt:control-plane-protocols/"
       + "rt:control-plane-protocol/rsvp:rsvp/rsvp:interfaces/" +
-      "rsvp:interface/rsvp:config/rsvp:rsvp-hellos" {
+      "rsvp:interface/rsvp:config/rsvp:hellos" {
     description
       "RSVP hello interface configuration extensions";
-    uses rsvp-hellos-extended_config;
+    uses hellos-extended_config;
   }
   augment "/rt:routing/rt:control-plane-protocols/"
       + "rt:control-plane-protocol/rsvp:rsvp/rsvp:interfaces/" +
-      "rsvp:interface/rsvp:state/rsvp:rsvp-hellos" {
+      "rsvp:interface/rsvp:state/rsvp:hellos" {
     description
       "RSVP hello interface state extensions";
-    uses rsvp-hellos-extended_config;
+    uses hellos-extended_config;
   }
 
   /* RSVP authentication extension */

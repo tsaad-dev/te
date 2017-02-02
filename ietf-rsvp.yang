@@ -21,6 +21,10 @@ module ietf-rsvp {
     prefix "rt";
   }
 
+  import ietf-key-chain {
+    prefix "key-chain";
+  }
+
   organization
     "IETF Traffic Engineering Architecture and Signaling (TEAS)
      Working Group";
@@ -72,24 +76,19 @@ module ietf-rsvp {
     description "RSVP protocol";
   }
 
-  identity hash-algorithm {
+  /* IEEE float. To be moved to IETF types */
+  typedef ieeefloat32 {
+    type binary {
+      length "32";
+    }
     description
-      "Base identity for message-digest algorithm";
-  }
-
-  identity MD5 {
-    base hash-algorithm;
-    description
-      "MD5 hash algorithm";
-    reference "RFC1321";
-  }
-
-
-  identity SHA-1 {
-    base hash-algorithm;
-    description
-      "SHA-1 hash algorithm";
-    reference "NIST, FIPS PUB 180-1: Secure Hash Standard";
+      "An IEEE 32-bit floating point number. The format of this number
+      is of the form:
+        1-bit  sign
+        8-bit  exponent
+        24-bit fraction
+      The floating point value is calculated using:
+        (-1)**S * 2**(Exponent-127) * (1+Fraction)";
   }
 
   identity reservation-style {
@@ -172,18 +171,14 @@ module ietf-rsvp {
         "'true' if RSVP Authenticaiton is enabled.
          'false' if RSVP Authenticaiton is disabled.";
     }
-    leaf password {
+    leaf authentication-key {
       type string;
       description
         "An authentication key string";
+      reference
+        "RFC 2747: RSVP Cryptographic Authentication";
     }
-    leaf algorithm {
-      type identityref {
-        base hash-algorithm;
-      }
-      description
-        "Cryptographic hash algorithm";
-    }
+		uses key-chain:crypto-algorithm-types;
   }
 
   grouping authentication {
@@ -197,7 +192,7 @@ module ietf-rsvp {
     }
   }
 
-  grouping rsvp-hellos_config {
+  grouping hellos_config {
     description
       "Configuration parameters relating to RSVP
       hellos";
@@ -209,13 +204,13 @@ module ietf-rsvp {
     }
   }
 
-  grouping rsvp-hellos {
+  grouping hellos {
     description
       "Top level grouping for RSVP hellos parameters";
-    container rsvp-hellos {
+    container hellos {
       description
         "Top level container for RSVP hello parameters";
-      uses rsvp-hellos_config;
+      uses hellos_config;
     }
   }
 
@@ -234,14 +229,49 @@ module ietf-rsvp {
   grouping session-attributes {
     description
       "Top level grouping for RSVP session properties";
+
+    leaf destination-port {
+      type inet:port-number;
+      description "RSVP destination port";
+      reference "RFC2205";
+    }
+    leaf source {
+      type inet:ip-address;
+      description "RSVP source address";
+      reference "RFC2205";
+    }
+    leaf destination {
+      type inet:ip-address;
+      description "RSVP destination address";
+      reference "RFC2205";
+    }
+    leaf session-name {
+      type string;
+      description
+        "The signaled name of this RSVP session.";
+    }
+    leaf session-state {
+      type enumeration {
+        enum "up" {
+          description
+            "RSVP session is up";
+        }
+        enum "down" {
+          description
+            "RSVP session is down";
+        }
+      }
+      description
+        "Enumeration of RSVP session states";
+    }
     leaf psb-count {
-      type uint32;
+      type yang:counter32;
       description
         "Number of Path State Block associated with this
          session";
     }
     leaf rsb-count {
-      type uint32;
+      type yang:counter32;
       description
         "Number of Reservation State Block associated with
          this session";
@@ -251,22 +281,25 @@ module ietf-rsvp {
       list psb {
         description "List of path state blocks";
         leaf source-port {
-          type uint16;
+          type inet:port-number;
           description "RSVP source port";
           reference "RFC2205";
         }
-        leaf tspec-avg-rate {
-          type uint32;
+        leaf tspec-average-rate {
+          type ieeefloat32;
+          units "Bytes per second";
           description "Tspec Token Bucket Average Rate";
-          reference "RFC2210";
+          reference "RFC2210: RSVP with INTSERV";
         }
-        leaf tspec-burst {
-          type uint32;
+        leaf tspec-size {
+          type ieeefloat32;
+          units "Bytes per second";
           description "Tspec Token Bucket Burst Rate";
           reference "RFC2210";
         }
         leaf tspec-peak-rate {
-          type uint32;
+          type ieeefloat32;
+          units "Bytes per second";
           description "Tspec Token Bucket Peak Data Rate";
           reference "RFC2210";
         }
@@ -296,18 +329,21 @@ module ietf-rsvp {
           description "RSVP source port";
           reference "RFC2205";
         }
-        leaf fspec-avg-rate {
-          type uint32;
+        leaf fspec-average-rate {
+          type ieeefloat32;
+          units "Bytes per second";
           description "Fspec Token Bucket Average Rate";
           reference "RFC2210";
         }
-        leaf fspec-burst {
-          type uint32;
+        leaf fspec-size {
+          type ieeefloat32;
+          units "Bytes per second";
           description "Fspec Token Bucket Burst Rate";
           reference "RFC2210";
         }
         leaf fspec-peak-rate {
-          type uint32;
+          type ieeefloat32;
+          units "Bytes per second";
           description "Fspec Token Bucket Peak Data Rate";
           reference "RFC2210";
         }
@@ -339,7 +375,7 @@ module ietf-rsvp {
   grouping neighbor-attributes {
     description
       "Top level grouping for RSVP neighbor properties";
-    container neighbor-attributes {
+    container attributes {
       description
         "Top level container for RSVP neighbor properties";
       container config {
@@ -363,13 +399,13 @@ module ietf-rsvp {
       description
         "Packet statistics container";
       leaf sent {
-        type yang:counter32;
+        type yang:counter64;
         description
           "Packet sent count";
       }
 
-      leaf rcvd {
-        type yang:counter32;
+      leaf received {
+        type yang:counter64;
         description
           "Packet received count";
       }
@@ -379,179 +415,179 @@ module ietf-rsvp {
   grouping statistics-protocol_state {
     description 
       "RSVP protocol statistics grouping";
-    container protocol-stats {
+    container messages {
       description 
         "RSVP protocol statistics container";
       leaf ack-sent {
-        type yang:counter32;
+        type yang:counter64;
         description
           "Hello sent count";
       }
 
-      leaf ack-rcvd {
-        type yang:counter32;
+      leaf ack-received {
+        type yang:counter64;
         description
           "Hello received count";
       }
 
       leaf bundle-sent {
-        type yang:counter32;
+        type yang:counter64;
         description
           "Bundle sent count";
       }
 
-      leaf bundle-rcvd {
-        type yang:counter32;
+      leaf bundle-received {
+        type yang:counter64;
         description
           "Bundle received count";
       }
 
       leaf hello-sent {
-        type yang:counter32;
+        type yang:counter64;
         description
           "Hello sent count";
       }
 
-      leaf hello-rcvd {
-        type yang:counter32;
+      leaf hello-received {
+        type yang:counter64;
         description
           "Hello received count";
       }
 
       leaf integrity-challenge-sent {
-        type yang:counter32;
+        type yang:counter64;
         description
           "Integrity Challenge sent count";
       }
 
-      leaf integrity-challenge-rcvd {
-        type yang:counter32;
+      leaf integrity-challenge-received {
+        type yang:counter64;
         description
           "Integrity Challenge received count";
       }
 
       leaf integrity-response-sent {
-        type yang:counter32;
+        type yang:counter64;
         description
           "Integrity Response sent count";
       }
 
-      leaf integrity-response-rcvd {
-        type yang:counter32;
+      leaf integrity-response-received {
+        type yang:counter64;
         description
           "Integrity Response received count";
       }
 
       leaf notify-sent {
-        type yang:counter32;
+        type yang:counter64;
         description
           "Notify sent count";
       }
 
-      leaf notify-rcvd {
-        type yang:counter32;
+      leaf notify-received {
+        type yang:counter64;
         description
           "Notify received count";
       }
 
       leaf path-sent {
-        type yang:counter32;
+        type yang:counter64;
         description
           "Path sent count";
       }
 
-      leaf path-rcvd {
-        type yang:counter32;
+      leaf path-received {
+        type yang:counter64;
         description
           "Path received count";
       }
 
       leaf path-err-sent {
-        type yang:counter32;
+        type yang:counter64;
         description
           "Path error sent count";
       }
 
-      leaf path-err-rcvd {
-        type yang:counter32;
+      leaf path-err-received {
+        type yang:counter64;
         description
           "Path error received count";
       }
 
       leaf path-tear-sent {
-        type yang:counter32;
+        type yang:counter64;
         description
           "Path tear sent count";
       }
 
-      leaf path-tear-rcvd {
-        type yang:counter32;
+      leaf path-tear-received {
+        type yang:counter64;
         description
           "Path tear received count";
       }
 
       leaf resv-sent {
-        type yang:counter32;
+        type yang:counter64;
         description
           "Resv sent count";
       }
 
-      leaf resv-rcvd {
-        type yang:counter32;
+      leaf resv-received {
+        type yang:counter64;
         description
           "Resv received count";
       }
 
       leaf resv-confirm-sent {
-        type yang:counter32;
+        type yang:counter64;
         description
           "Confirm sent count";
       }
 
-      leaf resv-confirm-rcvd {
-        type yang:counter32;
+      leaf resv-confirm-received {
+        type yang:counter64;
         description
           "Confirm received count";
       }
 
       leaf resv-err-sent {
-        type yang:counter32;
+        type yang:counter64;
         description
           "Resv error sent count";
       }
 
-      leaf resv-err-rcvd {
-        type yang:counter32;
+      leaf resv-err-received {
+        type yang:counter64;
         description
           "Resv error received count";
       }
 
       leaf resv-tear-sent {
-        type yang:counter32;
+        type yang:counter64;
         description
           "Resv tear sent count";
       }
 
-      leaf resv-tear-rcvd {
-        type yang:counter32;
+      leaf resv-tear-received {
+        type yang:counter64;
         description
           "Resv tear received count";
       }
 
       leaf summary-refresh-sent {
-        type yang:counter32;
+        type yang:counter64;
         description
           "Summary refresh sent count";
       }
 
-      leaf summary-refresh-rcvd {
-        type yang:counter32;
+      leaf summary-refresh-received {
+        type yang:counter64;
         description
           "Summary refresh received count";
       }
 
-      leaf unknown-recv {
-        type yang:counter32;
+      leaf unknown-messages-received {
+        type yang:counter64;
         description
           "Unknown packet received count";
       }
@@ -637,14 +673,14 @@ module ietf-rsvp {
           "Local node recover time";
       }
 
-      leaf nbr-restart-time {
+      leaf neighbor-restart-time {
         type uint32;
         units seconds;
         description
           "Neighbor restart time";
       }
 
-      leaf nbr-recovery-time {
+      leaf neighbor-recovery-time {
         type uint32;
         units seconds;
         description
@@ -655,7 +691,7 @@ module ietf-rsvp {
         description 
           "Helper mode information ";
 
-        leaf helper-mode {
+				leaf enabled {
           type boolean;
           description
             "'true' if helper mode is enabled.";
@@ -678,7 +714,7 @@ module ietf-rsvp {
              RSVP neighbors while they undergo a graceful restart";
         }
 
-        leaf nbr-restart-ttd {              
+        leaf neighbor-restart-time-remaining {
           type uint32;
           units seconds;
           description
@@ -686,7 +722,7 @@ module ietf-rsvp {
              Hello message after restart.";
         }
 
-        leaf nbr-recovery-ttd {
+        leaf neighbor-recovery-time-remaining {
           type uint32;
           units seconds;
           description
@@ -718,7 +754,7 @@ module ietf-rsvp {
     leaf interface {
       type if:interface-ref;
       description
-        "Interface to this neighbor.";
+        "Interface where RSVP neighbor was detected";
     }
 
     leaf neighbor-state {
@@ -745,14 +781,14 @@ module ietf-rsvp {
     }
 
     leaf psb-count {
-      type uint32;
+      type yang:counter32;
       description
         "Number of PSB state currently referencing the 
         neighbor.";
     }
 
     leaf rsb-count {
-      type uint32;
+      type yang:counter32;
       description
         "Number of RSB state currently referencing the 
         neighbor.";
@@ -761,11 +797,16 @@ module ietf-rsvp {
     leaf refresh-reduction-capable {
       type boolean;
       description
-        "Whether neighbor is refresh reduction capable.";
+        "enables all RSVP refresh reduction message
+         bundling, RSVP message ID, reliable message delivery
+         and summary refresh";
+      reference
+        "RFC 2961 RSVP Refresh Overhead Reduction
+         Extensions";
     }
 
     leaf restart-count {
-      type uint32;
+      type yang:counter32;
       description
         "Number of times this neighbor restart";
     }
@@ -798,21 +839,6 @@ module ietf-rsvp {
         list session {
           description
             "List of RSVP sessions";
-          leaf destination-port {
-            type uint16;
-            description "RSVP destination port";
-            reference "RFC2205";
-          }
-          leaf source {
-            type inet:ip-address;
-            description "RSVP source address";
-            reference "RFC2205";
-          }
-          leaf destination {
-            type inet:ip-address;
-            description "RSVP destination address";
-            reference "RFC2205";
-          }
           uses session-attributes;
         }
       }
@@ -828,7 +854,7 @@ module ietf-rsvp {
         RSVP interface parameters";
       uses signaling-parameters;
       uses refresh-reduction;
-      uses rsvp-hellos;
+      uses hellos;
       uses authentication;
     }
     container state {
@@ -838,7 +864,7 @@ module ietf-rsvp {
          interface parameters";
       uses signaling-parameters;
       uses refresh-reduction;
-      uses rsvp-hellos;
+      uses hellos;
       uses authentication;
       uses statistics_state;
     }
