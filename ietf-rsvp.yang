@@ -71,11 +71,6 @@ module ietf-rsvp {
     reference "RFC2205";
   }
 
-  identity rsvp {
-    base "rt:routing-protocol";
-    description "RSVP protocol";
-  }
-
   /* IEEE float. To be moved to IETF types */
   typedef ieeefloat32 {
     type binary {
@@ -89,6 +84,25 @@ module ietf-rsvp {
         24-bit fraction
       The floating point value is calculated using:
         (-1)**S * 2**(Exponent-127) * (1+Fraction)";
+  }
+
+  identity rsvp {
+    base "rt:routing-protocol";
+    description "RSVP protocol";
+  }
+
+  identity rsvp-session-type {
+    description "Base RSVP session type";
+  }
+
+  identity rsvp-session-ipv4 {
+    base rsvp-session-type;
+    description "RSVP IPv4 session type";
+  }
+
+  identity rsvp-session-ipv6 {
+    base rsvp-session-type;
+    description "RSVP IPv4 session type";
   }
 
   identity reservation-style {
@@ -264,17 +278,11 @@ module ietf-rsvp {
       description
         "Enumeration of RSVP session states";
     }
-    leaf psb-count {
-      type yang:counter32;
-      description
-        "Number of Path State Block associated with this
-         session";
-    }
-    leaf rsb-count {
-      type yang:counter32;
-      description
-        "Number of Reservation State Block associated with
-         this session";
+    leaf session-type {
+      type identityref {
+        base rsvp-session-type;
+      }
+      description "RSVP session type";
     }
     container psbs {
       description "Path State Block container";
@@ -284,34 +292,6 @@ module ietf-rsvp {
           type inet:port-number;
           description "RSVP source port";
           reference "RFC2205";
-        }
-        leaf tspec-average-rate {
-          type ieeefloat32;
-          units "Bytes per second";
-          description "Tspec Token Bucket Average Rate";
-          reference "RFC2210: RSVP with INTSERV";
-        }
-        leaf tspec-size {
-          type ieeefloat32;
-          units "Bytes per second";
-          description "Tspec Token Bucket Burst Rate";
-          reference "RFC2210";
-        }
-        leaf tspec-peak-rate {
-          type ieeefloat32;
-          units "Bytes per second";
-          description "Tspec Token Bucket Peak Data Rate";
-          reference "RFC2210";
-        }
-        leaf min-policed-unit {
-          type uint32;
-          description "Tspec Minimum Policed Unit";
-          reference "RFC2210";
-        }
-        leaf max-packet-size {
-          type uint32;
-          description "Tspec Maximum Packet Size";
-          reference "RFC2210";
         }
         leaf expires-in {
           type uint32;
@@ -328,34 +308,6 @@ module ietf-rsvp {
           type inet:port-number;
           description "RSVP source port";
           reference "RFC2205";
-        }
-        leaf fspec-average-rate {
-          type ieeefloat32;
-          units "Bytes per second";
-          description "Fspec Token Bucket Average Rate";
-          reference "RFC2210";
-        }
-        leaf fspec-size {
-          type ieeefloat32;
-          units "Bytes per second";
-          description "Fspec Token Bucket Burst Rate";
-          reference "RFC2210";
-        }
-        leaf fspec-peak-rate {
-          type ieeefloat32;
-          units "Bytes per second";
-          description "Fspec Token Bucket Peak Data Rate";
-          reference "RFC2210";
-        }
-        leaf min-policed-unit {
-          type uint32;
-          description "Fspec Minimum Policed Unit";
-          reference "RFC2210";
-        }
-        leaf max-packet-size {
-          type uint32;
-          description "Fspec Maximum Packet Size";
-          reference "RFC2210";
         }
         leaf reservation-style {
           type identityref {
@@ -375,27 +327,23 @@ module ietf-rsvp {
   grouping neighbor-attributes {
     description
       "Top level grouping for RSVP neighbor properties";
-    container attributes {
+    container config {
       description
-        "Top level container for RSVP neighbor properties";
-      container config {
-        description
-          "Configuration for neighbor properties";
-      }
-      container state {
-        config false;
-        description
-          "State information associated with RSVP
-           neighbor properties";
-        uses neighbor-derived_state;
-      }
+        "Configuration for neighbor properties";
+    }
+    container state {
+      config false;
+      description
+        "State information associated with RSVP
+         neighbor properties";
+      uses neighbor-derived_state;
     }
   }
 
-  grouping statistics-packets_state {
+  grouping packets_state {
     description
       "Packet statistics grouping";
-    container packets-stats {
+    container packets {
       description
         "Packet statistics container";
       leaf sent {
@@ -412,7 +360,7 @@ module ietf-rsvp {
     }
   }
 
-  grouping statistics-protocol_state {
+  grouping protocol_state {
     description 
       "RSVP protocol statistics grouping";
     container messages {
@@ -594,10 +542,10 @@ module ietf-rsvp {
     }
   }
 
-  grouping statistics-errors_state {
+  grouping errors_state {
     description
       "Error statistics state grouping";
-    container errors-stats {
+    container errors {
       description
         "Error statistics state container";
       leaf authenticate {
@@ -625,9 +573,13 @@ module ietf-rsvp {
 
   grouping statistics_state {
     description "RSVP statistic attributes.";
-    uses statistics-packets_state;
-    uses statistics-protocol_state;
-    uses statistics-errors_state;
+    container statistics {
+      description
+        "statistics state container";
+      uses protocol_state;
+      uses packets_state;
+      uses errors_state;
+    }
   }
 
   grouping neighbor-derived_state {
@@ -915,7 +867,7 @@ module ietf-rsvp {
           leaf address {
             type inet:ip-address;
             description
-              "Neighbor address";
+              "Address of RSVP neighbor";
           }
           uses neighbor-attributes;
         }
@@ -923,4 +875,3 @@ module ietf-rsvp {
     }
   }
 }
-
