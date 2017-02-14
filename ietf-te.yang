@@ -478,6 +478,13 @@ module ietf-te {
         "Specifies a preference for this path. The lower the
         number higher the preference";
     }
+    leaf path-setup-protocol {
+      type identityref {
+        base te-types:te-path-setup-protocol;
+      }
+      description
+        "Signaling protocol used to set up this tunnel";
+    }
     leaf path-computation-method {
       type identityref {
         base te-types:path-computation-method;
@@ -762,7 +769,7 @@ module ietf-te {
 
     leaf secondary-path {
       type leafref {
-        path "../../../../../p2p-secondary-paths/" +
+        path "../../../../../../p2p-secondary-paths/" +
              "p2p-secondary-path/config/name";
       }
       description
@@ -776,6 +783,13 @@ module ietf-te {
         "The priority of the specified secondary path option. Higher
         priority options are less preferable - such that a secondary
         path reference with a priority of 0 is the most preferred";
+    }
+    leaf path-setup-protocol {
+      type identityref {
+        base te-types:te-path-setup-protocol;
+      }
+      description
+        "Signaling protocol used to set up this tunnel";
     }
   }
 
@@ -821,46 +835,46 @@ module ietf-te {
           description "TE path name";
         }
         uses p2p-primary-path-properties;
-      }
-      container candidate-p2p-secondary-paths {
-        description 
-          "The set of candidate secondary paths which may be used
-          for this primary path. When secondary paths are specified
-          in the list the path of the secondary LSP in use must be
-          restricted to those path options referenced. The
-          priority of the secondary paths is specified within the
-          list. Higher priority values are less preferred - that is
-          to say that a path with priority 0 is the most preferred
-          path. In the case that the list is empty, any secondary
-          path option may be utilised when the current primary path
-          is in use.";
-        list candidate-p2p-secondary-path {
-          key "secondary-path";
-          description
-            "List of secondary paths for this tunnel.";
-          leaf secondary-path {
-            type leafref {
-              path "../config/secondary-path";
+        container candidate-p2p-secondary-paths {
+          description 
+            "The set of candidate secondary paths which may be used
+            for this primary path. When secondary paths are specified
+            in the list the path of the secondary LSP in use must be
+            restricted to those path options referenced. The
+            priority of the secondary paths is specified within the
+            list. Higher priority values are less preferred - that is
+            to say that a path with priority 0 is the most preferred
+            path. In the case that the list is empty, any secondary
+            path option may be utilised when the current primary path
+            is in use.";
+          list candidate-p2p-secondary-path {
+            key "secondary-path";
+            description
+              "List of secondary paths for this tunnel.";
+            leaf secondary-path {
+              type leafref {
+                path "../config/secondary-path";
+              }
+              description "TE path name";
             }
-            description "TE path name";
+            container config {
+              description
+                "Configuration parameters relating to the candidate
+                secondary path";
+
+              uses p2p-path-candidate-secondary-path-config;
+            }
+
+            container state {
+              config false;
+              description
+                "Operational state parameters relating to the candidate
+                secondary path";
+
+              uses p2p-path-candidate-secondary-path-config;
+              uses p2p-path-candidate-secondary-path-state;
+            }
           }
-					container config {
-						description
-							"Configuration parameters relating to the candidate
-							secondary path";
-
-					  uses p2p-path-candidate-secondary-path-config;
-					}
-
-					container state {
-						config false;
-						description
-							"Operational state parameters relating to the candidate
-							secondary path";
-
-						uses p2p-path-candidate-secondary-path-config;
-						uses p2p-path-candidate-secondary-path-state;
-					}
         }
       }
     }
@@ -936,7 +950,13 @@ module ietf-te {
       }
       description "LSP operational state.";
     }
-
+    leaf path-setup-protocol {
+      type identityref {
+        base te-types:te-path-setup-protocol;
+      }
+      description
+        "Signaling protocol used to set up this tunnel";
+    }
     leaf origin-type {
       type enumeration {
         enum ingress {
