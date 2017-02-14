@@ -259,22 +259,9 @@ module ietf-rsvp-te-mpls {
   grouping tunnel-properties-mpls {
     description
       "Top level grouping for LSP properties.";
-      container config {
-        description
-          "Configuration parameters for tunnel RSVP-TE
-          properties";
         uses lsp-bandwidth_config;
         uses lsp-session-attributes-obj-flags-mpls_config;
         uses lsp-attributes-flags-mpls_config;
-      }
-      container state {
-        description
-          "State parameters for tunnel RSVP-TE
-          properties";
-        uses lsp-bandwidth_config;
-        uses lsp-session-attributes-obj-flags-mpls_config;
-        uses lsp-attributes-flags-mpls_config;
-      }
   }
 
   grouping lsp-properties-mpls {
@@ -434,30 +421,6 @@ module ietf-rsvp-te-mpls {
     }
   }
 
-  grouping rsvp-te-frr-backups {
-    description
-      "Top level grouping for RSVP-TE FRR backup properties.";
-    container rsvp-te-frr-backups {
-      if-feature te-types:frr-te;
-      description
-        "Top level container for RSVP-TE FRR backup
-        properties.";
-      container config {
-        description
-          "Configuration parameters for interface RSVP-TE
-          FRR backup properties";
-        uses rsvp-te-frr-backups_config;
-      }
-      container state {
-        config false;
-        description
-          "State parameters for interface RSVP-TE
-          FRR backup properties";
-        uses rsvp-te-frr-backups_config;
-      }
-    }
-  }
-
   grouping lps-backup-info_state {
     description "Backup/bypass LSP related information";
     container backup-info {
@@ -531,27 +494,6 @@ module ietf-rsvp-te-mpls {
     uses globals-properties;
   }
 
-  grouping rsvp-te-interface-attributes-mpls {
-    description
-      "Top level grouping for MPLS RSVP-TE interface
-      properties.";
-    container config {
-      description
-        "Configuration parameters relating to RSVP-TE
-        bandwidth";
-      uses te-mpls-types:bandwidth-mpls-reservable;
-    }
-    container state {
-      config false;
-      description
-        "State information associated with RSVP-TE
-        bandwidth";
-      uses te-mpls-types:bandwidth-mpls-reservable;
-      uses rsvp-te-interface-softpreemption_state;
-      uses rsvp-te-interface_state;
-    }
-  }
-
   /* Linkage to the base RSVP all interfaces */
   augment "/rt:routing/rt:control-plane-protocols/"
   + "rt:control-plane-protocol/rsvp:rsvp/rsvp:interfaces" {
@@ -588,34 +530,54 @@ module ietf-rsvp-te-mpls {
   /**
    * Augmentation to TE generic module
    */
-  augment "/te:te/te:tunnels/te:tunnel" {
-		when "/te:te/te:tunnels/te:tunnel" +
-			"/te:p2p-primary-paths/te:p2p-primary-path/te:config" +
-		  "/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
-			description
-			"When the path signaling protocol is RSVP-TE ";
-		}
+  augment "/te:te/te:tunnels/te:tunnel/te:config" {
+    when "/te:te/te:tunnels/te:tunnel" +
+      "/te:p2p-primary-paths/te:p2p-primary-path/te:config" +
+      "/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
+      description
+      "When the path signaling protocol is RSVP-TE ";
+    }
+    description 
+      "Augmentations for RSVP-TE MPLS TE tunnel properties";
+    uses tunnel-properties-mpls;
+  }
+
+  augment "/te:te/te:tunnels/te:tunnel/te:state" {
+    when "/te:te/te:tunnels/te:tunnel" +
+      "/te:p2p-primary-paths/te:p2p-primary-path/te:config" +
+      "/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
+      description
+      "When the path signaling protocol is RSVP-TE ";
+    }
     description 
       "Augmentations for RSVP-TE MPLS TE tunnel properties";
     uses tunnel-properties-mpls;
   }
 
   augment "/te:te/te:lsps-state/te:lsp" {
-		when "/te:te/te:lsps-state/te:lsp" +
-			"/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
-			description
-			"When the signaling protocol is RSVP-TE ";
-		}
+    when "/te:te/te:lsps-state/te:lsp" +
+      "/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
+      description
+      "When the signaling protocol is RSVP-TE ";
+    }
     description
       "RSVP-TE MPLS LSP state properties";
     uses lsp-properties-mpls;
     uses lps-backup-info_state;
   }
 
-  augment "/te:te/te-dev:interfaces/te-dev:interface" {
+  augment "/te:te/te-dev:interfaces/te-dev:interface/te-dev:config" {
     description
       "RSVP reservable bandwidth configuration properties";
-    uses rsvp-te-interface-attributes-mpls;
-    uses rsvp-te-frr-backups;
+    uses te-mpls-types:bandwidth-mpls-reservable;
+    uses rsvp-te-frr-backups_config;
+  }
+  augment "/te:te/te-dev:interfaces/te-dev:interface/te-dev:state" {
+    description
+      "RSVP reservable bandwidth configuration properties";
+    uses te-mpls-types:bandwidth-mpls-reservable;
+    uses rsvp-te-interface-softpreemption_state;
+    uses rsvp-te-interface_state;
+    uses rsvp-te-frr-backups_config;
   }
 }
