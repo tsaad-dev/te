@@ -83,110 +83,318 @@ module ietf-te {
   /**
    * TE tunnel generic groupings
    */
+  grouping path-include-route-objects {
+    description
+      "List of EROs to be included when performing the
+       path computation.";
+    container explicit-route-objects {
+      description
+        "Container for the includer route object list";
+      list include-explicit-route-objects {
+        key index;
+        description
+          "List of explicit route objects to include in
+           path computation";
+        leaf index {
+          type uint8 {
+            range "0..255";
+          }
+          description
+            "Index of this explicit route object";
+        }
+        uses te-types:explicit-route-subobject;
+      }
+    }
+  }
 
-  grouping p2p-secondary-path-params {
+  grouping path-exclude-route-objects {
+    description
+      "List of EROs to be included when performing the
+       path computation.";
+    container exclude-explicit-route-objects {
+      description
+        "Container for the includer route object list";
+      list exclude-explicit-route-objects {
+        key index;
+        leaf index {
+          type uint8 {
+            range "0..255";
+          }
+          description
+            "Index of this explicit route object";
+        }
+        description
+          "List of explicit route objects to exclude in
+           path computation";
+        uses te-types:explicit-route-subobject;
+      }
+    }
+  }
+
+  grouping path-affinities {
+    description
+      "Path affinities grouping";
+    container path-affinities {
+      if-feature te-types:named-path-affinities;
+      description
+        "Path affinities container";
+      choice style {
+        description
+          "Path affinities representation style";
+        case values {
+          leaf value {
+            type uint32 {
+              range "0..4294967295";
+            }
+            description
+              "Affinity value";
+          }
+          leaf mask {
+            type uint32 {
+              range "0..4294967295";
+            }
+            description
+              "Affinity mask";
+          }
+        }
+        case named {
+          list constraints {
+            key "usage";
+            leaf usage {
+              type identityref {
+                base te-types:resource-affinities-type;
+              }
+              description "Affinities usage";
+            }
+            container constraint {
+              description
+                "Container for named affinities";
+              list affinity-names {
+                key "name";
+                leaf name {
+                  type string;
+                  description
+                    "Affinity name";
+                }
+                description
+                  "List of named affinities";
+              }
+            }
+            description
+              "List of named affinity constraints";
+          }
+        }
+      }
+    }
+  }
+
+  grouping path-srlgs {
+    description
+      "Path SRLG properties grouping";
+    container path-srlgs {
+      description
+        "Path SRLG properties container";
+      choice style {
+        description
+          "Type of SRLG representation";
+        case values {
+          leaf usage {
+            type identityref {
+              base te-types:route-exclude-srlg;
+            }
+            description "SRLG usage";
+          }
+          leaf-list values {
+            type te-types:srlg;
+            description "SRLG value";
+          }
+        }
+        case named {
+          list constraints {
+            key "usage";
+            leaf usage {
+              type identityref {
+                base te-types:route-exclude-srlg;
+              }
+              description "SRLG usage";
+            }
+            container constraint {
+              description
+                "Container for named SRLG list";
+              list srlg-names {
+                key "name";
+                leaf name {
+                  type string;
+                  description
+                    "The SRLG name";
+                }
+                description
+                  "List named SRLGs";
+              }
+            }
+            description
+              "List of named SRLG constraints";
+          }
+        }
+      }
+    }
+  }
+
+  grouping bidir-assoc-properties {
+    description
+      "TE tunnel associated bidirectional properties
+      grouping";
+    container bidirectional {
+      description
+        "TE tunnel associated bidirectional attributes.";
+      container association {
+        description
+          "Tunnel bidirectional association properties";
+        leaf id {
+          type uint16;
+          description
+            "The TE tunnel association identifier.";
+        }
+        leaf source {
+          type inet:ip-address;
+          description
+            "The TE tunnel association source.";
+        }
+        leaf global-source {
+          type inet:ip-address;
+          description
+            "The TE tunnel association global
+            source.";
+        }
+        leaf type {
+          type identityref {
+            base te-types:bidir-association-type;
+          }
+          default te-types:bidir-assoc-non-corouted;
+          description
+            "The TE tunnel association type.";
+        }
+        leaf provisioing {
+          type identityref {
+            base te-types:bidir-provisioning-mode;
+          }
+          description
+            "Describes the provisioning model of the
+            associated bidirectional LSP";
+          reference
+            "draft-ietf-teas-mpls-tp-rsvpte-ext-
+            associated-lsp, section-3.2";
+        }
+      }
+    }
+  }
+
+  grouping p2p-secondary-path-properties {
     description
       "tunnel path properties.";
     container config {
       description
         "Configuration parameters relating to
         tunnel properties";
-      uses path-properties_config;
+      uses p2p-path-properties_config;
     }
     container state {
       config false;
       description
         "State information associated with tunnel
         properties";
-      uses path-properties_config;
-      uses p2p-secondary-path-params_state;
+      uses p2p-path-properties_config;
+      uses p2p-secondary-path-properties_state;
     }
   }
 
-  grouping p2p-primary-path-params {
+  grouping p2p-primary-path-properties {
     description
       "TE tunnel primary path properties grouping";
     container config {
       description
         "Configuration parameters relating to
         tunnel properties";
-      uses path-properties_config;
+      uses p2p-path-properties_config;
     }
     container state {
       config false;
       description
         "State information associated with tunnel
         properties";
-      uses path-properties_config;
-      uses p2p-primary-path-params_state;
+      uses p2p-path-properties_config;
+      uses p2p-primary-path-properties_state;
     }
   }
 
-  grouping p2p-primary-path-params_state {
-    description "TE primary path state parameters";
-    list lsp {
-      key
-        "source destination tunnel-id lsp-id "+
-        "extended-tunnel-id type";
-      description "List of LSPs associated with the tunnel.";
+  grouping p2p-primary-path-properties_state {
+    description "TE path state parameters";
+    container lsps {
+      description "TE LSPs container";
+      list lsp {
+        key
+          "source destination tunnel-id lsp-id "+
+          "extended-tunnel-id type";
+        description "List of LSPs associated with the tunnel.";
 
-      leaf source {
-        type leafref {
-          path "../../../../../../lsps-state/lsp/source";
+        leaf source {
+          type leafref {
+            path "../../../../../../../../lsps-state/lsp/source";
+          }
+          description
+            "Tunnel sender address extracted from
+            SENDER_TEMPLATE  object";
+          reference "RFC3209";
         }
-        description
-          "Tunnel sender address extracted from
-          SENDER_TEMPLATE  object";
-        reference "RFC3209";
-      }
-      leaf destination {
-        type leafref {
-          path "../../../../../../lsps-state/lsp/destination";
+        leaf destination {
+          type leafref {
+            path "../../../../../../../../lsps-state/lsp/destination";
+          }
+          description
+            "Tunnel endpoint address extracted from
+            SESSION object";
+          reference "RFC3209";
         }
-        description
-          "Tunnel endpoint address extracted from
-          SESSION object";
-        reference "RFC3209";
-      }
-      leaf tunnel-id {
-        type leafref {
-          path "../../../../../../lsps-state/lsp/tunnel-id";
+        leaf tunnel-id {
+          type leafref {
+            path "../../../../../../../../lsps-state/lsp/tunnel-id";
+          }
+          description
+            "Tunnel identifier used in the SESSION
+            that remains constant over the life
+            of the tunnel.";
+          reference "RFC3209";
         }
-        description
-          "Tunnel identifier used in the SESSION
-          that remains constant over the life
-          of the tunnel.";
-        reference "RFC3209";
-      }
-      leaf lsp-id {
-        type leafref {
-          path "../../../../../../lsps-state/lsp/lsp-id";
+        leaf lsp-id {
+          type leafref {
+            path "../../../../../../../../lsps-state/lsp/lsp-id";
+          }
+          description
+            "Identifier used in the SENDER_TEMPLATE
+            and the FILTER_SPEC that can be changed
+            to allow a sender to share resources with
+            itself.";
+          reference "RFC3209";
         }
-        description
-          "Identifier used in the SENDER_TEMPLATE
-          and the FILTER_SPEC that can be changed
-          to allow a sender to share resources with
-          itself.";
-        reference "RFC3209";
-      }
-      leaf extended-tunnel-id {
-        type leafref {
-          path "../../../../../../lsps-state/lsp/extended-tunnel-id";
+        leaf extended-tunnel-id {
+          type leafref {
+            path "../../../../../../../../lsps-state/lsp/extended-tunnel-id";
+          }
+          description
+            "Extended Tunnel ID of the LSP.";
+          reference "RFC3209";
         }
-        description
-          "Extended Tunnel ID of the LSP.";
-        reference "RFC3209";
-      }
-      leaf type {
-        type leafref {
-          path "../../../../../../lsps-state/lsp/type";
+        leaf type {
+          type leafref {
+            path "../../../../../../../../lsps-state/lsp/type";
+          }
+          description "LSP type P2P or P2MP";
         }
-        description "LSP type P2P or P2MP";
       }
     }
   }
 
-  grouping p2p-secondary-path-params_state {
+  grouping p2p-secondary-path-properties_state {
     description "TE secondary path state parameters";
     list lsp {
       key "source";
@@ -194,7 +402,7 @@ module ietf-te {
 
       leaf source {
         type leafref {
-          path "../../../../../../../lsps-state/lsp/source";
+          path "../../../../../../../../lsps-state/lsp/source";
         }
         description
           "Tunnel sender address extracted from
@@ -203,7 +411,7 @@ module ietf-te {
       }
       leaf destination {
         type leafref {
-          path "../../../../../../../lsps-state/lsp/destination";
+          path "../../../../../../../../lsps-state/lsp/destination";
         }
         description
           "Tunnel endpoint address extracted from
@@ -212,7 +420,7 @@ module ietf-te {
       }
       leaf tunnel-id {
         type leafref {
-          path "../../../../../../../lsps-state/lsp/tunnel-id";
+          path "../../../../../../../../lsps-state/lsp/tunnel-id";
         }
         description
           "Tunnel identifier used in the SESSION
@@ -222,7 +430,7 @@ module ietf-te {
       }
       leaf lsp-id {
         type leafref {
-          path "../../../../../../../lsps-state/lsp/lsp-id";
+          path "../../../../../../../../lsps-state/lsp/lsp-id";
         }
         description
           "Identifier used in the SENDER_TEMPLATE
@@ -233,7 +441,7 @@ module ietf-te {
       }
       leaf extended-tunnel-id {
         type leafref {
-          path "../../../../../../../lsps-state/lsp" +
+          path "../../../../../../../../lsps-state/lsp" +
                "/extended-tunnel-id";
         }
         description
@@ -242,14 +450,20 @@ module ietf-te {
       }
       leaf type {
         type leafref {
-          path "../../../../../../../lsps-state/lsp/type";
+          path "../../../../../../../../lsps-state/lsp/type";
         }
         description "LSP type P2P or P2MP";
       }
+			leaf active {
+				type boolean;
+				description
+					"Indicates the current active path option that has
+					been selected of the candidate secondary paths";
+			}
     }
   }
 
-  grouping path-properties_config {
+  grouping p2p-path-properties_config {
     description
       "TE tunnel path properties configuration grouping";
     leaf name {
@@ -264,6 +478,34 @@ module ietf-te {
         "Specifies a preference for this path. The lower the
         number higher the preference";
     }
+    leaf path-computation-method {
+      type identityref {
+        base te-types:path-computation-method;
+      }
+      default te-types:path-locally-computed;
+      description
+        "The method used for computing the path, either
+        locally computed, queried from a server or not
+        computed at all (explicitly configured).";
+    }
+    leaf path-computation-server {
+      when "../path-computation-method = 'path-externally-queried'" {
+        description
+          "The path-computation server when the path is
+           externally queried";
+      }
+      type inet:ip-address;
+      description
+        "Address of the external path computation
+         server";
+    }
+    leaf reoptimize-timer {
+      type uint16;
+      units seconds;
+      description
+       "frequency of reoptimization of
+        a traffic engineered LSP";
+    }
     leaf compute-only {
       type empty;
       description
@@ -271,51 +513,48 @@ module ietf-te {
          the topology is updated. No resources are committed
          or reserved in the network.";
     }
+    leaf use-cspf {
+      when "../path-computation-method = 'path-locally-computed'";
+      type boolean;
+      description "A CSPF dynamically computed path";
+    }
+    leaf explicit-path-name {
+      when "../path-computation-method = 'path-explicitly-defined'";
+			type leafref {
+				path "../../../../../../globals/named-explicit-paths/"
+				+ "named-explicit-path/config/name";
+			}
+      description "The explicit-path name";
+    }
+    list explicit-route-objects {
+      key "index";
+      description
+        "List of explicit route objects";
+      leaf index {
+        type uint8 {
+          range "0..255";
+        }
+        description
+          "Index of this explicit route object";
+      }
+      leaf explicit-route-usage {
+        type identityref {
+          base te-types:route-usage-type;
+        }
+        description "An explicit-route hop action.";
+      }
+      uses te-types:explicit-route-subobject;
+    }
     leaf named-path-constraint {
       if-feature te-types:named-path-constraints;
-      type string;
+			type leafref {
+				path "../../../../../../globals/"
+				+ "named-path-constraints/named-path-constraint/"
+			  + "config/name";
+			}
       description
         "Reference to a globally defined named path
         constraint set";
-    }
-    uses te-types:path-constraints;
-    choice type {
-      description
-        "Describes the path type";
-      case dynamic {
-        leaf dynamic {
-          type empty;
-          description
-            "A CSPF dynamically computed path";
-        }
-      }
-      case explicit {
-        leaf explicit-path-name {
-          type string;
-          description
-            "The explicit-path name";
-        }
-
-        list explicit-route-objects {
-          key "index";
-          description
-            "List of explicit route objects";
-          leaf index {
-            type uint8 {
-              range "0..255";
-            }
-            description
-              "Index of this explicit route object";
-          }
-          leaf explicit-route-usage {
-            type identityref {
-              base te-types:route-usage-type;
-            }
-            description "An explicit-route hop action.";
-          }
-          uses te-types:explicit-route-subobject;
-        }
-      }
     }
     leaf no-cspf {
       type empty;
@@ -355,14 +594,14 @@ module ietf-te {
       description
         "Textual description for this TE tunnel";
     }
-    leaf lsp-priority-setup {
+    leaf setup-priority {
       type uint8 {
         range "0..7";
       }
       description
         "TE LSP setup priority";
     }
-    leaf lsp-priority-hold {
+    leaf hold-priority {
       type uint8 {
         range "0..7";
       }
@@ -407,21 +646,21 @@ module ietf-te {
       description
         "Textual description for this TE tunnel";
     }
-    leaf lsp-priority-setup {
+    leaf setup-priority {
       type uint8 {
         range "0..7";
       }
       description
         "TE LSP setup priority";
     }
-    leaf lsp-priority-hold {
+    leaf hold-priority {
       type uint8 {
         range "0..7";
       }
       description
         "TE LSP hold priority";
     }
-    leaf lsp-protection-type {
+    leaf protection-type {
       type identityref {
         base te-types:lsp-prot-type;
       }
@@ -483,7 +722,7 @@ module ietf-te {
              vital to have UNIQUE topology identifiers.";
         }
     }
-    uses te-types:bidir-assoc-properties;
+    uses bidir-assoc-properties;
   }
 
   grouping tunnel-params_state {
@@ -516,6 +755,42 @@ module ietf-te {
     }
   }
 
+  grouping p2p-path-candidate-secondary-path-config {
+    description
+      "Configuration parameters relating to a secondary path which
+      is a candidate for a particular primary path";
+
+    leaf secondary-path {
+      type leafref {
+        path "../../../../../p2p-secondary-paths/" +
+             "p2p-secondary-path/config/name";
+      }
+      description
+        "A reference to the secondary path that should be utilised
+        when the containing primary path option is in use";
+    }
+
+    leaf priority {
+      type uint16;
+      description
+        "The priority of the specified secondary path option. Higher
+        priority options are less preferable - such that a secondary
+        path reference with a priority of 0 is the most preferred";
+    }
+  }
+
+  grouping p2p-path-candidate-secondary-path-state {
+    description
+      "Operational state parameters relating to a secondary path
+      which is a candidate for a particular primary path";
+
+    leaf active {
+      type boolean;
+      description
+        "Indicates the current active path option that has
+        been selected of the candidate secondary paths";
+    }
+  }
   grouping tunnel-p2p-properties {
     description
       "Top level grouping for tunnel properties.";
@@ -533,46 +808,77 @@ module ietf-te {
       uses tunnel-params_config;
       uses tunnel-params_state;
     }
-    list primary-paths {
-      key "name";
-      description
-        "List of primary paths for this tunnel.";
-      leaf name {
-        type leafref {
-          path "../config/name";
-        }
-        description "TE path name";
-      }
-      leaf preference {
-        type leafref {
-          path "../config/preference";
-        }
-        description
-          "Specifies a preference for this path. The lower the
-           number higher the preference";
-      }
-      uses p2p-primary-path-params;
-      list secondary-paths {
+    container p2p-primary-paths {
+			description "Set of P2P primary aths container";
+      list p2p-primary-path {
         key "name";
         description
-          "List of secondary paths for this tunnel.";
+          "List of primary paths for this tunnel.";
         leaf name {
           type leafref {
             path "../config/name";
           }
           description "TE path name";
         }
-        leaf preference {
-          type leafref {
-            path "../config/preference";
-          }
+        uses p2p-primary-path-properties;
+      }
+      container candidate-p2p-secondary-paths {
+        description 
+          "The set of candidate secondary paths which may be used
+          for this primary path. When secondary paths are specified
+          in the list the path of the secondary LSP in use must be
+          restricted to those path options referenced. The
+          priority of the secondary paths is specified within the
+          list. Higher priority values are less preferred - that is
+          to say that a path with priority 0 is the most preferred
+          path. In the case that the list is empty, any secondary
+          path option may be utilised when the current primary path
+          is in use.";
+        list candidate-p2p-secondary-path {
+          key "secondary-path";
           description
-            "Specifies a preference for this path. The lower the
-            number higher the preference";
+            "List of secondary paths for this tunnel.";
+          leaf secondary-path {
+            type leafref {
+              path "../config/secondary-path";
+            }
+            description "TE path name";
+          }
+					container config {
+						description
+							"Configuration parameters relating to the candidate
+							secondary path";
+
+					  uses p2p-path-candidate-secondary-path-config;
+					}
+
+					container state {
+						config false;
+						description
+							"Operational state parameters relating to the candidate
+							secondary path";
+
+						uses p2p-path-candidate-secondary-path-config;
+						uses p2p-path-candidate-secondary-path-state;
+					}
         }
-        uses p2p-secondary-path-params;
       }
     }
+		container p2p-secondary-paths {
+			description "Set of P2P secondary paths container";
+			list p2p-secondary-path {
+				key "name";
+				description
+					"List of secondary paths for this tunnel.";
+				leaf name {
+					type leafref {
+						path "../config/name";
+					}
+					description "TE path name";
+				}
+				uses p2p-primary-path-properties;
+			}
+		}
   }
 
   grouping tunnel-actions {
@@ -704,26 +1010,51 @@ module ietf-te {
    */
 
   /* Global named admin-groups configuration data */
-  grouping named-admin-groups_config {
+	grouping named-admin-groups_config {
     description
       "Global named administrative groups configuration
       grouping";
-    list named-admin-groups {
-      if-feature te-types:extended-admin-groups;
-      if-feature te-types:named-extended-admin-groups;
-      key "name";
-      description
-        "List of named TE admin-groups";
-      leaf name {
-        type string;
+		leaf name {
+			type string;
+			description
+				"A string name that uniquely identifies a TE
+				interface named admin-group";
+		}
+		leaf bit-position {
+			type uint32;
+			description
+				"Bit position representing the administrative group";
+		}
+	}
+  grouping named-admin-groups {
+    description
+      "Global named administrative groups configuration
+      grouping";
+    container named-admin-groups {
+      description "TE named admin groups container";
+      list named-admin-group {
+        if-feature te-types:extended-admin-groups;
+        if-feature te-types:named-extended-admin-groups;
+        key "name";
         description
-          "A string name that uniquely identifies a TE
-          interface named admin-group";
-      }
-      leaf bit-position {
-        type uint32;
-        description
-          "Bit position representing the administrative group";
+          "List of named TE admin-groups";
+				leaf name {
+					type leafref {
+						path "../config/name";
+					}
+					description "Admin-group name";
+				}
+				container config {
+					description
+						"Configuration parameters related to admin-groups";
+					uses named-admin-groups_config;
+				}
+				container state {
+					config false;
+					description
+						"State parameters related to admin-groups";
+					uses named-admin-groups_config;
+				}
       }
     }
   }
@@ -731,22 +1062,46 @@ module ietf-te {
   /* Global named admin-srlgs configuration data */
   grouping named-srlgs_config {
     description
-      "Global named SRLGs configuration
-      grouping";
-    list named-srlgs {
-      if-feature te-types:named-srlg-groups;
-      key "name";
-      description
-        "A list of named SRLG groups";
-      leaf name {
-        type string;
+      "Global named SRLGs configuration grouping";
+		leaf name {
+			type string;
+			description
+				"A string name that uniquely identifies a TE
+				interface named srlg";
+		}
+		leaf group {
+			type te-types:srlg;
+			description "An SRLG value";
+		}
+	}
+
+  grouping named-srlgs {
+    description
+      "Global named SRLGs configuration grouping";
+    container named-srlgs {
+      description "TE named SRLGs container";
+      list named-srlg {
+        if-feature te-types:named-srlg-groups;
+        key "name";
         description
-          "A string name that uniquely identifies a TE
-          interface named srlg";
-      }
-      leaf group {
-        type te-types:srlg;
-        description "An SRLG value";
+          "A list of named SRLG groups";
+				leaf name {
+					type leafref {
+						path "../config/name";
+					}
+					description "SRLG name";
+				}
+				container config {
+					description
+						"Configuration parameters related to named SRLGs";
+					uses named-srlgs_config;
+				}
+				container state {
+					config false;
+					description
+						"State parameters related to named SRLGs";
+					uses named-srlgs_config;
+				}
       }
     }
   }
@@ -756,34 +1111,60 @@ module ietf-te {
     description
       "Global explicit path configuration
       grouping";
-    list named-explicit-paths {
-      key "name";
-      description
-        "A list of explicit paths";
-      leaf name {
-        type string;
+		leaf name {
+			type string;
+			description
+				"A string name that uniquely identifies an
+				explicit path";
+		}
+		list explicit-route-objects {
+			key "index";
+			description
+				"List of explicit route objects";
+			leaf index {
+				type uint8 {
+					range "0..255";
+				}
+				description
+					"Index of this explicit route object";
+			}
+			leaf explicit-route-usage {
+				type identityref {
+					base te-types:route-usage-type;
+				}
+				description "An explicit-route hop action.";
+			}
+			uses te-types:explicit-route-subobject;
+		}
+	}
+
+  grouping named-explicit-paths {
+    description
+      "Global explicit path configuration
+      grouping";
+    container named-explicit-paths {
+      description "TE named explicit path container";
+      list named-explicit-path {
+        key "name";
         description
-          "A string name that uniquely identifies an
-          explicit path";
-      }
-      list explicit-route-objects {
-        key "index";
-        description
-          "List of explicit route objects";
-        leaf index {
-          type uint8 {
-            range "0..255";
-          }
-          description
-            "Index of this explicit route object";
-        }
-        leaf explicit-route-usage {
-          type identityref {
-            base te-types:route-usage-type;
-          }
-          description "An explicit-route hop action.";
-        }
-        uses te-types:explicit-route-subobject;
+          "A list of explicit paths";
+				leaf name {
+					type leafref {
+						path "../config/name";
+					}
+					description "Explicit-path name";
+				}
+				container config {
+					description
+						"Configuration parameters related to named paths";
+					uses named-explicit-paths_config;
+				}
+				container state {
+					config false;
+					description
+						"State parameters related to named paths";
+					uses named-explicit-paths_config;
+				}
       }
     }
   }
@@ -793,18 +1174,88 @@ module ietf-te {
     description
       "Global named path constraints configuration
       grouping";
-    list named-constraints {
-      if-feature te-types:named-path-constraints;
-      key "name";
-      description
-        "A list of named path constraints";
-      leaf name {
-        type string;
+		leaf name {
+			type string;
+			description
+				"A string name that uniquely identifies a
+				path constraint set";
+		}
+		leaf topology-id {
+			type te-types:te-topology-id;
+			description
+				"The tunnel path is computed using the specific
+				topology identified by this identifier";
+		}
+		leaf cost-limit {
+			type uint32 {
+				range "1..4294967295";
+			}
+			description
+				"The tunnel path cost limit.";
+		}
+		leaf hop-limit {
+			type uint8 {
+				range "1..255";
+			}
+			description
+				"The tunnel path hop limit.";
+		}
+		leaf metric-type {
+			type identityref {
+				base te-types:path-metric-type;
+			}
+			default te-types:path-metric-te;
+			description
+				"The tunnel path metric type.";
+		}
+		leaf tiebreaker-type {
+			type identityref {
+				base te-types:path-tiebreaker-type;
+			}
+			default te-types:path-tiebreaker-maxfill;
+			description
+				"The tunnel path computation tie breakers.";
+		}
+		leaf ignore-overload {
+			type boolean;
+			description
+				"The tunnel path can traverse overloaded node.";
+		}
+		uses path-include-route-objects;
+		uses path-exclude-route-objects;
+		uses path-affinities;
+		uses path-srlgs;
+	}
+
+  grouping named-path-constraints {
+    description
+      "Global named path constraints configuration
+      grouping";
+    container named-path-constraints {
+      description "TE named path constraints container";
+      list named-path-constraint {
+        if-feature te-types:named-path-constraints;
+        key "name";
         description
-          "A string name that uniquely identifies a
-          path constraint set";
+          "A list of named path constraints";
+				leaf name {
+					type leafref {
+						path "../config/name";
+					}
+					description "Path constraint name";
+				}
+				container config {
+					description
+						"Configuration parameters related to admin-groups";
+					uses named-path-constraints_config;
+				}
+				container state {
+					config false;
+					description
+						"State parameters related to admin-groups";
+					uses named-path-constraints_config;
+				}
       }
-      uses te-types:path-constraints;
     }
   }
 
@@ -815,24 +1266,10 @@ module ietf-te {
     container globals {
       description
         "Globals TE system-wide configuration data container";
-      container config {
-        description
-          "Configuration parameters for system-wide
-           parameters";
-        uses named-admin-groups_config;
-        uses named-srlgs_config;
-        uses named-explicit-paths_config;
-        uses named-path-constraints_config;
-      }
-      container state {
-        config false;
-        description
-          "State for system-wide parameters";
-        uses named-admin-groups_config;
-        uses named-srlgs_config;
-        uses named-explicit-paths_config;
-        uses named-path-constraints_config;
-      }
+			uses named-admin-groups;
+			uses named-srlgs;
+			uses named-explicit-paths;
+			uses named-path-constraints;
     }
   }
 

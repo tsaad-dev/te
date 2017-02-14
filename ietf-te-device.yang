@@ -196,30 +196,25 @@ module ietf-te-device {
         "lsp path invalidation before taking action delay time";
     }
   }
+  grouping lsp-device-timers {
+    description "TE LSP timers configuration";
+    container config {
+      description
+        "Configuration parameters for TE LSP timers";
+      uses lsp-device-timers_config;
+    
+    }
+    container state {
+      config false;
+      description
+        "State parameters for TE LSP timers";
+      uses lsp-device-timers_config;
+    }
+  }
 
   /**
    * TE global device generic groupings
    */
-
-  /* Global device specific configuration data */
-  grouping globals-device_config {
-    description "Device globals configs";
-    uses lsp-device-timers_config;
-  }
-
-  /* Global device specific state data */
-  grouping globals-device_state {
-    description
-      "Top level grouping for global state data.";
-    leaf tunnels-counter {
-      type uint32;
-      description "Tunnels count";
-    }
-    leaf lsps-counter {
-      type uint32;
-      description "Tunnels count";
-    }
-  }
 
   /* TE interface container data */
   grouping interfaces-grouping {
@@ -289,8 +284,9 @@ module ietf-te-device {
             "A list of named admin-group entries";
           leaf named-admin-group {
             type leafref {
-              path "../../../../../te:globals/te:config/" +
-                "te:named-admin-groups/te:name";
+              path "../../../../../te:globals/" +
+                "te:named-admin-groups/te:named-admin-group/" +
+                "te:config/te:name";
             }
             description "A named admin-group entry";
           }
@@ -326,8 +322,8 @@ module ietf-te-device {
             "A list of named SRLG entries";
           leaf named-srlg {
             type leafref {
-              path "../../../../../te:globals/te:config/" +
-                "te:named-srlgs/te:name";
+              path "../../../../../te:globals/" +
+                "te:named-srlgs/te:named-srlg/te:config/te:name";
             }
             description
               "A named SRLG entry";
@@ -574,16 +570,10 @@ module ietf-te-device {
   }
 
   /* TE globals device augmentation */
-  augment "/te:te/te:globals/te:config" {
+  augment "/te:te/te:globals" {
     description
       "Global TE device specific configuration parameters";
-    uses globals-device_config;
-  }
-  augment "/te:te/te:globals/te:state" {
-    description
-      "Global TE device specific state parameters";
-    uses globals-device_config;
-    uses globals-device_state;
+    uses lsp-device-timers;
   }
 
   /* TE tunnels device configuration augmentation */

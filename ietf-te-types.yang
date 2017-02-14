@@ -63,6 +63,41 @@ module ietf-te-types {
   /*
    * Identities
    */
+
+  identity path-computation-method {
+    description
+     "base identity for supported path computation
+      mechanisms";
+  }
+
+  identity path-locally-computed {
+    base path-computation-method;
+    description
+      "indicates a constrained-path LSP in which the
+      path is computed by the local LER";
+  }
+
+  identity path-externally-queried {
+    base path-computation-method;
+    description
+     "Constrained-path LSP in which the path is
+      obtained by querying an external source, such as a PCE server.
+      In the case that an LSP is defined to be externally queried, it may
+      also have associated explicit definitions (which are provided to the
+      external source to aid computation); and the path that is returned by
+      the external source is not required to provide a wholly resolved
+      path back to the originating system - that is to say, some local
+      computation may also be required";
+  }
+
+  identity path-explicitly-defined {
+    base path-computation-method;
+    description
+     "constrained-path LSP in which the path is
+      explicitly specified as a collection of strict or/and loose
+      hops";
+  }
+
   identity tunnel-type {
     description
       "Base identity from which specific tunnel types are
@@ -1051,215 +1086,6 @@ module ietf-te-types {
    **/
 
   /* Tunnel path selection parameters */
-  grouping path-constraints {
-    description
-      "Tunnel path selection properties grouping";
-    container path-constraints {
-      description
-        "Tunnel path selection properties container";
-      leaf topology-id {
-        type te-types:te-topology-id;
-        description
-          "The tunnel path is computed using the specific
-          topology identified by this identifier";
-      }
-      leaf cost-limit {
-        type uint32 {
-          range "1..4294967295";
-        }
-        description
-          "The tunnel path cost limit.";
-      }
-      leaf hop-limit {
-        type uint8 {
-          range "1..255";
-        }
-        description
-          "The tunnel path hop limit.";
-      }
-      leaf metric-type {
-        type identityref {
-          base path-metric-type;
-        }
-        default path-metric-te;
-        description
-          "The tunnel path metric type.";
-      }
-      leaf tiebreaker-type {
-        type identityref {
-          base path-tiebreaker-type;
-        }
-        default path-tiebreaker-maxfill;
-        description
-          "The tunnel path computation tie breakers.";
-      }
-      leaf ignore-overload {
-        type boolean;
-        description
-          "The tunnel path can traverse overloaded node.";
-      }
-      uses path-affinities;
-      uses path-srlgs;
-    }
-  }
-
-  grouping path-affinities {
-    description
-      "Path affinities grouping";
-    container path-affinities {
-      if-feature named-path-affinities;
-      description
-        "Path affinities container";
-      choice style {
-        description
-          "Path affinities representation style";
-        case values {
-          leaf value {
-            type uint32 {
-              range "0..4294967295";
-            }
-            description
-              "Affinity value";
-          }
-          leaf mask {
-            type uint32 {
-              range "0..4294967295";
-            }
-            description
-              "Affinity mask";
-          }
-        }
-        case named {
-          list constraints {
-            key "usage";
-            leaf usage {
-              type identityref {
-                base resource-affinities-type;
-              }
-              description "Affinities usage";
-            }
-            container constraint {
-              description
-                "Container for named affinities";
-              list affinity-names {
-                key "name";
-                leaf name {
-                  type string;
-                  description
-                    "Affinity name";
-                }
-                description
-                  "List of named affinities";
-              }
-            }
-            description
-              "List of named affinity constraints";
-          }
-        }
-      }
-    }
-  }
-
-  grouping path-srlgs {
-    description
-      "Path SRLG properties grouping";
-    container path-srlgs {
-      description
-        "Path SRLG properties container";
-      choice style {
-        description
-          "Type of SRLG representation";
-        case values {
-          leaf usage {
-            type identityref {
-              base route-exclude-srlg;
-            }
-            description "SRLG usage";
-          }
-          leaf-list values {
-            type te-types:srlg;
-            description "SRLG value";
-          }
-        }
-        case named {
-          list constraints {
-            key "usage";
-            leaf usage {
-              type identityref {
-                base route-exclude-srlg;
-              }
-              description "SRLG usage";
-            }
-            container constraint {
-              description
-                "Container for named SRLG list";
-              list srlg-names {
-                key "name";
-                leaf name {
-                  type string;
-                  description
-                    "The SRLG name";
-                }
-                description
-                  "List named SRLGs";
-              }
-            }
-            description
-              "List of named SRLG constraints";
-          }
-        }
-      }
-    }
-  }
-
-  grouping bidir-assoc-properties {
-    description
-      "TE tunnel associated bidirectional properties
-      grouping";
-    container bidirectional {
-      description
-        "TE tunnel associated bidirectional attributes.";
-      container association {
-        description
-          "Tunnel bidirectional association properties";
-        leaf id {
-          type uint16;
-          description
-            "The TE tunnel association identifier.";
-        }
-        leaf source {
-          type inet:ip-address;
-          description
-            "The TE tunnel association source.";
-        }
-        leaf global-source {
-          type inet:ip-address;
-          description
-            "The TE tunnel association global
-            source.";
-        }
-        leaf type {
-          type identityref {
-            base bidir-association-type;
-          }
-          default bidir-assoc-non-corouted;
-          description
-            "The TE tunnel association type.";
-        }
-        leaf provisioing {
-          type identityref {
-            base bidir-provisioning-mode;
-          }
-          description
-            "Describes the provisioning model of the
-            associated bidirectional LSP";
-          reference
-            "draft-ietf-teas-mpls-tp-rsvpte-ext-
-            associated-lsp, section-3.2";
-        }
-      }
-    }
-  }
   /*** End of TE tunnel groupings ***/
 
   /**
