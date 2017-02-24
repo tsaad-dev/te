@@ -62,24 +62,45 @@ module ietf-te-sr-mpls {
     reference "TBD";
   }
 
-  identity sr-adjacency-protection-type {
+  identity sr-protection-type {
     description
        "The Adj-SID base protection types";
   }
 
-  identity sr-adjacency-protection-type-protected {
-    base sr-adjacency-protection-type;
+  identity sr-protection-type-protected {
+    base sr-protection-type;
     description
-       "The Adj-SID is eligible for protection (e.g.: using
-        IPFRR or MPLS-FRR)";
+       "The Adj-SID is eligible if protected";
   }
 
-  identity sr-adjacency-protection-type-unprotected {
-    base sr-adjacency-protection-type;
+  identity sr-protection-type-unprotected {
+    base sr-protection-type;
     description
-       "The Adj-SID is not eligible for protection (e.g.: using
-        IPFRR or MPLS-FRR)";
+       "The Adj-SID is eligible if unprotected";
   }
+
+  identity sr-protection-type-any {
+    base sr-protection-type;
+    description
+       "The Adj-SID is eligible if protected or unprotected";
+  }
+
+  typedef te-sid-selection-mode {
+		type enumeration {
+			enum ADJ_SID_ONLY {
+				description
+					"The SR-TE tunnel should only use adjacency SIDs
+					to build the SID stack to be pushed for the LSP";
+			}
+			enum MIXED_MODE {
+				description
+					"The SR-TE tunnel can use a mix of adjacency
+					and prefix SIDs to build the SID stack to be pushed
+					to the LSP";
+			}
+		}
+		description "SID selection mode type";
+	}
 
   /* MPLS SR-TE tunnel properties*/
   grouping tunnel-sr-mpls-properties_config {
@@ -92,16 +113,72 @@ module ietf-te-sr-mpls {
     }
   }
 
-  grouping named-sr-path-constraints_config {
+  grouping te-sr-named-path-constraints_config {
     description "foo";
     leaf adjacency-protection {
       type identityref {
-        base sr-adjacency-protection-type;
+        base sr-protection-type;
       }
-      description "foo";
+      description "";
+    }
+  }
+
+  grouping te-sr-named-path-constraints {
+		description "Named TE SR path constraints grouping";
+		container config {
+			description
+				"Configuration parameters related to TE SR named
+         path constraints";
+			uses te-sr-named-path-constraints_config;
+		}
+		container state {
+			config false;
+			description
+				"State parameters related to TE SR named
+         path constraints";
+			uses te-sr-named-path-constraints_config;
+		}
+  }
+
+  grouping te-sr-path-attributes_config {
+    description
+      "Configuration parameters relating to SR-TE LSPs";
+
+    leaf sid-selection-mode {
+      type te-sid-selection-mode;
+      default MIXED_MODE;
+      description
+        "The restrictions placed on the SIDs to be selected by the
+        calculation method for the explicit path when it is
+        instantiated for a SR-TE LSP";
     }
 
+    leaf sid-protection {
+      type identityref {
+        base sr-protection-type;
+      }
+      default sr-protection-type-any;
+      description
+        "When set to protected only SIDs that are
+        protected are to be selected by the calculating method
+        when the explicit path is instantiated by a SR-TE LSP.";
+    }
   }
+
+  grouping te-sr-path-attributes {
+		description "TE SR path properties grouping";
+		container config {
+			description
+				"Configuration parameters related to TE SR paths";
+			uses te-sr-path-attributes_config;
+		}
+		container state {
+			config false;
+			description
+				"State parameters related to TE SR paths";
+			uses te-sr-path-attributes_config;
+		}
+	}
 
   /*** End of MPLS SR-TE tunnel configuration/state */
 
@@ -111,50 +188,22 @@ module ietf-te-sr-mpls {
    */
 
   /* MPLS TE global augmentations */
-  augment "/te:te/te:globals/te:named-path-constraints" +
-          "/te:named-path-constraint/te:config" {
+  augment "/te:te/te:globals/te:named-explicit-paths" +
+          "/te:named-explicit-path" {
     description
-        "Augmentations for MPLS SR-TE config named constraints";
-    uses named-sr-path-constraints_config;
+        "Augmentations for MPLS SR-TE config for named explicit-paths";
+    uses te-sr-path-attributes;
   }
 
   augment "/te:te/te:globals/te:named-path-constraints" +
-          "/te:named-path-constraint/te:state" {
+          "/te:named-path-constraint" {
     description
-        "Augmentations for MPLS SR-TE state named constraints";
-    uses named-sr-path-constraints_config;
+        "Augmentations for MPLS SR-TE config named constraints";
+    uses te-sr-path-attributes;
+		//uses te-sr-named-path-constraints;
   }
 
   /* MPLS TE tunnel augmentations */
-  augment "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
-          "/te:p2p-primary-path/te:config" {
-    when "/te:te/te:tunnels/te:tunnel" +
-      "/te:p2p-primary-paths/te:p2p-primary-path/te:config" +
-      "/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
-      description
-      "When the path signaling protocol is RSVP-TE ";
-    }
-    description
-        "Augmentations for MPLS SR-TE tunnel primary paths";
-    uses tunnel-sr-mpls-properties_config;
-  }
-  augment "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
-          "/te:p2p-primary-path" +
-          "/te:candidate-p2p-secondary-paths" +
-          "/te:candidate-p2p-secondary-path/te:config" {
-    when "/te:te/te:tunnels/te:tunnel" +
-      "/te:p2p-primary-paths" +
-      "/te:p2p-primary-path" +
-      "/te:candidate-p2p-secondary-paths" +
-      "/te:candidate-p2p-secondary-path/te:config" +
-      "/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
-      description
-      "When the path signaling protocol is RSVP-TE ";
-    }
-    description
-        "Augmentations for MPLS SR-TE tunnel secondary paths";
-    uses tunnel-sr-mpls-properties_config;
-  }
 
   /* MPLS TE LSPs augmentations */
 }

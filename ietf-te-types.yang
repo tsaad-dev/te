@@ -98,6 +98,34 @@ module ietf-te-types {
       hops";
   }
 
+  identity LSP_METRIC_TYPE {
+    description
+      "Base identity for types of LSP metric specification";
+  }
+
+  identity LSP_METRIC_RELATIVE {
+    base LSP_METRIC_TYPE;
+    description
+      "The metric specified for the LSPs to which this identity refers
+      is specified as a relative value to the IGP metric cost to the
+      LSP's tail-end.";
+  }
+
+  identity LSP_METRIC_ABSOLUTE {
+    base LSP_METRIC_TYPE;
+    description
+      "The metric specified for the LSPs to which this identity refers
+      is specified as an absolute value";
+  }
+
+  identity LSP_METRIC_INHERITED {
+    base LSP_METRIC_TYPE;
+    description
+      "The metric for for the LSPs to which this identity refers is
+      not specified explicitly - but rather inherited from the IGP
+      cost directly";
+  }
+
   identity tunnel-type {
     description
       "Base identity from which specific tunnel types are
@@ -450,58 +478,26 @@ module ietf-te-types {
     choice type {
       description
         "The explicit route subobject type";
-      case ipv4-address {
+      case ip-address {
         description
-          "IPv4 address explicit route subobject";
-        leaf v4-address {
-          type inet:ipv4-address;
+          "IP address explicit route subobject";
+        leaf ip-address {
+          type inet:ip-address;
           description
-            "An IPv4 address.  This address is
-            treated as a prefix based on the
-            prefix length value below. Bits beyond
-            the prefix are ignored on receipt and
-            SHOULD be set to zero on transmission.";
+            "ERO IP address.";
         }
-        leaf v4-prefix-length {
-          type uint8;
-          description
-            "Length in bits of the IPv4 prefix";
-        }
-        leaf v4-loose {
+        leaf loose {
           type boolean;
           description
-            "Describes whether the object is loose
-            if set, or otherwise strict";
-        }
-      }
-      case ipv6-address {
-        description
-          "IPv6 address Explicit Route Object";
-        leaf v6-address {
-          type inet:ipv6-address;
-          description
-            "An IPv6 address.  This address is
-            treated as a prefix based on the
-            prefix length value below.  Bits
-            beyond the prefix are ignored on
-            receipt and SHOULD be set to zero
-            on transmission.";
-        }
-        leaf v6-prefix-length {
-          type uint8;
-          description
-            "Length in bits of the IPv4 prefix";
-        }
-        leaf v6-loose {
-          type boolean;
-          description
-            "Describes whether the object is loose
-            if set, or otherwise strict";
+            "Indicates whether the object is loose
+             if set, or otherwise strict";
         }
       }
       case as-number {
         leaf as-number {
-          type uint16;
+          type binary {
+            length 16;
+          }
           description "AS number";
         }
         description
@@ -525,7 +521,7 @@ module ietf-te-types {
       }
       case label {
         leaf value {
-          type uint32;
+          type te-types:generalized-label;
           description "the label value";
         }
         description
@@ -541,48 +537,18 @@ module ietf-te-types {
     choice type {
       description
         "The record route subobject type";
-      case ipv4-address {
-        leaf v4-address {
-          type inet:ipv4-address;
+      case ip-address {
+        leaf ip-address {
+          type inet:ip-address;
           description
-            "An IPv4 address.  This address is
-            treated as a prefix based on the prefix
-            length value below. Bits beyond the
-            prefix are ignored on receipt and
-            SHOULD be set to zero on transmission.";
+            "RRO IP address subobject.";
         }
-        leaf v4-prefix-length {
-          type uint8;
+        leaf ip-flags {
+          type binary {
+            length 8;
+          }
           description
-            "Length in bits of the IPv4 prefix";
-        }
-        leaf v4-flags {
-          type uint8;
-          description
-            "IPv4 address sub-object flags";
-          reference "RFC3209";
-        }
-      }
-      case ipv6-address {
-        leaf v6-address {
-          type inet:ipv6-address;
-          description
-            "An IPv6 address.  This address is
-            treated as a prefix based on the
-            prefix length value below. Bits
-            beyond the prefix are ignored on
-            receipt and SHOULD be set to zero
-            on transmission.";
-        }
-        leaf v6-prefix-length {
-          type uint8;
-          description
-            "Length in bits of the IPv4 prefix";
-        }
-        leaf v6-flags {
-          type uint8;
-          description
-            "IPv6 address sub-object flags";
+            "RRO IP address sub-object flags";
           reference "RFC3209";
         }
       }
@@ -604,11 +570,13 @@ module ietf-te-types {
       }
       case label {
         leaf value {
-          type uint32;
+          type generalized-label;
           description "the label value";
         }
-        leaf flags {
-          type uint8;
+        leaf label-flags {
+          type binary {
+            length 8;
+          }
           description
             "Label sub-object flags";
           reference "RFC3209";
@@ -777,6 +745,15 @@ module ietf-te-types {
   /*
    * Typedefs
    */
+
+  typedef percentage {
+    type uint8 {
+      range "0..100";
+    }
+    description
+      "Integer indicating a percentage value";
+  }
+
   typedef performance-metric-normality {
     type enumeration {
       enum "unknown" {        

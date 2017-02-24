@@ -95,11 +95,11 @@ module ietf-te-device {
           "lsp installation delay time";
       }
 
-      leaf time-to-die {
+      leaf time-to-destroy {
         type uint32;
         units seconds;
         description
-          "lsp expire delay time";
+          "lsp expiration delay time";
       }
     }
 
@@ -129,7 +129,7 @@ module ietf-te-device {
       }
 
       leaf label {
-        type uint32;
+        type te-types:generalized-label;
         description
           "downstream label.";
       }
@@ -155,7 +155,7 @@ module ietf-te-device {
       }
 
       leaf label {
-        type uint32;
+        type te-types:generalized-label;
         description
           "upstream label.";
       }
@@ -333,81 +333,136 @@ module ietf-te-device {
     }
   }
 
-  /* TE interface flooding parameters */
-  grouping te-flooding-parameters_config {
-    description "Interface TE flooding properties.";
-    container thresholds {
-      description "Flooding threshold values in percentages.";
-      choice type {
-        description
-          "Describes the flooding threshold step method";
-        case equal-steps {
-          choice equal-step-type {
-            description
-              "Describes whether up and down equal step
-              size are same or different";
-            case up-down-different-step {
-              leaf up-step {
-                type uint8 {
-                  range "0..100";
-                }
-                description
-                  "Set single percentage threshold
-                  for increasing resource
-                    allocation";
-              }
-              leaf down-step {
-                type uint8 {
-                  range "0..100";
-                }
-                description
-                  "Set single percentage threshold
-                  for decreasing resource
-                    allocation";
-              }
-            }
-            case up-down-same-step {
-              leaf step {
-                type uint8 {
-                  range "0..100";
-                }
-                description
-                  "Set single percentage threshold
-                  for increasing and decreasing
-                    resource allocation";
-              }
-            }
-          }
+  grouping te-igp-flooding-bandwidth_config {
+    description
+      "Configurable items for igp flooding bandwidth
+      threshold configuration.";
+    leaf threshold-type {
+      type enumeration {
+        enum DELTA {
+          description
+            "DELTA indicates that the local
+            system should flood IGP updates when a
+            change in reserved bandwidth >= the specified
+            delta occurs on the interface.";
         }
-        case unequal-steps {
-          list up-steps {
-            key "value";
-            description
-              "Set nultuple percentage thresholds for
-              increasing resource allocation";
-            leaf value {
-              type uint8 {
-                range "0..100";
-              }
-              description
-                "Percentage value";
-            }
-          }
-          list down-steps {
-            key "value";
-            description
-              "Set nultuple percentage thresholds for
-              decreasing resource allocation";
-            leaf value {
-              type uint8 {
-                range "0..100";
-              }
-              description
-                "Percentage value";
-            }
-          }
+        enum THRESHOLD_CROSSED {
+          description
+            "THRESHOLD-CROSSED indicates that
+            the local system should trigger an update (and
+            hence flood) the reserved bandwidth when the
+            reserved bandwidth changes such that it crosses,
+            or becomes equal to one of the threshold values.";
         }
       }
+      description
+        "The type of threshold that should be used to specify the
+        values at which bandwidth is flooded. DELTA indicates that
+        the local system should flood IGP updates when a change in
+        reserved bandwidth >= the specified delta occurs on the
+        interface. Where THRESHOLD_CROSSED is specified, the local
+        system should trigger an update (and hence flood) the
+        reserved bandwidth when the reserved bandwidth changes such
+        that it crosses, or becomes equal to one of the threshold
+        values";
+    }
+
+    leaf delta-percentage {
+      when "../threshold-type = 'DELTA'" {
+        description
+          "The percentage delta can only be specified when the
+          threshold type is specified to be a percentage delta of
+          the reserved bandwidth";
+      }
+      type te-types:percentage;
+      description
+        "The percentage of the maximum-reservable-bandwidth
+        considered as the delta that results in an IGP update
+        being flooded";
+    }
+    leaf threshold-specification {
+      when "../threshold-type = 'THRESHOLD_CROSSED'" {
+        description
+          "The selection of whether mirrored or separate threshold
+          values are to be used requires user specified thresholds to
+          be set";
+      }
+      type enumeration {
+        enum MIRRORED_UP_DOWN {
+          description
+            "MIRRORED_UP_DOWN indicates that a single set of
+            threshold values should be used for both increasing
+            and decreasing bandwidth when determining whether
+            to trigger updated bandwidth values to be flooded
+            in the IGP TE extensions.";
+        }
+        enum SEPARATE_UP_DOWN {
+          description
+            "SEPARATE_UP_DOWN indicates that a separate
+            threshold values should be used for the increasing
+            and decreasing bandwidth when determining whether
+            to trigger updated bandwidth values to be flooded
+            in the IGP TE extensions.";
+        }
+      }
+      description
+        "This value specifies whether a single set of threshold
+        values should be used for both increasing and decreasing
+        bandwidth when determining whether to trigger updated
+        bandwidth values to be flooded in the IGP TE extensions.
+        MIRRORED-UP-DOWN indicates that a single value (or set of
+        values) should be used for both increasing and decreasing
+        values, where SEPARATE-UP-DOWN specifies that the increasing
+        and decreasing values will be separately specified";
+    }
+
+    leaf-list up-thresholds {
+      when "../threshold-type = 'THRESHOLD_CROSSED'" +
+        "and ../threshold-specification = 'SEPARATE_UP_DOWN'" {
+          description
+            "A list of up-thresholds can only be specified when the
+            bandwidth update is triggered based on crossing a
+            threshold and separate up and down thresholds are
+            required";
+      }
+      type te-types:percentage;
+      description
+        "The thresholds (expressed as a percentage of the maximum
+        reservable bandwidth) at which bandwidth updates are to be
+        triggered when the bandwidth is increasing.";
+    }
+
+    leaf-list down-thresholds {
+      when "../threshold-type = 'THRESHOLD_CROSSED'" +
+        "and ../threshold-specification = 'SEPARATE_UP_DOWN'" {
+          description
+            "A list of down-thresholds can only be specified when the
+            bandwidth update is triggered based on crossing a
+            threshold and separate up and down thresholds are
+            required";
+      }
+      type te-types:percentage;
+      description
+        "The thresholds (expressed as a percentage of the maximum
+        reservable bandwidth) at which bandwidth updates are to be
+        triggered when the bandwidth is decreasing.";
+    }
+
+    leaf-list up-down-thresholds {
+      when "../threshold-type = 'THRESHOLD_CROSSED'" +
+        "and ../threshold-specification = 'MIRRORED_UP_DOWN'" {
+          description
+            "A list of thresholds corresponding to both increasing
+            and decreasing bandwidths can be specified only when an
+            update is triggered based on crossing a threshold, and
+            the same up and down thresholds are required.";
+      }
+      type te-types:percentage;
+      description
+        "The thresholds (expressed as a percentage of the maximum
+        reservable bandwidth of the interface) at which bandwidth
+        updates are flooded - used both when the bandwidth is
+        increasing and decreasing";
     }
   }
 
@@ -524,8 +579,8 @@ module ietf-te-device {
       uses te-metric_config;
       uses te-admin-groups_config;
       uses te-srlgs_config;
+			uses te-igp-flooding-bandwidth_config;
       uses te-switching-cap_config;
-      uses te-flooding-parameters_config;
     }
     container state {
       config false;
@@ -535,7 +590,7 @@ module ietf-te-device {
       uses te-admin-groups_config;
       uses te-srlgs_config;
       uses te-switching-cap_config;
-      uses te-flooding-parameters_config;
+			uses te-igp-flooding-bandwidth_config;
       uses te-advertisements_state;
     }
   }
@@ -548,13 +603,13 @@ module ietf-te-device {
       description
         "Configuration parameters for all interface TE
          attributes";
-      uses te-flooding-parameters_config;
+			uses te-igp-flooding-bandwidth_config;
     }
     container state {
       config false;
       description
         "State parameters for all interface TE metric";
-      uses te-flooding-parameters_config;
+			uses te-igp-flooding-bandwidth_config;
     }
   }
   /*** End of TE interfaces device groupings ***/

@@ -11,6 +11,10 @@ module ietf-te {
     prefix te-types;
   }
 
+  import ietf-te-mpls-types {
+    prefix "te-mpls-types";
+  }
+
   import ietf-inet-types {
     prefix inet;
   }
@@ -83,18 +87,18 @@ module ietf-te {
   /**
    * TE tunnel generic groupings
    */
-  grouping path-include-route-objects {
+  grouping path-route-objects {
     description
-      "List of EROs to be included when performing the
-       path computation.";
+      "List of EROs to be included or excluded when performing 
+       the path computation.";
     container explicit-route-objects {
       description
-        "Container for the includer route object list";
-      list include-explicit-route-objects {
+        "Container for the include or exclude route object list";
+      list explicit-route-object {
         key index;
         description
-          "List of explicit route objects to include in
-           path computation";
+          "List of explicit route objects to include or
+           exclude in path computation";
         leaf index {
           type uint8 {
             range "0..255";
@@ -102,30 +106,12 @@ module ietf-te {
           description
             "Index of this explicit route object";
         }
-        uses te-types:explicit-route-subobject;
-      }
-    }
-  }
-
-  grouping path-exclude-route-objects {
-    description
-      "List of EROs to be included when performing the
-       path computation.";
-    container exclude-explicit-route-objects {
-      description
-        "Container for the includer route object list";
-      list exclude-explicit-route-objects {
-        key index;
-        leaf index {
-          type uint8 {
-            range "0..255";
+        leaf explicit-route-usage {
+          type identityref {
+            base te-types:route-usage-type;
           }
-          description
-            "Index of this explicit route object";
+          description "An explicit-route hop action.";
         }
-        description
-          "List of explicit route objects to exclude in
-           path computation";
         uses te-types:explicit-route-subobject;
       }
     }
@@ -135,7 +121,6 @@ module ietf-te {
     description
       "Path affinities grouping";
     container path-affinities {
-      if-feature te-types:named-path-affinities;
       description
         "Path affinities container";
       choice style {
@@ -390,6 +375,12 @@ module ietf-te {
           }
           description "LSP type P2P or P2MP";
         }
+        leaf path-signaling-type {
+          type identityref {
+            base te-types:path-signaling-type;
+          }
+          description "TE tunnel path signaling type";
+        }
       }
     }
   }
@@ -506,13 +497,6 @@ module ietf-te {
         "Address of the external path computation
          server";
     }
-    leaf reoptimize-timer {
-      type uint16;
-      units seconds;
-      description
-       "frequency of reoptimization of
-        a traffic engineered LSP";
-    }
     leaf compute-only {
       type empty;
       description
@@ -525,32 +509,13 @@ module ietf-te {
       type boolean;
       description "A CSPF dynamically computed path";
     }
-    leaf explicit-path-name {
+    leaf named-explicit-path {
       when "../path-computation-method = 'path-explicitly-defined'";
       type leafref {
         path "../../../../../../globals/named-explicit-paths/"
         + "named-explicit-path/config/name";
       }
       description "The explicit-path name";
-    }
-    list explicit-route-objects {
-      key "index";
-      description
-        "List of explicit route objects";
-      leaf index {
-        type uint8 {
-          range "0..255";
-        }
-        description
-          "Index of this explicit route object";
-      }
-      leaf explicit-route-usage {
-        type identityref {
-          base te-types:route-usage-type;
-        }
-        description "An explicit-route hop action.";
-      }
-      uses te-types:explicit-route-subobject;
     }
     leaf named-path-constraint {
       if-feature te-types:named-path-constraints;
@@ -628,9 +593,257 @@ module ietf-te {
       default te-types:state-up;
       description "TE tunnel administrative state.";
     }
+    leaf reoptimize-timer {
+      type uint16;
+      units seconds;
+      description
+       "frequency of reoptimization of
+        a traffic engineered LSP";
+    }
   }
 
-  grouping tunnel-params_config {
+  grouping te-tunnel-bandwidth_config {
+    description
+      "Configuration parameters related to bandwidth for a tunnel";
+
+    leaf specification-type {
+      type te-mpls-types:te-bandwidth-type;
+      default SPECIFIED;
+      description
+        "The method used for settign the bandwidth, either explicitly
+        specified or configured";
+    }
+
+    leaf set-bandwidth {
+      when "../specification-type = 'te-mpls-types:SPECIFIED'" {
+       description
+         "The bandwidth value when bandwidth is explicitly
+          specified";
+      }
+      type te-mpls-types:bandwidth-kbps;
+      description
+       "set bandwidth explicitly, e.g., using
+        offline calculation";
+    }
+    leaf class-type {
+      type uint32 {
+        range "0..7";
+      }
+      description
+        "The Class-Type of traffic transported by the LSP.";
+      reference "RFC4124: section-4.3.1";
+    }
+  }
+
+  grouping te-tunnel-bandwidth_state {
+    description
+      "Operational state parameters relating to bandwidth for a tunnel";
+
+    leaf signaled-bandwidth {
+      type te-mpls-types:bandwidth-kbps;
+      description
+        "The currently signaled bandwidth of the LSP. In the case where
+        the bandwidth is specified explicitly, then this will match the
+        value of the set-bandwidth leaf; in cases where the bandwidth is
+        dynamically computed by the system, the current value of the
+        bandwidth should be reflected.";
+    }
+  }
+
+  grouping te-lsp-auto-bandwidth_config {
+    description
+      "Configuration parameters related to autobandwidth";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "enables mpls auto-bandwidth on the
+         lsp";
+    }
+
+    leaf min-bw {
+      type te-mpls-types:bandwidth-kbps;
+      description
+        "set the minimum bandwidth in Kbps for an
+         auto-bandwidth LSP";
+    }
+
+    leaf max-bw {
+      type te-mpls-types:bandwidth-kbps;
+      description
+        "set the maximum bandwidth in Kbps for an
+         auto-bandwidth LSP";
+    }
+
+    leaf adjust-interval {
+      type uint32;
+      description
+        "time in seconds between adjustments to
+         LSP bandwidth";
+    }
+
+    leaf adjust-threshold {
+      type te-types:percentage;
+      description
+        "percentage difference between the LSP's
+         specified bandwidth and its current bandwidth
+         allocation -- if the difference is greater than the
+         specified percentage, auto-bandwidth adjustment is
+         triggered";
+    }
+  }
+
+  grouping te-lsp-overflow_config {
+    description
+     "configuration for mpls lsp bandwidth
+      overflow adjustment";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+       "enables mpls lsp bandwidth overflow
+        adjustment on the lsp";
+    }
+
+    leaf overflow-threshold {
+      type te-types:percentage;
+      description
+       "bandwidth percentage change to trigger
+        an overflow event";
+
+    }
+
+    leaf trigger-event-count {
+      type uint16;
+      description
+       "number of consecutive overflow sample
+        events needed to trigger an overflow adjustment";
+    }
+  }
+
+  grouping te-lsp-underflow_config {
+    description
+      "configuration for mpls lsp bandwidth
+      underflow adjustment";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+       "enables bandwidth underflow
+        adjustment on the lsp";
+    }
+
+    leaf underflow-threshold {
+      type te-types:percentage;
+      description
+       "bandwidth percentage change to trigger
+        and underflow event";
+    }
+
+    leaf trigger-event-count {
+      type uint16;
+      description
+       "number of consecutive underflow sample
+        events needed to trigger an underflow adjustment";
+    }
+  }
+
+  grouping te-tunnel-bandwidth_top {
+    description
+      "Top level grouping for specifying bandwidth for a tunnel";
+
+    container bandwidth {
+      description
+        "Bandwidth configuration for TE LSPs";
+
+      container config {
+        description
+          "Configuration parameters related to bandwidth on TE
+          tunnels:";
+        uses te-tunnel-bandwidth_config;
+      }
+
+      container state {
+        config false;
+        description
+          "State parameters related to bandwidth
+          configuration of TE tunnels";
+        uses te-tunnel-bandwidth_config;
+        uses te-tunnel-bandwidth_state;
+      }
+
+      container auto-bandwidth {
+        when "../config/specification-type = 'AUTO'" {
+          description
+            "Include this container for auto bandwidth
+            specific configuration";
+        }
+        description
+          "Parameters related to auto-bandwidth";
+
+        container config {
+          description
+            "Configuration parameters relating to MPLS
+            auto-bandwidth on the tunnel.";
+          uses te-lsp-auto-bandwidth_config;
+        }
+        container state {
+          config false;
+          description
+            "State parameters relating to MPLS
+            auto-bandwidth on the tunnel.";
+          uses te-lsp-auto-bandwidth_config;
+        }
+
+        container overflow {
+          description
+            "configuration of MPLS overflow bandwidth
+            adjustement for the LSP";
+
+          container config {
+            description
+              "Config information for MPLS overflow bandwidth
+              adjustment";
+            uses te-lsp-overflow_config;
+          }
+
+          container state {
+            config false;
+            description
+              "Config information for MPLS overflow bandwidth
+              adjustment";
+            uses te-lsp-overflow_config;
+          }
+        }
+
+        container underflow {
+          description
+            "configuration of MPLS underflow bandwidth
+            adjustement for the LSP";
+
+          container config {
+            description
+              "Config information for MPLS underflow bandwidth
+              adjustment";
+            uses te-lsp-underflow_config;
+          }
+
+          container state {
+            config false;
+            description
+              "State information for MPLS underflo
+              adjustment";
+            uses te-lsp-underflow_config;
+          }
+        }
+      }
+    }
+  }
+
+  grouping tunnel-p2p-params_config {
     description
       "Configuration parameters relating to TE tunnel";
     leaf name {
@@ -653,20 +866,6 @@ module ietf-te {
       description
         "Textual description for this TE tunnel";
     }
-    leaf setup-priority {
-      type uint8 {
-        range "0..7";
-      }
-      description
-        "TE LSP setup priority";
-    }
-    leaf hold-priority {
-      type uint8 {
-        range "0..7";
-      }
-      description
-        "TE LSP hold priority";
-    }
     leaf protection-type {
       type identityref {
         base te-types:lsp-prot-type;
@@ -679,6 +878,52 @@ module ietf-te {
       }
       default te-types:state-up;
       description "TE tunnel administrative state.";
+    }
+    leaf preference {
+      type uint8 {
+        range "1..255";
+      }
+      description
+        "Specifies a preference for this tunnel.
+        A lower number signifies a better preference";
+    }
+    leaf metric-type {
+      type identityref {
+        base te-types:LSP_METRIC_TYPE;
+      }
+      default te-types:LSP_METRIC_INHERITED;
+      description
+        "The type of metric specification that should be used to set
+        the LSP(s) metric";
+    }
+    leaf metric {
+      type int32;
+      description
+        "The value of the metric that should be specified. The value
+        supplied in this leaf is used in conjunction with the metric
+        type to determine the value of the metric used by the system.
+        Where the metric-type is set to LSP_METRIC_ABSOLUTE - the
+        value of this leaf is used directly; where it is set to
+        LSP_METRIC_RELATIVE, the relevant (positive or negative)
+        offset is used to formulate the metric; where metric-type
+        is LSP_METRIC_INHERITED, the value of this leaf is not
+        utilised";
+    }
+    leaf shortcut-eligible {
+      type boolean;
+      default "true";
+      description
+        "Whether this LSP is considered to be eligible for us as a
+        shortcut in the IGP. In the case that this leaf is set to
+        true, the IGP SPF calculation uses the metric specified to
+        determine whether traffic should be carried over this LSP";
+    }
+    leaf reoptimize-timer {
+      type uint16;
+      units seconds;
+      description
+       "frequency of reoptimization of
+        a traffic engineered LSP";
     }
     leaf source {
       type inet:ip-address;
@@ -701,6 +946,20 @@ module ietf-te {
       type binary;
       description
         "TE tunnel destination termination point identifier.";
+    }
+    leaf setup-priority {
+      type uint8 {
+        range "0..7";
+      }
+      description
+        "TE LSP setup priority";
+    }
+    leaf hold-priority {
+      type uint8 {
+        range "0..7";
+      }
+      description
+        "TE LSP hold priority";
     }
     container hierarchical-link-id {
         description
@@ -732,7 +991,7 @@ module ietf-te {
     uses bidir-assoc-properties;
   }
 
-  grouping tunnel-params_state {
+  grouping tunnel-p2p-params_state {
     description
       "State parameters relating to TE tunnel";
     leaf oper-status {
@@ -805,6 +1064,7 @@ module ietf-te {
         been selected of the candidate secondary paths";
     }
   }
+
   grouping tunnel-p2p-properties {
     description
       "Top level grouping for tunnel properties.";
@@ -812,16 +1072,18 @@ module ietf-te {
       description
         "Configuration parameters relating to
          tunnel properties";
-      uses tunnel-params_config;
+      uses tunnel-p2p-params_config;
     }
     container state {
       config false;
       description
         "State information associated with tunnel
          properties";
-      uses tunnel-params_config;
-      uses tunnel-params_state;
+      uses tunnel-p2p-params_config;
+      uses tunnel-p2p-params_state;
     }
+		uses te-tunnel-bandwidth_top;
+
     container p2p-primary-paths {
       description "Set of P2P primary aths container";
       list p2p-primary-path {
@@ -924,15 +1186,15 @@ module ietf-te {
    */
   grouping lsp-record-route-information_state {
     description "recorded route information grouping";
-    container lsp-record-route {
+    container lsp-record-route-subobjects {
       description "RSVP recorded route object information";
-      list record-route-subobjects {
-        when "../../origin-type != 'ingress'" {
+      list record-route-subobject {
+        when "../../origin-type = 'ingress'" {
           description "Applicable on non-ingress LSPs only";
         }
-        key "subobject-index";
-        description "";
-        leaf subobject-index {
+        key "index";
+        description "Record route sub-object list";
+        leaf index {
           type uint32;
           description "RRO subobject index";
         }
@@ -1093,6 +1355,12 @@ module ietf-te {
       type te-types:srlg;
       description "An SRLG value";
     }
+    leaf cost {
+      type uint32;
+      description
+        "SRLG associated cost. Used during path to append
+         the path cost when traversing a link with this SRLG";
+    }
   }
 
   grouping named-srlgs {
@@ -1137,24 +1405,27 @@ module ietf-te {
         "A string name that uniquely identifies an
         explicit path";
     }
-    list explicit-route-objects {
-      key "index";
-      description
-        "List of explicit route objects";
-      leaf index {
-        type uint8 {
-          range "0..255";
-        }
+    container explicit-route-objects {
+      description "Explicit route objects container";
+      list explicit-route-object {
+        key "index";
         description
-          "Index of this explicit route object";
-      }
-      leaf explicit-route-usage {
-        type identityref {
-          base te-types:route-usage-type;
+          "List of explicit route objects";
+        leaf index {
+          type uint8 {
+            range "0..255";
+          }
+          description
+            "Index of this explicit route object";
         }
-        description "An explicit-route hop action.";
+        leaf explicit-route-usage {
+          type identityref {
+            base te-types:route-usage-type;
+          }
+          description "An explicit-route hop action.";
+        }
+        uses te-types:explicit-route-subobject;
       }
-      uses te-types:explicit-route-subobject;
     }
   }
 
@@ -1241,10 +1512,9 @@ module ietf-te {
       description
         "The tunnel path can traverse overloaded node.";
     }
-    uses path-include-route-objects;
-    uses path-exclude-route-objects;
     uses path-affinities;
     uses path-srlgs;
+    uses path-route-objects;
   }
 
   grouping named-path-constraints {

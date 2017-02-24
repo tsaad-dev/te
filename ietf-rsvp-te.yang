@@ -78,29 +78,32 @@ module ietf-rsvp-te {
 
   grouping lsp-record-route-information_state {
     description "recorded route information grouping";
-    container record-route-object {
-      description "RSVP recorded route object information";
-      list path-record-route-subobjects {
+    container incoming-record-route-subobjects {
+      description "RSVP recorded route object incoming information";
+      list incoming-record-route-subobject {
         when "../../te:origin-type != 'ingress'" {
           description "Applicable on non-ingress LSPs only";
         }
-        key "subobject-index";
+        key "index";
         description
           "List of RSVP Path record-route objects";
-        leaf subobject-index {
+        leaf index {
           type uint32;
           description "RRO subobject index";
         }
         uses te-types:record-route-subobject;
       }
-      list resv-record-route-subobjects {
+    }
+    container outgoing-record-route-subobjects {
+      description "RSVP recorded route object outgoing information";
+      list outgoing-record-route-subobject {
         when "../../te:origin-type != 'egress'" {
           description "Applicable on non-egress LSPs only";
         }
-        key "subobject-index";
+        key "index";
         description
           "List of RSVP Resv record-route objects";
-        leaf subobject-index {
+        leaf index {
           type uint32;
           description "RRO subobject index";
         }
@@ -111,29 +114,29 @@ module ietf-rsvp-te {
 
   grouping lsp-explicit-route-information_state {
     description "RSVP-TE LSP explicit-route information";
-    container explicit-route-object {
+    container explicit-route-objects {
       description "Explicit route object information";
-      list incoming-explicit-route-subobjects {
+      list incoming-explicit-route-subobject {
         when "../../te:origin-type != 'ingress'" {
           description "Applicable on non-ingress LSPs only";
         }
-        key "subobject-index";
+        key "index";
         description
           "List of incoming RSVP Path explicit-route objects";
-        leaf subobject-index {
+        leaf index {
           type uint32;
           description "ERO subobject index";
         }
         uses te-types:explicit-route-subobject;
       }
-      list outgoing-explicit-route-subobjects {
+      list outgoing-explicit-route-subobject {
         when "../../te:origin-type != 'egress'" {
           description "Applicable on non-egress LSPs only";
         }
-        key "subobject-index";
+        key "index";
         description
           "List of outgoing RSVP Path explicit-route objects";
-        leaf subobject-index {
+        leaf index {
           type uint32;
           description "ERO subobject index";
         }
@@ -249,23 +252,6 @@ module ietf-rsvp-te {
     }
   }
 
-  grouping tunnel-properties {
-    description
-      "Top level grouping for LSP properties.";
-    container config {
-      description
-        "Configuration parameters relating to
-        LSP properties";
-      uses lsp-properties_config;
-    }
-    container state {
-      config false;
-      description
-        "State information associated with LSP
-        properties";
-      uses lsp-properties_config;
-    }
-  }
   /*** End of RSVP-TE LSP groupings ***/
 
   /**
@@ -353,8 +339,8 @@ module ietf-rsvp-te {
 
   /* Linkage to per RSVP interface */
   augment "/rt:routing/rt:control-plane-protocols/"
-  + "rt:control-plane-protocol/rsvp:rsvp/rsvp:interfaces/" +
-  "rsvp:interface" {
+    + "rt:control-plane-protocol/rsvp:rsvp/rsvp:interfaces/" +
+    "rsvp:interface" {
     description
       "RSVP-TE generic data augmentation pertaining to specific
        interface";
@@ -444,7 +430,7 @@ module ietf-rsvp-te {
    */
 
   /* TE tunnel augmentation */
-  augment "/te:te/te:tunnels/te:tunnel" {
+  augment "/te:te/te:tunnels/te:tunnel/te:config" {
     when "/te:te/te:tunnels/te:tunnel" +
       "/te:p2p-primary-paths/te:p2p-primary-path/te:config" +
       "/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
@@ -453,7 +439,19 @@ module ietf-rsvp-te {
     }
     description
       "RSVP-TE generic data augmentation pertaining to TE tunnels";
-    uses tunnel-properties;
+    uses lsp-properties_config;
+  }
+
+  augment "/te:te/te:tunnels/te:tunnel/te:state" {
+    when "/te:te/te:tunnels/te:tunnel" +
+      "/te:p2p-primary-paths/te:p2p-primary-path/te:config" +
+      "/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
+      description
+      "When the path signaling protocol is RSVP-TE ";
+    }
+    description
+      "RSVP-TE generic data augmentation pertaining to TE tunnels";
+    uses lsp-properties_config;
   }
 
   /* TE LSP augmentation */
@@ -466,6 +464,20 @@ module ietf-rsvp-te {
     description
       "RSVP-TE generic data augmentation pertaining to specific TE
        LSP";
+
+    leaf associated-rsvp-session {
+      type leafref {
+        path "/rt:routing/rt:control-plane-protocols/"
+           + "rt:control-plane-protocol/rsvp:rsvp/rsvp:globals/"
+           + "rsvp:sessions/rsvp:session/rsvp:local-index";
+      }
+      description
+        "If the signalling protocol specified for this path is
+        RSVP-TE, this leaf provides a reference to the associated
+        session within the RSVP-TE protocol sessions list, such
+        that details of the signaling can be retrieved.";
+    }
+    
     uses lsp-properties_config;
     uses lsp-explicit-route-information_state;
     uses lsp-record-route-information_state;

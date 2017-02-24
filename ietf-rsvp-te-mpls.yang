@@ -130,136 +130,9 @@ module ietf-rsvp-te-mpls {
     }
   }
 
-  grouping  lsp-overflow_config {
-    description "configuration for mpls lsp bandwidth
-      overflow adjustment";
-
-    leaf enabled {
-      type boolean;
-      default false;
-      description "enables mpls lsp bandwidth overflow
-        adjustment on the lsp";
-    }
-
-    leaf overflow-threshold {
-      type uint32;
-      description "bandwidth percentage change to trigger
-        an overflow event";
-
-    }
-
-    leaf trigger-event-count {
-      type uint16;
-      description "number of consecutive overflow sample
-        events needed to trigger an overflow adjustment";
-    }
-  }
-
-  grouping lsp-underflow_config {
-    description
-      "configuration for mpls lsp bandwidth
-      underflow adjustment";
-
-    leaf enabled {
-      type boolean;
-      default false;
-      description "enables bandwidth underflow
-        adjustment on the lsp";
-    }
-
-    leaf underflow-threshold {
-      type uint32;
-      description "bandwidth percentage change to trigger
-        and underflow event";
-    }
-
-    leaf trigger-event-count {
-      type uint16;
-      description "number of consecutive underflow sample
-        events needed to trigger an underflow adjustment";
-    }
-  }
-
-  grouping lsp-auto-bandwidth_config {
-    description
-      "Auto-Bandwidth grouping";
-    container auto-bandwidth {
-      description "configure auto-bandwidth operation in
-        which devices automatically adjust bandwidth to meet
-        requirements";
-
-      leaf enabled {
-        type boolean;
-        default false;
-        description "enables mpls auto-bandwidth on the
-          lsp";
-      }
-
-      leaf min-bw {
-        type uint32;
-        description "set the minimum bandwidth in Mbps for an
-          auto-bandwidth LSP";
-      }
-
-      leaf max-bw {
-        type uint32;
-        description "set the maximum bandwidth in Mbps for an
-          auto-bandwidth LSP";
-      }
-
-      leaf adjust-interval {
-        type uint32;
-        description "time in seconds between adjustments to
-          LSP bandwidth";
-      }
-
-      leaf adjust-threshold {
-        type uint32;
-        description "percentage difference between the LSP's
-          specified bandwidth and its current bandwidth
-          allocation -- if the difference is greater than the
-          specified percentage, auto-bandwidth adjustment is
-          triggered";
-      }
-
-      container overflow {
-        description "configuration of MPLS overflow bandwidth
-          adjustement for the LSP";
-        uses lsp-overflow_config;
-      }
-
-      container underflow {
-        description "configuration of MPLS underflow bandwidth
-          adjustement for the LSP";
-        uses lsp-underflow_config;
-      }
-    }
-  }
-
-  grouping lsp-bandwidth_config {
-    description
-      "LSP bandwidth grouping";
-    leaf class-type {
-      type uint32 {
-        range "0..7";
-      }
-      description
-        "The Class-Type of traffic transported by the LSP.";
-      reference "RFC4124: section-4.3.1";
-    }
-    leaf static-bandwidth {
-      type uint32;
-      description
-        "Static bandwidth, e.g., using
-         offline calculation";
-    }
-    uses lsp-auto-bandwidth_config;
-  }
-
   grouping tunnel-properties-mpls {
     description
       "Top level grouping for LSP properties.";
-        uses lsp-bandwidth_config;
         uses lsp-session-attributes-obj-flags-mpls_config;
         uses lsp-attributes-flags-mpls_config;
   }
@@ -267,7 +140,6 @@ module ietf-rsvp-te-mpls {
   grouping lsp-properties-mpls {
     description
       "Top level grouping for LSP properties.";
-      uses lsp-bandwidth_config;
       uses lsp-session-attributes-obj-flags-mpls_config;
       uses lsp-attributes-flags-mpls_config;
   }
@@ -365,6 +237,129 @@ module ietf-rsvp-te-mpls {
       }
     }
   }
+
+  grouping bandwidth-mpls-constraints {
+    description "Bandwidth constraints.";
+    container bandwidth-mpls-constraints {
+      description
+        "Holds the bandwidth contraints properties";
+      leaf maximum-reservable {
+        type uint32 {
+          range "0..4294967295";
+        }
+        description
+          "The maximum reservable bandwidth on the
+          interface";
+      }
+      leaf-list bc-value {
+        type uint32 {
+          range "0..4294967295";
+        }
+        max-elements 8;
+        description
+          "The bandwidth contraint type";
+      }
+    }
+  }
+
+  grouping bandwidth-constraint-values {
+    description
+      "Packet bandwidth contraints values";
+    choice value-type {
+      description
+        "Value representation";
+      case percentages {
+        container perc-values {
+          uses bandwidth-mpls-constraints;
+          description
+            "Percentage values";
+        }
+      }
+      case absolutes {
+        container abs-values {
+          uses bandwidth-mpls-constraints;
+          description
+            "Absolute values";
+        }
+      }
+    }
+  }
+
+  grouping bandwidth-mpls-reservable_config {
+    description
+      "Interface bandwidth reservable configuration grouping";
+    choice bandwidth-value {
+      description "Reservable bandwidth configuraiton choice";
+      case absolute {
+        leaf absolute-value {
+          type uint32;
+          description "Absolute value of the bandwidth";
+        }
+      }
+      case precentage {
+        leaf percent-value {
+          type uint32 {
+            range "0..4294967295";
+          }
+          description "Percentage reservable bandwidth";
+        }
+        description
+          "The maximum reservable bandwidth on the
+          interface";
+      }
+    }
+    choice bc-model-type {
+      description
+        "Reservable bandwidth percentage capacity
+        values.";
+      case bc-model-rdm {
+        container bc-model-rdm {
+          description
+            "Russian Doll Model Bandwidth Constraints.";
+          uses bandwidth-mpls-constraints;
+        }
+      }
+      case bc-model-mam {
+        container bc-model-mam {
+          uses bandwidth-mpls-constraints;
+          description
+            "Maximum Allocation Model Bandwidth
+            Constraints.";
+        }
+      }
+      case bc-model-mar {
+        container bc-model-mar {
+          uses bandwidth-mpls-constraints;
+          description
+            "Maximum Allocation with Reservation Model
+            Bandwidth Constraints.";
+        }
+      }
+    }
+  }
+
+  grouping bandwidth-mpls-reservable {
+    description
+      "Packet reservable bandwidth";
+    container bandwidth-mpls-reservable {
+      description 
+        "Interface bandwidth reservable container";
+      container config {
+        description
+          "Configuration parameters relating to
+           interface bandwidth reservable properties";
+        uses bandwidth-mpls-reservable_config;
+      }
+      container state {
+        config false;
+        description
+          "State parameters relating to
+           interface bandwidth reservable properties";
+        uses bandwidth-mpls-reservable_config;
+      }
+    }
+  }
+
   /* End of RSVP-TE interface groupings */
 
   /* RSVP-TE FRR groupings */
@@ -387,14 +382,32 @@ module ietf-rsvp-te-mpls {
       description
         "FRR backup tunnel type";
       case static-tunnel {
-        list static-backups {
-          key "tunnel-name";
-          description
-            "List of static backup tunnels that
-            protect the RSVP-TE interface.";
-          leaf tunnel-name {
-            type string;
-            description "FRR Backup tunnel";
+        container static-backups {
+          description "List of static backups";
+          list static-backup {
+            key "backup-tunnel-name";
+            description
+              "List of static backup tunnels that
+              protect the RSVP-TE interface.";
+            container config {
+              description "Configuration for backup tunnels";
+              leaf backup-tunnel-name {
+                type leafref {
+                  path "/te:te/te:tunnels/te:tunnel/te:name";
+                }
+                description "FRR Backup tunnel name";
+              }
+            }
+            container state {
+              config false;
+              description "State for backup tunnels";
+              leaf backup-tunnel-name {
+                type leafref {
+                  path "/te:te/te:tunnels/te:tunnel/te:name";
+                }
+                description "FRR Backup tunnel name";
+              }
+            }
           }
         }
       }
@@ -531,24 +544,12 @@ module ietf-rsvp-te-mpls {
    * Augmentation to TE generic module
    */
   augment "/te:te/te:tunnels/te:tunnel/te:config" {
-    when "/te:te/te:tunnels/te:tunnel" +
-      "/te:p2p-primary-paths/te:p2p-primary-path/te:config" +
-      "/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
-      description
-      "When the path signaling protocol is RSVP-TE ";
-    }
     description 
       "Augmentations for RSVP-TE MPLS TE tunnel properties";
     uses tunnel-properties-mpls;
   }
 
   augment "/te:te/te:tunnels/te:tunnel/te:state" {
-    when "/te:te/te:tunnels/te:tunnel" +
-      "/te:p2p-primary-paths/te:p2p-primary-path/te:config" +
-      "/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
-      description
-      "When the path signaling protocol is RSVP-TE ";
-    }
     description 
       "Augmentations for RSVP-TE MPLS TE tunnel properties";
     uses tunnel-properties-mpls;
@@ -566,16 +567,21 @@ module ietf-rsvp-te-mpls {
     uses lps-backup-info_state;
   }
 
+  augment "/te:te/te-dev:interfaces/te-dev:interface" {
+    description
+      "RSVP reservable bandwidth configuration properties";
+    uses bandwidth-mpls-reservable;
+  }
+
   augment "/te:te/te-dev:interfaces/te-dev:interface/te-dev:config" {
     description
       "RSVP reservable bandwidth configuration properties";
-    uses te-mpls-types:bandwidth-mpls-reservable;
     uses rsvp-te-frr-backups_config;
   }
+
   augment "/te:te/te-dev:interfaces/te-dev:interface/te-dev:state" {
     description
       "RSVP reservable bandwidth configuration properties";
-    uses te-mpls-types:bandwidth-mpls-reservable;
     uses rsvp-te-interface-softpreemption_state;
     uses rsvp-te-interface_state;
     uses rsvp-te-frr-backups_config;
