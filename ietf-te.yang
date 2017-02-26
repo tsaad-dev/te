@@ -100,8 +100,8 @@ module ietf-te {
           "List of explicit route objects to include or
            exclude in path computation";
         leaf index {
-          type uint8 {
-            range "0..255";
+          type leafref {
+            path "../config/index";
           }
           description
             "Index of this explicit route object";
@@ -112,7 +112,7 @@ module ietf-te {
           }
           description "An explicit-route hop action.";
         }
-        uses te-types:explicit-route-subobject;
+        uses te-types:explicit-route-hop;
       }
     }
   }
@@ -375,7 +375,7 @@ module ietf-te {
           }
           description "LSP type P2P or P2MP";
         }
-        leaf path-signaling-type {
+        leaf signaling-type {
           type identityref {
             base te-types:path-signaling-type;
           }
@@ -509,6 +509,18 @@ module ietf-te {
       type boolean;
       description "A CSPF dynamically computed path";
     }
+    leaf verbatim {
+      type empty;
+      description
+        "Indicates no topology or CSPF is attempted on the
+         specified path.";
+    }
+    leaf lockdown {
+      type empty;
+      description
+        "Indicates no reoptimization to be attempted for
+         this path.";
+    }
     leaf named-explicit-path {
       when "../path-computation-method = 'path-explicitly-defined'";
       type leafref {
@@ -527,18 +539,6 @@ module ietf-te {
       description
         "Reference to a globally defined named path
         constraint set";
-    }
-    leaf no-cspf {
-      type empty;
-      description
-        "Indicates no CSPF is to be attempted on this
-        path.";
-    }
-    leaf lockdown {
-      type empty;
-      description
-        "Indicates no reoptimization to be attempted for
-        this path.";
     }
   }
 
@@ -751,6 +751,32 @@ module ietf-te {
     }
   }
 
+  grouping te-path-bandwidth_top {
+    description
+      "Top level grouping for specifying bandwidth for a TE path";
+
+    container bandwidth {
+      description
+        "Bandwidth configuration for TE LSPs";
+
+      container config {
+        description
+          "Configuration parameters related to bandwidth on TE
+          tunnels:";
+        uses te-tunnel-bandwidth_config;
+      }
+
+      container state {
+        config false;
+        description
+          "State parameters related to bandwidth
+          configuration of TE tunnels";
+        uses te-tunnel-bandwidth_config;
+        uses te-tunnel-bandwidth_state;
+      }
+    }
+  }
+
   grouping te-tunnel-bandwidth_top {
     description
       "Top level grouping for specifying bandwidth for a tunnel";
@@ -960,6 +986,12 @@ module ietf-te {
       }
       description
         "TE LSP hold priority";
+    }
+    leaf signaling-type {
+      type identityref {
+        base te-types:path-signaling-type;
+      }
+      description "TE tunnel path signaling type";
     }
     container hierarchical-link-id {
         description
@@ -1412,8 +1444,8 @@ module ietf-te {
         description
           "List of explicit route objects";
         leaf index {
-          type uint8 {
-            range "0..255";
+          type leafref {
+            path "../config/index";
           }
           description
             "Index of this explicit route object";
@@ -1424,7 +1456,7 @@ module ietf-te {
           }
           description "An explicit-route hop action.";
         }
-        uses te-types:explicit-route-subobject;
+        uses te-types:explicit-route-hop;
       }
     }
   }
@@ -1512,9 +1544,24 @@ module ietf-te {
       description
         "The tunnel path can traverse overloaded node.";
     }
+    leaf setup-priority {
+      type uint8 {
+        range "0..7";
+      }
+      description
+        "TE LSP setup priority";
+    }
+    leaf hold-priority {
+      type uint8 {
+        range "0..7";
+      }
+      description
+        "TE LSP hold priority";
+    }
     uses path-affinities;
     uses path-srlgs;
     uses path-route-objects;
+    uses te-path-bandwidth_top;
   }
 
   grouping named-path-constraints {
