@@ -58,7 +58,7 @@ module ietf-te-topology {
 
   description "TE topology model";
 
-  revision "2017-01-23" {
+  revision "2017-03-08" {
     description "Initial revision";
     reference "TBD";
   }
@@ -1196,37 +1196,44 @@ module ietf-te-topology {
       description
         "Underlay protection type desired for this link";
     }
-    container tunnel-src {
-      uses te-tunnel-tp-ref;
+    container tunnels {
       description
-        "Source tunnel termination point of the underlay
-         tunnel.";
-    }
-    container tunnel-des {
-      uses te-tunnel-tp-ref;
-      description
-        "Destination tunnel termination point of the underlay
-         tunnel.";
-    }
-    leaf tunnel-id {
-      type uint16;
-      description
-        "Tunnel identifier used in the SESSION that remains constant
-         over the life of the tunnel.
-         This attribute is used together with underlay tunnel-src
-         and underlay tunnel-src.
-         The detailed information of this tunnel can be retrieved
-         from the ietf-te model.";
-      reference "RFC3209";
-    }
-    leaf tunnel-sharing {
-      type boolean;
-      description
-        "'true' if the underlay tunnel can be shared with other
-         TE links;
-         'false' if the underlay tunnel is dedicated to this 
-         TE link.";
-    }
+        "Underlay TE tunnels supporting this TE link.";
+      leaf sharing {
+        type boolean;
+        default true;
+        description
+          "'true' if the underlay tunnel can be shared with other
+           TE links;
+           'false' if the underlay tunnel is dedicated to this 
+           TE link.
+           This leaf is the default option for all TE tunnels, 
+           and may be overridden by the per TE tunnel value.";
+      }
+      list tunnel {
+        key "tunnel-name";
+        description
+          "Zero, one or more underlay TE tunnels that support this TE
+           link.";
+        leaf tunnel-name {
+          type string;
+          description
+            "A tunnel name uniquely identifies an underlay TE tunnel,
+             used together with the source-node of this link.
+             The detailed information of this tunnel can be retrieved
+             from the ietf-te model.";
+          reference "RFC3209";
+        }
+        leaf sharing {
+          type boolean;
+          description
+            "'true' if the underlay tunnel can be shared with other
+             TE links;
+             'false' if the underlay tunnel is dedicated to this 
+             TE link.";
+        }
+      } // tunnel
+    } // tunnels
   } // te-link-underlay-attributes
 
   grouping te-node-augment {
@@ -1671,14 +1678,19 @@ module ietf-te-topology {
             base te-types:switching-capabilities;
           }
           description
-            "Switching Capability for this interface.";
+            "Switching Capability for the client layer adaption.";
         }
         leaf encoding {
           type identityref {
             base te-types:lsp-encoding-types;
           }
           description
-            "Encoding supported by this interface.";
+            "Encoding supported by the client layer adaption.";
+        }
+        leaf bandwidth {
+          type te-bandwidth;
+          description
+            "Bandwidth available for the client layer adaption.";
         }
       }
     }
@@ -1935,24 +1947,6 @@ module ietf-te-topology {
         "Its presence identifies the TE topology type.";
     }
   } // te-topology-type
-
-  grouping te-tunnel-tp-ref {
-    description
-      "References a tunnel termination point in a TE topology.";
-    leaf tunnel-tp-ref {
-      type leafref {
-        path "/nw:networks/nw:network[nw:network-id=current()/../"+
-          "network-ref]/nw:node[nw:node-id=current()/../node-ref]/"+
-          "te/tunnel-termination-point/tunnel-tp-id";
-        require-instance false;
-      }
-      description
-        "An absolute reference to a tunnel termination point.
-         (This should not be used for relative references.
-         In such a case, a relative path should be used instead.)";
-    }
-    uses nw:node-ref;
-  } // te-tunnel-tp-ref
 
   grouping template-attributes {
     description
