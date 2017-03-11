@@ -69,7 +69,7 @@ module ietf-rsvp-te-mpls {
   description
     "Latest update to MPLS RSVP-TE YANG data model.";
 
-  revision "2016-10-29" {
+  revision "2017-03-10" {
     description "Update to MPLS RSVP-TE YANG initial revision.";
     reference "RFC3209, RFC6511, RFC6790, RFC7260, RFC4859, RFC4090";
   }
@@ -242,7 +242,7 @@ module ietf-rsvp-te-mpls {
     description "Bandwidth constraints.";
     container bandwidth-mpls-constraints {
       description
-        "Holds the bandwidth contraints properties";
+        "Holds the bandwidth constraints properties";
       leaf maximum-reservable {
         type uint32 {
           range "0..4294967295";
@@ -257,7 +257,7 @@ module ietf-rsvp-te-mpls {
         }
         max-elements 8;
         description
-          "The bandwidth contraint type";
+          "The bandwidth constraint type";
       }
     }
   }
@@ -289,14 +289,14 @@ module ietf-rsvp-te-mpls {
     description
       "Interface bandwidth reservable configuration grouping";
     choice bandwidth-value {
-      description "Reservable bandwidth configuraiton choice";
+      description "Reservable bandwidth configuration choice";
       case absolute {
         leaf absolute-value {
           type uint32;
           description "Absolute value of the bandwidth";
         }
       }
-      case precentage {
+      case percentage {
         leaf percent-value {
           type uint32 {
             range "0..4294967295";
@@ -365,18 +365,6 @@ module ietf-rsvp-te-mpls {
   grouping rsvp-te-frr-backups_config {
     description
       "Top level container for RSVP-TE FRR backup parameters";
-    leaf backup-bandwidth {
-      type uint32;
-      description
-        "Maximum bandwidth this facility backup
-        is allowed to protect";
-    }
-    leaf backup-bandwidth-classtype {
-      type uint32;
-      description
-        "Type of primary LSP bandwidth that the
-        backup is allowed to protect.";
-    }
     choice type {
       description
         "FRR backup tunnel type";
@@ -439,6 +427,28 @@ module ietf-rsvp-te-mpls {
     }
   }
 
+  grouping rsvp-te-frr-backups {
+      description
+        "RSVP-TE facility backup grouping";
+    container rsvp-te-frr-backups {
+      description
+        "RSVP-TE facility backup properties";
+      container config {
+        description
+          "Configuration parameters relating to
+           RSVP-TE facility backups properties";
+        uses rsvp-te-frr-backups_config;
+      }
+      container state {
+        config false;
+        description
+          "State parameters relating to
+           RSVP-TE facility backups properties";
+        uses rsvp-te-frr-backups_config;
+      }
+    }
+  }
+
   grouping lps-backup-info_state {
     description "Backup/bypass LSP related information";
     container backup-info {
@@ -467,49 +477,46 @@ module ietf-rsvp-te-mpls {
     }
   }
 
-  grouping rsvp-frr-local-revert_config {
+  grouping fast-reroute-local-revertive_config {
     description "RSVP-TE FRR local revertive grouping";
-    container rsvp-frr-local-revert {
-      presence "Enable RSVP FRR local revertive recovery
-        mode.";
+    leaf rsvp-frr-local-revert-delay {
+      type uint32;
       description
-        "RSVP-TE FRR local revertive container";
-      leaf rsvp-frr-local-revert-delay {
-        type uint32;
-        description
-          "Time to wait after primary link is restored
-          before node attempts local revertive
-          procedures.";
-      }
+        "Time to wait after primary link is restored
+        before node attempts local revertive
+        procedures.";
     }
   }
 
   /*** End of RSVP-TE FRR backup information ***/
 
-  grouping globals-properties {
+  grouping fast-reroute-local-revertive {
     description
       "Top level grouping for globals properties";
-    container config {
-      description
-        "Configuration parameters relating to
-         global MPLS RSVP-TE properties";
-      uses rsvp-frr-local-revert_config;
-    }
-    container state {
-      config false;
-      description
-        "State parameters relating to
-         global MPLS RSVP-TE properties";
-      uses rsvp-frr-local-revert_config;
+    container fast-reroute-local-revertive {
+      description "RSVP-TE FRR local revertive container";
+      container config {
+        description
+          "Configuration parameters relating to
+           global MPLS RSVP-TE properties";
+        uses fast-reroute-local-revertive_config;
+      }
+      container state {
+        config false;
+        description
+          "State parameters relating to
+           global MPLS RSVP-TE properties";
+        uses fast-reroute-local-revertive_config;
+      }
     }
   }
 
-  /* RSVP-TE global propeerties */
+  /* RSVP-TE global properties */
   augment "/rt:routing/rt:control-plane-protocols/"
   + "rt:control-plane-protocol/rsvp:rsvp" {
     description
       "RSVP-TE augmentation to RSVP globals";
-    uses globals-properties;
+    uses fast-reroute-local-revertive;
   }
 
   /* Linkage to the base RSVP all interfaces */
@@ -578,17 +585,9 @@ module ietf-rsvp-te-mpls {
     uses bandwidth-mpls-reservable;
   }
 
-  augment "/te:te/te-dev:interfaces/te-dev:interface/te-dev:config" {
+  augment "/te:te/te-dev:interfaces/te-dev:interface" {
     description
       "RSVP reservable bandwidth configuration properties";
-    uses rsvp-te-frr-backups_config;
-  }
-
-  augment "/te:te/te-dev:interfaces/te-dev:interface/te-dev:state" {
-    description
-      "RSVP reservable bandwidth configuration properties";
-    uses rsvp-te-interface-softpreemption_state;
-    uses rsvp-te-interface_state;
-    uses rsvp-te-frr-backups_config;
+    uses rsvp-te-frr-backups;
   }
 }

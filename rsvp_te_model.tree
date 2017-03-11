@@ -398,11 +398,10 @@ module: ietf-rsvp
        |        +--ro refresh-reduction-capable?   boolean
        |        +--ro restart-count?               yang:counter32
        |        +--ro restart-time?                yang:date-and-time
-       +--rw rsvp-te-mpls:config
-       |  +--rw rsvp-te-mpls:rsvp-frr-local-revert!
-       |     +--rw rsvp-te-mpls:rsvp-frr-local-revert-delay?   uint32
-       +--ro rsvp-te-mpls:state
-          +--ro rsvp-te-mpls:rsvp-frr-local-revert!
+       +--rw rsvp-te-mpls:fast-reroute-local-revertive
+          +--rw rsvp-te-mpls:config
+          |  +--rw rsvp-te-mpls:rsvp-frr-local-revert-delay?   uint32
+          +--ro rsvp-te-mpls:state
              +--ro rsvp-te-mpls:rsvp-frr-local-revert-delay?   uint32
 module: ietf-rsvp-te
   augment /te:te/te-dev:interfaces/te-dev:interface:
@@ -413,7 +412,7 @@ module: ietf-rsvp-te-mpls
        |  +--rw (bandwidth-value)?
        |  |  +--:(absolute)
        |  |  |  +--rw absolute-value?   uint32
-       |  |  +--:(precentage)
+       |  |  +--:(percentage)
        |  |     +--rw percent-value?    uint32
        |  +--rw (bc-model-type)?
        |     +--:(bc-model-rdm)
@@ -435,7 +434,7 @@ module: ietf-rsvp-te-mpls
           +--ro (bandwidth-value)?
           |  +--:(absolute)
           |  |  +--ro absolute-value?   uint32
-          |  +--:(precentage)
+          |  +--:(percentage)
           |     +--ro percent-value?    uint32
           +--ro (bc-model-type)?
              +--:(bc-model-rdm)
@@ -453,46 +452,34 @@ module: ietf-rsvp-te-mpls
                    +--ro bandwidth-mpls-constraints
                       +--ro maximum-reservable?   uint32
                       +--ro bc-value*             uint32
-  augment /te:te/te-dev:interfaces/te-dev:interface/te-dev:config:
-    +--rw backup-bandwidth?               uint32
-    +--rw backup-bandwidth-classtype?     uint32
-    +--rw (type)?
-       +--:(static-tunnel)
-       |  +--rw static-backups
-       |     +--rw static-backup* [backup-tunnel-name]
-       |        +--rw backup-tunnel-name    -> ../config/backup-tunnel-name
-       |        +--rw config
-       |        |  +--rw backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
-       |        +--ro state
-       |           +--ro backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
-       +--:(auto-tunnel)
-          +--rw auto-backup-protection?         identityref
-          +--rw auto-backup-path-computation?   identityref
-  augment /te:te/te-dev:interfaces/te-dev:interface/te-dev:state:
-    +--ro interface-softpreemption-state
-    |  +--ro soft-preempted-bandwidth?   uint32
-    |  +--ro lsps* [source destination tunnel-id lsp-id extended-tunnel-id]
-    |     +--ro source                -> /te:te/lsps-state/lsp/source
-    |     +--ro destination           -> /te:te/lsps-state/lsp/destination
-    |     +--ro tunnel-id             -> /te:te/lsps-state/lsp/tunnel-id
-    |     +--ro lsp-id                -> /te:te/lsps-state/lsp/lsp-id
-    |     +--ro extended-tunnel-id    -> /te:te/lsps-state/lsp/extended-tunnel-id
-    |     +--ro type?                 -> /te:te/lsps-state/lsp/type
-    +--ro over-subscribed-bandwidth?        uint32
-    +--ro backup-bandwidth?                 uint32
-    +--ro backup-bandwidth-classtype?       uint32
-    +--ro (type)?
-       +--:(static-tunnel)
-       |  +--ro static-backups
-       |     +--ro static-backup* [backup-tunnel-name]
-       |        +--ro backup-tunnel-name    -> ../config/backup-tunnel-name
-       |        +--ro config
-       |        |  +--ro backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
-       |        +--ro state
-       |           +--ro backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
-       +--:(auto-tunnel)
-          +--ro auto-backup-protection?           identityref
-          +--ro auto-backup-path-computation?     identityref
+  augment /te:te/te-dev:interfaces/te-dev:interface:
+    +--rw rsvp-te-frr-backups
+       +--rw config
+       |  +--rw (type)?
+       |     +--:(static-tunnel)
+       |     |  +--rw static-backups
+       |     |     +--rw static-backup* [backup-tunnel-name]
+       |     |        +--rw backup-tunnel-name    -> ../config/backup-tunnel-name
+       |     |        +--rw config
+       |     |        |  +--rw backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
+       |     |        +--ro state
+       |     |           +--ro backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
+       |     +--:(auto-tunnel)
+       |        +--rw auto-backup-protection?         identityref
+       |        +--rw auto-backup-path-computation?   identityref
+       +--ro state
+          +--ro (type)?
+             +--:(static-tunnel)
+             |  +--ro static-backups
+             |     +--ro static-backup* [backup-tunnel-name]
+             |        +--ro backup-tunnel-name    -> ../config/backup-tunnel-name
+             |        +--ro config
+             |        |  +--ro backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
+             |        +--ro state
+             |           +--ro backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
+             +--:(auto-tunnel)
+                +--ro auto-backup-protection?         identityref
+                +--ro auto-backup-path-computation?   identityref
 module: ietf-te
     +--rw te!
        +--rw globals
@@ -861,11 +848,12 @@ module: ietf-te
        |  |  |  +--rw rsvp-te:path-reevaluation-request?           boolean
        |  |  |  +--rw rsvp-te:soft-preemption-desired?             boolean
        |  |  |  +--rw rsvp-te:lsp-rerouting?                       enumeration
-       |  |  |  +--rw rsvp-te:lsp-integrety-required?              boolean
+       |  |  |  +--rw rsvp-te:lsp-integrity-required?              boolean
        |  |  |  +--rw rsvp-te:lsp-contiguous?                      boolean
        |  |  |  +--rw rsvp-te:lsp-stitching-desired?               boolean
        |  |  |  +--rw rsvp-te:lsp-preplanned?                      boolean
        |  |  |  +--rw rsvp-te:lsp-oob-mapping?                     boolean
+       |  |  |  +--rw rsvp-te:retry-timer?                         uint16
        |  |  |  +--rw rsvp-te-mpls:local-protection-desired?       empty
        |  |  |  +--rw rsvp-te-mpls:bandwidth-protection-desired?   empty
        |  |  |  +--rw rsvp-te-mpls:node-protection-desired?        empty
@@ -940,11 +928,12 @@ module: ietf-te
        |  |  |  +--ro rsvp-te:path-reevaluation-request?           boolean
        |  |  |  +--ro rsvp-te:soft-preemption-desired?             boolean
        |  |  |  +--ro rsvp-te:lsp-rerouting?                       enumeration
-       |  |  |  +--ro rsvp-te:lsp-integrety-required?              boolean
+       |  |  |  +--ro rsvp-te:lsp-integrity-required?              boolean
        |  |  |  +--ro rsvp-te:lsp-contiguous?                      boolean
        |  |  |  +--ro rsvp-te:lsp-stitching-desired?               boolean
        |  |  |  +--ro rsvp-te:lsp-preplanned?                      boolean
        |  |  |  +--ro rsvp-te:lsp-oob-mapping?                     boolean
+       |  |  |  +--ro rsvp-te:retry-timer?                         uint16
        |  |  |  +--ro rsvp-te-mpls:local-protection-desired?       empty
        |  |  |  +--ro rsvp-te-mpls:bandwidth-protection-desired?   empty
        |  |  |  +--ro rsvp-te-mpls:node-protection-desired?        empty
@@ -1169,11 +1158,11 @@ module: ietf-te
        |     |  +--ro te-dev:nhop?                 inet:ip-address
        |     |  +--ro te-dev:outgoing-interface?   if:interface-ref
        |     |  +--ro te-dev:neighbor?             inet:ip-address
-       |     |  +--ro te-dev:label?                te-types:generalized-label
+       |     |  +--ro te-dev:label?                rt-types:generalized-label
        |     +--ro te-dev:upstream-info
        |     |  +--ro te-dev:phop?       inet:ip-address
        |     |  +--ro te-dev:neighbor?   inet:ip-address
-       |     |  +--ro te-dev:label?      te-types:generalized-label
+       |     |  +--ro te-dev:label?      rt-types:generalized-label
        |     +--ro rsvp-te:associated-rsvp-session?             -> /rt:routing/control-plane-protocols/control-plane-protocol/rsvp:rsvp/globals/sessions/session/local-index
        |     +--ro rsvp-te:lsp-signaled-name?                   string
        |     +--ro rsvp-te:local-recording-desired?             boolean
@@ -1181,7 +1170,7 @@ module: ietf-te
        |     +--ro rsvp-te:path-reevaluation-request?           boolean
        |     +--ro rsvp-te:soft-preemption-desired?             boolean
        |     +--ro rsvp-te:lsp-rerouting?                       enumeration
-       |     +--ro rsvp-te:lsp-integrety-required?              boolean
+       |     +--ro rsvp-te:lsp-integrity-required?              boolean
        |     +--ro rsvp-te:lsp-contiguous?                      boolean
        |     +--ro rsvp-te:lsp-stitching-desired?               boolean
        |     +--ro rsvp-te:lsp-preplanned?                      boolean
@@ -1334,14 +1323,14 @@ module: ietf-te
           +--rw te-dev:interface* [interface]
              +--rw te-dev:interface                          if:interface-ref
              +--rw te-dev:config
-             |  +--rw te-dev:te-metric?                            te-types:te-metric
+             |  +--rw te-dev:te-metric?                 te-types:te-metric
              |  +--rw (te-dev:admin-group-type)?
              |  |  +--:(te-dev:value-admin-groups)
              |  |  |  +--rw (te-dev:value-admin-group-type)?
              |  |  |     +--:(te-dev:admin-groups)
-             |  |  |     |  +--rw te-dev:admin-group?                          te-types:admin-group
+             |  |  |     |  +--rw te-dev:admin-group?               te-types:admin-group
              |  |  |     +--:(te-dev:extended-admin-groups) {te-types:extended-admin-groups}?
-             |  |  |        +--rw te-dev:extended-admin-group?                 te-types:extended-admin-group
+             |  |  |        +--rw te-dev:extended-admin-group?      te-types:extended-admin-group
              |  |  +--:(te-dev:named-admin-groups)
              |  |     +--rw te-dev:named-admin-groups* [named-admin-group] {te-types:extended-admin-groups,te-types:named-extended-admin-groups}?
              |  |        +--rw te-dev:named-admin-group    -> ../../../../../te:globals/named-admin-groups/named-admin-group/config/name
@@ -1352,38 +1341,24 @@ module: ietf-te
              |  |  +--:(te-dev:named-srlgs)
              |  |     +--rw te-dev:named-srlgs* [named-srlg] {te-types:named-srlg-groups}?
              |  |        +--rw te-dev:named-srlg    -> ../../../../../te:globals/named-srlgs/named-srlg/config/name
-             |  +--rw te-dev:threshold-type?                       enumeration
-             |  +--rw te-dev:delta-percentage?                     te-types:percentage
-             |  +--rw te-dev:threshold-specification?              enumeration
-             |  +--rw te-dev:up-thresholds*                        te-types:percentage
-             |  +--rw te-dev:down-thresholds*                      te-types:percentage
-             |  +--rw te-dev:up-down-thresholds*                   te-types:percentage
+             |  +--rw te-dev:threshold-type?            enumeration
+             |  +--rw te-dev:delta-percentage?          te-types:percentage
+             |  +--rw te-dev:threshold-specification?   enumeration
+             |  +--rw te-dev:up-thresholds*             te-types:percentage
+             |  +--rw te-dev:down-thresholds*           te-types:percentage
+             |  +--rw te-dev:up-down-thresholds*        te-types:percentage
              |  +--rw te-dev:switching-capabilities* [switching-capability]
-             |  |  +--rw te-dev:switching-capability    identityref
-             |  |  +--rw te-dev:encoding?               identityref
-             |  +--rw rsvp-te-mpls:backup-bandwidth?               uint32
-             |  +--rw rsvp-te-mpls:backup-bandwidth-classtype?     uint32
-             |  +--rw (rsvp-te-mpls:type)?
-             |     +--:(rsvp-te-mpls:static-tunnel)
-             |     |  +--rw rsvp-te-mpls:static-backups
-             |     |     +--rw rsvp-te-mpls:static-backup* [backup-tunnel-name]
-             |     |        +--rw rsvp-te-mpls:backup-tunnel-name    -> ../config/backup-tunnel-name
-             |     |        +--rw rsvp-te-mpls:config
-             |     |        |  +--rw rsvp-te-mpls:backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
-             |     |        +--ro rsvp-te-mpls:state
-             |     |           +--ro rsvp-te-mpls:backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
-             |     +--:(rsvp-te-mpls:auto-tunnel)
-             |        +--rw rsvp-te-mpls:auto-backup-protection?         identityref
-             |        +--rw rsvp-te-mpls:auto-backup-path-computation?   identityref
+             |     +--rw te-dev:switching-capability    identityref
+             |     +--rw te-dev:encoding?               identityref
              +--ro te-dev:state
-             |  +--ro te-dev:te-metric?                              te-types:te-metric
+             |  +--ro te-dev:te-metric?                 te-types:te-metric
              |  +--ro (te-dev:admin-group-type)?
              |  |  +--:(te-dev:value-admin-groups)
              |  |  |  +--ro (te-dev:value-admin-group-type)?
              |  |  |     +--:(te-dev:admin-groups)
-             |  |  |     |  +--ro te-dev:admin-group?                            te-types:admin-group
+             |  |  |     |  +--ro te-dev:admin-group?               te-types:admin-group
              |  |  |     +--:(te-dev:extended-admin-groups) {te-types:extended-admin-groups}?
-             |  |  |        +--ro te-dev:extended-admin-group?                   te-types:extended-admin-group
+             |  |  |        +--ro te-dev:extended-admin-group?      te-types:extended-admin-group
              |  |  +--:(te-dev:named-admin-groups)
              |  |     +--ro te-dev:named-admin-groups* [named-admin-group] {te-types:extended-admin-groups,te-types:named-extended-admin-groups}?
              |  |        +--ro te-dev:named-admin-group    -> ../../../../../te:globals/named-admin-groups/named-admin-group/config/name
@@ -1397,88 +1372,91 @@ module: ietf-te
              |  +--ro te-dev:switching-capabilities* [switching-capability]
              |  |  +--ro te-dev:switching-capability    identityref
              |  |  +--ro te-dev:encoding?               identityref
-             |  +--ro te-dev:threshold-type?                         enumeration
-             |  +--ro te-dev:delta-percentage?                       te-types:percentage
-             |  +--ro te-dev:threshold-specification?                enumeration
-             |  +--ro te-dev:up-thresholds*                          te-types:percentage
-             |  +--ro te-dev:down-thresholds*                        te-types:percentage
-             |  +--ro te-dev:up-down-thresholds*                     te-types:percentage
+             |  +--ro te-dev:threshold-type?            enumeration
+             |  +--ro te-dev:delta-percentage?          te-types:percentage
+             |  +--ro te-dev:threshold-specification?   enumeration
+             |  +--ro te-dev:up-thresholds*             te-types:percentage
+             |  +--ro te-dev:down-thresholds*           te-types:percentage
+             |  +--ro te-dev:up-down-thresholds*        te-types:percentage
              |  +--ro te-dev:te-advertisements_state
-             |  |  +--ro te-dev:flood-interval?           uint32
-             |  |  +--ro te-dev:last-flooded-time?        uint32
-             |  |  +--ro te-dev:next-flooded-time?        uint32
-             |  |  +--ro te-dev:last-flooded-trigger?     enumeration
-             |  |  +--ro te-dev:advertized-level-areas* [level-area]
-             |  |     +--ro te-dev:level-area    uint32
-             |  +--ro rsvp-te-mpls:interface-softpreemption-state
-             |  |  +--ro rsvp-te-mpls:soft-preempted-bandwidth?   uint32
-             |  |  +--ro rsvp-te-mpls:lsps* [source destination tunnel-id lsp-id extended-tunnel-id]
-             |  |     +--ro rsvp-te-mpls:source                -> /te:te/lsps-state/lsp/source
-             |  |     +--ro rsvp-te-mpls:destination           -> /te:te/lsps-state/lsp/destination
-             |  |     +--ro rsvp-te-mpls:tunnel-id             -> /te:te/lsps-state/lsp/tunnel-id
-             |  |     +--ro rsvp-te-mpls:lsp-id                -> /te:te/lsps-state/lsp/lsp-id
-             |  |     +--ro rsvp-te-mpls:extended-tunnel-id    -> /te:te/lsps-state/lsp/extended-tunnel-id
-             |  |     +--ro rsvp-te-mpls:type?                 -> /te:te/lsps-state/lsp/type
-             |  +--ro rsvp-te-mpls:over-subscribed-bandwidth?        uint32
-             |  +--ro rsvp-te-mpls:backup-bandwidth?                 uint32
-             |  +--ro rsvp-te-mpls:backup-bandwidth-classtype?       uint32
-             |  +--ro (rsvp-te-mpls:type)?
-             |     +--:(rsvp-te-mpls:static-tunnel)
-             |     |  +--ro rsvp-te-mpls:static-backups
-             |     |     +--ro rsvp-te-mpls:static-backup* [backup-tunnel-name]
-             |     |        +--ro rsvp-te-mpls:backup-tunnel-name    -> ../config/backup-tunnel-name
-             |     |        +--ro rsvp-te-mpls:config
-             |     |        |  +--ro rsvp-te-mpls:backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
-             |     |        +--ro rsvp-te-mpls:state
-             |     |           +--ro rsvp-te-mpls:backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
-             |     +--:(rsvp-te-mpls:auto-tunnel)
-             |        +--ro rsvp-te-mpls:auto-backup-protection?           identityref
-             |        +--ro rsvp-te-mpls:auto-backup-path-computation?     identityref
+             |     +--ro te-dev:flood-interval?           uint32
+             |     +--ro te-dev:last-flooded-time?        uint32
+             |     +--ro te-dev:next-flooded-time?        uint32
+             |     +--ro te-dev:last-flooded-trigger?     enumeration
+             |     +--ro te-dev:advertized-level-areas* [level-area]
+             |        +--ro te-dev:level-area    uint32
              +--rw rsvp-te-mpls:bandwidth-mpls-reservable
+             |  +--rw rsvp-te-mpls:config
+             |  |  +--rw (rsvp-te-mpls:bandwidth-value)?
+             |  |  |  +--:(rsvp-te-mpls:absolute)
+             |  |  |  |  +--rw rsvp-te-mpls:absolute-value?   uint32
+             |  |  |  +--:(rsvp-te-mpls:percentage)
+             |  |  |     +--rw rsvp-te-mpls:percent-value?    uint32
+             |  |  +--rw (rsvp-te-mpls:bc-model-type)?
+             |  |     +--:(rsvp-te-mpls:bc-model-rdm)
+             |  |     |  +--rw rsvp-te-mpls:bc-model-rdm
+             |  |     |     +--rw rsvp-te-mpls:bandwidth-mpls-constraints
+             |  |     |        +--rw rsvp-te-mpls:maximum-reservable?   uint32
+             |  |     |        +--rw rsvp-te-mpls:bc-value*             uint32
+             |  |     +--:(rsvp-te-mpls:bc-model-mam)
+             |  |     |  +--rw rsvp-te-mpls:bc-model-mam
+             |  |     |     +--rw rsvp-te-mpls:bandwidth-mpls-constraints
+             |  |     |        +--rw rsvp-te-mpls:maximum-reservable?   uint32
+             |  |     |        +--rw rsvp-te-mpls:bc-value*             uint32
+             |  |     +--:(rsvp-te-mpls:bc-model-mar)
+             |  |        +--rw rsvp-te-mpls:bc-model-mar
+             |  |           +--rw rsvp-te-mpls:bandwidth-mpls-constraints
+             |  |              +--rw rsvp-te-mpls:maximum-reservable?   uint32
+             |  |              +--rw rsvp-te-mpls:bc-value*             uint32
+             |  +--ro rsvp-te-mpls:state
+             |     +--ro (rsvp-te-mpls:bandwidth-value)?
+             |     |  +--:(rsvp-te-mpls:absolute)
+             |     |  |  +--ro rsvp-te-mpls:absolute-value?   uint32
+             |     |  +--:(rsvp-te-mpls:percentage)
+             |     |     +--ro rsvp-te-mpls:percent-value?    uint32
+             |     +--ro (rsvp-te-mpls:bc-model-type)?
+             |        +--:(rsvp-te-mpls:bc-model-rdm)
+             |        |  +--ro rsvp-te-mpls:bc-model-rdm
+             |        |     +--ro rsvp-te-mpls:bandwidth-mpls-constraints
+             |        |        +--ro rsvp-te-mpls:maximum-reservable?   uint32
+             |        |        +--ro rsvp-te-mpls:bc-value*             uint32
+             |        +--:(rsvp-te-mpls:bc-model-mam)
+             |        |  +--ro rsvp-te-mpls:bc-model-mam
+             |        |     +--ro rsvp-te-mpls:bandwidth-mpls-constraints
+             |        |        +--ro rsvp-te-mpls:maximum-reservable?   uint32
+             |        |        +--ro rsvp-te-mpls:bc-value*             uint32
+             |        +--:(rsvp-te-mpls:bc-model-mar)
+             |           +--ro rsvp-te-mpls:bc-model-mar
+             |              +--ro rsvp-te-mpls:bandwidth-mpls-constraints
+             |                 +--ro rsvp-te-mpls:maximum-reservable?   uint32
+             |                 +--ro rsvp-te-mpls:bc-value*             uint32
+             +--rw rsvp-te-mpls:rsvp-te-frr-backups
                 +--rw rsvp-te-mpls:config
-                |  +--rw (rsvp-te-mpls:bandwidth-value)?
-                |  |  +--:(rsvp-te-mpls:absolute)
-                |  |  |  +--rw rsvp-te-mpls:absolute-value?   uint32
-                |  |  +--:(rsvp-te-mpls:precentage)
-                |  |     +--rw rsvp-te-mpls:percent-value?    uint32
-                |  +--rw (rsvp-te-mpls:bc-model-type)?
-                |     +--:(rsvp-te-mpls:bc-model-rdm)
-                |     |  +--rw rsvp-te-mpls:bc-model-rdm
-                |     |     +--rw rsvp-te-mpls:bandwidth-mpls-constraints
-                |     |        +--rw rsvp-te-mpls:maximum-reservable?   uint32
-                |     |        +--rw rsvp-te-mpls:bc-value*             uint32
-                |     +--:(rsvp-te-mpls:bc-model-mam)
-                |     |  +--rw rsvp-te-mpls:bc-model-mam
-                |     |     +--rw rsvp-te-mpls:bandwidth-mpls-constraints
-                |     |        +--rw rsvp-te-mpls:maximum-reservable?   uint32
-                |     |        +--rw rsvp-te-mpls:bc-value*             uint32
-                |     +--:(rsvp-te-mpls:bc-model-mar)
-                |        +--rw rsvp-te-mpls:bc-model-mar
-                |           +--rw rsvp-te-mpls:bandwidth-mpls-constraints
-                |              +--rw rsvp-te-mpls:maximum-reservable?   uint32
-                |              +--rw rsvp-te-mpls:bc-value*             uint32
+                |  +--rw (rsvp-te-mpls:type)?
+                |     +--:(rsvp-te-mpls:static-tunnel)
+                |     |  +--rw rsvp-te-mpls:static-backups
+                |     |     +--rw rsvp-te-mpls:static-backup* [backup-tunnel-name]
+                |     |        +--rw rsvp-te-mpls:backup-tunnel-name    -> ../config/backup-tunnel-name
+                |     |        +--rw rsvp-te-mpls:config
+                |     |        |  +--rw rsvp-te-mpls:backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
+                |     |        +--ro rsvp-te-mpls:state
+                |     |           +--ro rsvp-te-mpls:backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
+                |     +--:(rsvp-te-mpls:auto-tunnel)
+                |        +--rw rsvp-te-mpls:auto-backup-protection?         identityref
+                |        +--rw rsvp-te-mpls:auto-backup-path-computation?   identityref
                 +--ro rsvp-te-mpls:state
-                   +--ro (rsvp-te-mpls:bandwidth-value)?
-                   |  +--:(rsvp-te-mpls:absolute)
-                   |  |  +--ro rsvp-te-mpls:absolute-value?   uint32
-                   |  +--:(rsvp-te-mpls:precentage)
-                   |     +--ro rsvp-te-mpls:percent-value?    uint32
-                   +--ro (rsvp-te-mpls:bc-model-type)?
-                      +--:(rsvp-te-mpls:bc-model-rdm)
-                      |  +--ro rsvp-te-mpls:bc-model-rdm
-                      |     +--ro rsvp-te-mpls:bandwidth-mpls-constraints
-                      |        +--ro rsvp-te-mpls:maximum-reservable?   uint32
-                      |        +--ro rsvp-te-mpls:bc-value*             uint32
-                      +--:(rsvp-te-mpls:bc-model-mam)
-                      |  +--ro rsvp-te-mpls:bc-model-mam
-                      |     +--ro rsvp-te-mpls:bandwidth-mpls-constraints
-                      |        +--ro rsvp-te-mpls:maximum-reservable?   uint32
-                      |        +--ro rsvp-te-mpls:bc-value*             uint32
-                      +--:(rsvp-te-mpls:bc-model-mar)
-                         +--ro rsvp-te-mpls:bc-model-mar
-                            +--ro rsvp-te-mpls:bandwidth-mpls-constraints
-                               +--ro rsvp-te-mpls:maximum-reservable?   uint32
-                               +--ro rsvp-te-mpls:bc-value*             uint32
+                   +--ro (rsvp-te-mpls:type)?
+                      +--:(rsvp-te-mpls:static-tunnel)
+                      |  +--ro rsvp-te-mpls:static-backups
+                      |     +--ro rsvp-te-mpls:static-backup* [backup-tunnel-name]
+                      |        +--ro rsvp-te-mpls:backup-tunnel-name    -> ../config/backup-tunnel-name
+                      |        +--ro rsvp-te-mpls:config
+                      |        |  +--ro rsvp-te-mpls:backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
+                      |        +--ro rsvp-te-mpls:state
+                      |           +--ro rsvp-te-mpls:backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
+                      +--:(rsvp-te-mpls:auto-tunnel)
+                         +--ro rsvp-te-mpls:auto-backup-protection?         identityref
+                         +--ro rsvp-te-mpls:auto-backup-path-computation?   identityref
 
   rpcs:
     +---x globals-rpc
