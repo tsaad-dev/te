@@ -15,15 +15,17 @@ module ietf-te-mpls {
     prefix te-types;
   }
 
-  /* Import MPLS TE specific types */
-  import ietf-te-mpls-types {
-    prefix te-mpls-type;
+  import ietf-routing-types {
+    prefix "rt-types";
   }
 
   import ietf-mpls-static {
     prefix mpls-static;
   }
 
+  import ietf-inet-types {
+    prefix inet;
+  }
 
   organization
     "IETF Traffic Engineering Architecture and Signaling (TEAS)
@@ -73,10 +75,104 @@ module ietf-te-mpls {
   }
 
   /* MPLS TE tunnel properties*/
-  grouping tunnel-mpls-properties_config {
-    description "MPLS TE tunnel properties";
-    uses te-mpls-type:tunnel-routing-properties;
-    uses te-mpls-type:tunnel-forwarding-properties;
+
+  grouping tunnel-igp-shortcut_config {
+    description "TE tunnel IGP shortcut configs";
+    leaf shortcut-eligible {
+      type boolean;
+      default "true";
+      description
+        "Whether this LSP is considered to be eligible for us as a
+        shortcut in the IGP. In the case that this leaf is set to
+        true, the IGP SPF calculation uses the metric specified to
+        determine whether traffic should be carried over this LSP";
+    }
+    leaf metric-type {
+      type identityref {
+        base te-types:LSP_METRIC_TYPE;
+      }
+      default te-types:LSP_METRIC_INHERITED;
+      description
+        "The type of metric specification that should be used to set
+        the LSP(s) metric";
+    }
+    leaf metric {
+      type int32;
+      description
+        "The value of the metric that should be specified. The value
+        supplied in this leaf is used in conjunction with the metric
+        type to determine the value of the metric used by the system.
+        Where the metric-type is set to LSP_METRIC_ABSOLUTE - the
+        value of this leaf is used directly; where it is set to
+        LSP_METRIC_RELATIVE, the relevant (positive or negative)
+        offset is used to formulate the metric; where metric-type
+        is LSP_METRIC_INHERITED, the value of this leaf is not
+        utilised";
+    }
+    leaf-list routing-afs {
+      type inet:ip-version;
+      description
+        "Address families";
+    }
+  }
+
+  grouping tunnel-igp-shortcuts {
+    description
+      "TE tunnel IGP shortcut grouping";
+    container tunnel-igp-shortcut {
+      description
+        "Tunnel IGP shortcut properties";
+      container config {
+        description
+          "Configuration parameters for tunnel IGP shortcuts";
+        uses tunnel-igp-shortcut_config;
+      }
+      container state {
+        description
+          "State parameters for tunnel IGP shortcuts";
+        uses tunnel-igp-shortcut_config;
+      }
+    }
+  }
+
+  grouping tunnel-forwarding-adjacency_configs {
+    description "Tunnel forwarding adjacency grouping";
+    leaf binding-label {
+      type rt-types:mpls-label;
+      description "MPLS tunnel binding label";
+    }
+    leaf load-share {
+      type uint32 {
+        range "1..4294967295";
+      }
+      description "ECMP tunnel forwarding
+        load-share factor.";
+    }
+    leaf policy-class {
+      type uint8 {
+        range "1..7";
+      }
+      description
+        "The class associated with this tunnel";
+    }
+  }
+
+  grouping tunnel-forwarding-adjacency {
+    description "Properties for using tunnel in forwarding.";
+    container forwarding {
+      description
+        "Tunnel forwarding properties container";
+      container config {
+        description
+          "Configuration parameters for tunnel forwarding adjacency";
+        uses tunnel-forwarding-adjacency_configs;
+      }
+      container state {
+        description
+          "State parameters for tunnel forwarding adjacency";
+        uses tunnel-forwarding-adjacency_configs;
+      }
+    }
   }
 
   /*** End of MPLS TE tunnel configuration/state */
@@ -87,13 +183,10 @@ module ietf-te-mpls {
    */
 
   /* MPLS TE tunnel augmentations */
-  augment "/te:te/te:tunnels/te:tunnel/te:config" {
+  augment "/te:te/te:tunnels/te:tunnel" {
     description "MPLS TE tunnel config augmentations";
-    uses tunnel-mpls-properties_config;
-  }
-  augment "/te:te/te:tunnels/te:tunnel/te:state" {
-    description "MPLS TE tunnel state augmentations";
-    uses tunnel-mpls-properties_config;
+    uses tunnel-igp-shortcuts;
+    uses tunnel-forwarding-adjacency;
   }
 
   /* MPLS TE LSPs augmentations */
