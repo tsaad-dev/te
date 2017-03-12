@@ -33,44 +33,54 @@ augment /nw:networks:
                |  +--rw primary-path
                |  |  +--rw network-ref?    leafref
                |  |  +--rw path-element* [path-element-id]
-               |  |     +--rw path-element-id     uint32
+               |  |     +--rw path-element-id    uint32
+               |  |     +--rw index?             uint32
                |  |     +--rw (type)?
-               |  |        +--:(ipv4-address)
-               |  |        |  +--rw v4-address?         inet:ipv4-address
-               |  |        |  +--rw v4-prefix-length?   uint8
-               |  |        |  +--rw v4-loose?           boolean
-               |  |        +--:(ipv6-address)
-               |  |        |  +--rw v6-address?         inet:ipv6-address
-               |  |        |  +--rw v6-prefix-length?   uint8
-               |  |        |  +--rw v6-loose?           boolean
+               |  |        +--:(ip-address)
+               |  |        |  +--rw ip-address-hop
+               |  |        |     +--rw address?    inet:ip-address
+               |  |        |     +--rw hop-type?   te-hop-type
                |  |        +--:(as-number)
-               |  |        |  +--rw as-number?          uint16
+               |  |        |  +--rw as-number-hop
+               |  |        |     +--rw as-number?   binary
+               |  |        |     +--rw hop-type?    te-hop-type
                |  |        +--:(unnumbered-link)
-               |  |        |  +--rw router-id?          inet:ip-address
-               |  |        |  +--rw interface-id?       uint32
+               |  |        |  +--rw unnumbered-hop
+               |  |        |     +--rw router-id?      inet:ip-address
+               |  |        |     +--rw interface-id?   uint32
+               |  |        |     +--rw hop-type?       te-hop-type
                |  |        +--:(label)
-               |  |           +--rw value?              uint32
+               |  |        |  +--rw label-hop
+               |  |        |     +--rw value?   rt-types:generalized-label
+               |  |        +--:(sid)
+               |  |           +--rw sid-hop
+               |  |              +--rw sid?   rt-types:generalized-label
                |  +--rw backup-path* [index]
                |  |  +--rw index           uint32
                |  |  +--rw network-ref?    leafref
                |  |  +--rw path-element* [path-element-id]
-               |  |     +--rw path-element-id     uint32
+               |  |     +--rw path-element-id    uint32
+               |  |     +--rw index?             uint32
                |  |     +--rw (type)?
-               |  |        +--:(ipv4-address)
-               |  |        |  +--rw v4-address?         inet:ipv4-address
-               |  |        |  +--rw v4-prefix-length?   uint8
-               |  |        |  +--rw v4-loose?           boolean
-               |  |        +--:(ipv6-address)
-               |  |        |  +--rw v6-address?         inet:ipv6-address
-               |  |        |  +--rw v6-prefix-length?   uint8
-               |  |        |  +--rw v6-loose?           boolean
+               |  |        +--:(ip-address)
+               |  |        |  +--rw ip-address-hop
+               |  |        |     +--rw address?    inet:ip-address
+               |  |        |     +--rw hop-type?   te-hop-type
                |  |        +--:(as-number)
-               |  |        |  +--rw as-number?          uint16
+               |  |        |  +--rw as-number-hop
+               |  |        |     +--rw as-number?   binary
+               |  |        |     +--rw hop-type?    te-hop-type
                |  |        +--:(unnumbered-link)
-               |  |        |  +--rw router-id?          inet:ip-address
-               |  |        |  +--rw interface-id?       uint32
+               |  |        |  +--rw unnumbered-hop
+               |  |        |     +--rw router-id?      inet:ip-address
+               |  |        |     +--rw interface-id?   uint32
+               |  |        |     +--rw hop-type?       te-hop-type
                |  |        +--:(label)
-               |  |           +--rw value?              uint32
+               |  |        |  +--rw label-hop
+               |  |        |     +--rw value?   rt-types:generalized-label
+               |  |        +--:(sid)
+               |  |           +--rw sid-hop
+               |  |              +--rw sid?   rt-types:generalized-label
                |  +--rw protection-type?   uint16
                |  +--rw tunnels
                |     +--rw sharing?   boolean
@@ -131,51 +141,61 @@ augment /nw:networks/nw:network/nw:node:
       |     |  +--rw is-allowed?                boolean
       |     |  +--rw label-restriction* [inclusive-exclusive label-start]
       |     |  |  +--rw inclusive-exclusive    enumeration
-      |     |  |  +--rw label-start            te-types:generalized-label
-      |     |  |  +--rw label-end?             te-types:generalized-label
+      |     |  |  +--rw label-start            rt-types:generalized-label
+      |     |  |  +--rw label-end?             rt-types:generalized-label
       |     |  |  +--rw range-bitmap?          binary
       |     |  +--rw underlay! {te-topology-hierarchy}?
       |     |  |  +--rw primary-path
       |     |  |  |  +--rw network-ref?    leafref
       |     |  |  |  +--rw path-element* [path-element-id]
-      |     |  |  |     +--rw path-element-id     uint32
+      |     |  |  |     +--rw path-element-id    uint32
+      |     |  |  |     +--rw index?             uint32
       |     |  |  |     +--rw (type)?
-      |     |  |  |        +--:(ipv4-address)
-      |     |  |  |        |  +--rw v4-address?         inet:ipv4-address
-      |     |  |  |        |  +--rw v4-prefix-length?   uint8
-      |     |  |  |        |  +--rw v4-loose?           boolean
-      |     |  |  |        +--:(ipv6-address)
-      |     |  |  |        |  +--rw v6-address?         inet:ipv6-address
-      |     |  |  |        |  +--rw v6-prefix-length?   uint8
-      |     |  |  |        |  +--rw v6-loose?           boolean
+      |     |  |  |        +--:(ip-address)
+      |     |  |  |        |  +--rw ip-address-hop
+      |     |  |  |        |     +--rw address?    inet:ip-address
+      |     |  |  |        |     +--rw hop-type?   te-hop-type
       |     |  |  |        +--:(as-number)
-      |     |  |  |        |  +--rw as-number?          uint16
+      |     |  |  |        |  +--rw as-number-hop
+      |     |  |  |        |     +--rw as-number?   binary
+      |     |  |  |        |     +--rw hop-type?    te-hop-type
       |     |  |  |        +--:(unnumbered-link)
-      |     |  |  |        |  +--rw router-id?          inet:ip-address
-      |     |  |  |        |  +--rw interface-id?       uint32
+      |     |  |  |        |  +--rw unnumbered-hop
+      |     |  |  |        |     +--rw router-id?      inet:ip-address
+      |     |  |  |        |     +--rw interface-id?   uint32
+      |     |  |  |        |     +--rw hop-type?       te-hop-type
       |     |  |  |        +--:(label)
-      |     |  |  |           +--rw value?              uint32
+      |     |  |  |        |  +--rw label-hop
+      |     |  |  |        |     +--rw value?   rt-types:generalized-label
+      |     |  |  |        +--:(sid)
+      |     |  |  |           +--rw sid-hop
+      |     |  |  |              +--rw sid?   rt-types:generalized-label
       |     |  |  +--rw backup-path* [index]
       |     |  |  |  +--rw index           uint32
       |     |  |  |  +--rw network-ref?    leafref
       |     |  |  |  +--rw path-element* [path-element-id]
-      |     |  |  |     +--rw path-element-id     uint32
+      |     |  |  |     +--rw path-element-id    uint32
+      |     |  |  |     +--rw index?             uint32
       |     |  |  |     +--rw (type)?
-      |     |  |  |        +--:(ipv4-address)
-      |     |  |  |        |  +--rw v4-address?         inet:ipv4-address
-      |     |  |  |        |  +--rw v4-prefix-length?   uint8
-      |     |  |  |        |  +--rw v4-loose?           boolean
-      |     |  |  |        +--:(ipv6-address)
-      |     |  |  |        |  +--rw v6-address?         inet:ipv6-address
-      |     |  |  |        |  +--rw v6-prefix-length?   uint8
-      |     |  |  |        |  +--rw v6-loose?           boolean
+      |     |  |  |        +--:(ip-address)
+      |     |  |  |        |  +--rw ip-address-hop
+      |     |  |  |        |     +--rw address?    inet:ip-address
+      |     |  |  |        |     +--rw hop-type?   te-hop-type
       |     |  |  |        +--:(as-number)
-      |     |  |  |        |  +--rw as-number?          uint16
+      |     |  |  |        |  +--rw as-number-hop
+      |     |  |  |        |     +--rw as-number?   binary
+      |     |  |  |        |     +--rw hop-type?    te-hop-type
       |     |  |  |        +--:(unnumbered-link)
-      |     |  |  |        |  +--rw router-id?          inet:ip-address
-      |     |  |  |        |  +--rw interface-id?       uint32
+      |     |  |  |        |  +--rw unnumbered-hop
+      |     |  |  |        |     +--rw router-id?      inet:ip-address
+      |     |  |  |        |     +--rw interface-id?   uint32
+      |     |  |  |        |     +--rw hop-type?       te-hop-type
       |     |  |  |        +--:(label)
-      |     |  |  |           +--rw value?              uint32
+      |     |  |  |        |  +--rw label-hop
+      |     |  |  |        |     +--rw value?   rt-types:generalized-label
+      |     |  |  |        +--:(sid)
+      |     |  |  |           +--rw sid-hop
+      |     |  |  |              +--rw sid?   rt-types:generalized-label
       |     |  |  +--rw protection-type?   uint16
       |     |  |  +--rw tunnels
       |     |  |     +--rw sharing?   boolean
@@ -205,51 +225,61 @@ augment /nw:networks/nw:network/nw:node:
       |     |     +--rw is-allowed?                boolean
       |     |     +--rw label-restriction* [inclusive-exclusive label-start]
       |     |     |  +--rw inclusive-exclusive    enumeration
-      |     |     |  +--rw label-start            te-types:generalized-label
-      |     |     |  +--rw label-end?             te-types:generalized-label
+      |     |     |  +--rw label-start            rt-types:generalized-label
+      |     |     |  +--rw label-end?             rt-types:generalized-label
       |     |     |  +--rw range-bitmap?          binary
       |     |     +--rw underlay! {te-topology-hierarchy}?
       |     |     |  +--rw primary-path
       |     |     |  |  +--rw network-ref?    leafref
       |     |     |  |  +--rw path-element* [path-element-id]
-      |     |     |  |     +--rw path-element-id     uint32
+      |     |     |  |     +--rw path-element-id    uint32
+      |     |     |  |     +--rw index?             uint32
       |     |     |  |     +--rw (type)?
-      |     |     |  |        +--:(ipv4-address)
-      |     |     |  |        |  +--rw v4-address?         inet:ipv4-address
-      |     |     |  |        |  +--rw v4-prefix-length?   uint8
-      |     |     |  |        |  +--rw v4-loose?           boolean
-      |     |     |  |        +--:(ipv6-address)
-      |     |     |  |        |  +--rw v6-address?         inet:ipv6-address
-      |     |     |  |        |  +--rw v6-prefix-length?   uint8
-      |     |     |  |        |  +--rw v6-loose?           boolean
+      |     |     |  |        +--:(ip-address)
+      |     |     |  |        |  +--rw ip-address-hop
+      |     |     |  |        |     +--rw address?    inet:ip-address
+      |     |     |  |        |     +--rw hop-type?   te-hop-type
       |     |     |  |        +--:(as-number)
-      |     |     |  |        |  +--rw as-number?          uint16
+      |     |     |  |        |  +--rw as-number-hop
+      |     |     |  |        |     +--rw as-number?   binary
+      |     |     |  |        |     +--rw hop-type?    te-hop-type
       |     |     |  |        +--:(unnumbered-link)
-      |     |     |  |        |  +--rw router-id?          inet:ip-address
-      |     |     |  |        |  +--rw interface-id?       uint32
+      |     |     |  |        |  +--rw unnumbered-hop
+      |     |     |  |        |     +--rw router-id?      inet:ip-address
+      |     |     |  |        |     +--rw interface-id?   uint32
+      |     |     |  |        |     +--rw hop-type?       te-hop-type
       |     |     |  |        +--:(label)
-      |     |     |  |           +--rw value?              uint32
+      |     |     |  |        |  +--rw label-hop
+      |     |     |  |        |     +--rw value?   rt-types:generalized-label
+      |     |     |  |        +--:(sid)
+      |     |     |  |           +--rw sid-hop
+      |     |     |  |              +--rw sid?   rt-types:generalized-label
       |     |     |  +--rw backup-path* [index]
       |     |     |  |  +--rw index           uint32
       |     |     |  |  +--rw network-ref?    leafref
       |     |     |  |  +--rw path-element* [path-element-id]
-      |     |     |  |     +--rw path-element-id     uint32
+      |     |     |  |     +--rw path-element-id    uint32
+      |     |     |  |     +--rw index?             uint32
       |     |     |  |     +--rw (type)?
-      |     |     |  |        +--:(ipv4-address)
-      |     |     |  |        |  +--rw v4-address?         inet:ipv4-address
-      |     |     |  |        |  +--rw v4-prefix-length?   uint8
-      |     |     |  |        |  +--rw v4-loose?           boolean
-      |     |     |  |        +--:(ipv6-address)
-      |     |     |  |        |  +--rw v6-address?         inet:ipv6-address
-      |     |     |  |        |  +--rw v6-prefix-length?   uint8
-      |     |     |  |        |  +--rw v6-loose?           boolean
+      |     |     |  |        +--:(ip-address)
+      |     |     |  |        |  +--rw ip-address-hop
+      |     |     |  |        |     +--rw address?    inet:ip-address
+      |     |     |  |        |     +--rw hop-type?   te-hop-type
       |     |     |  |        +--:(as-number)
-      |     |     |  |        |  +--rw as-number?          uint16
+      |     |     |  |        |  +--rw as-number-hop
+      |     |     |  |        |     +--rw as-number?   binary
+      |     |     |  |        |     +--rw hop-type?    te-hop-type
       |     |     |  |        +--:(unnumbered-link)
-      |     |     |  |        |  +--rw router-id?          inet:ip-address
-      |     |     |  |        |  +--rw interface-id?       uint32
+      |     |     |  |        |  +--rw unnumbered-hop
+      |     |     |  |        |     +--rw router-id?      inet:ip-address
+      |     |     |  |        |     +--rw interface-id?   uint32
+      |     |     |  |        |     +--rw hop-type?       te-hop-type
       |     |     |  |        +--:(label)
-      |     |     |  |           +--rw value?              uint32
+      |     |     |  |        |  +--rw label-hop
+      |     |     |  |        |     +--rw value?   rt-types:generalized-label
+      |     |     |  |        +--:(sid)
+      |     |     |  |           +--rw sid-hop
+      |     |     |  |              +--rw sid?   rt-types:generalized-label
       |     |     |  +--rw protection-type?   uint16
       |     |     |  +--rw tunnels
       |     |     |     +--rw sharing?   boolean
@@ -285,51 +315,61 @@ augment /nw:networks/nw:network/nw:node:
       |  |  |  +--ro is-allowed?                boolean
       |  |  |  +--ro label-restriction* [inclusive-exclusive label-start]
       |  |  |  |  +--ro inclusive-exclusive    enumeration
-      |  |  |  |  +--ro label-start            te-types:generalized-label
-      |  |  |  |  +--ro label-end?             te-types:generalized-label
+      |  |  |  |  +--ro label-start            rt-types:generalized-label
+      |  |  |  |  +--ro label-end?             rt-types:generalized-label
       |  |  |  |  +--ro range-bitmap?          binary
       |  |  |  +--ro underlay! {te-topology-hierarchy}?
       |  |  |  |  +--ro primary-path
       |  |  |  |  |  +--ro network-ref?    leafref
       |  |  |  |  |  +--ro path-element* [path-element-id]
-      |  |  |  |  |     +--ro path-element-id     uint32
+      |  |  |  |  |     +--ro path-element-id    uint32
+      |  |  |  |  |     +--ro index?             uint32
       |  |  |  |  |     +--ro (type)?
-      |  |  |  |  |        +--:(ipv4-address)
-      |  |  |  |  |        |  +--ro v4-address?         inet:ipv4-address
-      |  |  |  |  |        |  +--ro v4-prefix-length?   uint8
-      |  |  |  |  |        |  +--ro v4-loose?           boolean
-      |  |  |  |  |        +--:(ipv6-address)
-      |  |  |  |  |        |  +--ro v6-address?         inet:ipv6-address
-      |  |  |  |  |        |  +--ro v6-prefix-length?   uint8
-      |  |  |  |  |        |  +--ro v6-loose?           boolean
+      |  |  |  |  |        +--:(ip-address)
+      |  |  |  |  |        |  +--ro ip-address-hop
+      |  |  |  |  |        |     +--ro address?    inet:ip-address
+      |  |  |  |  |        |     +--ro hop-type?   te-hop-type
       |  |  |  |  |        +--:(as-number)
-      |  |  |  |  |        |  +--ro as-number?          uint16
+      |  |  |  |  |        |  +--ro as-number-hop
+      |  |  |  |  |        |     +--ro as-number?   binary
+      |  |  |  |  |        |     +--ro hop-type?    te-hop-type
       |  |  |  |  |        +--:(unnumbered-link)
-      |  |  |  |  |        |  +--ro router-id?          inet:ip-address
-      |  |  |  |  |        |  +--ro interface-id?       uint32
+      |  |  |  |  |        |  +--ro unnumbered-hop
+      |  |  |  |  |        |     +--ro router-id?      inet:ip-address
+      |  |  |  |  |        |     +--ro interface-id?   uint32
+      |  |  |  |  |        |     +--ro hop-type?       te-hop-type
       |  |  |  |  |        +--:(label)
-      |  |  |  |  |           +--ro value?              uint32
+      |  |  |  |  |        |  +--ro label-hop
+      |  |  |  |  |        |     +--ro value?   rt-types:generalized-label
+      |  |  |  |  |        +--:(sid)
+      |  |  |  |  |           +--ro sid-hop
+      |  |  |  |  |              +--ro sid?   rt-types:generalized-label
       |  |  |  |  +--ro backup-path* [index]
       |  |  |  |  |  +--ro index           uint32
       |  |  |  |  |  +--ro network-ref?    leafref
       |  |  |  |  |  +--ro path-element* [path-element-id]
-      |  |  |  |  |     +--ro path-element-id     uint32
+      |  |  |  |  |     +--ro path-element-id    uint32
+      |  |  |  |  |     +--ro index?             uint32
       |  |  |  |  |     +--ro (type)?
-      |  |  |  |  |        +--:(ipv4-address)
-      |  |  |  |  |        |  +--ro v4-address?         inet:ipv4-address
-      |  |  |  |  |        |  +--ro v4-prefix-length?   uint8
-      |  |  |  |  |        |  +--ro v4-loose?           boolean
-      |  |  |  |  |        +--:(ipv6-address)
-      |  |  |  |  |        |  +--ro v6-address?         inet:ipv6-address
-      |  |  |  |  |        |  +--ro v6-prefix-length?   uint8
-      |  |  |  |  |        |  +--ro v6-loose?           boolean
+      |  |  |  |  |        +--:(ip-address)
+      |  |  |  |  |        |  +--ro ip-address-hop
+      |  |  |  |  |        |     +--ro address?    inet:ip-address
+      |  |  |  |  |        |     +--ro hop-type?   te-hop-type
       |  |  |  |  |        +--:(as-number)
-      |  |  |  |  |        |  +--ro as-number?          uint16
+      |  |  |  |  |        |  +--ro as-number-hop
+      |  |  |  |  |        |     +--ro as-number?   binary
+      |  |  |  |  |        |     +--ro hop-type?    te-hop-type
       |  |  |  |  |        +--:(unnumbered-link)
-      |  |  |  |  |        |  +--ro router-id?          inet:ip-address
-      |  |  |  |  |        |  +--ro interface-id?       uint32
+      |  |  |  |  |        |  +--ro unnumbered-hop
+      |  |  |  |  |        |     +--ro router-id?      inet:ip-address
+      |  |  |  |  |        |     +--ro interface-id?   uint32
+      |  |  |  |  |        |     +--ro hop-type?       te-hop-type
       |  |  |  |  |        +--:(label)
-      |  |  |  |  |           +--ro value?              uint32
+      |  |  |  |  |        |  +--ro label-hop
+      |  |  |  |  |        |     +--ro value?   rt-types:generalized-label
+      |  |  |  |  |        +--:(sid)
+      |  |  |  |  |           +--ro sid-hop
+      |  |  |  |  |              +--ro sid?   rt-types:generalized-label
       |  |  |  |  +--ro protection-type?   uint16
       |  |  |  |  +--ro tunnels
       |  |  |  |     +--ro sharing?   boolean
@@ -359,51 +399,61 @@ augment /nw:networks/nw:network/nw:node:
       |  |  |     +--ro is-allowed?                boolean
       |  |  |     +--ro label-restriction* [inclusive-exclusive label-start]
       |  |  |     |  +--ro inclusive-exclusive    enumeration
-      |  |  |     |  +--ro label-start            te-types:generalized-label
-      |  |  |     |  +--ro label-end?             te-types:generalized-label
+      |  |  |     |  +--ro label-start            rt-types:generalized-label
+      |  |  |     |  +--ro label-end?             rt-types:generalized-label
       |  |  |     |  +--ro range-bitmap?          binary
       |  |  |     +--ro underlay! {te-topology-hierarchy}?
       |  |  |     |  +--ro primary-path
       |  |  |     |  |  +--ro network-ref?    leafref
       |  |  |     |  |  +--ro path-element* [path-element-id]
-      |  |  |     |  |     +--ro path-element-id     uint32
+      |  |  |     |  |     +--ro path-element-id    uint32
+      |  |  |     |  |     +--ro index?             uint32
       |  |  |     |  |     +--ro (type)?
-      |  |  |     |  |        +--:(ipv4-address)
-      |  |  |     |  |        |  +--ro v4-address?         inet:ipv4-address
-      |  |  |     |  |        |  +--ro v4-prefix-length?   uint8
-      |  |  |     |  |        |  +--ro v4-loose?           boolean
-      |  |  |     |  |        +--:(ipv6-address)
-      |  |  |     |  |        |  +--ro v6-address?         inet:ipv6-address
-      |  |  |     |  |        |  +--ro v6-prefix-length?   uint8
-      |  |  |     |  |        |  +--ro v6-loose?           boolean
+      |  |  |     |  |        +--:(ip-address)
+      |  |  |     |  |        |  +--ro ip-address-hop
+      |  |  |     |  |        |     +--ro address?    inet:ip-address
+      |  |  |     |  |        |     +--ro hop-type?   te-hop-type
       |  |  |     |  |        +--:(as-number)
-      |  |  |     |  |        |  +--ro as-number?          uint16
+      |  |  |     |  |        |  +--ro as-number-hop
+      |  |  |     |  |        |     +--ro as-number?   binary
+      |  |  |     |  |        |     +--ro hop-type?    te-hop-type
       |  |  |     |  |        +--:(unnumbered-link)
-      |  |  |     |  |        |  +--ro router-id?          inet:ip-address
-      |  |  |     |  |        |  +--ro interface-id?       uint32
+      |  |  |     |  |        |  +--ro unnumbered-hop
+      |  |  |     |  |        |     +--ro router-id?      inet:ip-address
+      |  |  |     |  |        |     +--ro interface-id?   uint32
+      |  |  |     |  |        |     +--ro hop-type?       te-hop-type
       |  |  |     |  |        +--:(label)
-      |  |  |     |  |           +--ro value?              uint32
+      |  |  |     |  |        |  +--ro label-hop
+      |  |  |     |  |        |     +--ro value?   rt-types:generalized-label
+      |  |  |     |  |        +--:(sid)
+      |  |  |     |  |           +--ro sid-hop
+      |  |  |     |  |              +--ro sid?   rt-types:generalized-label
       |  |  |     |  +--ro backup-path* [index]
       |  |  |     |  |  +--ro index           uint32
       |  |  |     |  |  +--ro network-ref?    leafref
       |  |  |     |  |  +--ro path-element* [path-element-id]
-      |  |  |     |  |     +--ro path-element-id     uint32
+      |  |  |     |  |     +--ro path-element-id    uint32
+      |  |  |     |  |     +--ro index?             uint32
       |  |  |     |  |     +--ro (type)?
-      |  |  |     |  |        +--:(ipv4-address)
-      |  |  |     |  |        |  +--ro v4-address?         inet:ipv4-address
-      |  |  |     |  |        |  +--ro v4-prefix-length?   uint8
-      |  |  |     |  |        |  +--ro v4-loose?           boolean
-      |  |  |     |  |        +--:(ipv6-address)
-      |  |  |     |  |        |  +--ro v6-address?         inet:ipv6-address
-      |  |  |     |  |        |  +--ro v6-prefix-length?   uint8
-      |  |  |     |  |        |  +--ro v6-loose?           boolean
+      |  |  |     |  |        +--:(ip-address)
+      |  |  |     |  |        |  +--ro ip-address-hop
+      |  |  |     |  |        |     +--ro address?    inet:ip-address
+      |  |  |     |  |        |     +--ro hop-type?   te-hop-type
       |  |  |     |  |        +--:(as-number)
-      |  |  |     |  |        |  +--ro as-number?          uint16
+      |  |  |     |  |        |  +--ro as-number-hop
+      |  |  |     |  |        |     +--ro as-number?   binary
+      |  |  |     |  |        |     +--ro hop-type?    te-hop-type
       |  |  |     |  |        +--:(unnumbered-link)
-      |  |  |     |  |        |  +--ro router-id?          inet:ip-address
-      |  |  |     |  |        |  +--ro interface-id?       uint32
+      |  |  |     |  |        |  +--ro unnumbered-hop
+      |  |  |     |  |        |     +--ro router-id?      inet:ip-address
+      |  |  |     |  |        |     +--ro interface-id?   uint32
+      |  |  |     |  |        |     +--ro hop-type?       te-hop-type
       |  |  |     |  |        +--:(label)
-      |  |  |     |  |           +--ro value?              uint32
+      |  |  |     |  |        |  +--ro label-hop
+      |  |  |     |  |        |     +--ro value?   rt-types:generalized-label
+      |  |  |     |  |        +--:(sid)
+      |  |  |     |  |           +--ro sid-hop
+      |  |  |     |  |              +--ro sid?   rt-types:generalized-label
       |  |  |     |  +--ro protection-type?   uint16
       |  |  |     |  +--ro tunnels
       |  |  |     |     +--ro sharing?   boolean
@@ -458,51 +508,61 @@ augment /nw:networks/nw:network/nw:node:
       |     |  +--ro is-allowed?                boolean
       |     |  +--ro label-restriction* [inclusive-exclusive label-start]
       |     |  |  +--ro inclusive-exclusive    enumeration
-      |     |  |  +--ro label-start            te-types:generalized-label
-      |     |  |  +--ro label-end?             te-types:generalized-label
+      |     |  |  +--ro label-start            rt-types:generalized-label
+      |     |  |  +--ro label-end?             rt-types:generalized-label
       |     |  |  +--ro range-bitmap?          binary
       |     |  +--ro underlay! {te-topology-hierarchy}?
       |     |  |  +--ro primary-path
       |     |  |  |  +--ro network-ref?    leafref
       |     |  |  |  +--ro path-element* [path-element-id]
-      |     |  |  |     +--ro path-element-id     uint32
+      |     |  |  |     +--ro path-element-id    uint32
+      |     |  |  |     +--ro index?             uint32
       |     |  |  |     +--ro (type)?
-      |     |  |  |        +--:(ipv4-address)
-      |     |  |  |        |  +--ro v4-address?         inet:ipv4-address
-      |     |  |  |        |  +--ro v4-prefix-length?   uint8
-      |     |  |  |        |  +--ro v4-loose?           boolean
-      |     |  |  |        +--:(ipv6-address)
-      |     |  |  |        |  +--ro v6-address?         inet:ipv6-address
-      |     |  |  |        |  +--ro v6-prefix-length?   uint8
-      |     |  |  |        |  +--ro v6-loose?           boolean
+      |     |  |  |        +--:(ip-address)
+      |     |  |  |        |  +--ro ip-address-hop
+      |     |  |  |        |     +--ro address?    inet:ip-address
+      |     |  |  |        |     +--ro hop-type?   te-hop-type
       |     |  |  |        +--:(as-number)
-      |     |  |  |        |  +--ro as-number?          uint16
+      |     |  |  |        |  +--ro as-number-hop
+      |     |  |  |        |     +--ro as-number?   binary
+      |     |  |  |        |     +--ro hop-type?    te-hop-type
       |     |  |  |        +--:(unnumbered-link)
-      |     |  |  |        |  +--ro router-id?          inet:ip-address
-      |     |  |  |        |  +--ro interface-id?       uint32
+      |     |  |  |        |  +--ro unnumbered-hop
+      |     |  |  |        |     +--ro router-id?      inet:ip-address
+      |     |  |  |        |     +--ro interface-id?   uint32
+      |     |  |  |        |     +--ro hop-type?       te-hop-type
       |     |  |  |        +--:(label)
-      |     |  |  |           +--ro value?              uint32
+      |     |  |  |        |  +--ro label-hop
+      |     |  |  |        |     +--ro value?   rt-types:generalized-label
+      |     |  |  |        +--:(sid)
+      |     |  |  |           +--ro sid-hop
+      |     |  |  |              +--ro sid?   rt-types:generalized-label
       |     |  |  +--ro backup-path* [index]
       |     |  |  |  +--ro index           uint32
       |     |  |  |  +--ro network-ref?    leafref
       |     |  |  |  +--ro path-element* [path-element-id]
-      |     |  |  |     +--ro path-element-id     uint32
+      |     |  |  |     +--ro path-element-id    uint32
+      |     |  |  |     +--ro index?             uint32
       |     |  |  |     +--ro (type)?
-      |     |  |  |        +--:(ipv4-address)
-      |     |  |  |        |  +--ro v4-address?         inet:ipv4-address
-      |     |  |  |        |  +--ro v4-prefix-length?   uint8
-      |     |  |  |        |  +--ro v4-loose?           boolean
-      |     |  |  |        +--:(ipv6-address)
-      |     |  |  |        |  +--ro v6-address?         inet:ipv6-address
-      |     |  |  |        |  +--ro v6-prefix-length?   uint8
-      |     |  |  |        |  +--ro v6-loose?           boolean
+      |     |  |  |        +--:(ip-address)
+      |     |  |  |        |  +--ro ip-address-hop
+      |     |  |  |        |     +--ro address?    inet:ip-address
+      |     |  |  |        |     +--ro hop-type?   te-hop-type
       |     |  |  |        +--:(as-number)
-      |     |  |  |        |  +--ro as-number?          uint16
+      |     |  |  |        |  +--ro as-number-hop
+      |     |  |  |        |     +--ro as-number?   binary
+      |     |  |  |        |     +--ro hop-type?    te-hop-type
       |     |  |  |        +--:(unnumbered-link)
-      |     |  |  |        |  +--ro router-id?          inet:ip-address
-      |     |  |  |        |  +--ro interface-id?       uint32
+      |     |  |  |        |  +--ro unnumbered-hop
+      |     |  |  |        |     +--ro router-id?      inet:ip-address
+      |     |  |  |        |     +--ro interface-id?   uint32
+      |     |  |  |        |     +--ro hop-type?       te-hop-type
       |     |  |  |        +--:(label)
-      |     |  |  |           +--ro value?              uint32
+      |     |  |  |        |  +--ro label-hop
+      |     |  |  |        |     +--ro value?   rt-types:generalized-label
+      |     |  |  |        +--:(sid)
+      |     |  |  |           +--ro sid-hop
+      |     |  |  |              +--ro sid?   rt-types:generalized-label
       |     |  |  +--ro protection-type?   uint16
       |     |  |  +--ro tunnels
       |     |  |     +--ro sharing?   boolean
@@ -532,51 +592,61 @@ augment /nw:networks/nw:network/nw:node:
       |     |     +--ro is-allowed?                boolean
       |     |     +--ro label-restriction* [inclusive-exclusive label-start]
       |     |     |  +--ro inclusive-exclusive    enumeration
-      |     |     |  +--ro label-start            te-types:generalized-label
-      |     |     |  +--ro label-end?             te-types:generalized-label
+      |     |     |  +--ro label-start            rt-types:generalized-label
+      |     |     |  +--ro label-end?             rt-types:generalized-label
       |     |     |  +--ro range-bitmap?          binary
       |     |     +--ro underlay! {te-topology-hierarchy}?
       |     |     |  +--ro primary-path
       |     |     |  |  +--ro network-ref?    leafref
       |     |     |  |  +--ro path-element* [path-element-id]
-      |     |     |  |     +--ro path-element-id     uint32
+      |     |     |  |     +--ro path-element-id    uint32
+      |     |     |  |     +--ro index?             uint32
       |     |     |  |     +--ro (type)?
-      |     |     |  |        +--:(ipv4-address)
-      |     |     |  |        |  +--ro v4-address?         inet:ipv4-address
-      |     |     |  |        |  +--ro v4-prefix-length?   uint8
-      |     |     |  |        |  +--ro v4-loose?           boolean
-      |     |     |  |        +--:(ipv6-address)
-      |     |     |  |        |  +--ro v6-address?         inet:ipv6-address
-      |     |     |  |        |  +--ro v6-prefix-length?   uint8
-      |     |     |  |        |  +--ro v6-loose?           boolean
+      |     |     |  |        +--:(ip-address)
+      |     |     |  |        |  +--ro ip-address-hop
+      |     |     |  |        |     +--ro address?    inet:ip-address
+      |     |     |  |        |     +--ro hop-type?   te-hop-type
       |     |     |  |        +--:(as-number)
-      |     |     |  |        |  +--ro as-number?          uint16
+      |     |     |  |        |  +--ro as-number-hop
+      |     |     |  |        |     +--ro as-number?   binary
+      |     |     |  |        |     +--ro hop-type?    te-hop-type
       |     |     |  |        +--:(unnumbered-link)
-      |     |     |  |        |  +--ro router-id?          inet:ip-address
-      |     |     |  |        |  +--ro interface-id?       uint32
+      |     |     |  |        |  +--ro unnumbered-hop
+      |     |     |  |        |     +--ro router-id?      inet:ip-address
+      |     |     |  |        |     +--ro interface-id?   uint32
+      |     |     |  |        |     +--ro hop-type?       te-hop-type
       |     |     |  |        +--:(label)
-      |     |     |  |           +--ro value?              uint32
+      |     |     |  |        |  +--ro label-hop
+      |     |     |  |        |     +--ro value?   rt-types:generalized-label
+      |     |     |  |        +--:(sid)
+      |     |     |  |           +--ro sid-hop
+      |     |     |  |              +--ro sid?   rt-types:generalized-label
       |     |     |  +--ro backup-path* [index]
       |     |     |  |  +--ro index           uint32
       |     |     |  |  +--ro network-ref?    leafref
       |     |     |  |  +--ro path-element* [path-element-id]
-      |     |     |  |     +--ro path-element-id     uint32
+      |     |     |  |     +--ro path-element-id    uint32
+      |     |     |  |     +--ro index?             uint32
       |     |     |  |     +--ro (type)?
-      |     |     |  |        +--:(ipv4-address)
-      |     |     |  |        |  +--ro v4-address?         inet:ipv4-address
-      |     |     |  |        |  +--ro v4-prefix-length?   uint8
-      |     |     |  |        |  +--ro v4-loose?           boolean
-      |     |     |  |        +--:(ipv6-address)
-      |     |     |  |        |  +--ro v6-address?         inet:ipv6-address
-      |     |     |  |        |  +--ro v6-prefix-length?   uint8
-      |     |     |  |        |  +--ro v6-loose?           boolean
+      |     |     |  |        +--:(ip-address)
+      |     |     |  |        |  +--ro ip-address-hop
+      |     |     |  |        |     +--ro address?    inet:ip-address
+      |     |     |  |        |     +--ro hop-type?   te-hop-type
       |     |     |  |        +--:(as-number)
-      |     |     |  |        |  +--ro as-number?          uint16
+      |     |     |  |        |  +--ro as-number-hop
+      |     |     |  |        |     +--ro as-number?   binary
+      |     |     |  |        |     +--ro hop-type?    te-hop-type
       |     |     |  |        +--:(unnumbered-link)
-      |     |     |  |        |  +--ro router-id?          inet:ip-address
-      |     |     |  |        |  +--ro interface-id?       uint32
+      |     |     |  |        |  +--ro unnumbered-hop
+      |     |     |  |        |     +--ro router-id?      inet:ip-address
+      |     |     |  |        |     +--ro interface-id?   uint32
+      |     |     |  |        |     +--ro hop-type?       te-hop-type
       |     |     |  |        +--:(label)
-      |     |     |  |           +--ro value?              uint32
+      |     |     |  |        |  +--ro label-hop
+      |     |     |  |        |     +--ro value?   rt-types:generalized-label
+      |     |     |  |        +--:(sid)
+      |     |     |  |           +--ro sid-hop
+      |     |     |  |              +--ro sid?   rt-types:generalized-label
       |     |     |  +--ro protection-type?   uint16
       |     |     |  +--ro tunnels
       |     |     |     +--ro sharing?   boolean
@@ -634,51 +704,61 @@ augment /nw:networks/nw:network/nw:node:
          |     +--rw is-allowed?                boolean
          |     +--rw label-restriction* [inclusive-exclusive label-start]
          |     |  +--rw inclusive-exclusive    enumeration
-         |     |  +--rw label-start            te-types:generalized-label
-         |     |  +--rw label-end?             te-types:generalized-label
+         |     |  +--rw label-start            rt-types:generalized-label
+         |     |  +--rw label-end?             rt-types:generalized-label
          |     |  +--rw range-bitmap?          binary
          |     +--rw underlay! {te-topology-hierarchy}?
          |     |  +--rw primary-path
          |     |  |  +--rw network-ref?    leafref
          |     |  |  +--rw path-element* [path-element-id]
-         |     |  |     +--rw path-element-id     uint32
+         |     |  |     +--rw path-element-id    uint32
+         |     |  |     +--rw index?             uint32
          |     |  |     +--rw (type)?
-         |     |  |        +--:(ipv4-address)
-         |     |  |        |  +--rw v4-address?         inet:ipv4-address
-         |     |  |        |  +--rw v4-prefix-length?   uint8
-         |     |  |        |  +--rw v4-loose?           boolean
-         |     |  |        +--:(ipv6-address)
-         |     |  |        |  +--rw v6-address?         inet:ipv6-address
-         |     |  |        |  +--rw v6-prefix-length?   uint8
-         |     |  |        |  +--rw v6-loose?           boolean
+         |     |  |        +--:(ip-address)
+         |     |  |        |  +--rw ip-address-hop
+         |     |  |        |     +--rw address?    inet:ip-address
+         |     |  |        |     +--rw hop-type?   te-hop-type
          |     |  |        +--:(as-number)
-         |     |  |        |  +--rw as-number?          uint16
+         |     |  |        |  +--rw as-number-hop
+         |     |  |        |     +--rw as-number?   binary
+         |     |  |        |     +--rw hop-type?    te-hop-type
          |     |  |        +--:(unnumbered-link)
-         |     |  |        |  +--rw router-id?          inet:ip-address
-         |     |  |        |  +--rw interface-id?       uint32
+         |     |  |        |  +--rw unnumbered-hop
+         |     |  |        |     +--rw router-id?      inet:ip-address
+         |     |  |        |     +--rw interface-id?   uint32
+         |     |  |        |     +--rw hop-type?       te-hop-type
          |     |  |        +--:(label)
-         |     |  |           +--rw value?              uint32
+         |     |  |        |  +--rw label-hop
+         |     |  |        |     +--rw value?   rt-types:generalized-label
+         |     |  |        +--:(sid)
+         |     |  |           +--rw sid-hop
+         |     |  |              +--rw sid?   rt-types:generalized-label
          |     |  +--rw backup-path* [index]
          |     |  |  +--rw index           uint32
          |     |  |  +--rw network-ref?    leafref
          |     |  |  +--rw path-element* [path-element-id]
-         |     |  |     +--rw path-element-id     uint32
+         |     |  |     +--rw path-element-id    uint32
+         |     |  |     +--rw index?             uint32
          |     |  |     +--rw (type)?
-         |     |  |        +--:(ipv4-address)
-         |     |  |        |  +--rw v4-address?         inet:ipv4-address
-         |     |  |        |  +--rw v4-prefix-length?   uint8
-         |     |  |        |  +--rw v4-loose?           boolean
-         |     |  |        +--:(ipv6-address)
-         |     |  |        |  +--rw v6-address?         inet:ipv6-address
-         |     |  |        |  +--rw v6-prefix-length?   uint8
-         |     |  |        |  +--rw v6-loose?           boolean
+         |     |  |        +--:(ip-address)
+         |     |  |        |  +--rw ip-address-hop
+         |     |  |        |     +--rw address?    inet:ip-address
+         |     |  |        |     +--rw hop-type?   te-hop-type
          |     |  |        +--:(as-number)
-         |     |  |        |  +--rw as-number?          uint16
+         |     |  |        |  +--rw as-number-hop
+         |     |  |        |     +--rw as-number?   binary
+         |     |  |        |     +--rw hop-type?    te-hop-type
          |     |  |        +--:(unnumbered-link)
-         |     |  |        |  +--rw router-id?          inet:ip-address
-         |     |  |        |  +--rw interface-id?       uint32
+         |     |  |        |  +--rw unnumbered-hop
+         |     |  |        |     +--rw router-id?      inet:ip-address
+         |     |  |        |     +--rw interface-id?   uint32
+         |     |  |        |     +--rw hop-type?       te-hop-type
          |     |  |        +--:(label)
-         |     |  |           +--rw value?              uint32
+         |     |  |        |  +--rw label-hop
+         |     |  |        |     +--rw value?   rt-types:generalized-label
+         |     |  |        +--:(sid)
+         |     |  |           +--rw sid-hop
+         |     |  |              +--rw sid?   rt-types:generalized-label
          |     |  +--rw protection-type?   uint16
          |     |  +--rw tunnels
          |     |     +--rw sharing?   boolean
@@ -704,51 +784,61 @@ augment /nw:networks/nw:network/nw:node:
          |        +--rw is-allowed?                boolean
          |        +--rw label-restriction* [inclusive-exclusive label-start]
          |        |  +--rw inclusive-exclusive    enumeration
-         |        |  +--rw label-start            te-types:generalized-label
-         |        |  +--rw label-end?             te-types:generalized-label
+         |        |  +--rw label-start            rt-types:generalized-label
+         |        |  +--rw label-end?             rt-types:generalized-label
          |        |  +--rw range-bitmap?          binary
          |        +--rw underlay! {te-topology-hierarchy}?
          |        |  +--rw primary-path
          |        |  |  +--rw network-ref?    leafref
          |        |  |  +--rw path-element* [path-element-id]
-         |        |  |     +--rw path-element-id     uint32
+         |        |  |     +--rw path-element-id    uint32
+         |        |  |     +--rw index?             uint32
          |        |  |     +--rw (type)?
-         |        |  |        +--:(ipv4-address)
-         |        |  |        |  +--rw v4-address?         inet:ipv4-address
-         |        |  |        |  +--rw v4-prefix-length?   uint8
-         |        |  |        |  +--rw v4-loose?           boolean
-         |        |  |        +--:(ipv6-address)
-         |        |  |        |  +--rw v6-address?         inet:ipv6-address
-         |        |  |        |  +--rw v6-prefix-length?   uint8
-         |        |  |        |  +--rw v6-loose?           boolean
+         |        |  |        +--:(ip-address)
+         |        |  |        |  +--rw ip-address-hop
+         |        |  |        |     +--rw address?    inet:ip-address
+         |        |  |        |     +--rw hop-type?   te-hop-type
          |        |  |        +--:(as-number)
-         |        |  |        |  +--rw as-number?          uint16
+         |        |  |        |  +--rw as-number-hop
+         |        |  |        |     +--rw as-number?   binary
+         |        |  |        |     +--rw hop-type?    te-hop-type
          |        |  |        +--:(unnumbered-link)
-         |        |  |        |  +--rw router-id?          inet:ip-address
-         |        |  |        |  +--rw interface-id?       uint32
+         |        |  |        |  +--rw unnumbered-hop
+         |        |  |        |     +--rw router-id?      inet:ip-address
+         |        |  |        |     +--rw interface-id?   uint32
+         |        |  |        |     +--rw hop-type?       te-hop-type
          |        |  |        +--:(label)
-         |        |  |           +--rw value?              uint32
+         |        |  |        |  +--rw label-hop
+         |        |  |        |     +--rw value?   rt-types:generalized-label
+         |        |  |        +--:(sid)
+         |        |  |           +--rw sid-hop
+         |        |  |              +--rw sid?   rt-types:generalized-label
          |        |  +--rw backup-path* [index]
          |        |  |  +--rw index           uint32
          |        |  |  +--rw network-ref?    leafref
          |        |  |  +--rw path-element* [path-element-id]
-         |        |  |     +--rw path-element-id     uint32
+         |        |  |     +--rw path-element-id    uint32
+         |        |  |     +--rw index?             uint32
          |        |  |     +--rw (type)?
-         |        |  |        +--:(ipv4-address)
-         |        |  |        |  +--rw v4-address?         inet:ipv4-address
-         |        |  |        |  +--rw v4-prefix-length?   uint8
-         |        |  |        |  +--rw v4-loose?           boolean
-         |        |  |        +--:(ipv6-address)
-         |        |  |        |  +--rw v6-address?         inet:ipv6-address
-         |        |  |        |  +--rw v6-prefix-length?   uint8
-         |        |  |        |  +--rw v6-loose?           boolean
+         |        |  |        +--:(ip-address)
+         |        |  |        |  +--rw ip-address-hop
+         |        |  |        |     +--rw address?    inet:ip-address
+         |        |  |        |     +--rw hop-type?   te-hop-type
          |        |  |        +--:(as-number)
-         |        |  |        |  +--rw as-number?          uint16
+         |        |  |        |  +--rw as-number-hop
+         |        |  |        |     +--rw as-number?   binary
+         |        |  |        |     +--rw hop-type?    te-hop-type
          |        |  |        +--:(unnumbered-link)
-         |        |  |        |  +--rw router-id?          inet:ip-address
-         |        |  |        |  +--rw interface-id?       uint32
+         |        |  |        |  +--rw unnumbered-hop
+         |        |  |        |     +--rw router-id?      inet:ip-address
+         |        |  |        |     +--rw interface-id?   uint32
+         |        |  |        |     +--rw hop-type?       te-hop-type
          |        |  |        +--:(label)
-         |        |  |           +--rw value?              uint32
+         |        |  |        |  +--rw label-hop
+         |        |  |        |     +--rw value?   rt-types:generalized-label
+         |        |  |        +--:(sid)
+         |        |  |           +--rw sid-hop
+         |        |  |              +--rw sid?   rt-types:generalized-label
          |        |  +--rw protection-type?   uint16
          |        |  +--rw tunnels
          |        |     +--rw sharing?   boolean
@@ -784,51 +874,61 @@ augment /nw:networks/nw:network/nw:node:
          |  |  +--ro is-allowed?                boolean
          |  |  +--ro label-restriction* [inclusive-exclusive label-start]
          |  |  |  +--ro inclusive-exclusive    enumeration
-         |  |  |  +--ro label-start            te-types:generalized-label
-         |  |  |  +--ro label-end?             te-types:generalized-label
+         |  |  |  +--ro label-start            rt-types:generalized-label
+         |  |  |  +--ro label-end?             rt-types:generalized-label
          |  |  |  +--ro range-bitmap?          binary
          |  |  +--ro underlay! {te-topology-hierarchy}?
          |  |  |  +--ro primary-path
          |  |  |  |  +--ro network-ref?    leafref
          |  |  |  |  +--ro path-element* [path-element-id]
-         |  |  |  |     +--ro path-element-id     uint32
+         |  |  |  |     +--ro path-element-id    uint32
+         |  |  |  |     +--ro index?             uint32
          |  |  |  |     +--ro (type)?
-         |  |  |  |        +--:(ipv4-address)
-         |  |  |  |        |  +--ro v4-address?         inet:ipv4-address
-         |  |  |  |        |  +--ro v4-prefix-length?   uint8
-         |  |  |  |        |  +--ro v4-loose?           boolean
-         |  |  |  |        +--:(ipv6-address)
-         |  |  |  |        |  +--ro v6-address?         inet:ipv6-address
-         |  |  |  |        |  +--ro v6-prefix-length?   uint8
-         |  |  |  |        |  +--ro v6-loose?           boolean
+         |  |  |  |        +--:(ip-address)
+         |  |  |  |        |  +--ro ip-address-hop
+         |  |  |  |        |     +--ro address?    inet:ip-address
+         |  |  |  |        |     +--ro hop-type?   te-hop-type
          |  |  |  |        +--:(as-number)
-         |  |  |  |        |  +--ro as-number?          uint16
+         |  |  |  |        |  +--ro as-number-hop
+         |  |  |  |        |     +--ro as-number?   binary
+         |  |  |  |        |     +--ro hop-type?    te-hop-type
          |  |  |  |        +--:(unnumbered-link)
-         |  |  |  |        |  +--ro router-id?          inet:ip-address
-         |  |  |  |        |  +--ro interface-id?       uint32
+         |  |  |  |        |  +--ro unnumbered-hop
+         |  |  |  |        |     +--ro router-id?      inet:ip-address
+         |  |  |  |        |     +--ro interface-id?   uint32
+         |  |  |  |        |     +--ro hop-type?       te-hop-type
          |  |  |  |        +--:(label)
-         |  |  |  |           +--ro value?              uint32
+         |  |  |  |        |  +--ro label-hop
+         |  |  |  |        |     +--ro value?   rt-types:generalized-label
+         |  |  |  |        +--:(sid)
+         |  |  |  |           +--ro sid-hop
+         |  |  |  |              +--ro sid?   rt-types:generalized-label
          |  |  |  +--ro backup-path* [index]
          |  |  |  |  +--ro index           uint32
          |  |  |  |  +--ro network-ref?    leafref
          |  |  |  |  +--ro path-element* [path-element-id]
-         |  |  |  |     +--ro path-element-id     uint32
+         |  |  |  |     +--ro path-element-id    uint32
+         |  |  |  |     +--ro index?             uint32
          |  |  |  |     +--ro (type)?
-         |  |  |  |        +--:(ipv4-address)
-         |  |  |  |        |  +--ro v4-address?         inet:ipv4-address
-         |  |  |  |        |  +--ro v4-prefix-length?   uint8
-         |  |  |  |        |  +--ro v4-loose?           boolean
-         |  |  |  |        +--:(ipv6-address)
-         |  |  |  |        |  +--ro v6-address?         inet:ipv6-address
-         |  |  |  |        |  +--ro v6-prefix-length?   uint8
-         |  |  |  |        |  +--ro v6-loose?           boolean
+         |  |  |  |        +--:(ip-address)
+         |  |  |  |        |  +--ro ip-address-hop
+         |  |  |  |        |     +--ro address?    inet:ip-address
+         |  |  |  |        |     +--ro hop-type?   te-hop-type
          |  |  |  |        +--:(as-number)
-         |  |  |  |        |  +--ro as-number?          uint16
+         |  |  |  |        |  +--ro as-number-hop
+         |  |  |  |        |     +--ro as-number?   binary
+         |  |  |  |        |     +--ro hop-type?    te-hop-type
          |  |  |  |        +--:(unnumbered-link)
-         |  |  |  |        |  +--ro router-id?          inet:ip-address
-         |  |  |  |        |  +--ro interface-id?       uint32
+         |  |  |  |        |  +--ro unnumbered-hop
+         |  |  |  |        |     +--ro router-id?      inet:ip-address
+         |  |  |  |        |     +--ro interface-id?   uint32
+         |  |  |  |        |     +--ro hop-type?       te-hop-type
          |  |  |  |        +--:(label)
-         |  |  |  |           +--ro value?              uint32
+         |  |  |  |        |  +--ro label-hop
+         |  |  |  |        |     +--ro value?   rt-types:generalized-label
+         |  |  |  |        +--:(sid)
+         |  |  |  |           +--ro sid-hop
+         |  |  |  |              +--ro sid?   rt-types:generalized-label
          |  |  |  +--ro protection-type?   uint16
          |  |  |  +--ro tunnels
          |  |  |     +--ro sharing?   boolean
@@ -854,51 +954,61 @@ augment /nw:networks/nw:network/nw:node:
          |  |     +--ro is-allowed?                boolean
          |  |     +--ro label-restriction* [inclusive-exclusive label-start]
          |  |     |  +--ro inclusive-exclusive    enumeration
-         |  |     |  +--ro label-start            te-types:generalized-label
-         |  |     |  +--ro label-end?             te-types:generalized-label
+         |  |     |  +--ro label-start            rt-types:generalized-label
+         |  |     |  +--ro label-end?             rt-types:generalized-label
          |  |     |  +--ro range-bitmap?          binary
          |  |     +--ro underlay! {te-topology-hierarchy}?
          |  |     |  +--ro primary-path
          |  |     |  |  +--ro network-ref?    leafref
          |  |     |  |  +--ro path-element* [path-element-id]
-         |  |     |  |     +--ro path-element-id     uint32
+         |  |     |  |     +--ro path-element-id    uint32
+         |  |     |  |     +--ro index?             uint32
          |  |     |  |     +--ro (type)?
-         |  |     |  |        +--:(ipv4-address)
-         |  |     |  |        |  +--ro v4-address?         inet:ipv4-address
-         |  |     |  |        |  +--ro v4-prefix-length?   uint8
-         |  |     |  |        |  +--ro v4-loose?           boolean
-         |  |     |  |        +--:(ipv6-address)
-         |  |     |  |        |  +--ro v6-address?         inet:ipv6-address
-         |  |     |  |        |  +--ro v6-prefix-length?   uint8
-         |  |     |  |        |  +--ro v6-loose?           boolean
+         |  |     |  |        +--:(ip-address)
+         |  |     |  |        |  +--ro ip-address-hop
+         |  |     |  |        |     +--ro address?    inet:ip-address
+         |  |     |  |        |     +--ro hop-type?   te-hop-type
          |  |     |  |        +--:(as-number)
-         |  |     |  |        |  +--ro as-number?          uint16
+         |  |     |  |        |  +--ro as-number-hop
+         |  |     |  |        |     +--ro as-number?   binary
+         |  |     |  |        |     +--ro hop-type?    te-hop-type
          |  |     |  |        +--:(unnumbered-link)
-         |  |     |  |        |  +--ro router-id?          inet:ip-address
-         |  |     |  |        |  +--ro interface-id?       uint32
+         |  |     |  |        |  +--ro unnumbered-hop
+         |  |     |  |        |     +--ro router-id?      inet:ip-address
+         |  |     |  |        |     +--ro interface-id?   uint32
+         |  |     |  |        |     +--ro hop-type?       te-hop-type
          |  |     |  |        +--:(label)
-         |  |     |  |           +--ro value?              uint32
+         |  |     |  |        |  +--ro label-hop
+         |  |     |  |        |     +--ro value?   rt-types:generalized-label
+         |  |     |  |        +--:(sid)
+         |  |     |  |           +--ro sid-hop
+         |  |     |  |              +--ro sid?   rt-types:generalized-label
          |  |     |  +--ro backup-path* [index]
          |  |     |  |  +--ro index           uint32
          |  |     |  |  +--ro network-ref?    leafref
          |  |     |  |  +--ro path-element* [path-element-id]
-         |  |     |  |     +--ro path-element-id     uint32
+         |  |     |  |     +--ro path-element-id    uint32
+         |  |     |  |     +--ro index?             uint32
          |  |     |  |     +--ro (type)?
-         |  |     |  |        +--:(ipv4-address)
-         |  |     |  |        |  +--ro v4-address?         inet:ipv4-address
-         |  |     |  |        |  +--ro v4-prefix-length?   uint8
-         |  |     |  |        |  +--ro v4-loose?           boolean
-         |  |     |  |        +--:(ipv6-address)
-         |  |     |  |        |  +--ro v6-address?         inet:ipv6-address
-         |  |     |  |        |  +--ro v6-prefix-length?   uint8
-         |  |     |  |        |  +--ro v6-loose?           boolean
+         |  |     |  |        +--:(ip-address)
+         |  |     |  |        |  +--ro ip-address-hop
+         |  |     |  |        |     +--ro address?    inet:ip-address
+         |  |     |  |        |     +--ro hop-type?   te-hop-type
          |  |     |  |        +--:(as-number)
-         |  |     |  |        |  +--ro as-number?          uint16
+         |  |     |  |        |  +--ro as-number-hop
+         |  |     |  |        |     +--ro as-number?   binary
+         |  |     |  |        |     +--ro hop-type?    te-hop-type
          |  |     |  |        +--:(unnumbered-link)
-         |  |     |  |        |  +--ro router-id?          inet:ip-address
-         |  |     |  |        |  +--ro interface-id?       uint32
+         |  |     |  |        |  +--ro unnumbered-hop
+         |  |     |  |        |     +--ro router-id?      inet:ip-address
+         |  |     |  |        |     +--ro interface-id?   uint32
+         |  |     |  |        |     +--ro hop-type?       te-hop-type
          |  |     |  |        +--:(label)
-         |  |     |  |           +--ro value?              uint32
+         |  |     |  |        |  +--ro label-hop
+         |  |     |  |        |     +--ro value?   rt-types:generalized-label
+         |  |     |  |        +--:(sid)
+         |  |     |  |           +--ro sid-hop
+         |  |     |  |              +--ro sid?   rt-types:generalized-label
          |  |     |  +--ro protection-type?   uint16
          |  |     |  +--ro tunnels
          |  |     |     +--ro sharing?   boolean
@@ -974,44 +1084,54 @@ augment /nw:networks/nw:network/nt:link:
       |     |  +--rw primary-path
       |     |  |  +--rw network-ref?    leafref
       |     |  |  +--rw path-element* [path-element-id]
-      |     |  |     +--rw path-element-id     uint32
+      |     |  |     +--rw path-element-id    uint32
+      |     |  |     +--rw index?             uint32
       |     |  |     +--rw (type)?
-      |     |  |        +--:(ipv4-address)
-      |     |  |        |  +--rw v4-address?         inet:ipv4-address
-      |     |  |        |  +--rw v4-prefix-length?   uint8
-      |     |  |        |  +--rw v4-loose?           boolean
-      |     |  |        +--:(ipv6-address)
-      |     |  |        |  +--rw v6-address?         inet:ipv6-address
-      |     |  |        |  +--rw v6-prefix-length?   uint8
-      |     |  |        |  +--rw v6-loose?           boolean
+      |     |  |        +--:(ip-address)
+      |     |  |        |  +--rw ip-address-hop
+      |     |  |        |     +--rw address?    inet:ip-address
+      |     |  |        |     +--rw hop-type?   te-hop-type
       |     |  |        +--:(as-number)
-      |     |  |        |  +--rw as-number?          uint16
+      |     |  |        |  +--rw as-number-hop
+      |     |  |        |     +--rw as-number?   binary
+      |     |  |        |     +--rw hop-type?    te-hop-type
       |     |  |        +--:(unnumbered-link)
-      |     |  |        |  +--rw router-id?          inet:ip-address
-      |     |  |        |  +--rw interface-id?       uint32
+      |     |  |        |  +--rw unnumbered-hop
+      |     |  |        |     +--rw router-id?      inet:ip-address
+      |     |  |        |     +--rw interface-id?   uint32
+      |     |  |        |     +--rw hop-type?       te-hop-type
       |     |  |        +--:(label)
-      |     |  |           +--rw value?              uint32
+      |     |  |        |  +--rw label-hop
+      |     |  |        |     +--rw value?   rt-types:generalized-label
+      |     |  |        +--:(sid)
+      |     |  |           +--rw sid-hop
+      |     |  |              +--rw sid?   rt-types:generalized-label
       |     |  +--rw backup-path* [index]
       |     |  |  +--rw index           uint32
       |     |  |  +--rw network-ref?    leafref
       |     |  |  +--rw path-element* [path-element-id]
-      |     |  |     +--rw path-element-id     uint32
+      |     |  |     +--rw path-element-id    uint32
+      |     |  |     +--rw index?             uint32
       |     |  |     +--rw (type)?
-      |     |  |        +--:(ipv4-address)
-      |     |  |        |  +--rw v4-address?         inet:ipv4-address
-      |     |  |        |  +--rw v4-prefix-length?   uint8
-      |     |  |        |  +--rw v4-loose?           boolean
-      |     |  |        +--:(ipv6-address)
-      |     |  |        |  +--rw v6-address?         inet:ipv6-address
-      |     |  |        |  +--rw v6-prefix-length?   uint8
-      |     |  |        |  +--rw v6-loose?           boolean
+      |     |  |        +--:(ip-address)
+      |     |  |        |  +--rw ip-address-hop
+      |     |  |        |     +--rw address?    inet:ip-address
+      |     |  |        |     +--rw hop-type?   te-hop-type
       |     |  |        +--:(as-number)
-      |     |  |        |  +--rw as-number?          uint16
+      |     |  |        |  +--rw as-number-hop
+      |     |  |        |     +--rw as-number?   binary
+      |     |  |        |     +--rw hop-type?    te-hop-type
       |     |  |        +--:(unnumbered-link)
-      |     |  |        |  +--rw router-id?          inet:ip-address
-      |     |  |        |  +--rw interface-id?       uint32
+      |     |  |        |  +--rw unnumbered-hop
+      |     |  |        |     +--rw router-id?      inet:ip-address
+      |     |  |        |     +--rw interface-id?   uint32
+      |     |  |        |     +--rw hop-type?       te-hop-type
       |     |  |        +--:(label)
-      |     |  |           +--rw value?              uint32
+      |     |  |        |  +--rw label-hop
+      |     |  |        |     +--rw value?   rt-types:generalized-label
+      |     |  |        +--:(sid)
+      |     |  |           +--rw sid-hop
+      |     |  |              +--rw sid?   rt-types:generalized-label
       |     |  +--rw protection-type?   uint16
       |     |  +--rw tunnels
       |     |     +--rw sharing?   boolean
@@ -1067,44 +1187,54 @@ augment /nw:networks/nw:network/nt:link:
       |  |  |  +--ro primary-path
       |  |  |  |  +--ro network-ref?    leafref
       |  |  |  |  +--ro path-element* [path-element-id]
-      |  |  |  |     +--ro path-element-id     uint32
+      |  |  |  |     +--ro path-element-id    uint32
+      |  |  |  |     +--ro index?             uint32
       |  |  |  |     +--ro (type)?
-      |  |  |  |        +--:(ipv4-address)
-      |  |  |  |        |  +--ro v4-address?         inet:ipv4-address
-      |  |  |  |        |  +--ro v4-prefix-length?   uint8
-      |  |  |  |        |  +--ro v4-loose?           boolean
-      |  |  |  |        +--:(ipv6-address)
-      |  |  |  |        |  +--ro v6-address?         inet:ipv6-address
-      |  |  |  |        |  +--ro v6-prefix-length?   uint8
-      |  |  |  |        |  +--ro v6-loose?           boolean
+      |  |  |  |        +--:(ip-address)
+      |  |  |  |        |  +--ro ip-address-hop
+      |  |  |  |        |     +--ro address?    inet:ip-address
+      |  |  |  |        |     +--ro hop-type?   te-hop-type
       |  |  |  |        +--:(as-number)
-      |  |  |  |        |  +--ro as-number?          uint16
+      |  |  |  |        |  +--ro as-number-hop
+      |  |  |  |        |     +--ro as-number?   binary
+      |  |  |  |        |     +--ro hop-type?    te-hop-type
       |  |  |  |        +--:(unnumbered-link)
-      |  |  |  |        |  +--ro router-id?          inet:ip-address
-      |  |  |  |        |  +--ro interface-id?       uint32
+      |  |  |  |        |  +--ro unnumbered-hop
+      |  |  |  |        |     +--ro router-id?      inet:ip-address
+      |  |  |  |        |     +--ro interface-id?   uint32
+      |  |  |  |        |     +--ro hop-type?       te-hop-type
       |  |  |  |        +--:(label)
-      |  |  |  |           +--ro value?              uint32
+      |  |  |  |        |  +--ro label-hop
+      |  |  |  |        |     +--ro value?   rt-types:generalized-label
+      |  |  |  |        +--:(sid)
+      |  |  |  |           +--ro sid-hop
+      |  |  |  |              +--ro sid?   rt-types:generalized-label
       |  |  |  +--ro backup-path* [index]
       |  |  |  |  +--ro index           uint32
       |  |  |  |  +--ro network-ref?    leafref
       |  |  |  |  +--ro path-element* [path-element-id]
-      |  |  |  |     +--ro path-element-id     uint32
+      |  |  |  |     +--ro path-element-id    uint32
+      |  |  |  |     +--ro index?             uint32
       |  |  |  |     +--ro (type)?
-      |  |  |  |        +--:(ipv4-address)
-      |  |  |  |        |  +--ro v4-address?         inet:ipv4-address
-      |  |  |  |        |  +--ro v4-prefix-length?   uint8
-      |  |  |  |        |  +--ro v4-loose?           boolean
-      |  |  |  |        +--:(ipv6-address)
-      |  |  |  |        |  +--ro v6-address?         inet:ipv6-address
-      |  |  |  |        |  +--ro v6-prefix-length?   uint8
-      |  |  |  |        |  +--ro v6-loose?           boolean
+      |  |  |  |        +--:(ip-address)
+      |  |  |  |        |  +--ro ip-address-hop
+      |  |  |  |        |     +--ro address?    inet:ip-address
+      |  |  |  |        |     +--ro hop-type?   te-hop-type
       |  |  |  |        +--:(as-number)
-      |  |  |  |        |  +--ro as-number?          uint16
+      |  |  |  |        |  +--ro as-number-hop
+      |  |  |  |        |     +--ro as-number?   binary
+      |  |  |  |        |     +--ro hop-type?    te-hop-type
       |  |  |  |        +--:(unnumbered-link)
-      |  |  |  |        |  +--ro router-id?          inet:ip-address
-      |  |  |  |        |  +--ro interface-id?       uint32
+      |  |  |  |        |  +--ro unnumbered-hop
+      |  |  |  |        |     +--ro router-id?      inet:ip-address
+      |  |  |  |        |     +--ro interface-id?   uint32
+      |  |  |  |        |     +--ro hop-type?       te-hop-type
       |  |  |  |        +--:(label)
-      |  |  |  |           +--ro value?              uint32
+      |  |  |  |        |  +--ro label-hop
+      |  |  |  |        |     +--ro value?   rt-types:generalized-label
+      |  |  |  |        +--:(sid)
+      |  |  |  |           +--ro sid-hop
+      |  |  |  |              +--ro sid?   rt-types:generalized-label
       |  |  |  +--ro protection-type?   uint16
       |  |  |  +--ro tunnels
       |  |  |     +--ro sharing?   boolean
