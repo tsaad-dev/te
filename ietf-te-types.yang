@@ -68,6 +68,45 @@ module ietf-te-types {
    * Identities
    */
 
+  identity objective-function-type {
+    description "Base objective function type";
+  }
+  identity of-minimize-cost-path {
+    base objective-function-type;
+    description
+        "Mimimuze cost of path objective function";
+  }
+  identity of-minimize-load-path {
+    base objective-function-type;
+    description
+        "Minimize the load on path(s) objective
+         function";
+  }
+  identity of-minimize-residual-bandwidth {
+    base objective-function-type;
+    description
+        "Minimize the residual bandwidth objective
+         function";
+  }
+  identity of-minimize-agg-bandwidth-consumption {
+    base objective-function-type;
+    description
+        "minimize the aggregate bandwidth consumption
+         objective function";
+  }
+  identity of-minimize-load-most-loaded-link {
+    base objective-function-type;
+    description
+        "Minimize the load on the most loaded link
+         objective function";
+  }
+  identity of-minimize-cost-path-set {
+    base objective-function-type;
+    description
+        "Minimize the cost on a path set objective
+         function";
+  }
+
   identity path-computation-method {
     description
      "base identity for supported path computation
@@ -101,6 +140,34 @@ module ietf-te-types {
       explicitly specified as a collection of strict or/and loose
       hops";
   }
+
+  /**
+   * Typedefs
+   */
+
+  typedef te-bandwidth {
+    type string {
+      pattern
+        '0[xX](0((\.0?)?[pP](\+)?0?|(\.0?))|'
+      + '1(\.([\da-fA-F]{0,5}[02468aAcCeE]?)?)?[pP](\+)?(12[0-7]|'
+      + '1[01]\d|0?\d?\d)?)|0[xX][\da-fA-F]{1,8}|\d+'
+      + '(,(0[xX](0((\.0?)?[pP](\+)?0?|(\.0?))|'
+      + '1(\.([\da-fA-F]{0,5}[02468aAcCeE]?)?)?[pP](\+)?(12[0-7]|'
+      + '1[01]\d|0?\d?\d)?)|0[xX][\da-fA-F]{1,8}|\d+))*';
+    }
+    description
+      "This is the generic bandwidth type that is a string containing
+       a list of numbers separated by commas, with each of these
+       number can be non-negative decimal, hex integer, or hex float:
+       (dec | hex | float)[*(','(dec | hex | float))]
+       For packet switching type, a float number is used, such as
+       0x1p10.
+       For OTN switching type, a list of integers can be used, such
+       as '0,2,3,1', indicating 2 odu0's and 1 odu3.
+       For DWDM, a list of pairs of slot number and width can be
+       used, such as '0, 2, 3, 3', indicating a frequency slot 0 with
+       slot width 2 and a frequency slot 3 with slot width 3.";
+  } // te-bandwidth
 
   typedef te-ds-class {
     type uint8 {
@@ -553,14 +620,15 @@ module ietf-te-types {
       }
       case unnumbered-link {
         container unnumbered-hop {
-          leaf router-id {
+          leaf node-id {
             type inet:ip-address;
             description
-              "A router-id address";
+              "The TE node-id address";
           }
-          leaf interface-id {
+          leaf link-termination-point-id {
             type uint32;
-            description "The interface identifier";
+            description
+              "The TE link termination point identifier";
           }
           leaf hop-type {
             type te-hop-type;
@@ -635,10 +703,10 @@ module ietf-te-types {
         }
       }
       case unnumbered-link {
-        leaf router-id {
+        leaf node-id {
           type inet:ip-address;
           description
-            "A router-id address";
+            "The TE node-id address";
         }
         leaf interface-id {
           type uint32;
@@ -713,6 +781,13 @@ module ietf-te-types {
     base path-metric-type;
     description
       "Hop path metric";
+  }
+
+  identity path-metric-delay-average {
+    base path-metric-type;
+    description
+      "Unidirectional average link delay";
+    reference "RFC7471";
   }
 
   identity path-tiebreaker-type {

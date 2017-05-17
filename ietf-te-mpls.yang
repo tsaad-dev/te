@@ -5,9 +5,14 @@ module ietf-te-mpls {
   /* Replace with IANA when assigned */
   prefix "te-mpls";
 
-  /* Import TE generic types */
+  /* Import TE base model */
   import ietf-te {
     prefix te;
+  }
+
+  /* Import TE MPLS types */
+  import ietf-te-mpls-types {
+    prefix "te-mpls-types";
   }
 
   /* Import TE generic types */
@@ -15,6 +20,7 @@ module ietf-te-mpls {
     prefix te-types;
   }
 
+  /* Import routing types */
   import ietf-routing-types {
     prefix "rt-types";
   }
@@ -176,6 +182,269 @@ module ietf-te-mpls {
   }
 
   /*** End of MPLS TE tunnel configuration/state */
+  grouping te-lsp-auto-bandwidth_config {
+    description
+      "Configuration parameters related to autobandwidth";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "enables mpls auto-bandwidth on the
+         lsp";
+    }
+
+    leaf min-bw {
+      type te-mpls-types:bandwidth-kbps;
+      description
+        "set the minimum bandwidth in Kbps for an
+         auto-bandwidth LSP";
+    }
+
+    leaf max-bw {
+      type te-mpls-types:bandwidth-kbps;
+      description
+        "set the maximum bandwidth in Kbps for an
+         auto-bandwidth LSP";
+    }
+
+    leaf adjust-interval {
+      type uint32;
+      description
+        "time in seconds between adjustments to
+         LSP bandwidth";
+    }
+
+    leaf adjust-threshold {
+      type te-types:percentage;
+      description
+        "percentage difference between the LSP's
+         specified bandwidth and its current bandwidth
+         allocation -- if the difference is greater than the
+         specified percentage, auto-bandwidth adjustment is
+         triggered";
+    }
+  }
+
+  grouping te-lsp-overflow_config {
+    description
+     "configuration for mpls lsp bandwidth
+      overflow adjustment";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+       "enables mpls lsp bandwidth overflow
+        adjustment on the lsp";
+    }
+
+    leaf overflow-threshold {
+      type te-types:percentage;
+      description
+       "bandwidth percentage change to trigger
+        an overflow event";
+
+    }
+
+    leaf trigger-event-count {
+      type uint16;
+      description
+       "number of consecutive overflow sample
+        events needed to trigger an overflow adjustment";
+    }
+  }
+
+  grouping te-lsp-underflow_config {
+    description
+      "configuration for mpls lsp bandwidth
+      underflow adjustment";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+       "enables bandwidth underflow
+        adjustment on the lsp";
+    }
+
+    leaf underflow-threshold {
+      type te-types:percentage;
+      description
+       "bandwidth percentage change to trigger
+        and underflow event";
+    }
+
+    leaf trigger-event-count {
+      type uint16;
+      description
+       "number of consecutive underflow sample
+        events needed to trigger an underflow adjustment";
+    }
+  }
+  grouping te-tunnel-bandwidth_config {
+    description
+      "Configuration parameters related to bandwidth for a tunnel";
+
+    leaf specification-type {
+      type te-mpls-types:te-bandwidth-type;
+      default SPECIFIED;
+      description
+        "The method used for settign the bandwidth, either explicitly
+        specified or configured";
+    }
+
+    leaf set-bandwidth {
+      when "../specification-type = 'te-mpls-types:SPECIFIED'" {
+       description
+         "The bandwidth value when bandwidth is explicitly
+          specified";
+      }
+      type te-mpls-types:bandwidth-kbps;
+      description
+       "set bandwidth explicitly, e.g., using
+        offline calculation";
+    }
+    leaf class-type {
+      type te-types:te-ds-class;
+      description
+        "The Class-Type of traffic transported by the LSP.";
+      reference "RFC4124: section-4.3.1";
+    }
+  }
+
+  grouping te-tunnel-bandwidth_state {
+    description
+      "Operational state parameters relating to bandwidth for a tunnel";
+
+    leaf signaled-bandwidth {
+      type te-mpls-types:bandwidth-kbps;
+      description
+        "The currently signaled bandwidth of the LSP. In the case where
+        the bandwidth is specified explicitly, then this will match the
+        value of the set-bandwidth leaf; in cases where the bandwidth is
+        dynamically computed by the system, the current value of the
+        bandwidth should be reflected.";
+    }
+  }
+
+  grouping tunnel-bandwidth_top {
+    description
+      "Top level grouping for specifying bandwidth for a tunnel";
+
+    container bandwidth-mpls {
+      description
+        "Bandwidth configuration for TE LSPs";
+
+      container config {
+        description
+          "Configuration parameters related to bandwidth on TE
+          tunnels:";
+        uses te-tunnel-bandwidth_config;
+      }
+
+      container state {
+        config false;
+        description
+          "State parameters related to bandwidth
+          configuration of TE tunnels";
+        uses te-tunnel-bandwidth_config;
+        uses te-tunnel-bandwidth_state;
+      }
+
+      container auto-bandwidth {
+        when "../config/specification-type = 'AUTO'" {
+          description
+            "Include this container for auto bandwidth
+            specific configuration";
+        }
+        description
+          "Parameters related to auto-bandwidth";
+
+        container config {
+          description
+            "Configuration parameters relating to MPLS
+            auto-bandwidth on the tunnel.";
+          uses te-lsp-auto-bandwidth_config;
+        }
+        container state {
+          config false;
+          description
+            "State parameters relating to MPLS
+            auto-bandwidth on the tunnel.";
+          uses te-lsp-auto-bandwidth_config;
+        }
+
+        container overflow {
+          description
+            "configuration of MPLS overflow bandwidth
+            adjustement for the LSP";
+
+          container config {
+            description
+              "Config information for MPLS overflow bandwidth
+              adjustment";
+            uses te-lsp-overflow_config;
+          }
+
+          container state {
+            config false;
+            description
+              "Config information for MPLS overflow bandwidth
+              adjustment";
+            uses te-lsp-overflow_config;
+          }
+        }
+
+        container underflow {
+          description
+            "configuration of MPLS underflow bandwidth
+            adjustement for the LSP";
+
+          container config {
+            description
+              "Config information for MPLS underflow bandwidth
+              adjustment";
+            uses te-lsp-underflow_config;
+          }
+          container state {
+            config false;
+            description
+              "State information for MPLS underflo
+              adjustment";
+            uses te-lsp-underflow_config;
+          }
+        }
+      }
+    }
+  }
+
+  grouping te-path-bandwidth_top {
+    description
+      "Top level grouping for specifying bandwidth for a TE path";
+
+    container bandwidth {
+      description
+        "Bandwidth configuration for TE LSPs";
+
+      container config {
+        description
+          "Configuration parameters related to bandwidth on TE
+          tunnels:";
+        uses te-tunnel-bandwidth_config;
+      }
+
+      container state {
+        config false;
+        description
+          "State parameters related to bandwidth
+          configuration of TE tunnels";
+        uses te-tunnel-bandwidth_config;
+        uses te-tunnel-bandwidth_state;
+      }
+    }
+  }
+
 
 
   /**
@@ -187,6 +456,7 @@ module ietf-te-mpls {
     description "MPLS TE tunnel config augmentations";
     uses tunnel-igp-shortcuts;
     uses tunnel-forwarding-adjacency;
+    uses tunnel-bandwidth_top;
   }
 
   /* MPLS TE LSPs augmentations */
@@ -205,6 +475,7 @@ module ietf-te-mpls {
       description "Static LSP name";
     }
   }
+
   augment "/te:te/te:tunnels/te:tunnel/" +
           "te:p2p-primary-paths/te:p2p-primary-path/" +
           "te:state" {
@@ -237,5 +508,11 @@ module ietf-te-mpls {
       type mpls-static:static-lsp-ref;
       description "Static LSP name";
     }
+  }
+
+  augment "/te:te/te:globals/te:named-path-constraints/" +
+          "te:named-path-constraint" {
+    description "foo";
+    uses te-path-bandwidth_top;
   }
 }
