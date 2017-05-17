@@ -537,6 +537,12 @@ module ietf-te {
       description
         "Textual description for this TE tunnel";
     }
+    leaf bandwidth-generic {
+      type te-types:te-bandwidth;
+      description
+        "A technology agnostic requested bandwidth to use
+         for path computation";
+    }
     leaf setup-priority {
       type uint8 {
         range "0..7";
@@ -651,6 +657,12 @@ module ietf-te {
       type binary;
       description
         "TE tunnel destination termination point identifier.";
+    }
+    leaf bandwidth-generic {
+      type te-types:te-bandwidth;
+      description
+        "A technology agnostic requested bandwidth to use
+         for path computation";
     }
     leaf setup-priority {
       type uint8 {
@@ -1115,28 +1127,6 @@ module ietf-te {
         "A string name that uniquely identifies an
         explicit path";
     }
-    container explicit-route-objects {
-      description "Explicit route objects container";
-      list explicit-route-object {
-        key "index";
-        description
-          "List of explicit route objects";
-        leaf index {
-          type leafref {
-            path "../config/index";
-          }
-          description
-            "Index of this explicit route object";
-        }
-        leaf explicit-route-usage {
-          type identityref {
-            base te-types:route-usage-type;
-          }
-          description "An explicit-route hop action.";
-        }
-        uses te-types:explicit-route-hop;
-      }
-    }
   }
 
   grouping named-explicit-paths {
@@ -1166,11 +1156,71 @@ module ietf-te {
             "State parameters related to named paths";
           uses named-explicit-paths_config;
         }
+        container explicit-route-objects {
+          description "Explicit route objects container";
+          list explicit-route-object {
+            key "index";
+            description
+              "List of explicit route objects";
+            leaf index {
+              type leafref {
+                path "../config/index";
+              }
+              description
+                "Index of this explicit route object";
+            }
+            leaf explicit-route-usage {
+              type identityref {
+                base te-types:route-usage-type;
+              }
+              description "An explicit-route hop action.";
+            }
+            uses te-types:explicit-route-hop;
+          }
+        }
       }
     }
   }
 
   /* Global named paths constraints configuration data */
+  grouping objective-function_config {
+    description "Objective function attributes grouping";
+    leaf objective {
+      type identityref {
+        base te-types:objective-function-type;
+      }
+      description "The objective function";
+    }
+    leaf tiebreaker-type {
+      type identityref {
+        base te-types:path-tiebreaker-type;
+      }
+      default te-types:path-tiebreaker-minfill;
+      description
+        "The tunnel path computation tie breakers.";
+    }
+  }
+
+  grouping objective-functions {
+    description "Objective functions grouping";
+    container objective-function {
+      description
+        "The objective function container that includes
+         attributes to impose when computing a TE path";
+      container config {
+        description
+          "Configuration parameters related to objective functions";
+        uses objective-function_config;
+      }
+      container state {
+        config false;
+        description
+          "State parameters related to objective functions";
+        uses objective-function_config;
+      }
+    }
+  }
+
   grouping named-path-constraints_config {
     description
       "Global named path constraints configuration
@@ -1180,25 +1230,6 @@ module ietf-te {
       description
         "A string name that uniquely identifies a
         path constraint set";
-    }
-    container objective-function {
-      description
-        "The objective function container that includes
-         attributes to impose when computing a TE path";
-      leaf objective {
-        type identityref {
-          base te-types:objective-function-type;
-        }
-        description "The objective function";
-      }
-      leaf tiebreaker-type {
-        type identityref {
-          base te-types:path-tiebreaker-type;
-        }
-        default te-types:path-tiebreaker-minfill;
-        description
-          "The tunnel path computation tie breakers.";
-      }
     }
     leaf topology-id {
       type te-types:te-topology-id;
@@ -1272,7 +1303,6 @@ module ietf-te {
     }
     uses path-affinities;
     uses path-srlgs;
-    uses path-route-objects;
   }
 
   grouping named-path-constraints {
@@ -1303,6 +1333,8 @@ module ietf-te {
             "State parameters related to admin-groups";
           uses named-path-constraints_config;
         }
+        uses path-route-objects;
+        uses objective-functions;
       }
     }
   }
