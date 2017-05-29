@@ -289,15 +289,13 @@ module ietf-te {
       "tunnel path properties.";
     container config {
       description
-        "Configuration parameters relating to
-        tunnel properties";
+        "Configuration intended parameters";
       uses p2p-path-properties_config;
     }
     container state {
       config false;
       description
-        "State information associated with tunnel
-        properties";
+        "Configuration applied parameters and state";
       uses p2p-path-properties_config;
       uses p2p-path-properties_state;
     }
@@ -308,35 +306,35 @@ module ietf-te {
       "TE tunnel primary path properties grouping";
     container config {
       description
-        "Configuration parameters relating to
-        tunnel properties";
+        "Configuration intended parameters";
       uses p2p-path-properties_config;
     }
     container state {
       config false;
       description
-        "State information associated with tunnel
-        properties";
+        "Configuration applied parameters and state";
       uses p2p-path-properties_config;
       uses p2p-path-properties_state;
     }
   }
 
-  grouping p2p-path-properties_state {
-    description "TE per path state parameters";
+  grouping computed-path-properties {
+    description "TE computed path properties grouping";
     container computed-path-properties {
       description "The TE path computed properties";
-      leaf path-accumulative-te-weight {
-        type uint32;
-        description "Accumulative path TE weight";
-      }
-      leaf path-accumulative-igp-weight {
-        type uint32;
-        description "Accumulative path IGP weight";
-      }
-      leaf path-accumulative-number-of-hops {
-        type uint32;
-        description "Accumulative path hops";
+      list path-metric {
+        key metric-type;
+        description "TE path metric type";
+        leaf metric-type {
+          type identityref {
+            base te-types:path-metric-type;
+          }
+          description "TE path metric type";
+        }
+        leaf accumulative-value {
+          type uint64;
+          description "TE path metric accumulative value";
+        }
       }
       uses path-affinities;
       uses path-srlgs;
@@ -353,6 +351,11 @@ module ietf-te {
         }
       }
     }
+  }
+
+  grouping p2p-path-properties_state {
+    description "TE per path state parameters";
+    uses computed-path-properties;
     container lsps {
       description "TE LSPs container";
       list lsp {
@@ -731,15 +734,13 @@ module ietf-te {
       "Top level grouping for P2MP tunnel properties.";
     container config {
       description
-        "Configuration parameters relating to
-         tunnel P2MP properties";
+        "Configuration intended parameters";
       uses tunnel-p2mp-params_config;
     }
     container state {
       config false;
       description
-        "State information associated with tunnel
-         properties";
+        "Configuration applied parameters and state";
       uses tunnel-p2mp-params_config;
     }
   }
@@ -793,15 +794,13 @@ module ietf-te {
       "Top level grouping for tunnel properties.";
     container config {
       description
-        "Configuration parameters relating to
-         tunnel properties";
+        "Configuration intended parameters";
       uses tunnel-p2p-params_config;
     }
     container state {
       config false;
       description
-        "State information associated with tunnel
-         properties";
+        "Configuration applied parameters and state";
       uses tunnel-p2p-params_config;
       uses tunnel-p2p-params_state;
     }
@@ -843,18 +842,14 @@ module ietf-te {
             }
             container config {
               description
-                "Configuration parameters relating to the candidate
-                secondary path";
-
+                "Configuration intended parameters";
               uses p2p-path-candidate-secondary-path-config;
             }
 
             container state {
               config false;
               description
-                "Operational state parameters relating to the candidate
-                secondary path";
-
+                "Configuration applied parameters and state";
               uses p2p-path-candidate-secondary-path-config;
               uses p2p-path-candidate-secondary-path-state;
             }
@@ -1050,13 +1045,13 @@ module ietf-te {
         }
         container config {
           description
-            "Configuration parameters related to admin-groups";
+            "Configuration intended parameters";
           uses named-admin-groups_config;
         }
         container state {
           config false;
           description
-            "State parameters related to admin-groups";
+            "Configuration applied parameters and state";
           uses named-admin-groups_config;
         }
       }
@@ -1103,13 +1098,13 @@ module ietf-te {
         }
         container config {
           description
-            "Configuration parameters related to named SRLGs";
+            "Configuration intended parameters";
           uses named-srlgs_config;
         }
         container state {
           config false;
           description
-            "State parameters related to named SRLGs";
+            "Configuration applied parameters and state";
           uses named-srlgs_config;
         }
       }
@@ -1147,13 +1142,13 @@ module ietf-te {
         }
         container config {
           description
-            "Configuration parameters related to named paths";
+            "Configuration intended parameters";
           uses named-explicit-paths_config;
         }
         container state {
           config false;
           description
-            "State parameters related to named paths";
+            "Configuration applied parameters and state";
           uses named-explicit-paths_config;
         }
         container explicit-route-objects {
@@ -1183,40 +1178,187 @@ module ietf-te {
   }
 
   /* Global named paths constraints configuration data */
-  grouping objective-function_config {
-    description "Objective function attributes grouping";
-    leaf objective {
+  grouping path-metrics-bounds_config {
+    description "TE path metric bounds grouping";
+    leaf metric-type {
+      type identityref {
+        base te-types:path-metric-type;
+      }
+      description "TE path metric type";
+    }
+    leaf lower-bound {
+      type uint64;
+      description "Upper bound on TE path metric";
+    }
+    leaf upper-bound {
+      type uint64;
+      description "Lower bound on TE path metric";
+    }
+  }
+
+  grouping objective-functions_config {
+    description "Optimization metrics configuration grouping";
+    leaf objective-function-type {
       type identityref {
         base te-types:objective-function-type;
       }
-      description "The objective function";
-    }
-    leaf tiebreaker-type {
-      type identityref {
-        base te-types:path-tiebreaker-type;
-      }
-      default te-types:path-tiebreaker-minfill;
       description
-        "The tunnel path computation tie breakers.";
+        "Objective function entry";
+    }
+    leaf weight {
+      type uint8;
+      description
+        "Weight given to an objective function when 
+         multiple are requested to be optimized";
+    }
+  }
+
+  grouping optimization-metrics_config {
+    description "Optimization metrics configuration grouping";
+    leaf metric-type {
+      type identityref {
+        base te-types:path-metric-type;
+      }
+      description "TE path metric type";
+    }
+    leaf goal {
+      type te-types:optimization-goal;
+      default minimize;
+      description "TE path metric optimization goal";
+    }
+    leaf weight {
+      type uint8;
+      description "TE path metric normalization weight";
     }
   }
 
   grouping objective-functions {
     description "Objective functions grouping";
-    container objective-function {
+
+    /* Optimize by metric */
+    container optimization-metrics {
       description
         "The objective function container that includes
          attributes to impose when computing a TE path";
-      container config {
-        description
-          "Configuration parameters related to objective functions";
-        uses objective-function_config;
+      list optimization-metric {
+        key "metric-type";
+        description "TE path metric type";
+        leaf metric-type {
+          type leafref {
+            path "../config/metric-type";
+          }
+          description
+            "Optimization metric type";
+        }
+        container config {
+          description
+            "Configuration intended parameters";
+          uses optimization-metrics_config;
+        }
+        container state {
+          config false;
+          description
+            "Configuration applied parameters and state";
+          uses optimization-metrics_config;
+        }
       }
-      container state {
-        config false;
+    }
+
+    /* Objective functions */
+    container objective-functions {
+      description
+        "The objective function container that includes
+         attributes to impose when computing a TE path";
+      list objective-function {
+        key "objective-function-type";
+        description "List of objective functions";
+        leaf objective-function-type {
+          type leafref {
+            path "../config/objective-function-type";
+          }
+          description
+            "Objective function entry";
+        }
+        container config {
+          description
+            "Configuration intended parameters";
+          uses objective-functions_config;
+        }
+        container state {
+          config false;
+          description
+            "Configuration applied parameters and state";
+          uses objective-functions_config;
+        }
+      }
+    }
+
+    /* Tiebreakers */
+    container tiebreakers {
+      description
+        "The list of tiebreaker criterion to apply
+         on an equally favored set of paths to pick best";
+      list tiebreaker {
+        key "tiebreaker-type";
         description
-          "State parameters related to objective functions";
-        uses objective-function_config;
+          "The list of tiebreaker criterion to apply
+           on an equally favored set of paths to pick best";
+        leaf tiebreaker-type {
+          type leafref {
+            path "../config/tiebreaker-type";
+          }
+          description "The tiebreaker type";
+        }
+        container config {
+          description
+            "Configuration intended parameters";
+          leaf tiebreaker-type {
+            type identityref {
+              base te-types:path-metric-type;
+            }
+            description "The objective function";
+          }
+        }
+        container state {
+          config false;
+          description
+            "Configuration applied parameters and state";
+          leaf tiebreaker-type {
+            type identityref {
+              base te-types:path-metric-type;
+            }
+            description "The objective function";
+          }
+        }
+      }
+    }
+  }
+
+  grouping path-metric-bounds {
+    description "TE path metric bounds grouping";
+    container path-metric-bounds {
+      description "TE path metric bounds container";
+      list path-metric-bound {
+        key metric-type;
+        description "List of TE path metrics";
+        leaf metric-type {
+          type leafref {
+            path "../config/metric-type";
+          }
+          description
+            "The TE path metric type";
+        }
+        container config {
+          description
+            "Configuration intended parameters";
+          uses path-metrics-bounds_config;
+        }
+        container state {
+          config false;
+          description
+            "Configuration applied parameters and state";
+          uses path-metrics-bounds_config;
+        }
       }
     }
   }
@@ -1237,45 +1379,6 @@ module ietf-te {
         "The tunnel path is computed using the specific
         topology identified by this identifier";
     }
-    leaf cost-limit {
-      type uint32 {
-        range "1..4294967295";
-      }
-      description
-        "The maximum accumulative cost allowed for a
-         feasible path";
-    }
-    leaf hop-limit {
-      type uint8 {
-        range "1..255";
-      }
-      description
-        "The maximum number of hops allowed for a
-         feasible path";
-    }
-    leaf delay-latency-limit {
-      type uint32;
-      units milliseconds;
-      description
-        "The maximum accumulative delay latency allowed
-         for a feasible path";
-    }
-    leaf igp-metric-limit {
-      type uint32 {
-        range "1..4294967295";
-      }
-      description
-        "The maximum accumulative igp metric allowed
-         for a feasible path";
-    }
-    leaf te-metric-limit {
-      type uint32 {
-        range "1..4294967295";
-      }
-      description
-        "The maximum accumulative TE metric allowed
-         for a feasible path";
-    }
     leaf ignore-overload {
       type boolean;
       description
@@ -1286,6 +1389,11 @@ module ietf-te {
       description
         "A technology agnostic requested bandwidth to use
          for path computation";
+    }
+    leaf disjointness {
+      type te-types:te-path-disjointness;
+      description
+        "The type of resource disjointness.";
     }
     leaf setup-priority {
       type uint8 {
@@ -1322,15 +1430,16 @@ module ietf-te {
           }
           description "Path constraint name";
         }
+        uses path-metric-bounds;
         container config {
           description
-            "Configuration parameters related to admin-groups";
+            "Configuration intended parameters";
           uses named-path-constraints_config;
         }
         container state {
           config false;
           description
-            "State parameters related to admin-groups";
+            "Configuration applied parameters and state";
           uses named-path-constraints_config;
         }
         uses path-route-objects;

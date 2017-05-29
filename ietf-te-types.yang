@@ -67,7 +67,6 @@ module ietf-te-types {
   /*
    * Identities
    */
-
   identity objective-function-type {
     description "Base objective function type";
   }
@@ -144,6 +143,10 @@ module ietf-te-types {
   /**
    * Typedefs
    */
+  typedef te-path-disjointness {
+    type uint32;
+    description "foo";
+  }
 
   typedef te-bandwidth {
     type string {
@@ -574,169 +577,6 @@ module ietf-te-types {
       "Indicates support for named path constraints";
   }
 
-  grouping explicit-route-hop_config {
-    description
-      "The explicit route subobject grouping";
-    leaf index {
-      type uint32;
-      description "ERO subobject index";
-    }
-    choice type {
-      description
-        "The explicit route subobject type";
-      case ip-address {
-        description
-          "IP address explicit route subobject";
-        container ip-address-hop {
-          description "IP address hop type";
-          leaf address {
-            type inet:ip-address;
-            description
-              "ERO IP address.";
-          }
-          leaf hop-type {
-            type te-hop-type;
-              description
-                "strict or loose hop";
-          }
-        }
-      }
-      case as-number {
-        container as-number-hop {
-          leaf as-number {
-            type binary {
-              length 16;
-            }
-            description "AS number";
-          }
-          leaf hop-type {
-            type te-hop-type;
-              description
-                "strict or loose hop";
-          }
-          description
-            "Autonomous System explicit route subobject";
-        }
-      }
-      case unnumbered-link {
-        container unnumbered-hop {
-          leaf node-id {
-            type inet:ip-address;
-            description
-              "The TE node-id address";
-          }
-          leaf link-termination-point-id {
-            type uint32;
-            description
-              "The TE link termination point identifier";
-          }
-          leaf hop-type {
-            type te-hop-type;
-              description
-                "strict or loose hop";
-          }
-          description
-            "Unnumbered link explicit route subobject";
-          reference
-            "RFC3477: Signalling Unnumbered Links in
-            RSVP-TE";
-        }
-      }
-      case label {
-        container label-hop {
-          description "Label hop type";
-          leaf value {
-            type rt-types:generalized-label;
-            description "the label value";
-          }
-        }
-        description
-          "The Label ERO subobject";
-      }
-      case sid {
-        container sid-hop {
-          description "foo";
-          leaf sid {
-            type rt-types:generalized-label;
-            description "Segment-routing identifier";
-          }
-        }
-        description "Segment-routing identifier";
-      }
-    }
-  }
-
-  grouping explicit-route-hop {
-    description "Explicit route hop grouping";
-    container config {
-      description
-        "Configuration parameters for the explicit route hop";
-      uses explicit-route-hop_config;
-    }
-    container state {
-      config false;
-      description
-        "State parameters for the explicit route hop";
-      uses explicit-route-hop_config;
-    }
-  }
-
-  grouping record-route-subobject {
-    description
-      "The record route subobject grouping";
-    choice type {
-      description
-        "The record route subobject type";
-      case ip-address {
-        leaf ip-address {
-          type inet:ip-address;
-          description
-            "RRO IP address subobject.";
-        }
-        leaf ip-flags {
-          type binary {
-            length 8;
-          }
-          description
-            "RRO IP address sub-object flags";
-          reference "RFC3209";
-        }
-      }
-      case unnumbered-link {
-        leaf node-id {
-          type inet:ip-address;
-          description
-            "The TE node-id address";
-        }
-        leaf interface-id {
-          type uint32;
-          description "The interface identifier";
-        }
-        description
-          "Unnumbered link record route subobject";
-        reference
-          "RFC3477: Signalling Unnumbered Links in
-           RSVP-TE";
-      }
-      case label {
-        leaf value {
-          type rt-types:generalized-label;
-          description "the label value";
-        }
-        leaf label-flags {
-          type binary {
-            length 8;
-          }
-          description
-            "Label sub-object flags";
-          reference "RFC3209";
-        }
-        description
-          "The Label ERO subobject";
-      }
-    }
-  }
-
   identity route-usage-type {
     description
       "Base identity for route usage";
@@ -874,6 +714,23 @@ module ietf-te-types {
     description
       "The set of attribute filters associated with a
       tunnel any of which renders a link unacceptable";
+  }
+
+  typedef optimization-goal {
+    type enumeration {
+      enum minimize {
+        description "Pick lowest path metric goal";
+      }
+      enum maximize {
+        description "Pick highest path metric goal";
+      }
+      enum randomize {
+        description
+          "Pick a path at random from list of
+           equally favorable ones";
+      }
+    }
+    description "TE optimization goal";
   }
 
   identity te-optimization-criterion {
@@ -1450,6 +1307,174 @@ module ietf-te-types {
    **/
 
   /* Tunnel path selection parameters */
+  grouping explicit-route-hop_config {
+    description
+      "The explicit route subobject grouping";
+    leaf index {
+      type uint32;
+      description "ERO subobject index";
+    }
+    choice type {
+      description
+        "The explicit route subobject type";
+      case numbered {
+        description
+          "Numbered link explicit route subobject";
+        container numbered-hop {
+          description "Numbered link hop type";
+          leaf address {
+            type te-types:te-tp-id;
+            description
+              "Numbered link TE termination point address.";
+          }
+          leaf hop-type {
+            type te-hop-type;
+              description
+                "strict or loose hop";
+          }
+        }
+      }
+      case as-number {
+        container as-number-hop {
+          leaf as-number {
+            type binary {
+              length 16;
+            }
+            description "AS number";
+          }
+          leaf hop-type {
+            type te-hop-type;
+              description
+                "strict or loose hop";
+          }
+          description
+            "Autonomous System explicit route subobject";
+        }
+      }
+      case unnumbered {
+        container unnumbered-hop {
+          leaf node-id {
+            type te-types:te-node-id;
+            description
+              "The identifier of a node in the TE topology.";
+          }
+          leaf link-tp-id {
+            type te-types:te-tp-id;
+              description
+                "TE link termination point identifier, used
+                 together with te-node-id to identify the
+                 link termination point";
+          }
+          leaf hop-type {
+            type te-hop-type;
+              description
+                "strict or loose hop";
+          }
+          description
+            "Unnumbered link explicit route subobject";
+          reference
+            "RFC3477: Signalling Unnumbered Links in
+            RSVP-TE";
+        }
+      }
+      case label {
+        container label-hop {
+          description "Label hop type";
+          leaf value {
+            type rt-types:generalized-label;
+            description "the label value";
+          }
+        }
+        description
+          "The Label ERO subobject";
+      }
+      case sid {
+        container sid-hop {
+          description "Segment routing SID hop";
+          leaf sid {
+            type rt-types:generalized-label;
+            description "Segment-routing identifier";
+          }
+        }
+        description "Segment-routing identifier";
+      }
+    }
+  }
+
+  grouping explicit-route-hop {
+    description "Explicit route hop grouping";
+    container config {
+      description
+        "Configuration parameters for the explicit route hop";
+      uses explicit-route-hop_config;
+    }
+    container state {
+      config false;
+      description
+        "State parameters for the explicit route hop";
+      uses explicit-route-hop_config;
+    }
+  }
+
+  grouping record-route-subobject {
+    description
+      "The record route subobject grouping";
+    choice type {
+      description
+        "The record route subobject type";
+      case numbered {
+        leaf address {
+          type te-types:te-tp-id;
+          description
+            "Numbered link TE termination point address.";
+        }
+        leaf ip-flags {
+          type binary {
+            length 8;
+          }
+          description
+            "RRO IP address sub-object flags";
+          reference "RFC3209";
+        }
+      }
+      case unnumbered {
+        leaf node-id {
+          type te-types:te-node-id;
+          description
+            "The identifier of a node in the TE topology.";
+        }
+        leaf link-tp-id {
+          type te-types:te-tp-id;
+            description
+              "TE link termination point identifier, used
+               together with te-node-id to identify the
+               link termination point";
+        }
+        description
+          "Unnumbered link record route subobject";
+        reference
+          "RFC3477: Signalling Unnumbered Links in
+           RSVP-TE";
+      }
+      case label {
+        leaf value {
+          type rt-types:generalized-label;
+          description "the label value";
+        }
+        leaf label-flags {
+          type binary {
+            length 8;
+          }
+          description
+            "Label sub-object flags";
+          reference "RFC3209";
+        }
+        description
+          "The Label ERO subobject";
+      }
+    }
+  }
+
   /*** End of TE tunnel groupings ***/
 
   /**
