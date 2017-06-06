@@ -1155,17 +1155,13 @@ module ietf-te {
       }
       description "TE path metric type";
     }
-    leaf lower-bound {
-      type uint64;
-      description "Upper bound on TE path metric";
-    }
     leaf upper-bound {
       type uint64;
-      description "Lower bound on TE path metric";
+      description "Upper bound on end-to-end TE path metric";
     }
   }
 
-  grouping objective-functions_config {
+  grouping path-objective-function_config {
     description "Optimization metrics configuration grouping";
     leaf objective-function-type {
       type identityref {
@@ -1174,15 +1170,9 @@ module ietf-te {
       description
         "Objective function entry";
     }
-    leaf weight {
-      type uint8;
-      description
-        "Weight given to an objective function when 
-         multiple are requested to be optimized";
-    }
   }
 
-  grouping optimization-metrics_config {
+  grouping optimizations_config {
     description "Optimization metrics configuration grouping";
     leaf metric-type {
       type identityref {
@@ -1190,22 +1180,17 @@ module ietf-te {
       }
       description "TE path metric type";
     }
-    leaf goal {
-      type te-types:optimization-goal;
-      default minimize;
-      description "TE path metric optimization goal";
-    }
     leaf weight {
       type uint8;
       description "TE path metric normalization weight";
     }
   }
 
-  grouping objective-functions {
+  grouping path-objective-function {
     description "Objective functions grouping";
 
     /* Optimize by metric */
-    container optimization-metrics {
+    container optimizations {
       description
         "The objective function container that includes
          attributes to impose when computing a TE path";
@@ -1222,43 +1207,32 @@ module ietf-te {
         container config {
           description
             "Configuration intended parameters";
-          uses optimization-metrics_config;
+          uses optimizations_config;
         }
         container state {
           config false;
           description
             "Configuration applied parameters and state";
-          uses optimization-metrics_config;
+          uses optimizations_config;
         }
       }
     }
 
     /* Objective functions */
-    container objective-functions {
+    container path-objective-function {
       description
         "The objective function container that includes
          attributes to impose when computing a TE path";
-      list objective-function {
-        key "objective-function-type";
-        description "List of objective functions";
-        leaf objective-function-type {
-          type leafref {
-            path "../config/objective-function-type";
-          }
-          description
-            "Objective function entry";
-        }
-        container config {
-          description
-            "Configuration intended parameters";
-          uses objective-functions_config;
-        }
-        container state {
-          config false;
-          description
-            "Configuration applied parameters and state";
-          uses objective-functions_config;
-        }
+      container config {
+        description
+          "Configuration intended parameters";
+        uses path-objective-function_config;
+      }
+      container state {
+        config false;
+        description
+          "Configuration applied parameters and state";
+        uses path-objective-function_config;
       }
     }
 
@@ -1329,6 +1303,22 @@ module ietf-te {
           uses path-metrics-bounds_config;
         }
       }
+    }
+  }
+
+  grouping path-constraints_state {
+    description
+      "TE path constraints state";
+    leaf bandwidth-generic_state {
+      type te-types:te-bandwidth;
+      description
+        "A technology agnostic requested bandwidth to use
+         for path computation";
+    }
+    leaf disjointness_state {
+      type te-types:te-path-disjointness;
+      description
+        "The type of resource disjointness.";
     }
   }
 
@@ -1423,9 +1413,10 @@ module ietf-te {
           description
             "Configuration applied parameters and state";
           uses named-path-constraints_config;
+          uses path-constraints_state;
         }
         uses path-route-objects;
-        uses objective-functions;
+        uses path-objective-function;
       }
     }
   }
