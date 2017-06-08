@@ -78,7 +78,7 @@ module ietf-te-types {
   identity of-minimize-residual-bandwidth {
     base objective-function-type;
     description
-        "Minimize the residual bandwidth objective
+        "Maximize the residual bandwidth objective
          function";
   }
   identity of-minimize-agg-bandwidth-consumption {
@@ -1490,7 +1490,97 @@ module ietf-te-types {
 
   /*** End of TE tunnel groupings ***/
 
+  grouping optimizations_config {
+    description "Optimization metrics configuration grouping";
+    leaf metric-type {
+      type identityref {
+        base te-types:path-metric-type;
+      }
+      description "TE path metric type";
+    }
+    leaf weight {
+      type uint8;
+      description "TE path metric normalization weight";
+    }
+  }
+
   /**
    * TE interface generic groupings
    **/
+  grouping generic-path-optimization {
+    description "TE generic path optimization grouping";
+    container optimizations {
+      description
+        "The objective function container that includes
+         attributes to impose when computing a TE path";
+      list optimization-metric {
+        key "metric-type";
+        description "TE path metric type";
+        uses optimizations_config;
+      }
+    }
+  }
+
+  grouping generic-computed-path-properties {
+    description "TE generic computed path properties grouping";
+    container computed-path-properties {
+      description "The TE path computed properties";
+      list path-metric {
+        key metric-type;
+        description "TE path metric type";
+        leaf metric-type {
+          type identityref {
+            base te-types:path-metric-type;
+          }
+          description "TE path metric type";
+        }
+        leaf accumulative-value {
+          type uint64;
+          description "TE path metric accumulative value";
+        }
+      }
+      container path-affinities {
+        description
+          "Path affinities container";
+        leaf value {
+          type uint32 {
+            range "0..4294967295";
+          }
+          description "Affinity value";
+        }
+        leaf mask {
+          type uint32 {
+            range "0..4294967295";
+          }
+          description "Affinity mask";
+        }
+      }
+      container path-srlgs {
+        description
+          "Path SRLG properties container";
+        leaf usage {
+          type identityref {
+            base te-types:route-exclude-srlg;
+          }
+          description "SRLG usage";
+        }
+        leaf-list values {
+          type srlg;
+          description "SRLG value";
+        }
+      }
+      container path-computed-route-objects {
+        description
+          "Container for the list of computed route objects
+           as returned by the computation engine";
+        list path-computed-route-object {
+          key index;
+          description
+            "List of computed route objects returned by the
+             computation engine";
+          uses explicit-route-hop_config;
+        }
+      }
+    }
+  }
 }
