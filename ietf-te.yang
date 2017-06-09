@@ -121,57 +121,65 @@ module ietf-te {
     }
   }
 
+  grouping path-affinities-contents_config {
+    description
+      "Path affinities constraints grouping";
+    leaf usage {
+      type identityref {
+        base te-types:resource-affinities-type;
+      }
+      description "Affinities usage";
+    }
+    choice style {
+      description
+        "Path affinities representation style";
+      case value {
+        leaf value {
+          type te-types:admin-groups;
+          description
+            "Bitmap indicating what bits are of significance";
+        }
+      }
+      case named {
+        list affinity-names {
+          key "name";
+          leaf name {
+            type string;
+            description "Affinity name";
+          }
+          description
+            "List of named affinities";
+        }
+      }
+    }
+  }
+
   grouping path-affinities {
     description
       "Path affinities grouping";
     container path-affinities {
       description
         "Path affinities container";
-      choice style {
+      list constraints {
+        key "usage";
         description
-          "Path affinities representation style";
-        case values {
-          leaf value {
-            type uint32 {
-              range "0..4294967295";
-            }
-            description
-              "Affinity value";
+          "List of named affinity constraints";
+        leaf usage {
+          type leafref {
+            path "../config/usage";
           }
-          leaf mask {
-            type uint32 {
-              range "0..4294967295";
-            }
-            description
-              "Affinity mask";
-          }
+          description "Affinities usage";
         }
-        case named {
-          list constraints {
-            key "usage";
-            leaf usage {
-              type identityref {
-                base te-types:resource-affinities-type;
-              }
-              description "Affinities usage";
-            }
-            container constraint {
-              description
-                "Container for named affinities";
-              list affinity-names {
-                key "name";
-                leaf name {
-                  type string;
-                  description
-                    "Affinity name";
-                }
-                description
-                  "List of named affinities";
-              }
-            }
-            description
-              "List of named affinity constraints";
-          }
+        container config {
+          description
+            "Configuration intended parameters";
+          uses path-affinities-contents_config;
+        }
+        container state {
+          config false;
+          description
+            "Configuration applied parameters and state";
+          uses path-affinities-contents_config;
         }
       }
     }
