@@ -185,6 +185,21 @@ module ietf-te {
     }
   }
 
+  grouping path-affinities-values_config {
+    description
+      "Path affinities values configuration grouping";
+    leaf usage {
+      type identityref {
+        base te-types:route-exclude-srlg;
+      }
+      description "SRLG usage";
+    }
+    leaf-list values {
+      type te-types:srlg;
+      description "SRLG value";
+    }
+  }
+
   grouping path-srlgs {
     description
       "Path SRLG properties grouping";
@@ -195,25 +210,47 @@ module ietf-te {
         description
           "Type of SRLG representation";
         case values {
-          leaf usage {
-            type identityref {
-              base te-types:route-exclude-srlg;
-            }
-            description "SRLG usage";
+          container config {
+            description
+              "Configuration intended parameters";
+            uses path-affinities-values_config;
           }
-          leaf-list values {
-            type te-types:srlg;
-            description "SRLG value";
+          container state {
+            config false;
+            description
+              "Configuration applied parameters and state";
+            uses path-affinities-values_config;
           }
         }
         case named {
           list constraints {
             key "usage";
             leaf usage {
-              type identityref {
-                base te-types:route-exclude-srlg;
+              type leafref {
+                path "../config/usage";
               }
-              description "SRLG usage";
+              description "Affinity resource usage";
+            }
+            container config {
+              description
+                "Configuration intended parameters";
+              leaf usage {
+                type identityref {
+                  base te-types:route-exclude-srlg;
+                }
+                description "SRLG usage";
+              }
+            }
+            container state {
+              config false;
+              description
+                "Configuration applied parameters and state";
+              leaf usage {
+                type identityref {
+                  base te-types:route-exclude-srlg;
+                }
+                description "SRLG usage";
+              }
             }
             container constraint {
               description
@@ -221,12 +258,30 @@ module ietf-te {
               list srlg-names {
                 key "name";
                 leaf name {
-                  type string;
-                  description
-                    "The SRLG name";
+                  type leafref  {
+                    path "../config/name";
+                  }
+                  description "The SRLG name";
                 }
-                description
-                  "List named SRLGs";
+                container config {
+                  description
+                    "Configuration intended parameters";
+                  leaf name {
+                    type string;
+                    description "The SRLG name";
+                  }
+                }
+                container state {
+                  config false;
+                  description
+                    "Configuration applied parameters and
+                     state";
+                  leaf name {
+                    type string;
+                    description "The SRLG name";
+                  }
+                }
+                description "List named SRLGs";
               }
             }
             description
@@ -306,6 +361,7 @@ module ietf-te {
   grouping p2p-primary-path-properties {
     description
       "TE tunnel primary path properties grouping";
+    uses hierarchical-link;
     container config {
       description
         "Configuration intended parameters";
@@ -584,6 +640,54 @@ module ietf-te {
     }
   }
 
+  grouping hierarchical-link_config {
+    description
+      "Hierarchical link configuration grouping";
+    leaf local-te-node-id {
+      type te-types:te-node-id;
+      description
+        "Local TE node identifier";
+    }
+    leaf local-te-link-tp-id {
+      type te-types:te-tp-id;
+      description
+        "Local TE link termination point identifier";
+    }
+    leaf remote-te-node-id {
+      type te-types:te-node-id;
+      description
+        "Remote TE node identifier";
+    }
+    leaf te-topology-id {
+      type te-types:te-topology-id;
+      description
+        "It is presumed that a datastore will contain many
+         topologies. To distinguish between topologies it is
+         vital to have UNIQUE topology identifiers.";
+    }
+  }
+
+  grouping hierarchical-link {
+    description
+      "Hierarchical link grouping";
+    container hierarchical-link {
+      description
+        "Identifies a hierarchical link (in client layer)
+         that this tunnel is associated with.";
+      container config {
+        description
+          "Configuration intended parameters";
+        uses hierarchical-link_config;
+      }
+      container state {
+        config false;
+        description
+          "Configuration applied parameters and state";
+        uses hierarchical-link_config;
+      }
+    }
+  }
+
   grouping tunnel-p2p-params_config {
     description
       "Configuration parameters relating to TE tunnel";
@@ -612,6 +716,13 @@ module ietf-te {
         base te-types:lsp-encoding-types;
       }
       description "LSP encoding type";
+    }
+    leaf switching-type {
+      type identityref {
+        base te-types:switching-capabilities;
+      }
+      description "LSP switching type";
+      reference "RFC3945";
     }
     leaf protection-type {
       type identityref {
@@ -664,33 +775,6 @@ module ietf-te {
         "TE tunnel destination termination point identifier.";
     }
     uses common-constraints_config;
-    container hierarchical-link-id {
-        description
-          "Identifies a hierarchical link (in client layer)
-           that this tunnel is associated with.";
-        leaf local-te-node-id {
-          type te-types:te-node-id;
-          description
-            "Local TE node identifier";
-        }
-        leaf local-te-link-tp-id {
-          type te-types:te-tp-id;
-          description
-            "Local TE link termination point identifier";
-        }
-        leaf remote-te-node-id {
-          type te-types:te-node-id;
-          description
-            "Remote TE node identifier";
-        }
-        leaf te-topology-id {
-          type te-types:te-topology-id;
-          description
-            "It is presumed that a datastore will contain many
-             topologies. To distinguish between topologies it is
-             vital to have UNIQUE topology identifiers.";
-        }
-    }
     uses bidir-assoc-properties;
   }
 
@@ -702,6 +786,67 @@ module ietf-te {
         base te-types:state-type;
       }
       description "TE tunnel operational state.";
+    }
+  }
+
+  grouping access-segment-info {
+    description
+      "info related to a segment";
+    container forward {
+      description
+        "for the forward direction of this tunnel";
+			container config {
+				description
+					"Configuration intended parameters";
+				uses te-types:label-set-info;
+			}
+			container state {
+				config false;
+				description
+					"Configuration applied parameters and state";
+				uses te-types:label-set-info;
+			}
+    }
+    container reverse {
+      description
+        "for the reverse direction of this tunnel";
+			container config {
+				description
+					"Configuration intended parameters";
+				uses te-types:label-set-info;
+			}
+			container state {
+				config false;
+				description
+					"Configuration applied parameters and state";
+				uses te-types:label-set-info;
+			}
+    }
+  }
+
+  grouping path-access-segment-info {
+    description
+      "If an end-to-end tunnel crosses multiple domains using
+       the same technology, some additional constraints have to be
+       taken in consideration in each domain";
+    // the name as in ietf-mpls-static
+    container in-segment {
+      presence
+        "The end-to-end tunnel starts in a previous domain;
+         this tunnel is a segment in the current domain.";
+      description
+        "This tunnel is a segment that needs to be coordinated
+         with previous segment stitched on head-end side.";
+      uses access-segment-info;
+    }
+    container out-segment {
+      presence
+        "The end-to-end tunnel is not terminated in this domain;
+         this tunnel is a segment in the current domain.";
+      description
+        "This tunnel is a segment that needs to be coordinated
+         with previous segment stitched on head-end side.";
+      uses access-segment-info;
     }
   }
 
@@ -1402,6 +1547,10 @@ module ietf-te {
           description
             "Configuration intended parameters";
           uses named-path-constraints_config;
+          uses path-access-segment-info {
+            description
+              "Tunnel constraints induced by other segments.";
+          }
         }
         container state {
           config false;
@@ -1409,6 +1558,10 @@ module ietf-te {
             "Configuration applied parameters and state";
           uses named-path-constraints_config;
           uses path-constraints_state;
+          uses path-access-segment-info {
+            description
+              "Tunnel constraints induced by other segments.";
+          }
         }
         uses path-route-objects;
         uses path-objective-function;

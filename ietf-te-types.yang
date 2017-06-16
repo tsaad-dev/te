@@ -53,7 +53,7 @@ module ietf-te-types {
     "This module contains a collection of generally
     useful TE specific YANG data type defintions.";
 
-  revision "2017-05-18" {
+  revision "2017-06-14" {
     description "Latest revision of TE types";
     reference "RFC3209";
   }
@@ -607,6 +607,16 @@ module ietf-te-types {
   feature named-path-constraints {
     description
       "Indicates support for named path constraints";
+  }
+
+  feature path-optimization-metric {
+    description
+      "Indicates support for path optimization metric";
+  }
+
+  feature path-optimization-objective-function {
+    description
+      "Indicates support for path optimization objective function";
   }
 
   identity route-usage-type {
@@ -1530,6 +1540,55 @@ module ietf-te-types {
     }
   }
 
+  grouping label-set-item-info {
+		description "Label set item info";
+    leaf inclusive-exclusive {
+      type enumeration {
+        enum inclusive {
+          description "The label or label range is inclusive.";
+        }
+        enum exclusive {
+          description "The label or label range is exclusive.";
+        }
+      }
+      description
+        "Whether the list item is inclusive or exclusive.";
+    }
+    leaf label-start {
+      type rt-types:generalized-label;
+      description
+        "This is the starting lable if a lable range is specified.
+         This is the lable value if a single lable is specified,
+         in which case, attribute 'label-end' is not set.";
+    }
+    leaf label-end {
+      type rt-types:generalized-label;
+      description
+        "The ending lable if a lable range is specified;
+         This attribute is not set, If a single lable is
+         specified.";
+    }
+    leaf range-bitmap {
+      type binary;
+      description
+        "When there are gaps between label-start and label-end,
+         this attribute is used to specified the possitions
+         of the used labels.";
+    }
+  }
+
+  grouping label-set-info {
+		description "Label set info grouping";
+    list label-set {
+      key "inclusive-exclusive label-start";
+      description
+        "The absence of label-set implies that all labels are
+         acceptable; otherwise only restricted labels are available.";
+
+      uses label-set-item-info;
+    }
+  }
+
   /*** End of TE tunnel groupings ***/
 
   grouping optimizations_config {
@@ -1546,20 +1605,191 @@ module ietf-te-types {
     }
   }
 
+  grouping common-constraints_config {
+    description
+      "Common constraints grouping that can be set on
+       a constraint set or directly on the tunnel";
+    leaf topology-id {
+      type te-types:te-topology-id;
+      description
+        "The tunnel path is computed using the specific
+        topology identified by this identifier";
+    }
+    leaf ignore-overload {
+      type boolean;
+      description
+        "The tunnel path can traverse overloaded node.";
+    }
+    leaf bandwidth-generic {
+      type te-types:te-bandwidth;
+      description
+        "A technology agnostic requested bandwidth to use
+         for path computation";
+    }
+    leaf disjointness {
+      type te-types:te-path-disjointness;
+      description
+        "The type of resource disjointness.";
+    }
+    leaf setup-priority {
+      type uint8 {
+        range "0..7";
+      }
+      description
+        "TE LSP requested setup priority";
+    }
+    leaf hold-priority {
+      type uint8 {
+        range "0..7";
+      }
+      description
+        "TE LSP requested hold priority";
+    }
+    leaf signaling-type {
+      type identityref {
+        base te-types:path-signaling-type;
+      }
+      description "TE tunnel path signaling type";
+    }
+  }
+
+  grouping path-metrics-bounds_config {
+    description "TE path metric bounds grouping";
+    leaf metric-type {
+      type identityref {
+        base te-types:path-metric-type;
+      }
+      description "TE path metric type";
+    }
+    leaf upper-bound {
+      type uint64;
+      description "Upper bound on end-to-end TE path metric";
+    }
+  }
+
+  grouping path-objective-function_config {
+    description "Optimization metrics configuration grouping";
+    leaf objective-function-type {
+      type identityref {
+        base te-types:objective-function-type;
+      }
+      description
+        "Objective function entry";
+    }
+  }
+
   /**
    * TE interface generic groupings
    **/
   grouping generic-path-optimization {
     description "TE generic path optimization grouping";
+
     container optimizations {
       description
         "The objective function container that includes
          attributes to impose when computing a TE path";
-      list optimization-metric {
-        key "metric-type";
-        description "TE path metric type";
-        uses optimizations_config;
+
+      choice algorithm {
+        description "Optimizations algorithm.";
+        case metric {
+          if-feature path-optimization-metric;
+          /* Optimize by metric */
+          list optimization-metric {
+            key "metric-type";
+            description "TE path metric type";
+            uses optimizations_config;
+          }
+          /* Tiebreakers */
+          container tiebreakers {
+            description
+              "The list of tiebreaker criterion to apply
+               on an equally favored set of paths to pick best";
+            list tiebreaker {
+              key "tiebreaker-type";
+              description
+                "The list of tiebreaker criterion to apply
+                 on an equally favored set of paths to pick best";
+              leaf tiebreaker-type {
+                type identityref {
+                  base te-types:path-metric-type;
+                }
+                description "The objective function";
+              }
+            }
+          }
+        }
+        case objective-function {
+          if-feature path-optimization-objective-function;
+          /* Objective functions */
+          container objective-function {
+            description
+              "The objective function container that includes
+               attributes to impose when computing a TE path";
+            uses path-objective-function_config;
+          }
+        }
       }
+    }
+  }
+
+  grouping generic-path-affinities {
+    description
+      "Path affinities grouping";
+    container path-affinities {
+      description
+        "Path affinities container";
+      list constraint {
+        key "usage";
+        description
+          "List of named affinity constraints";
+        leaf usage {
+          type identityref {
+            base resource-affinities-type;
+          }
+          description "Affinities usage";
+        }
+        leaf value {
+          type admin-groups;
+          description "Affinity value";
+        }
+      }
+    }
+  }
+
+  grouping generic-path-srlgs {
+    description
+      "Path SRLG grouping";
+    container path-srlgs {
+      description
+        "Path SRLG properties container";
+      leaf usage {
+        type identityref {
+          base te-types:route-exclude-srlg;
+        }
+        description "SRLG usage";
+      }
+      leaf-list values {
+        type srlg;
+        description "SRLG value";
+      }
+    }
+  }
+
+  grouping generic-path-constraints {
+    description
+      "Global named path constraints configuration
+      grouping";
+    container path-constraints {
+      description "TE named path constraints container";
+      list path-metric-bound {
+        key metric-type;
+        description "List of TE path metrics";
+        uses path-metrics-bounds_config;
+      }
+      
+      uses common-constraints_config;
+      uses generic-path-affinities;
+      uses generic-path-srlgs;
     }
   }
 
@@ -1581,39 +1811,8 @@ module ietf-te-types {
           description "TE path metric accumulative value";
         }
       }
-      container path-affinities {
-        description
-          "Path affinities container";
-        list constraints {
-          key "usage";
-          description
-            "List of named affinity constraints";
-          leaf usage {
-            type identityref {
-              base resource-affinities-type;
-            }
-            description "Affinities usage";
-          }
-          leaf value {
-            type admin-groups;
-            description "Affinity value";
-          }
-        }
-      }
-      container path-srlgs {
-        description
-          "Path SRLG properties container";
-        leaf usage {
-          type identityref {
-            base te-types:route-exclude-srlg;
-          }
-          description "SRLG usage";
-        }
-        leaf-list values {
-          type srlg;
-          description "SRLG value";
-        }
-      }
+      uses generic-path-affinities;
+      uses generic-path-srlgs;
       container path-computed-route-objects {
         description
           "Container for the list of computed route objects
