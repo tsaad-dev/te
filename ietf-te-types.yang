@@ -53,7 +53,7 @@ module ietf-te-types {
     "This module contains a collection of generally
     useful TE specific YANG data type defintions.";
 
-  revision "2017-06-14" {
+  revision "2017-06-22" {
     description "Latest revision of TE types";
     reference "RFC3209";
   }
@@ -845,17 +845,17 @@ module ietf-te-types {
 
   typedef performance-metric-normality {
     type enumeration {
-      enum "unknown" {        
+      enum "unknown" {
         value 0;
         description
           "Unknown.";
       }
-      enum "normal" {        
+      enum "normal" {
         value 1;
         description
           "Normal.";
       }
-      enum "abnormal" {        
+      enum "abnormal" {
         value 2;
         description
           "Abnormal. The anomalous bit is set.";
@@ -901,7 +901,7 @@ module ietf-te-types {
       }
     }
     description
-      "Defines a type representing the administrative status of 
+      "Defines a type representing the administrative status of
        a TE resource.";
   }
 
@@ -976,7 +976,7 @@ module ietf-te-types {
       }
     }
     description
-      "Defines a type representing the operational status of 
+      "Defines a type representing the operational status of
        a TE resource.";
   }
 
@@ -1068,31 +1068,31 @@ module ietf-te-types {
       "A type for the name of a TE node template or TE link
        template.";
   }
-  
+
   typedef te-topology-event-type {
     type enumeration {
       enum "add" {
         value 0;
-        description 
+        description
           "A TE node or te-link has been added.";
       }
       enum "remove" {
         value 1;
-        description 
+        description
           "A TE node or te-link has been removed.";
       }
       enum "update" {
         value 2;
-        description 
+        description
           "A TE node or te-link has been updated.";
       }
     }
     description "TE  Event type for notifications";
   } // te-topology-event-type
-  
+
   typedef te-topology-id {
     type string {
-      pattern 
+      pattern
         '([a-zA-Z0-9\-_.]+:)*'
       + '/?([a-zA-Z0-9\-_.]+)(/[a-zA-Z0-9\-_.]+)*';
     }
@@ -1103,7 +1103,7 @@ module ietf-te-types {
        defined in ietf-network.yang, to help user to understand the
        topology better before further inquiry.";
   }
-  
+
   typedef te-tp-id {
     type union {
       type uint32;          // Unnumbered
@@ -1114,7 +1114,7 @@ module ietf-te-types {
        This attribute is mapped to local or remote link identifier in
        RFC3630 and RFC5305.";
   }
-  
+
   typedef admin-group {
     type binary {
       length 4;
@@ -1175,6 +1175,176 @@ module ietf-te-types {
     type uint32;
     description
       "TE link metric";
+  }
+
+  /**
+   * TE bandwidth groupings
+   **/
+  identity otn-rate-type {
+    description
+      "Base type to identify OTN bit rates of various information
+       structures.";
+  }
+  identity odu0 {
+    base otn-rate-type;
+    description
+        "ODU0 bit rate.";
+  }
+  identity odu1 {
+    base otn-rate-type;
+    description
+        "ODU1 bit rate.";
+  }
+  identity odu2 {
+    base otn-rate-type;
+    description
+        "ODU2 bit rate.";
+  }
+  identity odu3 {
+    base otn-rate-type;
+    description
+        "ODU3 bit rate.";
+  }
+  identity odu4 {
+    base otn-rate-type;
+    description
+        "ODU4 bit rate.";
+  }
+  identity odu2e {
+    base otn-rate-type;
+    description
+        "ODU2e bit rate.";
+  }
+  identity oduc {
+    base otn-rate-type;
+    description
+        "ODUCn bit rate.";
+  }
+  identity oduflex {
+    base otn-rate-type;
+    description
+        "ODUflex bit rate.";
+  }
+
+  identity wdm-spectrum-type {
+    description
+      "Base type to identify WDM spectrum type.";
+  }
+  identity cwdm {
+    base wdm-spectrum-type;
+    description
+        "CWDM.";
+  }
+  identity dwdm {
+    base wdm-spectrum-type;
+    description
+        "DWDM.";
+  }
+  identity flexible-grid {
+    base wdm-spectrum-type;
+    description
+        "Flexible grid.";
+  }
+
+  grouping te-bandwidth {
+    description
+      "This grouping defines the generic TE bandwidth.
+       For some known data plane technologies, specific modeling
+       structures are specified. The string encoded te-bandwidth
+       type is used for un-specified technologies.
+       The modeling structure can be augmented later for other
+       technologies.";
+    container te-bandwidth {
+      description
+        "Container that specifies TE bandwidth.";
+      choice technology {
+        default generic;
+        description
+          "Data plane technology type.";
+        case psc {
+          leaf psc {
+            type rt-types:bandwidth-ieee-float32;
+            description
+              "Bandwidth in packet switching networks.";
+            reference
+              "RFC3630: Traffic Engineering (TE) Extensions to OSPF
+               Version 2.
+               RFC5305: IS-IS Extensions for Traffic Engineering.";
+          }
+        }
+        case otn {
+          list otn {
+            key "rate-type";
+            description
+              "Bandwidth in OTN (Optical Transport Network).";
+            reference
+              "ITU-T G.709/Y.1331: Interfaces for the optical
+               transport network.";
+            leaf rate-type {
+              type identityref {
+                base otn-rate-type;
+              }
+              description
+                "OTN bit rate types of various information
+                 structures.";
+            }
+            leaf counter {
+              type uint16;
+              description
+                "Number of channels.";
+            }
+          }
+        }
+        case lsc {
+          list wdm {
+            key "spectrum slot";
+            description
+              "Bandwidth in Lambda Switch Capable (LSC) networks.";
+            reference
+              "ITU-t G.694.1: Spectral grids for WDM applications:
+               DWDM frequency grid.";
+            leaf spectrum {
+              type identityref {
+                base wdm-spectrum-type;
+              }
+              description
+                "Optical spectrum allocation type.";
+              reference
+                "RFC7699: Generalized Labels for the Flexi-Grid in
+                 Lambda Switch Capable (LSC) Label Switching
+                 Routers";
+            }
+            leaf slot {
+              type int16;
+              description
+                "The value identifies the central frenquency of a
+                 frequency slot.";
+              reference
+                "RFC7792: RSVP-TE Signaling Extensions in Support of
+                 Flexi-Grid Dense Wavelength Division Multiplexing
+                 (DWDM) Networks.";
+            }
+            leaf width {
+              type uint16;
+              description
+                "The slot width is calculated as this value times
+                 12.5 GHz.";
+              reference
+                "RFC7792: RSVP-TE Signaling Extensions in Support of
+                 Flexi-Grid Dense Wavelength Division Multiplexing
+                 (DWDM) Networks.";
+            }
+          }
+        }
+        case generic {
+          leaf generic {
+            type te-bandwidth;
+            description
+              "Bandwidth specified in a generic format.";
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -1653,8 +1823,8 @@ module ietf-te-types {
       description
         "The tunnel path can traverse overloaded node.";
     }
-    leaf bandwidth-generic {
-      type te-types:te-bandwidth;
+    container bandwidth-generic {
+      uses te-types:te-bandwidth;
       description
         "A technology agnostic requested bandwidth to use
          for path computation";
@@ -1819,7 +1989,7 @@ module ietf-te-types {
         description "List of TE path metrics";
         uses path-metrics-bounds_config;
       }
-      
+
       uses common-constraints_config;
       uses generic-path-affinities;
       uses generic-path-srlgs;
@@ -1829,6 +1999,7 @@ module ietf-te-types {
   grouping generic-computed-path-properties {
     description "TE generic computed path properties grouping";
     container computed-path-properties {
+      config false;
       description "The TE path computed properties";
       list path-metric {
         key metric-type;
