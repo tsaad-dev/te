@@ -463,16 +463,8 @@ module ietf-rsvp-te {
   }
 
   /* TE LSP augmentation */
-  augment "/te:te/te:lsps-state/te:lsp" {
-    when "/te:te/te:lsps-state/te:lsp" +
-      "/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
-      description
-      "When the signaling protocol is RSVP-TE ";
-    }
-    description
-      "RSVP-TE generic data augmentation pertaining to specific TE
-       LSP";
-
+  grouping rsvp-te-lsp-properties {
+    description "RSVP-TE LSP properties grouping";
     leaf associated-rsvp-session {
       type leafref {
         path "/rt:routing/rt:control-plane-protocols/"
@@ -489,6 +481,46 @@ module ietf-rsvp-te {
     uses lsp-properties_config;
     uses lsp-explicit-route-information_state;
     uses lsp-record-route-information_state;
+  }
+
+  augment "/te:te/te:lsps-state/te:lsp" {
+    when "/te:te/te:lsps-state/te:lsp" +
+      "/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
+      description
+      "When the signaling protocol is RSVP-TE ";
+    }
+    description
+      "RSVP-TE generic data augmentation pertaining to specific TE
+       LSP";
+    uses rsvp-te-lsp-properties;
+  }
+
+  augment "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
+          "/te:p2p-primary-path/te:state/te:lsps/te:lsp" {
+    when "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
+          "/te:p2p-primary-path/te:state/te:lsps/te:lsp" +
+          "/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
+        description
+        "When the signaling protocol is RSVP-TE ";
+    }
+    description
+      "RSVP-TE generic data augmentation pertaining to specific TE
+       LSP";
+    uses rsvp-te-lsp-properties;
+  }
+
+  augment "/te:te/te:tunnels/te:tunnel/te:p2p-secondary-paths" +
+    "/te:p2p-secondary-path/te:state/te:lsps/te:lsp" {
+    when "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
+          "/te:p2p-primary-path/te:state/te:lsps/te:lsp" +
+          "/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
+        description
+        "When the signaling protocol is RSVP-TE ";
+    }
+    description
+      "RSVP-TE generic data augmentation pertaining to specific TE
+       LSP";
+    uses rsvp-te-lsp-properties;
   }
 
   /* TE interface augmentation */
