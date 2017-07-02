@@ -51,9 +51,9 @@ module ietf-te {
     "YANG data module for TE configuration,
     state, RPC and notifications.";
 
-  revision "2017-03-10" {
+  revision "2017-07-02" {
     description "Latest update to TE generic YANG module.";
-    reference "TBD";
+    reference "TBA";
   }
 
   typedef tunnel-ref {
@@ -413,14 +413,6 @@ module ietf-te {
 
   grouping p2p-path-properties_state {
     description "TE per path state parameters";
-
-    leaf operational-state {
-      type identityref {
-        base te-types:path-state-type;
-      }
-      description "Path operational state.";
-    }
-    uses computed-path-properties;
     container lsps {
       description "TE LSPs container";
       list lsp {
@@ -428,6 +420,7 @@ module ietf-te {
           "source destination tunnel-id lsp-id "+
           "extended-tunnel-id";
         description "List of LSPs associated with the tunnel.";
+        uses computed-path-properties;
         uses lsp-properties_state;
       }
     }
@@ -466,7 +459,8 @@ module ietf-te {
         computed at all (explicitly configured).";
     }
     leaf path-computation-server {
-      when "../path-computation-method = 'te-types:path-externally-queried'" {
+      when "../path-computation-method = "+
+      "'te-types:path-externally-queried'" {
         description
           "The path-computation server when the path is
            externally queried";
@@ -484,7 +478,8 @@ module ietf-te {
          or reserved in the network.";
     }
     leaf use-path-computation {
-      when "../path-computation-method = 'te-types:path-locally-computed'";
+      when "../path-computation-method =" +
+      " 'te-types:path-locally-computed'";
       type boolean;
       description "A CSPF dynamically computed path";
     }
@@ -501,7 +496,8 @@ module ietf-te {
          this path.";
     }
     leaf named-explicit-path {
-      when "../path-computation-method = 'te-types:path-explicitly-defined'";
+      when "../path-computation-method =" +
+      " 'te-types:path-explicitly-defined'";
       type leafref {
         path "../../../../../../globals/named-explicit-paths/"
         + "named-explicit-path/config/name";
