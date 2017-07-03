@@ -69,7 +69,7 @@ module ietf-rsvp-te-mpls {
   description
     "Latest update to MPLS RSVP-TE YANG data model.";
 
-  revision "2017-06-29" {
+  revision "2017-07-03" {
     description "Update to MPLS RSVP-TE YANG initial revision.";
     reference "RFC3209, RFC6511, RFC6790, RFC7260, RFC4859, RFC4090";
   }
@@ -130,18 +130,23 @@ module ietf-rsvp-te-mpls {
     }
   }
 
-  grouping tunnel-properties-mpls {
+  grouping tunnel-properties-mpls_config {
     description
       "Top level grouping for LSP properties.";
-        uses lsp-session-attributes-obj-flags-mpls_config;
-        uses lsp-attributes-flags-mpls_config;
+    uses lsp-session-attributes-obj-flags-mpls_config;
+    uses lsp-attributes-flags-mpls_config;
   }
 
   grouping lsp-properties-mpls {
     description
       "Top level grouping for LSP properties.";
+    container state {
+      config false;
+      description
+        "Configuration applied parameters and state";
       uses lsp-session-attributes-obj-flags-mpls_config;
       uses lsp-attributes-flags-mpls_config;
+    }
   }
   /* End of RSVP-TE MPLS LSPs groupings */
 
@@ -362,6 +367,29 @@ module ietf-rsvp-te-mpls {
   /* End of RSVP-TE interface groupings */
 
   /* RSVP-TE FRR groupings */
+  grouping rsvp-te-frr-auto-tunnel-backup_config {
+    description
+      "Auto-tunnel backup configuration grouping";
+    leaf auto-backup-protection {
+      type identityref {
+        base te-mpls-types:backup-protection-type;
+      }
+      default
+        te-mpls-types:backup-protection-node-link;
+      description
+        "Describes whether the backup should offer
+        protection against link, node, or either";
+    }
+    leaf auto-backup-path-computation {
+      type identityref {
+        base
+          te-types:path-computation-srlg-type;
+      }
+      description
+        "FRR backup computation type";
+    }
+  }
+
   grouping rsvp-te-frr-backups_config {
     description
       "Top level container for RSVP-TE FRR backup parameters";
@@ -405,23 +433,19 @@ module ietf-rsvp-te-mpls {
         }
       }
       case auto-tunnel {
-        leaf auto-backup-protection {
-          type identityref {
-            base te-mpls-types:backup-protection-type;
+        container auto-tunnel-backups {
+          description "Auto-tunnel choice";
+          container config {
+            description
+              "Configuration intended parameters";
+            uses rsvp-te-frr-auto-tunnel-backup_config;
           }
-          default
-            te-mpls-types:backup-protection-node-link;
-          description
-            "Describes whether the backup should offer
-            protection against link, node, or either";
-        }
-        leaf auto-backup-path-computation {
-          type identityref {
-            base
-              te-types:path-computation-srlg-type;
+          container state {
+            config false;
+            description
+              "Configuration applied parameters and state";
+            uses rsvp-te-frr-auto-tunnel-backup_config;
           }
-          description
-            "FRR backup computation type";
         }
       }
     }
@@ -433,46 +457,41 @@ module ietf-rsvp-te-mpls {
     container rsvp-te-frr-backups {
       description
         "RSVP-TE facility backup properties";
-      container config {
-        description
-          "Configuration parameters relating to
-           RSVP-TE facility backups properties";
-        uses rsvp-te-frr-backups_config;
-      }
-      container state {
-        config false;
-        description
-          "State parameters relating to
-           RSVP-TE facility backups properties";
-        uses rsvp-te-frr-backups_config;
-      }
+      uses rsvp-te-frr-backups_config;
     }
   }
 
-  grouping lps-backup-info_state {
+  grouping lsp-backup-info_state {
+    description "LSP backup information grouping";
+    leaf backup-tunnel-name {
+      type string;
+      description
+        "If an LSP has an FRR backup LSP that can protect it, 
+        this field identifies the tunnel name of the backup LSP. 
+        Otherwise, this field is empty.";
+    }
+    leaf backup-frr-on {
+      type uint8;
+      description
+        "Whether currently this backup is carrying traffic";
+    }
+    leaf backup-protected-lsp-num {
+      type uint32;
+      description 
+        "Number of LSPs protected by this backup";
+    }
+  }
+
+  grouping lsp-backup-info {
     description "Backup/bypass LSP related information";
     container backup-info {
       description
         "backup information";
-
-      leaf backup-tunnel-name {
-        type string;
+      container state {
+        config false;
         description
-          "If an LSP has an FRR backup LSP that can protect it, 
-          this field identifies the tunnel name of the backup LSP. 
-          Otherwise, this field is empty.";
-      }
-
-      leaf backup-frr-on {
-        type uint8;
-        description
-          "Whether currently this backup is carrying traffic";
-      }
-
-      leaf backup-protected-lsp-num {
-        type uint32;
-        description 
-          "Number of LSPs protected by this backup";
+          "Configuration applied parameters and state";
+        uses lsp-backup-info_state;
       }
     }
   }
@@ -558,13 +577,13 @@ module ietf-rsvp-te-mpls {
   augment "/te:te/te:tunnels/te:tunnel/te:config" {
     description 
       "Augmentations for RSVP-TE MPLS TE tunnel properties";
-    uses tunnel-properties-mpls;
+    uses tunnel-properties-mpls_config;
   }
 
   augment "/te:te/te:tunnels/te:tunnel/te:state" {
     description 
       "Augmentations for RSVP-TE MPLS TE tunnel properties";
-    uses tunnel-properties-mpls;
+    uses tunnel-properties-mpls_config;
   }
 
   augment "/te:te/te:lsps-state/te:lsp" {
@@ -572,11 +591,11 @@ module ietf-rsvp-te-mpls {
     "/te:path-setup-protocol = 'te-types:te-path-setup-rsvp'" {
       description
       "When the signaling protocol is RSVP-TE ";
-		}
+    }
     description
       "RSVP-TE MPLS LSP state properties";
     uses lsp-properties-mpls;
-    uses lps-backup-info_state;
+    uses lsp-backup-info;
   }
 
   augment "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
@@ -590,7 +609,7 @@ module ietf-rsvp-te-mpls {
     description
       "RSVP-TE MPLS LSP state properties";
     uses lsp-properties-mpls;
-    uses lps-backup-info_state;
+    uses lsp-backup-info;
   }
 
   augment "/te:te/te:tunnels/te:tunnel/te:p2p-secondary-paths" +
@@ -604,7 +623,7 @@ module ietf-rsvp-te-mpls {
     description
       "RSVP-TE MPLS LSP state properties";
     uses lsp-properties-mpls;
-    uses lps-backup-info_state;
+    uses lsp-backup-info;
   }
 
   augment "/te:te/te-dev:interfaces/te-dev:interface" {

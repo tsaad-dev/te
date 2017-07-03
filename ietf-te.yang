@@ -51,7 +51,7 @@ module ietf-te {
     "YANG data module for TE configuration,
     state, RPC and notifications.";
 
-  revision "2017-07-02" {
+  revision "2017-07-03" {
     description "Latest update to TE generic YANG module.";
     reference "TBA";
   }
@@ -149,6 +149,103 @@ module ietf-te {
           }
           description
             "List of named affinities";
+        }
+      }
+    }
+  }
+
+  grouping path-affinities_state {
+    description
+      "Path affinities grouping";
+    container path-affinities {
+      description
+        "Path affinities container";
+      list constraints {
+        key "usage";
+        description
+          "List of named affinity constraints";
+        leaf usage {
+          type leafref {
+            path "../state/usage";
+          }
+          description "Affinities usage";
+        }
+        container state {
+          config false;
+          description
+            "Configuration applied parameters and state";
+          uses path-affinities-contents_config;
+        }
+      }
+    }
+  }
+
+  grouping path-srlgs_state {
+    description
+      "Path SRLG properties grouping";
+    container path-srlgs {
+      description
+        "Path SRLG properties container";
+      choice style {
+        description
+          "Type of SRLG representation";
+        case values {
+          container state {
+            config false;
+            description
+              "Configuration applied parameters and state";
+            uses path-affinities-values_config;
+          }
+        }
+        case named {
+          container constraints {
+            description "SRLG named constraints";
+          list constraint {
+            key "usage";
+            leaf usage {
+              type leafref {
+                path "../state/usage";
+              }
+              description "Affinity resource usage";
+            }
+            container state {
+              config false;
+              description
+                "Configuration applied parameters and state";
+              leaf usage {
+                type identityref {
+                  base te-types:route-exclude-srlg;
+                }
+                description "SRLG usage";
+              }
+            }
+            container srlg-names {
+              description
+                "Container for named SRLG list";
+              list srlg-name {
+                key "name";
+                leaf name {
+                  type leafref  {
+                    path "../state/name";
+                  }
+                  description "The SRLG name";
+                }
+                container state {
+                  config false;
+                  description
+                    "Configuration applied parameters and
+                     state";
+                  leaf name {
+                    type string;
+                    description "The SRLG name";
+                  }
+                }
+                description "List named SRLGs";
+              }
+            }
+            description "List of named SRLG constraints";
+          }
+          }
         }
       }
     }
@@ -292,6 +389,47 @@ module ietf-te {
     }
   }
 
+  grouping bidirectional-association_config {
+    description
+      "TE tunnel associated bidirectional leaves
+      grouping";
+    leaf id {
+      type uint16;
+      description
+        "The TE tunnel association identifier.";
+    }
+    leaf source {
+      type inet:ip-address;
+      description
+        "The TE tunnel association source.";
+    }
+    leaf global-source {
+      type inet:ip-address;
+      description
+        "The TE tunnel association global
+        source.";
+    }
+    leaf type {
+      type identityref {
+        base te-types:bidir-association-type;
+      }
+      default te-types:bidir-assoc-non-corouted;
+      description
+        "The TE tunnel association type.";
+    }
+    leaf provisioing {
+      type identityref {
+        base te-types:bidir-provisioning-mode;
+      }
+      description
+        "Describes the provisioning model of the
+        associated bidirectional LSP";
+      reference
+        "draft-ietf-teas-mpls-tp-rsvpte-ext-
+        associated-lsp, section-3.2";
+    }
+  }
+
   grouping bidir-assoc-properties {
     description
       "TE tunnel associated bidirectional properties
@@ -302,40 +440,16 @@ module ietf-te {
       container association {
         description
           "Tunnel bidirectional association properties";
-        leaf id {
-          type uint16;
+        container config {
           description
-            "The TE tunnel association identifier.";
+            "Configuration intended parameters";
+          uses bidirectional-association_config;
         }
-        leaf source {
-          type inet:ip-address;
+        container state {
+          config false;
           description
-            "The TE tunnel association source.";
-        }
-        leaf global-source {
-          type inet:ip-address;
-          description
-            "The TE tunnel association global
-            source.";
-        }
-        leaf type {
-          type identityref {
-            base te-types:bidir-association-type;
-          }
-          default te-types:bidir-assoc-non-corouted;
-          description
-            "The TE tunnel association type.";
-        }
-        leaf provisioing {
-          type identityref {
-            base te-types:bidir-provisioning-mode;
-          }
-          description
-            "Describes the provisioning model of the
-            associated bidirectional LSP";
-          reference
-            "draft-ietf-teas-mpls-tp-rsvpte-ext-
-            associated-lsp, section-3.2";
+            "Configuration applied parameters and state";
+          uses bidirectional-association_config;
         }
       }
     }
@@ -377,6 +491,20 @@ module ietf-te {
   }
 
   grouping computed-path-properties_state {
+    description "Computed path properties grouping";
+    leaf metric-type {
+      type identityref {
+        base te-types:path-metric-type;
+      }
+      description "TE path metric type";
+    }
+    leaf accumulative-value {
+      type uint64;
+      description "TE path metric accumulative value";
+    }
+  }
+
+  grouping computed-path-properties {
     description "TE computed path properties grouping";
     container computed-path-properties {
       description "The TE path computed properties";
@@ -384,18 +512,20 @@ module ietf-te {
         key metric-type;
         description "TE path metric type";
         leaf metric-type {
-          type identityref {
-            base te-types:path-metric-type;
+          type leafref {
+            path "../state/metric-type";
           }
           description "TE path metric type";
         }
-        leaf accumulative-value {
-          type uint64;
-          description "TE path metric accumulative value";
+        container state {
+          config false;
+          description
+            "Configuration applied parameters and state";
+          uses computed-path-properties_state;
         }
       }
-      uses path-affinities;
-      uses path-srlgs;
+      uses path-affinities_state;
+      uses path-srlgs_state;
       container path-computed-route-objects {
         description
           "Container for the list of computed route objects
@@ -405,7 +535,18 @@ module ietf-te {
           description
             "List of computed route objects returned by the
              computation engine";
-          uses te-types:explicit-route-hop_config;
+          leaf index {
+            type leafref {
+              path "../state/index";
+            }
+            description "Index of computed route object";
+          }
+          container state {
+            config false;
+            description
+              "Configuration applied parameters and state";
+            uses te-types:explicit-route-hop_config;
+          }
         }
       }
     }
@@ -420,8 +561,61 @@ module ietf-te {
           "source destination tunnel-id lsp-id "+
           "extended-tunnel-id";
         description "List of LSPs associated with the tunnel.";
-        uses computed-path-properties_state;
-        uses lsp-properties_state;
+        leaf source {
+          type leafref {
+            path "../state/source";
+          }
+          description
+            "Tunnel sender address extracted from
+            SENDER_TEMPLATE  object";
+          reference "RFC3209";
+        }
+        leaf destination {
+          type leafref {
+            path "../state/destination";
+          }
+          description
+            "Tunnel endpoint address extracted from
+            SESSION object";
+          reference "RFC3209";
+        }
+        leaf tunnel-id {
+          type leafref {
+            path "../state/tunnel-id";
+          }
+          description
+            "Tunnel identifier used in the SESSION
+            that remains constant over the life
+            of the tunnel.";
+          reference "RFC3209";
+        }
+        leaf lsp-id {
+          type leafref {
+            path "../state/lsp-id";
+          }
+          description
+            "Identifier used in the SENDER_TEMPLATE
+            and the FILTER_SPEC that can be changed
+            to allow a sender to share resources with
+            itself.";
+          reference "RFC3209";
+        }
+        leaf extended-tunnel-id {
+          type leafref {
+            path "../state/extended-tunnel-id";
+          }
+          description
+            "Extended Tunnel ID of the LSP.";
+          reference "RFC3209";
+        }
+        container state {
+          config false;
+          description
+            "Configuration applied parameters and state";
+          uses lsp-properties_state;
+        }
+        uses computed-path-properties;
+        uses lsp-record-route-information_state;
       }
     }
   }
@@ -720,7 +914,6 @@ module ietf-te {
         "TE tunnel destination termination point identifier.";
     }
     uses common-constraints_config;
-    uses bidir-assoc-properties;
   }
 
   grouping tunnel-p2p-params_state {
@@ -905,7 +1098,7 @@ module ietf-te {
       uses tunnel-p2p-params_config;
       uses tunnel-p2p-params_state;
     }
-
+    uses bidir-assoc-properties;
     container p2p-primary-paths {
       description "Set of P2P primary aths container";
       list p2p-primary-path {
@@ -1013,10 +1206,17 @@ module ietf-te {
         key "index";
         description "Record route sub-object list";
         leaf index {
-          type uint32;
-          description "RRO subobject index";
+          type leafref {
+            path "../state/index";
+          }
+          description "Index of record-route object";
         }
-        uses te-types:record-route-subobject;
+        container state {
+          config false;
+          description
+            "Configuration applied parameters and state";
+          uses te-types:record-route-subobject_state;
+        }
       }
     }
   }
@@ -1032,7 +1232,60 @@ module ietf-te {
           "source destination tunnel-id lsp-id "+
           "extended-tunnel-id";
         description "List of LSPs associated with the tunnel.";
-        uses lsp-properties_state;
+        leaf source {
+          type leafref {
+            path "../state/source";
+          }
+          description
+            "Tunnel sender address extracted from
+            SENDER_TEMPLATE  object";
+          reference "RFC3209";
+        }
+        leaf destination {
+          type leafref {
+            path "../state/destination";
+          }
+          description
+            "Tunnel endpoint address extracted from
+            SESSION object";
+          reference "RFC3209";
+        }
+        leaf tunnel-id {
+          type leafref {
+            path "../state/tunnel-id";
+          }
+          description
+            "Tunnel identifier used in the SESSION
+            that remains constant over the life
+            of the tunnel.";
+          reference "RFC3209";
+        }
+        leaf lsp-id {
+          type leafref {
+            path "../state/lsp-id";
+          }
+          description
+            "Identifier used in the SENDER_TEMPLATE
+            and the FILTER_SPEC that can be changed
+            to allow a sender to share resources with
+            itself.";
+          reference "RFC3209";
+        }
+        leaf extended-tunnel-id {
+          type leafref {
+            path "../state/extended-tunnel-id";
+          }
+          description
+            "Extended Tunnel ID of the LSP.";
+          reference "RFC3209";
+        }
+        container state {
+          config false;
+          description
+            "Configuration applied parameters and state";
+          uses lsp-properties_state;
+        }
+        uses lsp-record-route-information_state;
       }
     }
   }
@@ -1434,8 +1687,6 @@ module ietf-te {
         path constraint set";
     }
     uses common-constraints_config;
-    uses path-affinities;
-    uses path-srlgs;
   }
 
   grouping named-path-constraints {
@@ -1468,6 +1719,8 @@ module ietf-te {
           uses named-path-constraints_config;
           uses path-constraints_state;
         }
+        uses path-affinities;
+        uses path-srlgs;
         uses path-route-objects;
         uses path-objective-function;
         uses path-access-segment-info {
@@ -1660,7 +1913,6 @@ module ietf-te {
         "This bit is set when a protecting LSP is carrying the normal
          traffic after protection switching";
     }
-    uses lsp-record-route-information_state;
   }
   /*** End of TE global groupings ***/
 
