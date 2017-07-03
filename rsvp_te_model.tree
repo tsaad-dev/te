@@ -323,6 +323,83 @@ module: ietf-rsvp
           |  +--rw rsvp-te-mpls:rsvp-frr-local-revert-delay?   uint32
           +--ro rsvp-te-mpls:state
              +--ro rsvp-te-mpls:rsvp-frr-local-revert-delay?   uint32
+module: ietf-rsvp-te
+  augment /te:te/te-dev:interfaces/te-dev:interface:
+module: ietf-rsvp-te-mpls
+  augment /te:te/te-dev:interfaces/te-dev:interface:
+    +--rw bandwidth-mpls-reservable
+       +--rw config
+       |  +--rw (bandwidth-value)?
+       |  |  +--:(absolute)
+       |  |  |  +--rw absolute-value?   uint32
+       |  |  +--:(percentage)
+       |  |     +--rw percent-value?    uint32
+       |  +--rw (bc-model-type)?
+       |     +--:(bc-model-rdm)
+       |     |  +--rw bc-model-rdm
+       |     |     +--rw bandwidth-mpls-constraints
+       |     |        +--rw maximum-reservable?   uint32
+       |     |        +--rw bc-value*             uint32
+       |     +--:(bc-model-mam)
+       |     |  +--rw bc-model-mam
+       |     |     +--rw bandwidth-mpls-constraints
+       |     |        +--rw maximum-reservable?   uint32
+       |     |        +--rw bc-value*             uint32
+       |     +--:(bc-model-mar)
+       |        +--rw bc-model-mar
+       |           +--rw bandwidth-mpls-constraints
+       |              +--rw maximum-reservable?   uint32
+       |              +--rw bc-value*             uint32
+       +--ro state
+          +--ro (bandwidth-value)?
+          |  +--:(absolute)
+          |  |  +--ro absolute-value?   uint32
+          |  +--:(percentage)
+          |     +--ro percent-value?    uint32
+          +--ro (bc-model-type)?
+             +--:(bc-model-rdm)
+             |  +--ro bc-model-rdm
+             |     +--ro bandwidth-mpls-constraints
+             |        +--ro maximum-reservable?   uint32
+             |        +--ro bc-value*             uint32
+             +--:(bc-model-mam)
+             |  +--ro bc-model-mam
+             |     +--ro bandwidth-mpls-constraints
+             |        +--ro maximum-reservable?   uint32
+             |        +--ro bc-value*             uint32
+             +--:(bc-model-mar)
+                +--ro bc-model-mar
+                   +--ro bandwidth-mpls-constraints
+                      +--ro maximum-reservable?   uint32
+                      +--ro bc-value*             uint32
+  augment /te:te/te-dev:interfaces/te-dev:interface:
+    +--rw rsvp-te-frr-backups
+       +--rw config
+       |  +--rw (type)?
+       |     +--:(static-tunnel)
+       |     |  +--rw static-backups
+       |     |     +--rw static-backup* [backup-tunnel-name]
+       |     |        +--rw backup-tunnel-name    -> ../config/backup-tunnel-name
+       |     |        +--rw config
+       |     |        |  +--rw backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
+       |     |        +--ro state
+       |     |           +--ro backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
+       |     +--:(auto-tunnel)
+       |        +--rw auto-backup-protection?         identityref
+       |        +--rw auto-backup-path-computation?   identityref
+       +--ro state
+          +--ro (type)?
+             +--:(static-tunnel)
+             |  +--ro static-backups
+             |     +--ro static-backup* [backup-tunnel-name]
+             |        +--ro backup-tunnel-name    -> ../config/backup-tunnel-name
+             |        +--ro config
+             |        |  +--ro backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
+             |        +--ro state
+             |           +--ro backup-tunnel-name?   -> /te:te/tunnels/tunnel/name
+             +--:(auto-tunnel)
+                +--ro auto-backup-protection?         identityref
+                +--ro auto-backup-path-computation?   identityref
 module: ietf-te
     +--rw te!
        +--rw globals
@@ -1858,10 +1935,3 @@ module: ietf-te
   notifications:
     +---n globals-notif
     +---n tunnels-notif
-module: ietf-te-device
-
-  rpcs:
-    +---x interfaces-rpc
-
-  notifications:
-    +---n interfaces-notif
