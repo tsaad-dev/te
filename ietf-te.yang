@@ -757,7 +757,7 @@ module ietf-te {
     }
     leaf lsp-protection-type {
       type identityref {
-        base te-types:lsp-prot-type;
+        base te-types:lsp-protection-type;
       }
       description "LSP protection type.";
     }
@@ -864,10 +864,37 @@ module ietf-te {
       reference "RFC3945";
     }
     leaf protection-type {
+      when "../protection-type = " +
+      "'te-types:lsp-restoration-disabled'";
       type identityref {
-        base te-types:lsp-prot-type;
+        base te-types:lsp-protection-type;
       }
       description "LSP protection type.";
+    }
+    leaf protection-switch-active {
+      type boolean;
+      description "Activates protection switchover to 
+                   secondary LSP (if valid)";
+    }
+    leaf restoration-type {
+      when "../protection-type = " +
+      "'te-types:lsp-protection-disabled'";
+      type identityref {
+        base te-types:lsp-restoration-type;
+      }
+      description "LSP restoration type.";
+    }
+    leaf wait-to-restore {
+      type uint16;
+      units seconds;
+      description
+       "Time to wait before attempting LSP restoration";
+    }
+    leaf wait-to-revert {
+      type uint16;
+      units seconds;
+      description
+       "Time to wait before attempting LSP reversion";
     }
     leaf provisioning-state {
       type identityref {
@@ -1054,12 +1081,13 @@ module ietf-te {
         when the containing primary path option is in use";
     }
 
-    leaf priority {
-      type uint16;
+    leaf restoration-enabled {
+      type boolean;
+      default 'false';
       description
-        "The priority of the specified secondary path option. Higher
-        priority options are less preferable - such that a secondary
-        path reference with a priority of 0 is the most preferred";
+        "A flag to specify if LSP restoration is enabled on this 
+         secondary path";
+      reference "rfc4427";
     }
     leaf path-setup-protocol {
       type identityref {
