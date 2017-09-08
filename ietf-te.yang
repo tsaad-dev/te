@@ -827,6 +827,93 @@ module ietf-te {
     }
   }
 
+  grouping protection-restoration-params_config {
+    description "Protection and restoration parameters";
+    container protection {
+      description "Protection parameters";
+      leaf enable {
+        type boolean;
+        default 'false';
+        description
+          "A flag to specify if LSP protection is enabled";
+        reference "rfc4427";
+      }
+      leaf protection-type {
+        type identityref {
+          base te-types:lsp-protection-type;
+        }
+        description "LSP protection type.";
+      }
+      leaf protection-reversion-disable {
+        type boolean;
+        description "Disable protection reversion to working path";
+      }
+      leaf hold-off-time {
+        type uint32;
+        units "milli-seconds";
+        default 0;
+        description
+          "The time between the declaration of an SF or SD condition
+           and the initialization of the protection switching algorithm.";
+      }
+      leaf wait-to-revert {
+        type uint16;
+        units seconds;
+        description
+         "Time to wait before attempting LSP reversion";
+      }
+      leaf protection-switch-activate {
+        type boolean;
+        description "Activates protection switchover to 
+                     secondary LSP (if valid)";
+      }
+    }
+    container restoration {
+      description "Restoration parameters";
+      leaf enable {
+        type boolean;
+        default 'false';
+        description
+          "A flag to specify if LSP restoration is enabled";
+        reference "rfc4427";
+      }
+      leaf restoration-type {
+        type identityref {
+          base te-types:lsp-restoration-type;
+        }
+        description "LSP restoration type.";
+      }
+      leaf restoration-scheme {
+        type identityref {
+          base te-types:restoration-scheme-type;
+        }
+        description "LSP restoration scheme.";
+      }
+      leaf restoration-reversion-disable {
+        type boolean;
+        description "Disable restoration reversion to working path";
+      }
+      leaf hold-off-time {
+        type uint32;
+        units "milli-seconds";
+        description
+          "The time between the declaration of an SF or SD condition
+           and the initialization of the protection switching algorithm.";
+      }
+      leaf wait-to-restore {
+        type uint16;
+        units seconds;
+        description
+         "Time to wait before attempting LSP restoration";
+      }
+      leaf wait-to-revert {
+        type uint16;
+        units seconds;
+        description
+         "Time to wait before attempting LSP reversion";
+      }
+    }
+  }
   grouping tunnel-p2p-params_config {
     description
       "Configuration parameters relating to TE tunnel";
@@ -863,39 +950,7 @@ module ietf-te {
       description "LSP switching type";
       reference "RFC3945";
     }
-    leaf protection-type {
-      when "../protection-type = " +
-      "'te-types:lsp-restoration-disabled'";
-      type identityref {
-        base te-types:lsp-protection-type;
-      }
-      description "LSP protection type.";
-    }
-    leaf protection-switch-active {
-      type boolean;
-      description "Activates protection switchover to 
-                   secondary LSP (if valid)";
-    }
-    leaf restoration-type {
-      when "../protection-type = " +
-      "'te-types:lsp-protection-disabled'";
-      type identityref {
-        base te-types:lsp-restoration-type;
-      }
-      description "LSP restoration type.";
-    }
-    leaf wait-to-restore {
-      type uint16;
-      units seconds;
-      description
-       "Time to wait before attempting LSP restoration";
-    }
-    leaf wait-to-revert {
-      type uint16;
-      units seconds;
-      description
-       "Time to wait before attempting LSP reversion";
-    }
+    uses protection-restoration-params_config;
     leaf provisioning-state {
       type identityref {
         base te-types:tunnel-state-type;
@@ -1081,14 +1136,6 @@ module ietf-te {
         when the containing primary path option is in use";
     }
 
-    leaf restoration-enabled {
-      type boolean;
-      default 'false';
-      description
-        "A flag to specify if LSP restoration is enabled on this 
-         secondary path";
-      reference "rfc4427";
-    }
     leaf path-setup-protocol {
       type identityref {
         base te-types:te-path-setup-protocol;
