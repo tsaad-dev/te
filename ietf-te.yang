@@ -914,6 +914,39 @@ module ietf-te {
       }
     }
   }
+
+  grouping tunnel-p2p-depency-tunnels_config {
+    description
+      "Groupong for tunnel dependency list of tunnels";
+    container dependency-tunnels {
+      description "Dependency tunnels list";
+      list dependency-tunnel {
+        key "name";
+        description "Dependency tunnel entry";
+        leaf name {
+          type leafref {
+            path "../../../../../../tunnels/tunnel/name";
+            require-instance false;
+          }
+          description "Dependency tunnel name";
+        }
+        leaf encoding {
+          type identityref {
+            base te-types:lsp-encoding-types;
+          }
+          description "LSP encoding type";
+        }
+        leaf switching-type {
+          type identityref {
+            base te-types:switching-capabilities;
+          }
+          description "LSP switching type";
+          reference "RFC3945";
+        }
+      }
+    }
+  }
+
   grouping tunnel-p2p-params_config {
     description
       "Configuration parameters relating to TE tunnel";
@@ -996,6 +1029,7 @@ module ietf-te {
         "TE tunnel destination termination point identifier.";
     }
     uses common-constraints_config;
+    uses tunnel-p2p-depency-tunnels_config;
   }
 
   grouping tunnel-p2p-params_state {
@@ -1007,32 +1041,6 @@ module ietf-te {
       }
       default te-types:tunnel-state-up;
       description "TE tunnel administrative state.";
-    }
-    container dependency-tunnels {
-      description "Dependency tunnels list";
-      list dependency-tunnel {
-        key "name";
-        description "Dependency tunnel entry";
-        leaf name {
-          type leafref {
-            path "../../../../../../tunnels/tunnel/name";
-          }
-          description "Dependency tunnel name";
-        }
-        leaf encoding {
-          type identityref {
-            base te-types:lsp-encoding-types;
-          }
-          description "LSP encoding type";
-        }
-        leaf switching-type {
-          type identityref {
-            base te-types:switching-capabilities;
-          }
-          description "LSP switching type";
-          reference "RFC3945";
-        }
-      }
     }
   }
 
