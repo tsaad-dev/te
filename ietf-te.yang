@@ -343,9 +343,28 @@ module ietf-te {
     }
   }
 
+  grouping p2p-reverse-primary-path-properties {
+    description "tunnel path properties.";
+    container p2p-reverse-primary-path {
+      description "Tunnel reverse primary path properties";
+      uses p2p-path-reverse-properties_config;
+    }
+    container p2p-reverse-secondary-path {
+      description "Tunnel reverse secondary path properties";
+      uses p2p-path-candidate-secondary-path-config;
+    }
+    container state {
+      config false;
+      description
+        "Configuration applied parameters and state";
+      uses p2p-path-properties_state;
+    }
+  }
+
   grouping p2p-secondary-path-properties {
     description "tunnel path properties.";
     uses p2p-path-properties_config;
+    uses protection-restoration-params_config;
     container state {
       config false;
       description
@@ -497,9 +516,9 @@ module ietf-te {
     }
   }
 
-  grouping p2p-path-properties_config {
+  grouping p2p-path-properties-common_config {
     description
-      "TE tunnel path properties configuration grouping";
+      "TE tunnel common path properties configuration grouping";
     leaf name {
       type string;
       description "TE path name";
@@ -554,18 +573,51 @@ module ietf-te {
       type boolean;
       description "A CSPF dynamically computed path";
     }
-    leaf verbatim {
-      type empty;
-      description
-        "Indicates no topology or CSPF is attempted on the
-         specified path.";
-    }
     leaf lockdown {
       type empty;
       description
         "Indicates no reoptimization to be attempted for
          this path.";
     }
+    leaf path-scope {
+      type identityref {
+        base te-types:path-scope-type;
+      }
+      description "Path scope";
+    }
+  }
+
+  grouping p2p-path-reverse-properties_config {
+    description
+      "TE tunnel reverse path properties configuration
+       grouping";
+    uses p2p-path-properties-common_config;
+    leaf named-explicit-path {
+      when "../path-computation-method =" +
+      " 'te-types:path-explicitly-defined'";
+      type leafref {
+        path "../../../../../../../globals/named-explicit-paths/"
+        + "named-explicit-path/name";
+      }
+      description "The explicit-path name";
+    }
+    leaf named-path-constraint {
+      if-feature te-types:named-path-constraints;
+      type leafref {
+        path "../../../../../../../globals/"
+        + "named-path-constraints/named-path-constraint/"
+        + "name";
+      }
+      description
+        "Reference to a globally defined named path
+        constraint set";
+    }
+  }
+
+  grouping p2p-path-properties_config {
+    description
+      "TE tunnel path properties configuration grouping";
+    uses p2p-path-properties-common_config;
     leaf named-explicit-path {
       when "../path-computation-method =" +
       " 'te-types:path-explicitly-defined'";
@@ -596,12 +648,6 @@ module ietf-te {
       type string;
       description "TE tunnel name.";
     }
-    leaf type {
-      type identityref {
-        base te-types:tunnel-type;
-      }
-      description "TE tunnel type.";
-    }
     leaf identifier {
       type uint16;
       description
@@ -611,48 +657,6 @@ module ietf-te {
       type string;
       description
         "Textual description for this TE tunnel";
-    }
-    leaf bandwidth-generic {
-      type te-types:te-bandwidth;
-      description
-        "A technology agnostic requested bandwidth to use
-         for path computation";
-    }
-    leaf setup-priority {
-      type uint8 {
-        range "0..7";
-      }
-      description
-        "TE LSP setup priority";
-    }
-    leaf hold-priority {
-      type uint8 {
-        range "0..7";
-      }
-      description
-        "TE LSP hold priority";
-    }
-    leaf lsp-protection-type {
-      type identityref {
-        base te-types:lsp-protection-type;
-      }
-      description "LSP protection type.";
-    }
-
-    leaf admin-status {
-      type identityref {
-        base te-types:tunnel-admin-state-type;
-      }
-      default te-types:tunnel-admin-state-up;
-      description "TE tunnel administrative state.";
-    }
-
-    leaf reoptimize-timer {
-      type uint16;
-      units seconds;
-      description
-       "frequency of reoptimization of
-        a traffic engineered LSP";
     }
   }
 
@@ -821,12 +825,6 @@ module ietf-te {
       type string;
       description "TE tunnel name.";
     }
-    leaf type {
-      type identityref {
-        base te-types:tunnel-type;
-      }
-      description "TE tunnel type.";
-    }
     leaf identifier {
       type uint16;
       description
@@ -850,7 +848,6 @@ module ietf-te {
       description "LSP switching type";
       reference "RFC3945";
     }
-    uses protection-restoration-params_config;
     leaf provisioning-state {
       type identityref {
         base te-types:tunnel-state-type;
@@ -1052,6 +1049,10 @@ module ietf-te {
             }
           }
         }
+        container bidirectional-paths {
+          description "Tunnel bidirectional path container";
+          uses p2p-reverse-primary-path-properties;
+        }
       }
     }
     container p2p-secondary-paths {
@@ -1060,7 +1061,7 @@ module ietf-te {
         key "name";
         description
           "List of secondary paths for this tunnel.";
-        uses p2p-primary-path-properties;
+        uses p2p-secondary-path-properties;
       }
     }
   }
@@ -1333,50 +1334,6 @@ module ietf-te {
     }
   }
 
-
-  grouping path-objective-function {
-    description "Objective functions grouping";
-
-    /* Optimize by metric */
-    container optimizations {
-      description
-        "The objective function container that includes
-         attributes to impose when computing a TE path";
-      list optimization-metric {
-        key "metric-type";
-        description "TE path metric type";
-        uses te-types:optimizations_config;
-      }
-    }
-
-    /* Objective functions */
-    container path-objective-function {
-      description
-        "The objective function container that includes
-         attributes to impose when computing a TE path";
-      uses path-objective-function_config;
-    }
-
-    /* Tiebreakers */
-    container tiebreakers {
-      description
-        "The list of tiebreaker criterion to apply
-         on an equally favored set of paths to pick best";
-      list tiebreaker {
-        key "tiebreaker-type";
-        description
-          "The list of tiebreaker criterion to apply
-           on an equally favored set of paths to pick best";
-        leaf tiebreaker-type {
-          type identityref {
-            base te-types:path-metric-type;
-          }
-          description "The objective function";
-        }
-      }
-    }
-  }
-
   grouping path-metric-bounds {
     description "TE path metric bounds grouping";
     container path-metric-bounds {
@@ -1488,7 +1445,7 @@ module ietf-te {
         uses path-affinities;
         uses path-srlgs;
         uses path-route-objects;
-        uses path-objective-function;
+        uses te-types:generic-path-optimization;
         uses path-access-segment-info {
           description
             "Tunnel constraints induced by other segments.";
