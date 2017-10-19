@@ -1,5 +1,5 @@
 module ietf-te {
-  yang-version 1.1;
+  // yang-version 1.1;
 
   namespace "urn:ietf:params:xml:ns:yang:ietf-te";
 
@@ -348,16 +348,12 @@ module ietf-te {
     container p2p-reverse-primary-path {
       description "Tunnel reverse primary path properties";
       uses p2p-path-reverse-properties_config;
-    }
-    container p2p-reverse-secondary-path {
-      description "Tunnel reverse secondary path properties";
-      uses p2p-path-candidate-secondary-path-config;
-    }
-    container state {
-      config false;
-      description
-        "Configuration applied parameters and state";
-      uses p2p-path-properties_state;
+      container state {
+        config false;
+        description
+          "Configuration applied parameters and state";
+        uses p2p-path-properties_state;
+      }
     }
   }
 
@@ -457,59 +453,7 @@ module ietf-te {
           "source destination tunnel-id lsp-id "+
           "extended-tunnel-id";
         description "List of LSPs associated with the tunnel.";
-        leaf source {
-          type leafref {
-            path "../state/source";
-          }
-          description
-            "Tunnel sender address extracted from
-            SENDER_TEMPLATE  object";
-          reference "RFC3209";
-        }
-        leaf destination {
-          type leafref {
-            path "../state/destination";
-          }
-          description
-            "Tunnel endpoint address extracted from
-            SESSION object";
-          reference "RFC3209";
-        }
-        leaf tunnel-id {
-          type leafref {
-            path "../state/tunnel-id";
-          }
-          description
-            "Tunnel identifier used in the SESSION
-            that remains constant over the life
-            of the tunnel.";
-          reference "RFC3209";
-        }
-        leaf lsp-id {
-          type leafref {
-            path "../state/lsp-id";
-          }
-          description
-            "Identifier used in the SENDER_TEMPLATE
-            and the FILTER_SPEC that can be changed
-            to allow a sender to share resources with
-            itself.";
-          reference "RFC3209";
-        }
-        leaf extended-tunnel-id {
-          type leafref {
-            path "../state/extended-tunnel-id";
-          }
-          description
-            "Extended Tunnel ID of the LSP.";
-          reference "RFC3209";
-        }
-        container state {
-          config false;
-          description
-            "Configuration applied parameters and state";
-          uses lsp-properties_state;
-        }
+        uses lsp-properties_state;
         uses computed-path-properties;
         uses lsp-record-route-information_state;
       }
@@ -596,7 +540,7 @@ module ietf-te {
       when "../path-computation-method =" +
       " 'te-types:path-explicitly-defined'";
       type leafref {
-        path "../../../../../../../globals/named-explicit-paths/"
+        path "../../../../../../globals/named-explicit-paths/"
         + "named-explicit-path/name";
       }
       description "The explicit-path name";
@@ -604,7 +548,7 @@ module ietf-te {
     leaf named-path-constraint {
       if-feature te-types:named-path-constraints;
       type leafref {
-        path "../../../../../../../globals/"
+        path "../../../../../../globals/"
         + "named-path-constraints/named-path-constraint/"
         + "name";
       }
@@ -797,7 +741,7 @@ module ietf-te {
         leaf name {
           type leafref {
             path "../../../../../tunnels/tunnel/name";
-            require-instance false;
+            //require-instance false;
           }
           description "Dependency tunnel name";
         }
@@ -892,6 +836,12 @@ module ietf-te {
       description
         "TE tunnel destination termination point identifier.";
     }
+    leaf ignore-overload {
+      type boolean;
+      description
+        "The tunnel path can traverse overloaded node.";
+    }
+    uses protection-restoration-params_config;
     uses common-constraints_config;
     uses tunnel-p2p-depency-tunnels_config;
   }
@@ -992,6 +942,30 @@ module ietf-te {
     }
   }
 
+  grouping p2p-reverse-path-candidate-secondary-path-config {
+    description
+      "Configuration parameters relating to a secondary path which
+      is a candidate for a particular primary path";
+
+    leaf secondary-path {
+      type leafref {
+        path "../../../../../../p2p-secondary-paths/" +
+             "p2p-secondary-path/name";
+      }
+      description
+        "A reference to the secondary path that should be utilised
+        when the containing primary path option is in use";
+    }
+
+    leaf path-setup-protocol {
+      type identityref {
+        base te-types:path-signaling-type;
+      }
+      description
+        "Signaling protocol used to set up this tunnel";
+    }
+  }
+
   grouping p2p-path-candidate-secondary-path-state {
     description
       "Operational state parameters relating to a secondary path
@@ -1023,6 +997,7 @@ module ietf-te {
         description
           "List of primary paths for this tunnel.";
         uses p2p-primary-path-properties;
+        uses p2p-reverse-primary-path-properties;
         container candidate-p2p-secondary-paths {
           description
             "The set of candidate secondary paths which may be used
@@ -1040,6 +1015,10 @@ module ietf-te {
             description
               "List of secondary paths for this tunnel.";
             uses p2p-path-candidate-secondary-path-config;
+            container p2p-reverse-secondary-path {
+              description "Tunnel reverse secondary path properties";
+              uses p2p-reverse-path-candidate-secondary-path-config;
+            }
 
             container state {
               config false;
@@ -1049,10 +1028,9 @@ module ietf-te {
             }
           }
         }
-        container bidirectional-paths {
-          description "Tunnel bidirectional path container";
-          uses p2p-reverse-primary-path-properties;
-        }
+        //container bidirectional-paths {
+        //  description "Tunnel bidirectional path container";
+        //}
       }
     }
     container p2p-secondary-paths {
@@ -1064,8 +1042,9 @@ module ietf-te {
         uses p2p-secondary-path-properties;
       }
     }
+  
   }
-
+/*
   grouping tunnel-actions {
     description "Tunnel actions";
     action tunnel-action {
@@ -1087,7 +1066,7 @@ module ietf-te {
         }
       }
     }
-  }
+  }*/
   /*** End of TE tunnel groupings ***/
 
   /**
@@ -1372,11 +1351,6 @@ module ietf-te {
         "The tunnel path is computed using the specific
         topology identified by this identifier";
     }
-    leaf ignore-overload {
-      type boolean;
-      description
-        "The tunnel path can traverse overloaded node.";
-    }
     leaf bandwidth-generic {
       type te-types:te-bandwidth;
       description
@@ -1480,7 +1454,7 @@ module ietf-te {
         key "name";
         description "P2P TE tunnels list.";
         uses tunnel-p2p-properties;
-        uses tunnel-actions;
+        //uses tunnel-actions;
       }
       list tunnel-p2mp {
         key "name";
