@@ -355,6 +355,10 @@ module ietf-te {
         uses p2p-path-properties_state;
       }
     }
+    container p2p-reverse-secondary-path {
+      description "Tunnel reverse secondary path properties";
+      uses p2p-reverse-path-candidate-secondary-path-config;
+    }
   }
 
   grouping p2p-secondary-path-properties {
@@ -441,6 +445,7 @@ module ietf-te {
           }
         }
       }
+      uses p2p-shared-resources-tunnel-list;
     }
   }
 
@@ -454,6 +459,7 @@ module ietf-te {
           "extended-tunnel-id";
         description "List of LSPs associated with the tunnel.";
         uses lsp-properties_state;
+        uses p2p-shared-resources-tunnel-list;
         uses computed-path-properties;
         uses lsp-record-route-information_state;
       }
@@ -842,7 +848,7 @@ module ietf-te {
         "The tunnel path can traverse overloaded node.";
     }
     uses protection-restoration-params_config;
-    uses common-constraints_config;
+    uses te-types:common-constraints_config;
     uses tunnel-p2p-depency-tunnels_config;
   }
 
@@ -949,7 +955,7 @@ module ietf-te {
 
     leaf secondary-path {
       type leafref {
-        path "../../../../../../p2p-secondary-paths/" +
+        path "../../../../p2p-secondary-paths/" +
              "p2p-secondary-path/name";
       }
       description
@@ -1015,10 +1021,6 @@ module ietf-te {
             description
               "List of secondary paths for this tunnel.";
             uses p2p-path-candidate-secondary-path-config;
-            container p2p-reverse-secondary-path {
-              description "Tunnel reverse secondary path properties";
-              uses p2p-reverse-path-candidate-secondary-path-config;
-            }
 
             container state {
               config false;
@@ -1028,9 +1030,6 @@ module ietf-te {
             }
           }
         }
-        //container bidirectional-paths {
-        //  description "Tunnel bidirectional path container";
-        //}
       }
     }
     container p2p-secondary-paths {
@@ -1041,9 +1040,26 @@ module ietf-te {
           "List of secondary paths for this tunnel.";
         uses p2p-secondary-path-properties;
       }
-    }
-  
+    } 
   }
+
+  grouping p2p-shared-resources-tunnel-list {
+    description
+      "Set of tunnels that share secondary path resources with
+      this tunnnel";
+    container p2p-shared-resources-tunnels-list {
+      description
+        "Set of tunnels that share secondary path resources with
+        this tunnnel";
+      leaf-list p2p-shared-resources-tunnel-list {
+        type te:tunnel-ref;
+        description
+          "Reference to the tunnel that sharing secondary path 
+          resources with this tunnel";
+      }
+    }
+  }
+
 /*
   grouping tunnel-actions {
     description "Tunnel actions";
@@ -1341,49 +1357,6 @@ module ietf-te {
     }
   }
 
-  grouping common-constraints_config {
-    description
-      "Common constraints grouping that can be set on
-       a constraint set or directly on the tunnel";
-    leaf topology-id {
-      type te-types:te-topology-id;
-      description
-        "The tunnel path is computed using the specific
-        topology identified by this identifier";
-    }
-    leaf bandwidth-generic {
-      type te-types:te-bandwidth;
-      description
-        "A technology agnostic requested bandwidth to use
-         for path computation";
-    }
-    leaf disjointness {
-      type te-types:te-path-disjointness;
-      description
-        "The type of resource disjointness.";
-    }
-    leaf setup-priority {
-      type uint8 {
-        range "0..7";
-      }
-      description
-        "TE LSP requested setup priority";
-    }
-    leaf hold-priority {
-      type uint8 {
-        range "0..7";
-      }
-      description
-        "TE LSP requested hold priority";
-    }
-    leaf signaling-type {
-      type identityref {
-        base te-types:path-signaling-type;
-      }
-      description "TE tunnel path signaling type";
-    }
-  }
-
   grouping named-path-constraints_config {
     description
       "Global named path constraints configuration
@@ -1394,7 +1367,7 @@ module ietf-te {
         "A string name that uniquely identifies a
         path constraint set";
     }
-    uses common-constraints_config;
+    uses te-types:common-constraints_config;
   }
 
   grouping named-path-constraints {
