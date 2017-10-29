@@ -119,7 +119,7 @@ module ietf-te-types {
      "Constrained-path LSP in which the path is
       obtained by querying an external source, such as a PCE server.
       In the case that an LSP is defined to be externally queried, it
-      may also have associated explicit definitions (which are provided
+      may also have associated explicit definitions (provided
       to the external source to aid computation); and the path that is
       returned by the external source is not required to provide a
       wholly resolved path back to the originating system - that is to
@@ -474,6 +474,164 @@ module ietf-te-types {
       "LSP protection '1+1 Bidirectional Protection'";
     reference "RFC4872";
   }
+
+  identity lsp-protection-state {
+    description
+      "Base identity of protection states for reporting
+       purposes.";
+  }
+
+  identity lsp-protection-extra-traffic {
+    base lsp-protection-type;
+    description
+      "LSP protection 'Extra-Traffic'";
+    reference
+      "ITU-T G.808, RFC 4427.";
+  }
+
+  identity normal {
+    base lsp-protection-state;
+    description "Normal state.";
+  }
+
+  identity signal-fail-of-protection {
+    base lsp-protection-state;
+    description
+        "There is a SF condition on the protection transport
+        entity which has higher priority than the FS command.";
+    reference
+        "ITU-T G.873.1, G.8031, G.8131";
+  }
+
+  identity lockout-of-protection {
+    base lsp-protection-state;
+    description
+        "A Loss of Protection (LoP) command is active.";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+
+  identity forced-switch {
+    base lsp-protection-state;
+    description
+        "A forced switch (FS) command is active.";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+
+  identity signal-fail {
+    base lsp-protection-state;
+    description
+        "There is a SF condition on either the working
+        or the protection path.";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+
+  identity signal-degrade {
+    base lsp-protection-state;
+    description
+        "There is an SD condition on either the working or the
+         protection path.";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+
+  identity local-wait-to-restore {
+    base lsp-protection-state;
+    description
+        "A local WTR is running.";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+
+  identity remote-wait-to-restore {
+    base lsp-protection-state;
+    description
+        "A remote WTR is running.";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+
+  identity do-not-revert {
+    base lsp-protection-state;
+    description
+        "A DNR condition is active because of a non-revertive
+         behavior.";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+
+  identity failure-of-protocol {
+    base lsp-protection-state;
+    description
+        "The protection is not working because of a failure of
+         protocol condition.";
+    reference
+        "ITU-T G.873.1, G.8031, G.8131";
+  }
+
+  identity protection-external-commands {
+    description
+      "Protection external commands for trouble shooting
+      purposes.";
+  }
+
+  identity action-lockout-of-protection {
+    base protection-external-commands;
+    description
+      "A temporary configuration action initiated by an operator
+       command to ensure that the protection transport entity is
+       temporarily not available to transport a traffic signal
+       (either normal or extra traffic).";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+
+  identity action-forced-switch {
+    base protection-external-commands;
+    description
+        "A switch action initiated by an operator command to swith
+         the extra traffic signal, the normal traffic signal, or the
+         null signal to the protection transport entity, unless an
+         equal or higher priority switch command is in effect.";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+
+  identity action-manual-switch {
+    base protection-external-commands;
+    description
+        "A switch action initiated by an operator command to swith
+         the extra traffic signal, the normal traffic signal #i, or
+         the null signal to the protection transport entity, unless
+         a fault condition exists on other transport entities or an
+         equal or higher priority switch command is in effect.";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+
+  identity action-exercise {
+    base protection-external-commands;
+    description
+        "An action to start testing if the APS communication is 
+         operating correctly. It is lower priority than any other
+         state or command.";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+
+  identity clear {
+    base protection-external-commands;
+    description
+        "An action that clears the active near-end lockout of
+         protection, forced switch, manual switch, WTR state,
+         or exercise command.";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+
+
 
   identity switching-capabilities {
     description
@@ -1714,11 +1872,6 @@ module ietf-te-types {
     }
   }
 
-  grouping explicit-route-hop {
-    description "Explicit route hop grouping";
-    uses explicit-route-hop_config;
-  }
-
   grouping record-route-subobject_state {
     description
       "The record route subobject grouping";
@@ -1825,7 +1978,8 @@ module ietf-te-types {
       key "inclusive-exclusive label-start";
       description
         "The absence of label-set implies that all labels are
-         acceptable; otherwise only restricted labels are available.";
+         acceptable; otherwise only restricted labels are
+         available.";
 
       uses label-set-item-info;
     }

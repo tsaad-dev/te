@@ -1,5 +1,5 @@
 module ietf-te {
-  // yang-version 1.1;
+  yang-version 1.1;
 
   namespace "urn:ietf:params:xml:ns:yang:ietf-te";
 
@@ -89,7 +89,7 @@ module ietf-te {
         description
           "List of explicit route objects to always exclude
            from path computation";
-        uses te-types:explicit-route-hop;
+        uses te-types:explicit-route-hop_config;
       }
       list route-object-include-exclude {
         key index;
@@ -102,7 +102,7 @@ module ietf-te {
           }
           description "Explicit-route usage.";
         }
-        uses te-types:explicit-route-hop;
+        uses te-types:explicit-route-hop_config;
       }
     }
   }
@@ -315,7 +315,7 @@ module ietf-te {
       default te-types:bidir-assoc-non-corouted;
       description "The TE tunnel association type.";
     }
-    leaf provisioing {
+    leaf provisioning {
       type identityref {
         base te-types:bidir-provisioning-mode;
       }
@@ -365,6 +365,7 @@ module ietf-te {
     description "tunnel path properties.";
     uses p2p-path-properties_config;
     uses protection-restoration-params_config;
+    uses protection-external-commands;
     container state {
       config false;
       description
@@ -445,12 +446,13 @@ module ietf-te {
           }
         }
       }
-      uses p2p-shared-resources-tunnel-list;
+      uses shared-resources-tunnels;
     }
   }
 
   grouping p2p-path-properties_state {
     description "TE per path state parameters";
+    uses computed-path-properties;
     container lsps {
       description "TE LSPs container";
       list lsp {
@@ -459,8 +461,7 @@ module ietf-te {
           "extended-tunnel-id";
         description "List of LSPs associated with the tunnel.";
         uses lsp-properties_state;
-        uses p2p-shared-resources-tunnel-list;
-        uses computed-path-properties;
+        uses shared-resources-tunnels;
         uses lsp-record-route-information_state;
       }
     }
@@ -683,10 +684,31 @@ module ietf-te {
         description
          "Time to wait before attempting LSP reversion";
       }
-      leaf protection-switch-activate {
+      leaf lockout-of-normal {
         type boolean;
-        description "Activates protection switchover to 
-                     secondary LSP (if valid)";
+        description
+          "
+            When set to 'True', it represents a lockout of normal
+            traffic external command. When set to 'False', it
+            represents a clear lockout of normal traffic external
+            command. The lockout of normal traffic command applies
+            to this Tunnel.
+          ";
+        reference
+          "ITU-T G.808, RFC 4427";
+      }
+      leaf freeze {
+        type boolean;
+        description
+          "
+            When set to 'True', it represents a freeze external
+            command. When set to 'False', it represents a clear
+            freeze external command. The freeze command command
+            applies to all the Tunnels which are sharing the
+            protection resources with this Tunnel.
+          ";
+        reference
+          "ITU-T G.808, RFC 4427";
       }
     }
     container restoration {
@@ -736,6 +758,67 @@ module ietf-te {
     }
   }
 
+  grouping protection-external-commands {
+    description
+      "Path protection external commands grouping";
+    container protection-external-commands {
+      description
+        "Path protection external commands grouping";
+      leaf lockout-of-protection {
+        type boolean;
+        description
+          "A LoP command is applied locally.";
+        reference
+          "ITU-T G.808; RFC 4427.";
+      }
+      container manual-switch {
+        description
+          "Manual switch (MS) command properties";
+        leaf manual-switch {
+          type boolean;
+          description
+            "A MS command is applied locally.";
+          reference
+            "ITU-T G.808; RFC 4427.";
+        }
+        leaf manual-swith-tunnel {
+          type te:tunnel-ref;
+          description
+            "The tunnel which this MS command applies.
+             It can be either a normal traffic tunnel
+             or an extra-traffic tunnel. If it is not
+             specified the MS command applies to the
+             Null signal (i.e., manual switch to null).";
+          reference
+            "ITU-T G.808; RFC 4427.";
+        }
+      }
+      container forced-switch {
+        description
+          "The forced switch (FS) command properties";
+        leaf forced-switch {
+          type boolean;
+          description
+            "A FS command is applied locally.";
+          reference
+            "ITU-T G.808; RFC 4427.";
+        }
+        leaf forced-swith-tunnel {
+          type te:tunnel-ref;
+          description
+            "The tunnel which this FS command applies.
+             It can be either a normal traffic tunnel
+             or an extra-traffic tunnel. If it is not
+             specified the FS command applies to the
+             Null signal (i.e., forced switch to null).
+            ";
+          reference
+            "ITU-T G.808; RFC 4427.";
+        }
+      }
+    }
+  }
+
   grouping tunnel-p2p-depency-tunnels_config {
     description
       "Groupong for tunnel dependency list of tunnels";
@@ -747,7 +830,7 @@ module ietf-te {
         leaf name {
           type leafref {
             path "../../../../../tunnels/tunnel/name";
-            //require-instance false;
+            require-instance false;
           }
           description "Dependency tunnel name";
         }
@@ -826,7 +909,6 @@ module ietf-te {
         "TE tunnel source address.";
     }
     leaf destination {
-      /* Add when check */
       type inet:ip-address;
       description
         "P2P tunnel destination address";
@@ -837,7 +919,6 @@ module ietf-te {
         "TE tunnel source termination point identifier.";
     }
     leaf dst-tp-id {
-      /* Add when check */
       type binary;
       description
         "TE tunnel destination termination point identifier.";
@@ -884,8 +965,7 @@ module ietf-te {
       "If an end-to-end tunnel crosses multiple domains using
        the same technology, some additional constraints have to be
        taken in consideration in each domain";
-    // the name as in ietf-mpls-static
-    container in-segment {
+    container path-in-segment {
       presence
         "The end-to-end tunnel starts in a previous domain;
          this tunnel is a segment in the current domain.";
@@ -894,7 +974,7 @@ module ietf-te {
          with previous segment stitched on head-end side.";
       uses access-segment-info;
     }
-    container out-segment {
+    container path-out-segment {
       presence
         "The end-to-end tunnel is not terminated in this domain;
          this tunnel is a segment in the current domain.";
@@ -1043,15 +1123,15 @@ module ietf-te {
     } 
   }
 
-  grouping p2p-shared-resources-tunnel-list {
+  grouping shared-resources-tunnels {
     description
       "Set of tunnels that share secondary path resources with
       this tunnnel";
-    container p2p-shared-resources-tunnels-list {
+    container shared-resources-tunnels {
       description
         "Set of tunnels that share secondary path resources with
         this tunnnel";
-      leaf-list p2p-shared-resources-tunnel-list {
+      leaf-list lsp-shared-resources-tunnel {
         type te:tunnel-ref;
         description
           "Reference to the tunnel that sharing secondary path 
@@ -1060,7 +1140,6 @@ module ietf-te {
     }
   }
 
-/*
   grouping tunnel-actions {
     description "Tunnel actions";
     action tunnel-action {
@@ -1082,7 +1161,33 @@ module ietf-te {
         }
       }
     }
-  }*/
+  }
+  grouping protection-actions {
+    description
+      "Protection external command actions";
+    action protection-external-commands {
+      input {
+        leaf protection-external-command {
+          type identityref {
+            base te-types:protection-external-commands;
+          }
+          description
+            "Protection external command";
+        }
+        leaf tunnel-using-lsp-resources {
+          type te:tunnel-ref;
+          description
+            "The tunnel which this external command applies.
+             It can be either a normal traffic tunnel or an
+             extra-traffic tunnel. It is not specified if the
+             external command does not apply to a specific tunnel
+             (e.g., a clear command) or if it applies to the Null
+             signal (e.g., forced switch to null).";
+        }
+      }
+    }
+  }
+
   /*** End of TE tunnel groupings ***/
 
   /**
@@ -1125,6 +1230,7 @@ module ietf-te {
           "source destination tunnel-id lsp-id "+
           "extended-tunnel-id";
         description "List of LSPs associated with the tunnel.";
+        /*
         leaf source {
           type leafref {
             path "../state/source";
@@ -1177,7 +1283,8 @@ module ietf-te {
           description
             "Configuration applied parameters and state";
           uses lsp-properties_state;
-        }
+        }*/
+        uses lsp-properties_state;
         uses lsp-record-route-information_state;
       }
     }
@@ -1296,7 +1403,7 @@ module ietf-te {
               }
               description "An explicit-route hop action.";
             }
-            uses te-types:explicit-route-hop;
+            uses te-types:explicit-route-hop_config;
           }
         }
       }
@@ -1357,7 +1464,7 @@ module ietf-te {
     }
   }
 
-  grouping named-path-constraints_config {
+  grouping path-constraints_config {
     description
       "Global named path constraints configuration
       grouping";
@@ -1368,6 +1475,20 @@ module ietf-te {
         path constraint set";
     }
     uses te-types:common-constraints_config;
+    uses path-metric-bounds;
+    uses te-types:generic-path-optimization;
+    uses path-affinities;
+    uses path-srlgs;
+    uses path-route-objects;
+    uses shared-resources-tunnels {
+      description
+        "Set of tunnels that are allowed to share secondary path
+         resources of this tunnel";
+    }
+    uses path-access-segment-info {
+      description
+        "Tunnel constraints induced by other segments.";
+    }
   }
 
   grouping named-path-constraints {
@@ -1381,21 +1502,12 @@ module ietf-te {
         key "name";
         description
           "A list of named path constraints";
-        uses path-metric-bounds;
-        uses named-path-constraints_config;
+        uses path-constraints_config;
         container state {
           config false;
           description
             "Configuration applied parameters and state";
           uses path-constraints_state;
-        }
-        uses path-affinities;
-        uses path-srlgs;
-        uses path-route-objects;
-        uses te-types:generic-path-optimization;
-        uses path-access-segment-info {
-          description
-            "Tunnel constraints induced by other segments.";
         }
       }
     }
@@ -1427,7 +1539,7 @@ module ietf-te {
         key "name";
         description "P2P TE tunnels list.";
         uses tunnel-p2p-properties;
-        //uses tunnel-actions;
+        uses tunnel-actions;
       }
       list tunnel-p2mp {
         key "name";
@@ -1551,11 +1663,13 @@ module ietf-te {
       reference "rfc4872, section 4.2.1";
     }
 
-    leaf lsp-carry-normal-traffic {
-      type empty;
+    leaf lsp-protection-state {
+      type identityref {
+        base te-types:lsp-protection-state;
+      }
       description
-        "This bit is set when a protecting LSP is carrying the normal
-         traffic after protection switching";
+        "The state of the APS state machine controlling which
+         tunnels is using the resources of the protecting LSP.";
     }
   }
   /*** End of TE global groupings ***/
@@ -1576,6 +1690,9 @@ module ietf-te {
 
     /* TE LSPs State Data */
     uses lsps-state-grouping;
+
+    /* Protection actions */
+    uses protection-actions;
   }
 
   /* TE Global RPCs/execution Data */
