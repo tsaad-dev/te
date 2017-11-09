@@ -1,3 +1,4 @@
+
 module: ietf-rsvp
   augment /rt:routing/rt:control-plane-protocols/rt:control-plane-protocol:
     +--rw rsvp!
@@ -454,8 +455,6 @@ module: ietf-te
        |  |  |  +--rw protection-reversion-disable?   boolean
        |  |  |  +--rw hold-off-time?                  uint32
        |  |  |  +--rw wait-to-revert?                 uint16
-       |  |  |  +--rw lockout-of-normal?              boolean
-       |  |  |  +--rw freeze?                         boolean
        |  |  +--rw restoration
        |  |  |  +--rw enable?                          boolean
        |  |  |  +--rw restoration-type?                identityref
@@ -605,6 +604,8 @@ module: ietf-te
        |  |  |     |  |     +--ro path-setup-protocol?                        identityref
        |  |  |     |  |     +--ro origin-type?                                enumeration
        |  |  |     |  |     +--ro lsp-resource-status?                        enumeration
+       |  |  |     |  |     +--ro lockout-of-normal?                          boolean
+       |  |  |     |  |     +--ro freeze?                                     boolean
        |  |  |     |  |     +--ro lsp-protection-role?                        enumeration
        |  |  |     |  |     +--ro lsp-protection-state?                       identityref
        |  |  |     |  |     +--ro shared-resources-tunnels
@@ -827,6 +828,8 @@ module: ietf-te
        |  |  |     |           +--ro path-setup-protocol?           identityref
        |  |  |     |           +--ro origin-type?                   enumeration
        |  |  |     |           +--ro lsp-resource-status?           enumeration
+       |  |  |     |           +--ro lockout-of-normal?             boolean
+       |  |  |     |           +--ro freeze?                        boolean
        |  |  |     |           +--ro lsp-protection-role?           enumeration
        |  |  |     |           +--ro lsp-protection-state?          identityref
        |  |  |     |           +--ro shared-resources-tunnels
@@ -858,25 +861,23 @@ module: ietf-te
        |  |  |     +--rw te-mpls:static-lsp-name?         mpls-static:static-lsp-ref
        |  |  +--rw p2p-secondary-paths
        |  |  |  +--rw p2p-secondary-path* [name]
-       |  |  |     +--rw name                            string
-       |  |  |     +--rw preference?                     uint8
-       |  |  |     +--rw path-setup-protocol?            identityref
-       |  |  |     +--rw path-computation-method?        identityref
-       |  |  |     +--rw path-computation-server?        inet:ip-address
-       |  |  |     +--rw compute-only?                   empty
-       |  |  |     +--rw use-path-computation?           boolean
-       |  |  |     +--rw lockdown?                       empty
-       |  |  |     +--rw path-scope?                     identityref
-       |  |  |     +--rw named-explicit-path?            -> ../../../../../globals/named-explicit-paths/named-explicit-path/name
-       |  |  |     +--rw named-path-constraint?          -> ../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
+       |  |  |     +--rw name                       string
+       |  |  |     +--rw preference?                uint8
+       |  |  |     +--rw path-setup-protocol?       identityref
+       |  |  |     +--rw path-computation-method?   identityref
+       |  |  |     +--rw path-computation-server?   inet:ip-address
+       |  |  |     +--rw compute-only?              empty
+       |  |  |     +--rw use-path-computation?      boolean
+       |  |  |     +--rw lockdown?                  empty
+       |  |  |     +--rw path-scope?                identityref
+       |  |  |     +--rw named-explicit-path?       -> ../../../../../globals/named-explicit-paths/named-explicit-path/name
+       |  |  |     +--rw named-path-constraint?     -> ../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
        |  |  |     +--rw protection
        |  |  |     |  +--rw enable?                         boolean
        |  |  |     |  +--rw protection-type?                identityref
        |  |  |     |  +--rw protection-reversion-disable?   boolean
        |  |  |     |  +--rw hold-off-time?                  uint32
        |  |  |     |  +--rw wait-to-revert?                 uint16
-       |  |  |     |  +--rw lockout-of-normal?              boolean
-       |  |  |     |  +--rw freeze?                         boolean
        |  |  |     +--rw restoration
        |  |  |     |  +--rw enable?                          boolean
        |  |  |     |  +--rw restoration-type?                identityref
@@ -885,14 +886,6 @@ module: ietf-te
        |  |  |     |  +--rw hold-off-time?                   uint32
        |  |  |     |  +--rw wait-to-restore?                 uint16
        |  |  |     |  +--rw wait-to-revert?                  uint16
-       |  |  |     +--rw protection-external-commands
-       |  |  |     |  +--rw lockout-of-protection?   boolean
-       |  |  |     |  +--rw manual-switch
-       |  |  |     |  |  +--rw manual-switch?         boolean
-       |  |  |     |  |  +--rw manual-swith-tunnel?   te:tunnel-ref
-       |  |  |     |  +--rw forced-switch
-       |  |  |     |     +--rw forced-switch?         boolean
-       |  |  |     |     +--rw forced-swith-tunnel?   te:tunnel-ref
        |  |  |     +--ro state
        |  |  |     |  +--ro computed-path-properties
        |  |  |     |  |  +--ro path-metric* [metric-type]
@@ -966,6 +959,8 @@ module: ietf-te
        |  |  |     |  |     +--ro path-setup-protocol?                        identityref
        |  |  |     |  |     +--ro origin-type?                                enumeration
        |  |  |     |  |     +--ro lsp-resource-status?                        enumeration
+       |  |  |     |  |     +--ro lockout-of-normal?                          boolean
+       |  |  |     |  |     +--ro freeze?                                     boolean
        |  |  |     |  |     +--ro lsp-protection-role?                        enumeration
        |  |  |     |  |     +--ro lsp-protection-state?                       identityref
        |  |  |     |  |     +--ro shared-resources-tunnels
@@ -1103,7 +1098,7 @@ module: ietf-te
        |  |  |     |  |           +--ro rsvp-te-mpls:backup-frr-on?              uint8
        |  |  |     |  |           +--ro rsvp-te-mpls:backup-protected-lsp-num?   uint32
        |  |  |     |  +--ro te-mpls:static-lsp-name?    mpls-static:static-lsp-ref
-       |  |  |     +--rw te-mpls:static-lsp-name?        mpls-static:static-lsp-ref
+       |  |  |     +--rw te-mpls:static-lsp-name?   mpls-static:static-lsp-ref
        |  |  +---x tunnel-action
        |  |  |  +---w input
        |  |  |  |  +---w action-type?   identityref
@@ -1177,6 +1172,8 @@ module: ietf-te
        |     +--ro path-setup-protocol?                        identityref
        |     +--ro origin-type?                                enumeration
        |     +--ro lsp-resource-status?                        enumeration
+       |     +--ro lockout-of-normal?                          boolean
+       |     +--ro freeze?                                     boolean
        |     +--ro lsp-protection-role?                        enumeration
        |     +--ro lsp-protection-state?                       identityref
        |     +--ro lsp-record-route-subobjects
