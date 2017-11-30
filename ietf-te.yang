@@ -792,36 +792,6 @@ module ietf-te {
     }
   }
 
-  grouping protection-external-commands {
-    description
-      "Path protection external commands grouping";
-    container protection-external-commands {
-      description
-        "Path protection external commands grouping";
-      leaf lockout-of-protection {
-        type boolean;
-        description
-          "A LoP command is applied locally.";
-        reference
-          "ITU-T G.808; RFC 4427.";
-      }
-      leaf manual-switch {
-        type boolean;
-        description
-          "A MS command is applied locally.";
-        reference
-          "ITU-T G.808; RFC 4427.";
-      }
-      leaf forced-switch {
-        type boolean;
-        description
-          "A FS command is applied locally.";
-        reference
-          "ITU-T G.808; RFC 4427.";
-      }
-    }
-  }
-
   grouping tunnel-p2p-depency-tunnels_config {
     description
       "Groupong for tunnel dependency list of tunnels";
@@ -1177,15 +1147,42 @@ module ietf-te {
           description
             "Protection external command";
         }
-        leaf tunnel-using-lsp-resources {
+        leaf lsp-ref {
+          type TBD
+          description
+            "Indicates to which lsp the external command applies to."
+        }
+        leaf traffic-type {
+          type enumeration {
+            enum normal-traffic {
+              description
+                "The manual-switch or forced-switch command applies to the
+                 normal traffic (this Tunnel).";
+            }
+            enum null-traffic {
+              description
+                "The manual-switch or forced-switch command applies to the null traffic.";
+            }
+            enum extra-traffic {
+              description
+                "The manual-switch or forced-switch command applies to the
+                 extra traffic (the extra-traffic Tunnel sharing protection
+                 bandwidth with this Tunnel).";
+            }
+          }
+          description
+            "Indicates whether the manual-switch or forced-switch commands
+             applies to the normal traffic, the null traffic or the extra-traffic."
+          reference
+            "ITU-T G.808, RFC 4427";
+        }
+        leaf extra-traffic-tunnel-ref {
           type te:tunnel-ref;
           description
-            "The tunnel which this external command applies.
-             It can be either a normal traffic tunnel or an
-             extra-traffic tunnel. It is not specified if the
-             external command does not apply to a specific tunnel
-             (e.g., a clear command) or if it applies to the Null
-             signal (e.g., forced switch to null).";
+            "In case there are multiple extra-traffic Tunnels sharing
+             protection bandwidth with this Tunnel (m:n protection),
+             represents which extra-traffic Tunnel the manual-switch or
+             forced-switch to extra-traffic command applies to.";
         }
       }
     }
@@ -1489,6 +1486,7 @@ module ietf-te {
         description "P2P TE tunnels list.";
         uses tunnel-p2p-properties;
         uses tunnel-actions;
+				uses protection-actions;
       }
       list tunnel-p2mp {
         key "name";
@@ -1612,9 +1610,6 @@ module ietf-te {
 
     /* TE LSPs State Data */
     uses lsps-state-grouping;
-
-    /* Protection actions */
-    uses protection-actions;
   }
 
   /* TE Global RPCs/execution Data */
