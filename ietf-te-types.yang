@@ -53,7 +53,7 @@ module ietf-te-types {
     "This module contains a collection of generally
     useful TE specific YANG data type defintions.";
 
-  revision "2017-10-29" {
+  revision "2017-12-06" {
     description "Latest revision of TE types";
     reference "RFC3209";
   }
@@ -475,18 +475,18 @@ module ietf-te-types {
     reference "RFC4872";
   }
 
-  identity lsp-protection-state {
-    description
-      "Base identity of protection states for reporting
-       purposes.";
-  }
-
   identity lsp-protection-extra-traffic {
     base lsp-protection-type;
     description
       "LSP protection 'Extra-Traffic'";
     reference
       "ITU-T G.808, RFC 4427.";
+  }
+
+  identity lsp-protection-state {
+    description
+      "Base identity of protection states for reporting
+       purposes.";
   }
 
   identity normal {
@@ -503,18 +503,34 @@ module ietf-te-types {
         "ITU-T G.873.1, G.8031, G.8131";
   }
 
-  identity lockout-of-protection {
+  identity local-lockout-of-protection {
     base lsp-protection-state;
     description
-        "A Loss of Protection (LoP) command is active.";
+        "A local Loss of Protection (LoP) command is active.";
     reference
         "ITU-T G.808, RFC 4427";
   }
 
-  identity forced-switch {
+  identity remote-lockout-of-protection {
     base lsp-protection-state;
     description
-        "A forced switch (FS) command is active.";
+        "A remote Loss of Protection (LoP) command is active.";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+	
+  identity local-forced-switch {
+    base lsp-protection-state;
+    description
+        "A local forced switch (FS) command is active.";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+
+  identity remote-forced-switch {
+    base lsp-protection-state;
+    description
+        "A remote forced switch (FS) command is active.";
     reference
         "ITU-T G.808, RFC 4427";
   }
@@ -537,10 +553,26 @@ module ietf-te-types {
         "ITU-T G.808, RFC 4427";
   }
 
+  identity local-manual-switch {
+    base lsp-protection-state;
+    description
+        "A local manual switch (MS) command is active.";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+
+  identity remote-manual-switch {
+    base lsp-protection-state;
+    description
+        "A remote manual switch (MS) command is active.";
+    reference
+        "ITU-T G.808, RFC 4427";
+  }
+
   identity local-wait-to-restore {
     base lsp-protection-state;
     description
-        "A local WTR is running.";
+        "A local wait time to restore (WTR) is running.";
     reference
         "ITU-T G.808, RFC 4427";
   }
@@ -548,7 +580,7 @@ module ietf-te-types {
   identity remote-wait-to-restore {
     base lsp-protection-state;
     description
-        "A remote WTR is running.";
+        "A remote wait time to restore (WTR) is running.";
     reference
         "ITU-T G.808, RFC 4427";
   }
@@ -614,7 +646,7 @@ module ietf-te-types {
   identity action-exercise {
     base protection-external-commands;
     description
-        "An action to start testing if the APS communication is 
+        "An action to start testing if the APS communication is
          operating correctly. It is lower priority than any other
          state or command.";
     reference
@@ -759,7 +791,7 @@ module ietf-te-types {
 
   identity path-signaling-type {
     description
-      "base identity from which specific LSPs path 
+      "base identity from which specific LSPs path
        setup types are derived";
   }
 
@@ -903,7 +935,7 @@ module ietf-te-types {
     base path-metric-type;
     description
       "Unidirectional Residual Bandwidth, which is defined to be
-       Maximum Bandwidth [RFC3630] minus the bandwidth currently 
+       Maximum Bandwidth [RFC3630] minus the bandwidth currently
        allocated to  LSPs.";
     reference "RFC7471";
   }
@@ -1544,6 +1576,33 @@ module ietf-te-types {
             type te-bandwidth;
             description
               "Bandwidth specified in a generic format.";
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * TE label groupings
+   **/
+  grouping te-label {
+    description
+      "This grouping defines the generic TE label.
+       The modeling structure can be augmented for each technology.
+       For un-specified technologies, rt-types:generalized-label
+       is used.";
+    container te-label {
+      description
+        "Container that specifies TE label.";
+      choice technology {
+        default generic;
+        description
+          "Data plane technology type.";
+        case generic {
+          leaf generic {
+            type rt-types:generalized-label;
+            description
+              "TE label specified in a generic format.";
           }
         }
       }
@@ -2220,3 +2279,4 @@ module ietf-te-types {
     }
   }
 }
+
