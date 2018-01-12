@@ -53,7 +53,7 @@ module ietf-te-types {
     "This module contains a collection of generally
     useful TE specific YANG data type defintions.";
 
-  revision "2017-10-29" {
+  revision "2017-12-20" {
     description "Latest revision of TE types";
     reference "RFC3209";
   }
@@ -614,7 +614,7 @@ module ietf-te-types {
   identity action-exercise {
     base protection-external-commands;
     description
-        "An action to start testing if the APS communication is 
+        "An action to start testing if the APS communication is
          operating correctly. It is lower priority than any other
          state or command.";
     reference
@@ -759,7 +759,7 @@ module ietf-te-types {
 
   identity path-signaling-type {
     description
-      "base identity from which specific LSPs path 
+      "base identity from which specific LSPs path
        setup types are derived";
   }
 
@@ -903,7 +903,7 @@ module ietf-te-types {
     base path-metric-type;
     description
       "Unidirectional Residual Bandwidth, which is defined to be
-       Maximum Bandwidth [RFC3630] minus the bandwidth currently 
+       Maximum Bandwidth [RFC3630] minus the bandwidth currently
        allocated to  LSPs.";
     reference "RFC7471";
   }
@@ -1464,86 +1464,38 @@ module ietf-te-types {
         default generic;
         description
           "Data plane technology type.";
-        case psc {
-          leaf psc {
-            type rt-types:bandwidth-ieee-float32;
-            description
-              "Bandwidth in packet switching networks.";
-            reference
-              "RFC3630: Traffic Engineering (TE) Extensions to OSPF
-               Version 2.
-               RFC5305: IS-IS Extensions for Traffic Engineering.";
-          }
-        }
-        case otn {
-          list otn {
-            key "rate-type";
-            description
-              "Bandwidth in OTN (Optical Transport Network).";
-            reference
-              "ITU-T G.709/Y.1331: Interfaces for the optical
-               transport network.";
-            leaf rate-type {
-              type identityref {
-                base otn-rate-type;
-              }
-              description
-                "OTN bit rate types of various information
-                 structures.";
-            }
-            leaf counter {
-              type uint16;
-              description
-                "Number of channels.";
-            }
-          }
-        }
-        case lsc {
-          list wdm {
-            key "spectrum slot";
-            description
-              "Bandwidth in Lambda Switch Capable (LSC) networks.";
-            reference
-              "ITU-t G.694.1: Spectral grids for WDM applications:
-               DWDM frequency grid.";
-            leaf spectrum {
-              type identityref {
-                base wdm-spectrum-type;
-              }
-              description
-                "Optical spectrum allocation type.";
-              reference
-                "RFC7699: Generalized Labels for the Flexi-Grid in
-                 Lambda Switch Capable (LSC) Label Switching
-                 Routers";
-            }
-            leaf slot {
-              type int16;
-              description
-                "The value identifies the central frenquency of a
-                 frequency slot.";
-              reference
-                "RFC7792: RSVP-TE Signaling Extensions in Support of
-                 Flexi-Grid Dense Wavelength Division Multiplexing
-                 (DWDM) Networks.";
-            }
-            leaf width {
-              type uint16;
-              description
-                "The slot width is calculated as this value times
-                 12.5 GHz.";
-              reference
-                "RFC7792: RSVP-TE Signaling Extensions in Support of
-                 Flexi-Grid Dense Wavelength Division Multiplexing
-                 (DWDM) Networks.";
-            }
-          }
-        }
         case generic {
           leaf generic {
             type te-bandwidth;
             description
               "Bandwidth specified in a generic format.";
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * TE label groupings
+   **/
+  grouping te-label {
+    description
+      "This grouping defines the generic TE label.
+       The modeling structure can be augmented for each technology.
+       For un-specified technologies, rt-types:generalized-label
+       is used.";
+    container te-label {
+      description
+        "Container that specifies TE label.";
+      choice technology {
+        default generic;
+        description
+          "Data plane technology type.";
+        case generic {
+          leaf generic {
+            type rt-types:generalized-label;
+            description
+              "TE label specified in a generic format.";
           }
         }
       }
@@ -1778,7 +1730,7 @@ module ietf-te-types {
    **/
 
   /* Tunnel path selection parameters */
-  grouping explicit-route-hop_config {
+  grouping explicit-route-hop {
     description
       "The explicit route subobject grouping";
     leaf index {
@@ -1851,23 +1803,10 @@ module ietf-te-types {
       case label {
         container label-hop {
           description "Label hop type";
-          leaf value {
-            type rt-types:generalized-label;
-            description "the label value";
-          }
+          uses te-label;
         }
         description
           "The Label ERO subobject";
-      }
-      case sid {
-        container sid-hop {
-          description "Segment routing SID hop";
-          leaf sid {
-            type rt-types:generalized-label;
-            description "Segment-routing identifier";
-          }
-        }
-        description "Segment-routing identifier";
       }
     }
   }
@@ -2011,12 +1950,12 @@ module ietf-te-types {
         "The tunnel path is computed using the specific
         topology identified by this identifier";
     }
-    container bandwidth-generic {
-      uses te-types:te-bandwidth;
+
+    uses te-types:te-bandwidth {
       description
-        "A technology agnostic requested bandwidth to use
-         for path computation";
+        "A requested bandwidth to use for path computation";
     }
+
     leaf disjointness {
       type te-types:te-path-disjointness;
       description
@@ -2214,7 +2153,7 @@ module ietf-te-types {
           description
             "List of computed route objects returned by the
              computation engine";
-          uses explicit-route-hop_config;
+          uses explicit-route-hop;
         }
       }
     }
