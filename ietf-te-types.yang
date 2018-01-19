@@ -171,6 +171,37 @@ module ietf-te-types {
     reference "RFC4124: section-4.3.1";
   }
 
+  typedef te-link-direction {
+    type enumeration {
+      enum INCOMING {
+        description
+          "explicit route represents an incoming link on a node";
+      }
+      enum OUTGOING {
+        description
+          "explicit route represents an outgoing link on a node";
+      }
+    }
+    description
+     "enumerated type for specifying direction of link on a node";
+  }
+
+  typedef te-label-direction {
+    type enumeration {
+      enum FORWARD {
+        description
+          "Label allocated for the forward LSP direction";
+      }
+      enum REVERSE {
+        description
+          "Label allocated for the reverse LSP direction";
+      }
+    }
+    description
+     "enumerated type for specifying the forward or reverse
+     label";
+  }
+
   typedef te-hop-type {
     type enumeration {
       enum LOOSE {
@@ -575,6 +606,42 @@ module ietf-te-types {
     description
       "Protection external commands for trouble shooting
       purposes.";
+  }
+
+  identity action-freeze {
+    base protection-external-commands;
+    description
+      "A temporary configuration action initiated by an operator
+       command to prevent any switch action to be taken and as such
+       freezes the current state.";
+    reference
+      "ITU-T G.808, RFC 4427";
+  }
+
+  identity clear-freeze {
+    base protection-external-commands;
+    description
+      "An action that clears the active freeze state.";
+    reference
+      "ITU-T G.808, RFC 4427";
+  }
+
+  identity action-lockout-of-normal {
+    base protection-external-commands;
+    description
+      "A temporary configuration action initiated by an operator
+       command to ensure that the normal traffic is not allowed
+       to use the protection transport entity.";
+    reference
+      "ITU-T G.808, RFC 4427";
+  }
+
+  identity clear-lockout-of-normal {
+    base protection-external-commands;
+    description
+      "An action that clears the active lockout of normal state.";
+    reference
+      "ITU-T G.808, RFC 4427";
   }
 
   identity action-lockout-of-protection {
@@ -1499,6 +1566,10 @@ module ietf-te-types {
           }
         }
       }
+      leaf direction {
+        type te-label-direction;
+        description "Label direction";
+      }
     }
   }
 
@@ -1752,8 +1823,12 @@ module ietf-te-types {
           }
           leaf hop-type {
             type te-hop-type;
-              description
-                "strict or loose hop";
+            description "strict or loose hop";
+          }
+          leaf direction {
+            type te-link-direction;
+            default INCOMING;
+            description "Link ERO direction";
           }
         }
       }
@@ -1790,8 +1865,11 @@ module ietf-te-types {
           }
           leaf hop-type {
             type te-hop-type;
-              description
-                "strict or loose hop";
+            description "strict or loose hop";
+          }
+          leaf direction {
+            type te-link-direction;
+            description "Unnumbered Link ERO direction";
           }
           description
             "Unnumbered link explicit route subobject";
