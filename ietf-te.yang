@@ -66,15 +66,17 @@ module ietf-te {
   }
 
   typedef path-ref {
-	  type union {
-		  type leafref {
-        path "/te:te/te:tunnels/te:tunnel/te:name/te:p2p-primary-paths/te:p2p-primary-path/te:name";			
+    type union {
+      type leafref {
+        path "/te:te/te:tunnels/te:tunnel/te:name/" +
+              "te:p2p-primary-paths/te:p2p-primary-path/te:name";
       }
-		  type leafref {
-        path "/te:te/te:tunnels/te:tunnel/te:name/te:p2p-secondary-paths/te:p2p-secondary-path/te:name";			
-			}
+      type leafref {
+        path "/te:te/te:tunnels/te:tunnel/te:name/" +
+             "te:p2p-secondary-paths/te:p2p-secondary-path/te:name";
+      }
     }
-		description
+    description
       "This type is used by data models that need to reference
        configured primary or secondary path of a TE tunnel.";
   }
@@ -103,7 +105,7 @@ module ietf-te {
         description
           "List of explicit route objects to always exclude
            from path computation";
-        uses te-types:explicit-route-hop_config;
+        uses te-types:explicit-route-hop;
       }
       list route-object-include-exclude {
         key index;
@@ -116,7 +118,7 @@ module ietf-te {
           }
           description "Explicit-route usage.";
         }
-        uses te-types:explicit-route-hop_config;
+        uses te-types:explicit-route-hop;
       }
     }
   }
@@ -455,7 +457,7 @@ module ietf-te {
             config false;
             description
               "Configuration applied parameters and state";
-            uses te-types:explicit-route-hop_config;
+            uses te-types:explicit-route-hop;
           }
         }
       }
@@ -474,7 +476,7 @@ module ietf-te {
           "extended-tunnel-id";
         description "List of LSPs associated with the tunnel.";
         uses lsp-properties_state;
-        uses shared-resources-tunnels;
+        uses shared-resources-tunnels_state;
         uses lsp-record-route-information_state;
       }
     }
@@ -756,6 +758,19 @@ module ietf-te {
         units seconds;
         description
          "Time to wait before attempting LSP reversion";
+      }
+      leaf aps-signal-id {
+        type uint8 {
+          range "1..255";
+        }
+        description
+          "The APS signal number used to reference the traffic of this tunnel.
+           The default value for normal traffic is 1.
+           The default value for extra-traffic is 255.
+           If not specified, non-default values can be assigned by the server,
+           if and only if, the server controls both endpoints.";
+        reference
+          "ITU-T G.808.1";
       }
     }
     container restoration {
@@ -1110,6 +1125,16 @@ module ietf-te {
     } 
   }
 
+  grouping shared-resources-tunnels_state {
+    description
+      "The specific tunnel that is sharing secondary path resources";
+    leaf lsp-shared-resources-tunnel {
+      type te:tunnel-ref;
+      description
+        "Reference to the tunnel that sharing secondary path
+        resources with this tunnel";
+    }
+  }
   grouping shared-resources-tunnels {
     description
       "Set of tunnels that share secondary path resources with
@@ -1149,7 +1174,7 @@ module ietf-te {
       }
     }
   }
-  grouping protection-actions {
+  grouping tunnel-protection-actions {
     description
       "Protection external command actions";
     action protection-external-commands {
@@ -1162,20 +1187,21 @@ module ietf-te {
             "Protection external command";
         }
         leaf path-ref {
-          type path-ref
+          type path-ref;
           description
-            "Indicates to which path the external command applies to."
+            "Indicates to which path the external command applies to.";
         }
         leaf traffic-type {
           type enumeration {
             enum normal-traffic {
               description
-                "The manual-switch or forced-switch command applies to the
-                 normal traffic (this Tunnel).";
+                "The manual-switch or forced-switch command applies to
+                 the normal traffic (this Tunnel).";
             }
             enum null-traffic {
               description
-                "The manual-switch or forced-switch command applies to the null traffic.";
+                "The manual-switch or forced-switch command applies to
+                 the null traffic.";
             }
             enum extra-traffic {
               description
@@ -1185,18 +1211,19 @@ module ietf-te {
             }
           }
           description
-            "Indicates whether the manual-switch or forced-switch commands
-             applies to the normal traffic, the null traffic or the extra-traffic."
+            "Indicates whether the manual-switch or forced-switch
+             commands applies to the normal traffic, the null traffic
+             or the extra-traffic.";
           reference
             "ITU-T G.808, RFC 4427";
         }
         leaf extra-traffic-tunnel-ref {
           type te:tunnel-ref;
           description
-            "In case there are multiple extra-traffic Tunnels sharing
-             protection bandwidth with this Tunnel (m:n protection),
-             represents which extra-traffic Tunnel the manual-switch or
-             forced-switch to extra-traffic command applies to.";
+						"In case there are multiple extra-traffic Tunnels sharing
+            protection bandwidth with this Tunnel (m:n protection),
+            represents which extra-traffic Tunnel the manual-switch or
+            forced-switch to extra-traffic command applies to.";
         }
       }
     }
@@ -1363,7 +1390,7 @@ module ietf-te {
               }
               description "An explicit-route hop action.";
             }
-            uses te-types:explicit-route-hop_config;
+            uses te-types:explicit-route-hop;
           }
         }
       }
@@ -1500,7 +1527,7 @@ module ietf-te {
         description "P2P TE tunnels list.";
         uses tunnel-p2p-properties;
         uses tunnel-actions;
-				uses protection-actions;
+        uses tunnel-protection-actions;
       }
       list tunnel-p2mp {
         key "name";
@@ -1624,6 +1651,7 @@ module ietf-te {
 
     /* TE LSPs State Data */
     uses lsps-state-grouping;
+
   }
 
   /* TE Global RPCs/execution Data */
