@@ -15,7 +15,7 @@ module: ietf-rsvp
        |  |        +--ro session-state?      enumeration
        |  |        +--ro session-type?       identityref
        |  |        +--ro psbs
-       |  |        |  +--ro psb*
+       |  |        |  +--ro psb*[]
        |  |        |     +--ro source-port?                  inet:port-number
        |  |        |     +--ro expires-in?                   uint32
        |  |        |     +--ro rsvp-te:tspec-average-rate?   rt-types:bandwidth-ieee-float32
@@ -24,7 +24,7 @@ module: ietf-rsvp
        |  |        |     +--ro rsvp-te:min-policed-unit?     uint32
        |  |        |     +--ro rsvp-te:max-packet-size?      uint32
        |  |        +--ro rsbs
-       |  |           +--ro rsb*
+       |  |           +--ro rsb*[]
        |  |              +--ro source-port?                  inet:port-number
        |  |              +--ro reservation-style?            identityref
        |  |              +--ro expires-in?                   uint32
@@ -248,1145 +248,1158 @@ module: ietf-rsvp
        +--rw rsvp-te-mpls:fast-reroute-local-revertive
           +--rw rsvp-te-mpls:rsvp-frr-local-revert-delay?   uint32
 module: ietf-te
-    +--rw te!
-       +--rw globals
-       |  +--rw named-admin-groups
-       |  |  +--rw named-admin-group* [name] {te-types:extended-admin-groups,te-types:named-extended-admin-groups}?
-       |  |     +--rw name            string
-       |  |     +--rw bit-position?   uint32
-       |  +--rw named-srlgs
-       |  |  +--rw named-srlg* [name] {te-types:named-srlg-groups}?
-       |  |     +--rw name     string
-       |  |     +--rw group?   te-types:srlg
-       |  |     +--rw cost?    uint32
-       |  +--rw named-explicit-paths
-       |  |  +--rw named-explicit-path* [name]
-       |  |     +--rw name                      string
-       |  |     +--rw explicit-route-objects
-       |  |        +--rw explicit-route-object* [index]
-       |  |           +--rw explicit-route-usage?   identityref
-       |  |           +--rw index                   uint32
-       |  |           +--rw (type)?
-       |  |              +--:(numbered)
-       |  |              |  +--rw numbered-hop
-       |  |              |     +--rw address?    te-types:te-tp-id
-       |  |              |     +--rw hop-type?   te-hop-type
-       |  |              +--:(as-number)
-       |  |              |  +--rw as-number-hop
-       |  |              |     +--rw as-number?   binary
-       |  |              |     +--rw hop-type?    te-hop-type
-       |  |              +--:(unnumbered)
-       |  |              |  +--rw unnumbered-hop
-       |  |              |     +--rw node-id?      te-types:te-node-id
-       |  |              |     +--rw link-tp-id?   te-types:te-tp-id
-       |  |              |     +--rw hop-type?     te-hop-type
-       |  |              +--:(label)
-       |  |              |  +--rw label-hop
-       |  |              |     +--rw value?   rt-types:generalized-label
-       |  |              +--:(sid)
-       |  |                 +--rw sid-hop
-       |  |                    +--rw sid?   rt-types:generalized-label
-       |  +--rw named-path-constraints
-       |  |  +--rw named-path-constraint* [name] {te-types:named-path-constraints}?
-       |  |     +--rw name                             string
-       |  |     +--rw topology-id?                     te-types:te-topology-id
-       |  |     +--rw bandwidth-generic
-       |  |     |  +--rw te-bandwidth
-       |  |     |     +--rw (technology)?
-       |  |     |        +--:(psc)
-       |  |     |        |  +--rw psc?       rt-types:bandwidth-ieee-float32
-       |  |     |        +--:(otn)
-       |  |     |        |  +--rw otn* [rate-type]
-       |  |     |        |     +--rw rate-type    identityref
-       |  |     |        |     +--rw counter?     uint16
-       |  |     |        +--:(lsc)
-       |  |     |        |  +--rw wdm* [spectrum slot]
-       |  |     |        |     +--rw spectrum    identityref
-       |  |     |        |     +--rw slot        int16
-       |  |     |        |     +--rw width?      uint16
-       |  |     |        +--:(generic)
-       |  |     |           +--rw generic?   te-bandwidth
-       |  |     +--rw disjointness?                    te-types:te-path-disjointness
-       |  |     +--rw setup-priority?                  uint8
-       |  |     +--rw hold-priority?                   uint8
-       |  |     +--rw signaling-type?                  identityref
-       |  |     +--rw path-metric-bounds
-       |  |     |  +--rw path-metric-bound* [metric-type]
-       |  |     |     +--rw metric-type    identityref
-       |  |     |     +--rw upper-bound?   uint64
-       |  |     +--rw optimizations
-       |  |     |  +--rw (algorithm)?
-       |  |     |     +--:(metric) {path-optimization-metric}?
-       |  |     |     |  +--rw optimization-metric* [metric-type]
-       |  |     |     |  |  +--rw metric-type    identityref
-       |  |     |     |  |  +--rw weight?        uint8
-       |  |     |     |  +--rw tiebreakers
-       |  |     |     |     +--rw tiebreaker* [tiebreaker-type]
-       |  |     |     |        +--rw tiebreaker-type    identityref
-       |  |     |     +--:(objective-function) {path-optimization-objective-function}?
-       |  |     |        +--rw objective-function
-       |  |     |           +--rw objective-function-type?   identityref
-       |  |     +--rw path-affinities
-       |  |     |  +--rw constraints* [usage]
-       |  |     |     +--rw usage             identityref
-       |  |     |     +--rw (style)?
-       |  |     |        +--:(value)
-       |  |     |        |  +--rw value?            te-types:admin-groups
-       |  |     |        +--:(named)
-       |  |     |           +--rw affinity-names* [name]
-       |  |     |              +--rw name    string
-       |  |     +--rw path-srlgs
-       |  |     |  +--rw (style)?
-       |  |     |     +--:(values)
-       |  |     |     |  +--rw usage?         identityref
-       |  |     |     |  +--rw values*        te-types:srlg
-       |  |     |     +--:(named)
-       |  |     |        +--rw constraints* [usage]
-       |  |     |           +--rw usage         identityref
-       |  |     |           +--rw constraint
-       |  |     |              +--rw srlg-names* [name]
-       |  |     |                 +--rw name    string
-       |  |     +--rw explicit-route-objects
-       |  |     |  +--rw route-object-exclude-always* [index]
-       |  |     |  |  +--rw index             uint32
-       |  |     |  |  +--rw (type)?
-       |  |     |  |     +--:(numbered)
-       |  |     |  |     |  +--rw numbered-hop
-       |  |     |  |     |     +--rw address?    te-types:te-tp-id
-       |  |     |  |     |     +--rw hop-type?   te-hop-type
-       |  |     |  |     +--:(as-number)
-       |  |     |  |     |  +--rw as-number-hop
-       |  |     |  |     |     +--rw as-number?   binary
-       |  |     |  |     |     +--rw hop-type?    te-hop-type
-       |  |     |  |     +--:(unnumbered)
-       |  |     |  |     |  +--rw unnumbered-hop
-       |  |     |  |     |     +--rw node-id?      te-types:te-node-id
-       |  |     |  |     |     +--rw link-tp-id?   te-types:te-tp-id
-       |  |     |  |     |     +--rw hop-type?     te-hop-type
-       |  |     |  |     +--:(label)
-       |  |     |  |     |  +--rw label-hop
-       |  |     |  |     |     +--rw value?   rt-types:generalized-label
-       |  |     |  |     +--:(sid)
-       |  |     |  |        +--rw sid-hop
-       |  |     |  |           +--rw sid?   rt-types:generalized-label
-       |  |     |  +--rw route-object-include-exclude* [index]
-       |  |     |     +--rw explicit-route-usage?   identityref
-       |  |     |     +--rw index                   uint32
-       |  |     |     +--rw (type)?
-       |  |     |        +--:(numbered)
-       |  |     |        |  +--rw numbered-hop
-       |  |     |        |     +--rw address?    te-types:te-tp-id
-       |  |     |        |     +--rw hop-type?   te-hop-type
-       |  |     |        +--:(as-number)
-       |  |     |        |  +--rw as-number-hop
-       |  |     |        |     +--rw as-number?   binary
-       |  |     |        |     +--rw hop-type?    te-hop-type
-       |  |     |        +--:(unnumbered)
-       |  |     |        |  +--rw unnumbered-hop
-       |  |     |        |     +--rw node-id?      te-types:te-node-id
-       |  |     |        |     +--rw link-tp-id?   te-types:te-tp-id
-       |  |     |        |     +--rw hop-type?     te-hop-type
-       |  |     |        +--:(label)
-       |  |     |        |  +--rw label-hop
-       |  |     |        |     +--rw value?   rt-types:generalized-label
-       |  |     |        +--:(sid)
-       |  |     |           +--rw sid-hop
-       |  |     |              +--rw sid?   rt-types:generalized-label
-       |  |     +--rw shared-resources-tunnels
-       |  |     |  +--rw lsp-shared-resources-tunnel*   te:tunnel-ref
-       |  |     +--rw path-in-segment!
-       |  |     |  +--rw forward
-       |  |     |  |  +--rw label-set* [inclusive-exclusive label-start]
-       |  |     |  |     +--rw inclusive-exclusive    enumeration
-       |  |     |  |     +--rw label-start            rt-types:generalized-label
-       |  |     |  |     +--rw label-end?             rt-types:generalized-label
-       |  |     |  |     +--rw range-bitmap?          binary
-       |  |     |  +--rw reverse
-       |  |     |     +--rw label-set* [inclusive-exclusive label-start]
-       |  |     |        +--rw inclusive-exclusive    enumeration
-       |  |     |        +--rw label-start            rt-types:generalized-label
-       |  |     |        +--rw label-end?             rt-types:generalized-label
-       |  |     |        +--rw range-bitmap?          binary
-       |  |     +--rw path-out-segment!
-       |  |     |  +--rw forward
-       |  |     |  |  +--rw label-set* [inclusive-exclusive label-start]
-       |  |     |  |     +--rw inclusive-exclusive    enumeration
-       |  |     |  |     +--rw label-start            rt-types:generalized-label
-       |  |     |  |     +--rw label-end?             rt-types:generalized-label
-       |  |     |  |     +--rw range-bitmap?          binary
-       |  |     |  +--rw reverse
-       |  |     |     +--rw label-set* [inclusive-exclusive label-start]
-       |  |     |        +--rw inclusive-exclusive    enumeration
-       |  |     |        +--rw label-start            rt-types:generalized-label
-       |  |     |        +--rw label-end?             rt-types:generalized-label
-       |  |     |        +--rw range-bitmap?          binary
-       |  |     +--ro state
-       |  |     |  +--ro bandwidth-generic_state?   te-types:te-bandwidth
-       |  |     |  +--ro disjointness_state?        te-types:te-path-disjointness
-       |  |     +--rw te-mpls:bandwidth
-       |  |     |  +--rw te-mpls:specification-type?   te-mpls-types:te-bandwidth-type
-       |  |     |  +--rw te-mpls:set-bandwidth?        te-mpls-types:bandwidth-kbps
-       |  |     |  +--rw te-mpls:class-type?           te-types:te-ds-class
-       |  |     |  +--ro te-mpls:state
-       |  |     |     +--ro te-mpls:signaled-bandwidth?   te-mpls-types:bandwidth-kbps
-       |  |     +--rw te-sr-mpls:sid-selection-mode?   te-sid-selection-mode
-       |  |     +--rw te-sr-mpls:sid-protection?       identityref
-       |  +--rw te-dev:lsp-install-interval?        uint32
-       |  +--rw te-dev:lsp-cleanup-interval?        uint32
-       |  +--rw te-dev:lsp-invalidation-interval?   uint32
-       +--rw tunnels
-       |  +--rw tunnel* [name]
-       |  |  +--rw name                                         string
-       |  |  +--rw identifier?                                  uint16
-       |  |  +--rw description?                                 string
-       |  |  +--rw encoding?                                    identityref
-       |  |  +--rw switching-type?                              identityref
-       |  |  +--rw provisioning-state?                          identityref
-       |  |  +--rw preference?                                  uint8
-       |  |  +--rw reoptimize-timer?                            uint16
-       |  |  +--rw source?                                      inet:ip-address
-       |  |  +--rw destination?                                 inet:ip-address
-       |  |  +--rw src-tp-id?                                   binary
-       |  |  +--rw dst-tp-id?                                   binary
-       |  |  +--rw ignore-overload?                             boolean
-       |  |  +--rw protection
-       |  |  |  +--rw enable?                         boolean
-       |  |  |  +--rw protection-type?                identityref
-       |  |  |  +--rw protection-reversion-disable?   boolean
-       |  |  |  +--rw hold-off-time?                  uint32
-       |  |  |  +--rw wait-to-revert?                 uint16
-       |  |  +--rw restoration
-       |  |  |  +--rw enable?                          boolean
-       |  |  |  +--rw restoration-type?                identityref
-       |  |  |  +--rw restoration-scheme?              identityref
-       |  |  |  +--rw restoration-reversion-disable?   boolean
-       |  |  |  +--rw hold-off-time?                   uint32
-       |  |  |  +--rw wait-to-restore?                 uint16
-       |  |  |  +--rw wait-to-revert?                  uint16
-       |  |  +--rw topology-id?                                 te-types:te-topology-id
-       |  |  +--rw bandwidth-generic
-       |  |  |  +--rw te-bandwidth
-       |  |  |     +--rw (technology)?
-       |  |  |        +--:(psc)
-       |  |  |        |  +--rw psc?       rt-types:bandwidth-ieee-float32
-       |  |  |        +--:(otn)
-       |  |  |        |  +--rw otn* [rate-type]
-       |  |  |        |     +--rw rate-type    identityref
-       |  |  |        |     +--rw counter?     uint16
-       |  |  |        +--:(lsc)
-       |  |  |        |  +--rw wdm* [spectrum slot]
-       |  |  |        |     +--rw spectrum    identityref
-       |  |  |        |     +--rw slot        int16
-       |  |  |        |     +--rw width?      uint16
-       |  |  |        +--:(generic)
-       |  |  |           +--rw generic?   te-bandwidth
-       |  |  +--rw disjointness?                                te-types:te-path-disjointness
-       |  |  +--rw setup-priority?                              uint8
-       |  |  +--rw hold-priority?                               uint8
-       |  |  +--rw signaling-type?                              identityref
-       |  |  +--rw dependency-tunnels
-       |  |  |  +--rw dependency-tunnel* [name]
-       |  |  |     +--rw name              -> ../../../../../tunnels/tunnel/name
-       |  |  |     +--rw encoding?         identityref
-       |  |  |     +--rw switching-type?   identityref
-       |  |  +--ro state
-       |  |  |  +--ro operational-state?                   identityref
-       |  |  |  +--ro te-dev:lsp-install-interval?         uint32
-       |  |  |  +--ro te-dev:lsp-cleanup-interval?         uint32
-       |  |  |  +--ro te-dev:lsp-invalidation-interval?    uint32
-       |  |  |  +--ro rsvp-te:lsp-signaled-name?           string
-       |  |  |  +--ro rsvp-te:local-recording-desired?     boolean
-       |  |  |  +--ro rsvp-te:se-style-desired?            boolean
-       |  |  |  +--ro rsvp-te:path-reevaluation-request?   boolean
-       |  |  |  +--ro rsvp-te:soft-preemption-desired?     boolean
-       |  |  |  +--ro rsvp-te:lsp-rerouting?               enumeration
-       |  |  |  +--ro rsvp-te:lsp-integrity-required?      boolean
-       |  |  |  +--ro rsvp-te:lsp-contiguous?              boolean
-       |  |  |  +--ro rsvp-te:lsp-stitching-desired?       boolean
-       |  |  |  +--ro rsvp-te:lsp-preplanned?              boolean
-       |  |  |  +--ro rsvp-te:lsp-oob-mapping?             boolean
-       |  |  |  +--ro rsvp-te:retry-timer?                 uint16
-       |  |  +--rw bidirectional
-       |  |  |  +--rw association
-       |  |  |     +--rw id?              uint16
-       |  |  |     +--rw source?          inet:ip-address
-       |  |  |     +--rw global-source?   inet:ip-address
-       |  |  |     +--rw type?            identityref
-       |  |  |     +--rw provisioning?    identityref
-       |  |  +--rw p2p-primary-paths
-       |  |  |  +--rw p2p-primary-path* [name]
-       |  |  |     +--rw hierarchical-link
-       |  |  |     |  +--rw local-te-node-id?      te-types:te-node-id
-       |  |  |     |  +--rw local-te-link-tp-id?   te-types:te-tp-id
-       |  |  |     |  +--rw remote-te-node-id?     te-types:te-node-id
-       |  |  |     |  +--rw te-topology-id?        te-types:te-topology-id
-       |  |  |     +--rw name                             string
-       |  |  |     +--rw path-setup-protocol?             identityref
-       |  |  |     +--rw path-computation-method?         identityref
-       |  |  |     +--rw path-computation-server?         inet:ip-address
-       |  |  |     +--rw compute-only?                    empty
-       |  |  |     +--rw use-path-computation?            boolean
-       |  |  |     +--rw lockdown?                        empty
-       |  |  |     +--rw path-scope?                      identityref
-       |  |  |     +--rw preference?                      uint8
-       |  |  |     +--rw named-explicit-path?             -> ../../../../../globals/named-explicit-paths/named-explicit-path/name
-       |  |  |     +--rw named-path-constraint?           -> ../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
-       |  |  |     +--ro state
-       |  |  |     |  +--ro computed-path-properties
-       |  |  |     |  |  +--ro path-metric* [metric-type]
-       |  |  |     |  |  |  +--ro metric-type    -> ../state/metric-type
-       |  |  |     |  |  |  +--ro state
-       |  |  |     |  |  |     +--ro metric-type?          identityref
-       |  |  |     |  |  |     +--ro accumulative-value?   uint64
-       |  |  |     |  |  +--ro path-affinities
-       |  |  |     |  |  |  +--ro constraints* [usage]
-       |  |  |     |  |  |     +--ro usage    -> ../state/usage
-       |  |  |     |  |  |     +--ro state
-       |  |  |     |  |  |        +--ro usage?            identityref
-       |  |  |     |  |  |        +--ro (style)?
-       |  |  |     |  |  |           +--:(value)
-       |  |  |     |  |  |           |  +--ro value?            te-types:admin-groups
-       |  |  |     |  |  |           +--:(named)
-       |  |  |     |  |  |              +--ro affinity-names* [name]
-       |  |  |     |  |  |                 +--ro name    string
-       |  |  |     |  |  +--ro path-srlgs
-       |  |  |     |  |  |  +--ro (style)?
-       |  |  |     |  |  |     +--:(values)
-       |  |  |     |  |  |     |  +--ro state
-       |  |  |     |  |  |     |     +--ro usage?    identityref
-       |  |  |     |  |  |     |     +--ro values*   te-types:srlg
-       |  |  |     |  |  |     +--:(named)
-       |  |  |     |  |  |        +--ro constraints
-       |  |  |     |  |  |           +--ro constraint* [usage]
-       |  |  |     |  |  |              +--ro usage         -> ../state/usage
-       |  |  |     |  |  |              +--ro state
-       |  |  |     |  |  |              |  +--ro usage?   identityref
-       |  |  |     |  |  |              +--ro srlg-names
-       |  |  |     |  |  |                 +--ro srlg-name* [name]
-       |  |  |     |  |  |                    +--ro name     -> ../state/name
-       |  |  |     |  |  |                    +--ro state
-       |  |  |     |  |  |                       +--ro name?   string
-       |  |  |     |  |  +--ro path-computed-route-objects
-       |  |  |     |  |  |  +--ro path-computed-route-object* [index]
-       |  |  |     |  |  |     +--ro index    -> ../state/index
-       |  |  |     |  |  |     +--ro state
-       |  |  |     |  |  |        +--ro index?            uint32
-       |  |  |     |  |  |        +--ro (type)?
-       |  |  |     |  |  |           +--:(numbered)
-       |  |  |     |  |  |           |  +--ro numbered-hop
-       |  |  |     |  |  |           |     +--ro address?    te-types:te-tp-id
-       |  |  |     |  |  |           |     +--ro hop-type?   te-hop-type
-       |  |  |     |  |  |           +--:(as-number)
-       |  |  |     |  |  |           |  +--ro as-number-hop
-       |  |  |     |  |  |           |     +--ro as-number?   binary
-       |  |  |     |  |  |           |     +--ro hop-type?    te-hop-type
-       |  |  |     |  |  |           +--:(unnumbered)
-       |  |  |     |  |  |           |  +--ro unnumbered-hop
-       |  |  |     |  |  |           |     +--ro node-id?      te-types:te-node-id
-       |  |  |     |  |  |           |     +--ro link-tp-id?   te-types:te-tp-id
-       |  |  |     |  |  |           |     +--ro hop-type?     te-hop-type
-       |  |  |     |  |  |           +--:(label)
-       |  |  |     |  |  |           |  +--ro label-hop
-       |  |  |     |  |  |           |     +--ro value?   rt-types:generalized-label
-       |  |  |     |  |  |           +--:(sid)
-       |  |  |     |  |  |              +--ro sid-hop
-       |  |  |     |  |  |                 +--ro sid?   rt-types:generalized-label
-       |  |  |     |  |  +--ro shared-resources-tunnels
-       |  |  |     |  |     +--ro lsp-shared-resources-tunnel*   te:tunnel-ref
-       |  |  |     |  +--ro lsps
-       |  |  |     |  |  +--ro lsp* [source destination tunnel-id lsp-id extended-tunnel-id]
-       |  |  |     |  |     +--ro source                                      inet:ip-address
-       |  |  |     |  |     +--ro destination                                 inet:ip-address
-       |  |  |     |  |     +--ro tunnel-id                                   uint16
-       |  |  |     |  |     +--ro lsp-id                                      uint16
-       |  |  |     |  |     +--ro extended-tunnel-id                          inet:ip-address
-       |  |  |     |  |     +--ro operational-state?                          identityref
-       |  |  |     |  |     +--ro path-setup-protocol?                        identityref
-       |  |  |     |  |     +--ro origin-type?                                enumeration
-       |  |  |     |  |     +--ro lsp-resource-status?                        enumeration
-       |  |  |     |  |     +--ro lockout-of-normal?                          boolean
-       |  |  |     |  |     +--ro freeze?                                     boolean
-       |  |  |     |  |     +--ro lsp-protection-role?                        enumeration
-       |  |  |     |  |     +--ro lsp-protection-state?                       identityref
-       |  |  |     |  |     +--ro shared-resources-tunnels
-       |  |  |     |  |     |  +--ro lsp-shared-resources-tunnel*   te:tunnel-ref
-       |  |  |     |  |     +--ro lsp-record-route-subobjects
-       |  |  |     |  |     |  +--ro record-route-subobject* [index]
-       |  |  |     |  |     |     +--ro index    -> ../state/index
-       |  |  |     |  |     |     +--ro state
-       |  |  |     |  |     |        +--ro index?         uint32
-       |  |  |     |  |     |        +--ro (type)?
-       |  |  |     |  |     |           +--:(numbered)
-       |  |  |     |  |     |           |  +--ro address?       te-types:te-tp-id
-       |  |  |     |  |     |           |  +--ro ip-flags?      binary
-       |  |  |     |  |     |           +--:(unnumbered)
-       |  |  |     |  |     |           |  +--ro node-id?       te-types:te-node-id
-       |  |  |     |  |     |           |  +--ro link-tp-id?    te-types:te-tp-id
-       |  |  |     |  |     |           +--:(label)
-       |  |  |     |  |     |              +--ro value?         rt-types:generalized-label
-       |  |  |     |  |     |              +--ro label-flags?   binary
-       |  |  |     |  |     +--ro te-dev:lsp-timers
-       |  |  |     |  |     |  +--ro te-dev:life-time?         uint32
-       |  |  |     |  |     |  +--ro te-dev:time-to-install?   uint32
-       |  |  |     |  |     |  +--ro te-dev:time-to-destroy?   uint32
-       |  |  |     |  |     +--ro te-dev:downstream-info
-       |  |  |     |  |     |  +--ro te-dev:nhop?                 inet:ip-address
-       |  |  |     |  |     |  +--ro te-dev:outgoing-interface?   if:interface-ref
-       |  |  |     |  |     |  +--ro te-dev:neighbor?             inet:ip-address
-       |  |  |     |  |     |  +--ro te-dev:label?                rt-types:generalized-label
-       |  |  |     |  |     +--ro te-dev:upstream-info
-       |  |  |     |  |     |  +--ro te-dev:phop?       inet:ip-address
-       |  |  |     |  |     |  +--ro te-dev:neighbor?   inet:ip-address
-       |  |  |     |  |     |  +--ro te-dev:label?      rt-types:generalized-label
-       |  |  |     |  |     +--ro rsvp-te:associated-rsvp-session?            -> /rt:routing/control-plane-protocols/control-plane-protocol/rsvp:rsvp/globals/sessions/session/local-index
-       |  |  |     |  |     +--ro rsvp-te:lsp-signaled-name?                  string
-       |  |  |     |  |     +--ro rsvp-te:local-recording-desired?            boolean
-       |  |  |     |  |     +--ro rsvp-te:se-style-desired?                   boolean
-       |  |  |     |  |     +--ro rsvp-te:path-reevaluation-request?          boolean
-       |  |  |     |  |     +--ro rsvp-te:soft-preemption-desired?            boolean
-       |  |  |     |  |     +--ro rsvp-te:lsp-rerouting?                      enumeration
-       |  |  |     |  |     +--ro rsvp-te:lsp-integrity-required?             boolean
-       |  |  |     |  |     +--ro rsvp-te:lsp-contiguous?                     boolean
-       |  |  |     |  |     +--ro rsvp-te:lsp-stitching-desired?              boolean
-       |  |  |     |  |     +--ro rsvp-te:lsp-preplanned?                     boolean
-       |  |  |     |  |     +--ro rsvp-te:lsp-oob-mapping?                    boolean
-       |  |  |     |  |     +--ro rsvp-te:explicit-route-objects
-       |  |  |     |  |     |  +--ro rsvp-te:incoming-explicit-route-hop* [index]
-       |  |  |     |  |     |  |  +--ro rsvp-te:index    -> ../state/index
-       |  |  |     |  |     |  |  +--ro rsvp-te:state
-       |  |  |     |  |     |  |     +--ro rsvp-te:index?            uint32
-       |  |  |     |  |     |  |     +--ro (rsvp-te:type)?
-       |  |  |     |  |     |  |        +--:(rsvp-te:numbered)
-       |  |  |     |  |     |  |        |  +--ro rsvp-te:numbered-hop
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:address?    te-types:te-tp-id
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?   te-hop-type
-       |  |  |     |  |     |  |        +--:(rsvp-te:as-number)
-       |  |  |     |  |     |  |        |  +--ro rsvp-te:as-number-hop
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:as-number?   binary
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?    te-hop-type
-       |  |  |     |  |     |  |        +--:(rsvp-te:unnumbered)
-       |  |  |     |  |     |  |        |  +--ro rsvp-te:unnumbered-hop
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:node-id?      te-types:te-node-id
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?     te-hop-type
-       |  |  |     |  |     |  |        +--:(rsvp-te:label)
-       |  |  |     |  |     |  |        |  +--ro rsvp-te:label-hop
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:value?   rt-types:generalized-label
-       |  |  |     |  |     |  |        +--:(rsvp-te:sid)
-       |  |  |     |  |     |  |           +--ro rsvp-te:sid-hop
-       |  |  |     |  |     |  |              +--ro rsvp-te:sid?   rt-types:generalized-label
-       |  |  |     |  |     |  +--ro rsvp-te:outgoing-explicit-route-hop* [index]
-       |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
-       |  |  |     |  |     |     +--ro rsvp-te:state
-       |  |  |     |  |     |        +--ro rsvp-te:index?            uint32
-       |  |  |     |  |     |        +--ro (rsvp-te:type)?
-       |  |  |     |  |     |           +--:(rsvp-te:numbered)
-       |  |  |     |  |     |           |  +--ro rsvp-te:numbered-hop
-       |  |  |     |  |     |           |     +--ro rsvp-te:address?    te-types:te-tp-id
-       |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?   te-hop-type
-       |  |  |     |  |     |           +--:(rsvp-te:as-number)
-       |  |  |     |  |     |           |  +--ro rsvp-te:as-number-hop
-       |  |  |     |  |     |           |     +--ro rsvp-te:as-number?   binary
-       |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?    te-hop-type
-       |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
-       |  |  |     |  |     |           |  +--ro rsvp-te:unnumbered-hop
-       |  |  |     |  |     |           |     +--ro rsvp-te:node-id?      te-types:te-node-id
-       |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
-       |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?     te-hop-type
-       |  |  |     |  |     |           +--:(rsvp-te:label)
-       |  |  |     |  |     |           |  +--ro rsvp-te:label-hop
-       |  |  |     |  |     |           |     +--ro rsvp-te:value?   rt-types:generalized-label
-       |  |  |     |  |     |           +--:(rsvp-te:sid)
-       |  |  |     |  |     |              +--ro rsvp-te:sid-hop
-       |  |  |     |  |     |                 +--ro rsvp-te:sid?   rt-types:generalized-label
-       |  |  |     |  |     +--ro rsvp-te:incoming-record-route-subobjects
-       |  |  |     |  |     |  +--ro rsvp-te:incoming-record-route-subobject* [index]
-       |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
-       |  |  |     |  |     |     +--ro rsvp-te:state
-       |  |  |     |  |     |        +--ro rsvp-te:index?         uint32
-       |  |  |     |  |     |        +--ro (rsvp-te:type)?
-       |  |  |     |  |     |           +--:(rsvp-te:numbered)
-       |  |  |     |  |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
-       |  |  |     |  |     |           |  +--ro rsvp-te:ip-flags?      binary
-       |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
-       |  |  |     |  |     |           |  +--ro rsvp-te:node-id?       te-types:te-node-id
-       |  |  |     |  |     |           |  +--ro rsvp-te:link-tp-id?    te-types:te-tp-id
-       |  |  |     |  |     |           +--:(rsvp-te:label)
-       |  |  |     |  |     |              +--ro rsvp-te:value?         rt-types:generalized-label
-       |  |  |     |  |     |              +--ro rsvp-te:label-flags?   binary
-       |  |  |     |  |     +--ro rsvp-te:outgoing-record-route-subobjects
-       |  |  |     |  |     |  +--ro rsvp-te:outgoing-record-route-subobject* [index]
-       |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
-       |  |  |     |  |     |     +--ro rsvp-te:state
-       |  |  |     |  |     |        +--ro rsvp-te:index?         uint32
-       |  |  |     |  |     |        +--ro (rsvp-te:type)?
-       |  |  |     |  |     |           +--:(rsvp-te:numbered)
-       |  |  |     |  |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
-       |  |  |     |  |     |           |  +--ro rsvp-te:ip-flags?      binary
-       |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
-       |  |  |     |  |     |           |  +--ro rsvp-te:node-id?       te-types:te-node-id
-       |  |  |     |  |     |           |  +--ro rsvp-te:link-tp-id?    te-types:te-tp-id
-       |  |  |     |  |     |           +--:(rsvp-te:label)
-       |  |  |     |  |     |              +--ro rsvp-te:value?         rt-types:generalized-label
-       |  |  |     |  |     |              +--ro rsvp-te:label-flags?   binary
-       |  |  |     |  |     +--ro rsvp-te-mpls:state
-       |  |  |     |  |     |  +--ro rsvp-te-mpls:local-protection-desired?       empty
-       |  |  |     |  |     |  +--ro rsvp-te-mpls:bandwidth-protection-desired?   empty
-       |  |  |     |  |     |  +--ro rsvp-te-mpls:node-protection-desired?        empty
-       |  |  |     |  |     |  +--ro rsvp-te-mpls:non-php-desired?                empty
-       |  |  |     |  |     |  +--ro rsvp-te-mpls:entropy-label-cap?              empty
-       |  |  |     |  |     |  +--ro rsvp-te-mpls:oam-mep-entities-desired?       empty
-       |  |  |     |  |     |  +--ro rsvp-te-mpls:oam-mip-entities-desired?       empty
-       |  |  |     |  |     +--ro rsvp-te-mpls:backup-info
-       |  |  |     |  |        +--ro rsvp-te-mpls:state
-       |  |  |     |  |           +--ro rsvp-te-mpls:backup-tunnel-name?         string
-       |  |  |     |  |           +--ro rsvp-te-mpls:backup-frr-on?              uint8
-       |  |  |     |  |           +--ro rsvp-te-mpls:backup-protected-lsp-num?   uint32
-       |  |  |     |  +--ro te-mpls:static-lsp-name?    mpls-static:static-lsp-ref
-       |  |  |     +--rw p2p-reverse-primary-path
-       |  |  |     |  +--rw name?                         string
-       |  |  |     |  +--rw path-setup-protocol?          identityref
-       |  |  |     |  +--rw path-computation-method?      identityref
-       |  |  |     |  +--rw path-computation-server?      inet:ip-address
-       |  |  |     |  +--rw compute-only?                 empty
-       |  |  |     |  +--rw use-path-computation?         boolean
-       |  |  |     |  +--rw lockdown?                     empty
-       |  |  |     |  +--rw path-scope?                   identityref
-       |  |  |     |  +--rw named-explicit-path?          -> ../../../../../../globals/named-explicit-paths/named-explicit-path/name
-       |  |  |     |  +--rw named-path-constraint?        -> ../../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
-       |  |  |     |  +--ro state
-       |  |  |     |  |  +--ro computed-path-properties
-       |  |  |     |  |  |  +--ro path-metric* [metric-type]
-       |  |  |     |  |  |  |  +--ro metric-type    -> ../state/metric-type
-       |  |  |     |  |  |  |  +--ro state
-       |  |  |     |  |  |  |     +--ro metric-type?          identityref
-       |  |  |     |  |  |  |     +--ro accumulative-value?   uint64
-       |  |  |     |  |  |  +--ro path-affinities
-       |  |  |     |  |  |  |  +--ro constraints* [usage]
-       |  |  |     |  |  |  |     +--ro usage    -> ../state/usage
-       |  |  |     |  |  |  |     +--ro state
-       |  |  |     |  |  |  |        +--ro usage?            identityref
-       |  |  |     |  |  |  |        +--ro (style)?
-       |  |  |     |  |  |  |           +--:(value)
-       |  |  |     |  |  |  |           |  +--ro value?            te-types:admin-groups
-       |  |  |     |  |  |  |           +--:(named)
-       |  |  |     |  |  |  |              +--ro affinity-names* [name]
-       |  |  |     |  |  |  |                 +--ro name    string
-       |  |  |     |  |  |  +--ro path-srlgs
-       |  |  |     |  |  |  |  +--ro (style)?
-       |  |  |     |  |  |  |     +--:(values)
-       |  |  |     |  |  |  |     |  +--ro state
-       |  |  |     |  |  |  |     |     +--ro usage?    identityref
-       |  |  |     |  |  |  |     |     +--ro values*   te-types:srlg
-       |  |  |     |  |  |  |     +--:(named)
-       |  |  |     |  |  |  |        +--ro constraints
-       |  |  |     |  |  |  |           +--ro constraint* [usage]
-       |  |  |     |  |  |  |              +--ro usage         -> ../state/usage
-       |  |  |     |  |  |  |              +--ro state
-       |  |  |     |  |  |  |              |  +--ro usage?   identityref
-       |  |  |     |  |  |  |              +--ro srlg-names
-       |  |  |     |  |  |  |                 +--ro srlg-name* [name]
-       |  |  |     |  |  |  |                    +--ro name     -> ../state/name
-       |  |  |     |  |  |  |                    +--ro state
-       |  |  |     |  |  |  |                       +--ro name?   string
-       |  |  |     |  |  |  +--ro path-computed-route-objects
-       |  |  |     |  |  |  |  +--ro path-computed-route-object* [index]
-       |  |  |     |  |  |  |     +--ro index    -> ../state/index
-       |  |  |     |  |  |  |     +--ro state
-       |  |  |     |  |  |  |        +--ro index?            uint32
-       |  |  |     |  |  |  |        +--ro (type)?
-       |  |  |     |  |  |  |           +--:(numbered)
-       |  |  |     |  |  |  |           |  +--ro numbered-hop
-       |  |  |     |  |  |  |           |     +--ro address?    te-types:te-tp-id
-       |  |  |     |  |  |  |           |     +--ro hop-type?   te-hop-type
-       |  |  |     |  |  |  |           +--:(as-number)
-       |  |  |     |  |  |  |           |  +--ro as-number-hop
-       |  |  |     |  |  |  |           |     +--ro as-number?   binary
-       |  |  |     |  |  |  |           |     +--ro hop-type?    te-hop-type
-       |  |  |     |  |  |  |           +--:(unnumbered)
-       |  |  |     |  |  |  |           |  +--ro unnumbered-hop
-       |  |  |     |  |  |  |           |     +--ro node-id?      te-types:te-node-id
-       |  |  |     |  |  |  |           |     +--ro link-tp-id?   te-types:te-tp-id
-       |  |  |     |  |  |  |           |     +--ro hop-type?     te-hop-type
-       |  |  |     |  |  |  |           +--:(label)
-       |  |  |     |  |  |  |           |  +--ro label-hop
-       |  |  |     |  |  |  |           |     +--ro value?   rt-types:generalized-label
-       |  |  |     |  |  |  |           +--:(sid)
-       |  |  |     |  |  |  |              +--ro sid-hop
-       |  |  |     |  |  |  |                 +--ro sid?   rt-types:generalized-label
-       |  |  |     |  |  |  +--ro shared-resources-tunnels
-       |  |  |     |  |  |     +--ro lsp-shared-resources-tunnel*   te:tunnel-ref
-       |  |  |     |  |  +--ro lsps
-       |  |  |     |  |     +--ro lsp* [source destination tunnel-id lsp-id extended-tunnel-id]
-       |  |  |     |  |        +--ro source                         inet:ip-address
-       |  |  |     |  |        +--ro destination                    inet:ip-address
-       |  |  |     |  |        +--ro tunnel-id                      uint16
-       |  |  |     |  |        +--ro lsp-id                         uint16
-       |  |  |     |  |        +--ro extended-tunnel-id             inet:ip-address
-       |  |  |     |  |        +--ro operational-state?             identityref
-       |  |  |     |  |        +--ro path-setup-protocol?           identityref
-       |  |  |     |  |        +--ro origin-type?                   enumeration
-       |  |  |     |  |        +--ro lsp-resource-status?           enumeration
-       |  |  |     |  |        +--ro lockout-of-normal?             boolean
-       |  |  |     |  |        +--ro freeze?                        boolean
-       |  |  |     |  |        +--ro lsp-protection-role?           enumeration
-       |  |  |     |  |        +--ro lsp-protection-state?          identityref
-       |  |  |     |  |        +--ro shared-resources-tunnels
-       |  |  |     |  |        |  +--ro lsp-shared-resources-tunnel*   te:tunnel-ref
-       |  |  |     |  |        +--ro lsp-record-route-subobjects
-       |  |  |     |  |           +--ro record-route-subobject* [index]
-       |  |  |     |  |              +--ro index    -> ../state/index
-       |  |  |     |  |              +--ro state
-       |  |  |     |  |                 +--ro index?         uint32
-       |  |  |     |  |                 +--ro (type)?
-       |  |  |     |  |                    +--:(numbered)
-       |  |  |     |  |                    |  +--ro address?       te-types:te-tp-id
-       |  |  |     |  |                    |  +--ro ip-flags?      binary
-       |  |  |     |  |                    +--:(unnumbered)
-       |  |  |     |  |                    |  +--ro node-id?       te-types:te-node-id
-       |  |  |     |  |                    |  +--ro link-tp-id?    te-types:te-tp-id
-       |  |  |     |  |                    +--:(label)
-       |  |  |     |  |                       +--ro value?         rt-types:generalized-label
-       |  |  |     |  |                       +--ro label-flags?   binary
-       |  |  |     |  +--rw p2p-reverse-secondary-path
-       |  |  |     |     +--rw secondary-path?        -> ../../../../../p2p-secondary-paths/p2p-secondary-path/name
-       |  |  |     |     +--rw path-setup-protocol?   identityref
-       |  |  |     +--rw candidate-p2p-secondary-paths
-       |  |  |     |  +--rw candidate-p2p-secondary-path* [secondary-path]
-       |  |  |     |     +--rw secondary-path         -> ../../../../../p2p-secondary-paths/p2p-secondary-path/name
-       |  |  |     |     +--rw path-setup-protocol?   identityref
-       |  |  |     |     +--ro state
-       |  |  |     |        +--ro active?   boolean
-       |  |  |     +--rw te-mpls:static-lsp-name?         mpls-static:static-lsp-ref
-       |  |  +--rw p2p-secondary-paths
-       |  |  |  +--rw p2p-secondary-path* [name]
-       |  |  |     +--rw name                       string
-       |  |  |     +--rw path-setup-protocol?       identityref
-       |  |  |     +--rw path-computation-method?   identityref
-       |  |  |     +--rw path-computation-server?   inet:ip-address
-       |  |  |     +--rw compute-only?              empty
-       |  |  |     +--rw use-path-computation?      boolean
-       |  |  |     +--rw lockdown?                  empty
-       |  |  |     +--rw path-scope?                identityref
-       |  |  |     +--rw preference?                uint8
-       |  |  |     +--rw named-explicit-path?       -> ../../../../../globals/named-explicit-paths/named-explicit-path/name
-       |  |  |     +--rw named-path-constraint?     -> ../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
-       |  |  |     +--rw protection
-       |  |  |     |  +--rw enable?                         boolean
-       |  |  |     |  +--rw protection-type?                identityref
-       |  |  |     |  +--rw protection-reversion-disable?   boolean
-       |  |  |     |  +--rw hold-off-time?                  uint32
-       |  |  |     |  +--rw wait-to-revert?                 uint16
-       |  |  |     +--rw restoration
-       |  |  |     |  +--rw enable?                          boolean
-       |  |  |     |  +--rw restoration-type?                identityref
-       |  |  |     |  +--rw restoration-scheme?              identityref
-       |  |  |     |  +--rw restoration-reversion-disable?   boolean
-       |  |  |     |  +--rw hold-off-time?                   uint32
-       |  |  |     |  +--rw wait-to-restore?                 uint16
-       |  |  |     |  +--rw wait-to-revert?                  uint16
-       |  |  |     +--ro state
-       |  |  |     |  +--ro computed-path-properties
-       |  |  |     |  |  +--ro path-metric* [metric-type]
-       |  |  |     |  |  |  +--ro metric-type    -> ../state/metric-type
-       |  |  |     |  |  |  +--ro state
-       |  |  |     |  |  |     +--ro metric-type?          identityref
-       |  |  |     |  |  |     +--ro accumulative-value?   uint64
-       |  |  |     |  |  +--ro path-affinities
-       |  |  |     |  |  |  +--ro constraints* [usage]
-       |  |  |     |  |  |     +--ro usage    -> ../state/usage
-       |  |  |     |  |  |     +--ro state
-       |  |  |     |  |  |        +--ro usage?            identityref
-       |  |  |     |  |  |        +--ro (style)?
-       |  |  |     |  |  |           +--:(value)
-       |  |  |     |  |  |           |  +--ro value?            te-types:admin-groups
-       |  |  |     |  |  |           +--:(named)
-       |  |  |     |  |  |              +--ro affinity-names* [name]
-       |  |  |     |  |  |                 +--ro name    string
-       |  |  |     |  |  +--ro path-srlgs
-       |  |  |     |  |  |  +--ro (style)?
-       |  |  |     |  |  |     +--:(values)
-       |  |  |     |  |  |     |  +--ro state
-       |  |  |     |  |  |     |     +--ro usage?    identityref
-       |  |  |     |  |  |     |     +--ro values*   te-types:srlg
-       |  |  |     |  |  |     +--:(named)
-       |  |  |     |  |  |        +--ro constraints
-       |  |  |     |  |  |           +--ro constraint* [usage]
-       |  |  |     |  |  |              +--ro usage         -> ../state/usage
-       |  |  |     |  |  |              +--ro state
-       |  |  |     |  |  |              |  +--ro usage?   identityref
-       |  |  |     |  |  |              +--ro srlg-names
-       |  |  |     |  |  |                 +--ro srlg-name* [name]
-       |  |  |     |  |  |                    +--ro name     -> ../state/name
-       |  |  |     |  |  |                    +--ro state
-       |  |  |     |  |  |                       +--ro name?   string
-       |  |  |     |  |  +--ro path-computed-route-objects
-       |  |  |     |  |  |  +--ro path-computed-route-object* [index]
-       |  |  |     |  |  |     +--ro index    -> ../state/index
-       |  |  |     |  |  |     +--ro state
-       |  |  |     |  |  |        +--ro index?            uint32
-       |  |  |     |  |  |        +--ro (type)?
-       |  |  |     |  |  |           +--:(numbered)
-       |  |  |     |  |  |           |  +--ro numbered-hop
-       |  |  |     |  |  |           |     +--ro address?    te-types:te-tp-id
-       |  |  |     |  |  |           |     +--ro hop-type?   te-hop-type
-       |  |  |     |  |  |           +--:(as-number)
-       |  |  |     |  |  |           |  +--ro as-number-hop
-       |  |  |     |  |  |           |     +--ro as-number?   binary
-       |  |  |     |  |  |           |     +--ro hop-type?    te-hop-type
-       |  |  |     |  |  |           +--:(unnumbered)
-       |  |  |     |  |  |           |  +--ro unnumbered-hop
-       |  |  |     |  |  |           |     +--ro node-id?      te-types:te-node-id
-       |  |  |     |  |  |           |     +--ro link-tp-id?   te-types:te-tp-id
-       |  |  |     |  |  |           |     +--ro hop-type?     te-hop-type
-       |  |  |     |  |  |           +--:(label)
-       |  |  |     |  |  |           |  +--ro label-hop
-       |  |  |     |  |  |           |     +--ro value?   rt-types:generalized-label
-       |  |  |     |  |  |           +--:(sid)
-       |  |  |     |  |  |              +--ro sid-hop
-       |  |  |     |  |  |                 +--ro sid?   rt-types:generalized-label
-       |  |  |     |  |  +--ro shared-resources-tunnels
-       |  |  |     |  |     +--ro lsp-shared-resources-tunnel*   te:tunnel-ref
-       |  |  |     |  +--ro lsps
-       |  |  |     |  |  +--ro lsp* [source destination tunnel-id lsp-id extended-tunnel-id]
-       |  |  |     |  |     +--ro source                                      inet:ip-address
-       |  |  |     |  |     +--ro destination                                 inet:ip-address
-       |  |  |     |  |     +--ro tunnel-id                                   uint16
-       |  |  |     |  |     +--ro lsp-id                                      uint16
-       |  |  |     |  |     +--ro extended-tunnel-id                          inet:ip-address
-       |  |  |     |  |     +--ro operational-state?                          identityref
-       |  |  |     |  |     +--ro path-setup-protocol?                        identityref
-       |  |  |     |  |     +--ro origin-type?                                enumeration
-       |  |  |     |  |     +--ro lsp-resource-status?                        enumeration
-       |  |  |     |  |     +--ro lockout-of-normal?                          boolean
-       |  |  |     |  |     +--ro freeze?                                     boolean
-       |  |  |     |  |     +--ro lsp-protection-role?                        enumeration
-       |  |  |     |  |     +--ro lsp-protection-state?                       identityref
-       |  |  |     |  |     +--ro shared-resources-tunnels
-       |  |  |     |  |     |  +--ro lsp-shared-resources-tunnel*   te:tunnel-ref
-       |  |  |     |  |     +--ro lsp-record-route-subobjects
-       |  |  |     |  |     |  +--ro record-route-subobject* [index]
-       |  |  |     |  |     |     +--ro index    -> ../state/index
-       |  |  |     |  |     |     +--ro state
-       |  |  |     |  |     |        +--ro index?         uint32
-       |  |  |     |  |     |        +--ro (type)?
-       |  |  |     |  |     |           +--:(numbered)
-       |  |  |     |  |     |           |  +--ro address?       te-types:te-tp-id
-       |  |  |     |  |     |           |  +--ro ip-flags?      binary
-       |  |  |     |  |     |           +--:(unnumbered)
-       |  |  |     |  |     |           |  +--ro node-id?       te-types:te-node-id
-       |  |  |     |  |     |           |  +--ro link-tp-id?    te-types:te-tp-id
-       |  |  |     |  |     |           +--:(label)
-       |  |  |     |  |     |              +--ro value?         rt-types:generalized-label
-       |  |  |     |  |     |              +--ro label-flags?   binary
-       |  |  |     |  |     +--ro te-dev:lsp-timers
-       |  |  |     |  |     |  +--ro te-dev:life-time?         uint32
-       |  |  |     |  |     |  +--ro te-dev:time-to-install?   uint32
-       |  |  |     |  |     |  +--ro te-dev:time-to-destroy?   uint32
-       |  |  |     |  |     +--ro te-dev:downstream-info
-       |  |  |     |  |     |  +--ro te-dev:nhop?                 inet:ip-address
-       |  |  |     |  |     |  +--ro te-dev:outgoing-interface?   if:interface-ref
-       |  |  |     |  |     |  +--ro te-dev:neighbor?             inet:ip-address
-       |  |  |     |  |     |  +--ro te-dev:label?                rt-types:generalized-label
-       |  |  |     |  |     +--ro te-dev:upstream-info
-       |  |  |     |  |     |  +--ro te-dev:phop?       inet:ip-address
-       |  |  |     |  |     |  +--ro te-dev:neighbor?   inet:ip-address
-       |  |  |     |  |     |  +--ro te-dev:label?      rt-types:generalized-label
-       |  |  |     |  |     +--ro rsvp-te:associated-rsvp-session?            -> /rt:routing/control-plane-protocols/control-plane-protocol/rsvp:rsvp/globals/sessions/session/local-index
-       |  |  |     |  |     +--ro rsvp-te:lsp-signaled-name?                  string
-       |  |  |     |  |     +--ro rsvp-te:local-recording-desired?            boolean
-       |  |  |     |  |     +--ro rsvp-te:se-style-desired?                   boolean
-       |  |  |     |  |     +--ro rsvp-te:path-reevaluation-request?          boolean
-       |  |  |     |  |     +--ro rsvp-te:soft-preemption-desired?            boolean
-       |  |  |     |  |     +--ro rsvp-te:lsp-rerouting?                      enumeration
-       |  |  |     |  |     +--ro rsvp-te:lsp-integrity-required?             boolean
-       |  |  |     |  |     +--ro rsvp-te:lsp-contiguous?                     boolean
-       |  |  |     |  |     +--ro rsvp-te:lsp-stitching-desired?              boolean
-       |  |  |     |  |     +--ro rsvp-te:lsp-preplanned?                     boolean
-       |  |  |     |  |     +--ro rsvp-te:lsp-oob-mapping?                    boolean
-       |  |  |     |  |     +--ro rsvp-te:explicit-route-objects
-       |  |  |     |  |     |  +--ro rsvp-te:incoming-explicit-route-hop* [index]
-       |  |  |     |  |     |  |  +--ro rsvp-te:index    -> ../state/index
-       |  |  |     |  |     |  |  +--ro rsvp-te:state
-       |  |  |     |  |     |  |     +--ro rsvp-te:index?            uint32
-       |  |  |     |  |     |  |     +--ro (rsvp-te:type)?
-       |  |  |     |  |     |  |        +--:(rsvp-te:numbered)
-       |  |  |     |  |     |  |        |  +--ro rsvp-te:numbered-hop
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:address?    te-types:te-tp-id
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?   te-hop-type
-       |  |  |     |  |     |  |        +--:(rsvp-te:as-number)
-       |  |  |     |  |     |  |        |  +--ro rsvp-te:as-number-hop
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:as-number?   binary
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?    te-hop-type
-       |  |  |     |  |     |  |        +--:(rsvp-te:unnumbered)
-       |  |  |     |  |     |  |        |  +--ro rsvp-te:unnumbered-hop
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:node-id?      te-types:te-node-id
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?     te-hop-type
-       |  |  |     |  |     |  |        +--:(rsvp-te:label)
-       |  |  |     |  |     |  |        |  +--ro rsvp-te:label-hop
-       |  |  |     |  |     |  |        |     +--ro rsvp-te:value?   rt-types:generalized-label
-       |  |  |     |  |     |  |        +--:(rsvp-te:sid)
-       |  |  |     |  |     |  |           +--ro rsvp-te:sid-hop
-       |  |  |     |  |     |  |              +--ro rsvp-te:sid?   rt-types:generalized-label
-       |  |  |     |  |     |  +--ro rsvp-te:outgoing-explicit-route-hop* [index]
-       |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
-       |  |  |     |  |     |     +--ro rsvp-te:state
-       |  |  |     |  |     |        +--ro rsvp-te:index?            uint32
-       |  |  |     |  |     |        +--ro (rsvp-te:type)?
-       |  |  |     |  |     |           +--:(rsvp-te:numbered)
-       |  |  |     |  |     |           |  +--ro rsvp-te:numbered-hop
-       |  |  |     |  |     |           |     +--ro rsvp-te:address?    te-types:te-tp-id
-       |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?   te-hop-type
-       |  |  |     |  |     |           +--:(rsvp-te:as-number)
-       |  |  |     |  |     |           |  +--ro rsvp-te:as-number-hop
-       |  |  |     |  |     |           |     +--ro rsvp-te:as-number?   binary
-       |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?    te-hop-type
-       |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
-       |  |  |     |  |     |           |  +--ro rsvp-te:unnumbered-hop
-       |  |  |     |  |     |           |     +--ro rsvp-te:node-id?      te-types:te-node-id
-       |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
-       |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?     te-hop-type
-       |  |  |     |  |     |           +--:(rsvp-te:label)
-       |  |  |     |  |     |           |  +--ro rsvp-te:label-hop
-       |  |  |     |  |     |           |     +--ro rsvp-te:value?   rt-types:generalized-label
-       |  |  |     |  |     |           +--:(rsvp-te:sid)
-       |  |  |     |  |     |              +--ro rsvp-te:sid-hop
-       |  |  |     |  |     |                 +--ro rsvp-te:sid?   rt-types:generalized-label
-       |  |  |     |  |     +--ro rsvp-te:incoming-record-route-subobjects
-       |  |  |     |  |     |  +--ro rsvp-te:incoming-record-route-subobject* [index]
-       |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
-       |  |  |     |  |     |     +--ro rsvp-te:state
-       |  |  |     |  |     |        +--ro rsvp-te:index?         uint32
-       |  |  |     |  |     |        +--ro (rsvp-te:type)?
-       |  |  |     |  |     |           +--:(rsvp-te:numbered)
-       |  |  |     |  |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
-       |  |  |     |  |     |           |  +--ro rsvp-te:ip-flags?      binary
-       |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
-       |  |  |     |  |     |           |  +--ro rsvp-te:node-id?       te-types:te-node-id
-       |  |  |     |  |     |           |  +--ro rsvp-te:link-tp-id?    te-types:te-tp-id
-       |  |  |     |  |     |           +--:(rsvp-te:label)
-       |  |  |     |  |     |              +--ro rsvp-te:value?         rt-types:generalized-label
-       |  |  |     |  |     |              +--ro rsvp-te:label-flags?   binary
-       |  |  |     |  |     +--ro rsvp-te:outgoing-record-route-subobjects
-       |  |  |     |  |     |  +--ro rsvp-te:outgoing-record-route-subobject* [index]
-       |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
-       |  |  |     |  |     |     +--ro rsvp-te:state
-       |  |  |     |  |     |        +--ro rsvp-te:index?         uint32
-       |  |  |     |  |     |        +--ro (rsvp-te:type)?
-       |  |  |     |  |     |           +--:(rsvp-te:numbered)
-       |  |  |     |  |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
-       |  |  |     |  |     |           |  +--ro rsvp-te:ip-flags?      binary
-       |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
-       |  |  |     |  |     |           |  +--ro rsvp-te:node-id?       te-types:te-node-id
-       |  |  |     |  |     |           |  +--ro rsvp-te:link-tp-id?    te-types:te-tp-id
-       |  |  |     |  |     |           +--:(rsvp-te:label)
-       |  |  |     |  |     |              +--ro rsvp-te:value?         rt-types:generalized-label
-       |  |  |     |  |     |              +--ro rsvp-te:label-flags?   binary
-       |  |  |     |  |     +--ro rsvp-te-mpls:state
-       |  |  |     |  |     |  +--ro rsvp-te-mpls:local-protection-desired?       empty
-       |  |  |     |  |     |  +--ro rsvp-te-mpls:bandwidth-protection-desired?   empty
-       |  |  |     |  |     |  +--ro rsvp-te-mpls:node-protection-desired?        empty
-       |  |  |     |  |     |  +--ro rsvp-te-mpls:non-php-desired?                empty
-       |  |  |     |  |     |  +--ro rsvp-te-mpls:entropy-label-cap?              empty
-       |  |  |     |  |     |  +--ro rsvp-te-mpls:oam-mep-entities-desired?       empty
-       |  |  |     |  |     |  +--ro rsvp-te-mpls:oam-mip-entities-desired?       empty
-       |  |  |     |  |     +--ro rsvp-te-mpls:backup-info
-       |  |  |     |  |        +--ro rsvp-te-mpls:state
-       |  |  |     |  |           +--ro rsvp-te-mpls:backup-tunnel-name?         string
-       |  |  |     |  |           +--ro rsvp-te-mpls:backup-frr-on?              uint8
-       |  |  |     |  |           +--ro rsvp-te-mpls:backup-protected-lsp-num?   uint32
-       |  |  |     |  +--ro te-mpls:static-lsp-name?    mpls-static:static-lsp-ref
-       |  |  |     +--rw te-mpls:static-lsp-name?   mpls-static:static-lsp-ref
-       |  |  +---x tunnel-action
-       |  |  |  +---w input
-       |  |  |  |  +---w action-type?   identityref
-       |  |  |  +--ro output
-       |  |  |     +--ro action-result?   identityref
-       |  |  +--rw te-dev:lsp-install-interval?                 uint32
-       |  |  +--rw te-dev:lsp-cleanup-interval?                 uint32
-       |  |  +--rw te-dev:lsp-invalidation-interval?            uint32
-       |  |  +--rw rsvp-te:lsp-signaled-name?                   string
-       |  |  +--rw rsvp-te:local-recording-desired?             boolean
-       |  |  +--rw rsvp-te:se-style-desired?                    boolean
-       |  |  +--rw rsvp-te:path-reevaluation-request?           boolean
-       |  |  +--rw rsvp-te:soft-preemption-desired?             boolean
-       |  |  +--rw rsvp-te:lsp-rerouting?                       enumeration
-       |  |  +--rw rsvp-te:lsp-integrity-required?              boolean
-       |  |  +--rw rsvp-te:lsp-contiguous?                      boolean
-       |  |  +--rw rsvp-te:lsp-stitching-desired?               boolean
-       |  |  +--rw rsvp-te:lsp-preplanned?                      boolean
-       |  |  +--rw rsvp-te:lsp-oob-mapping?                     boolean
-       |  |  +--rw rsvp-te:retry-timer?                         uint16
-       |  |  +--rw rsvp-te-mpls:local-protection-desired?       empty
-       |  |  +--rw rsvp-te-mpls:bandwidth-protection-desired?   empty
-       |  |  +--rw rsvp-te-mpls:node-protection-desired?        empty
-       |  |  +--rw rsvp-te-mpls:non-php-desired?                empty
-       |  |  +--rw rsvp-te-mpls:entropy-label-cap?              empty
-       |  |  +--rw rsvp-te-mpls:oam-mep-entities-desired?       empty
-       |  |  +--rw rsvp-te-mpls:oam-mip-entities-desired?       empty
-       |  |  +--rw te-mpls:tunnel-igp-shortcut
-       |  |  |  +--rw te-mpls:shortcut-eligible?   boolean
-       |  |  |  +--rw te-mpls:metric-type?         identityref
-       |  |  |  +--rw te-mpls:metric?              int32
-       |  |  |  +--rw te-mpls:routing-afs*         inet:ip-version
-       |  |  +--rw te-mpls:forwarding
-       |  |  |  +--rw te-mpls:binding-label?   rt-types:mpls-label
-       |  |  |  +--rw te-mpls:load-share?      uint32
-       |  |  |  +--rw te-mpls:policy-class?    uint8
-       |  |  +--rw te-mpls:bandwidth-mpls
-       |  |     +--rw te-mpls:specification-type?   te-mpls-types:te-bandwidth-type
-       |  |     +--rw te-mpls:set-bandwidth?        te-mpls-types:bandwidth-kbps
-       |  |     +--rw te-mpls:class-type?           te-types:te-ds-class
-       |  |     +--ro te-mpls:state
-       |  |     |  +--ro te-mpls:signaled-bandwidth?   te-mpls-types:bandwidth-kbps
-       |  |     +--rw te-mpls:auto-bandwidth
-       |  |        +--rw te-mpls:enabled?            boolean
-       |  |        +--rw te-mpls:min-bw?             te-mpls-types:bandwidth-kbps
-       |  |        +--rw te-mpls:max-bw?             te-mpls-types:bandwidth-kbps
-       |  |        +--rw te-mpls:adjust-interval?    uint32
-       |  |        +--rw te-mpls:adjust-threshold?   te-types:percentage
-       |  |        +--rw te-mpls:overflow
-       |  |        |  +--rw te-mpls:enabled?               boolean
-       |  |        |  +--rw te-mpls:overflow-threshold?    te-types:percentage
-       |  |        |  +--rw te-mpls:trigger-event-count?   uint16
-       |  |        +--rw te-mpls:underflow
-       |  |           +--rw te-mpls:enabled?               boolean
-       |  |           +--rw te-mpls:underflow-threshold?   te-types:percentage
-       |  |           +--rw te-mpls:trigger-event-count?   uint16
-       |  +--rw tunnel-p2mp* [name]
-       |     +--rw name           string
-       |     +--rw identifier?    uint16
-       |     +--rw description?   string
-       |     +--ro state
-       |        +--ro operational-state?   identityref
-       +--ro lsps-state
-       |  +--ro lsp* [source destination tunnel-id lsp-id extended-tunnel-id]
-       |     +--ro source                                      inet:ip-address
-       |     +--ro destination                                 inet:ip-address
-       |     +--ro tunnel-id                                   uint16
-       |     +--ro lsp-id                                      uint16
-       |     +--ro extended-tunnel-id                          inet:ip-address
-       |     +--ro operational-state?                          identityref
-       |     +--ro path-setup-protocol?                        identityref
-       |     +--ro origin-type?                                enumeration
-       |     +--ro lsp-resource-status?                        enumeration
-       |     +--ro lockout-of-normal?                          boolean
-       |     +--ro freeze?                                     boolean
-       |     +--ro lsp-protection-role?                        enumeration
-       |     +--ro lsp-protection-state?                       identityref
-       |     +--ro lsp-record-route-subobjects
-       |     |  +--ro record-route-subobject* [index]
-       |     |     +--ro index    -> ../state/index
-       |     |     +--ro state
-       |     |        +--ro index?         uint32
-       |     |        +--ro (type)?
-       |     |           +--:(numbered)
-       |     |           |  +--ro address?       te-types:te-tp-id
-       |     |           |  +--ro ip-flags?      binary
-       |     |           +--:(unnumbered)
-       |     |           |  +--ro node-id?       te-types:te-node-id
-       |     |           |  +--ro link-tp-id?    te-types:te-tp-id
-       |     |           +--:(label)
-       |     |              +--ro value?         rt-types:generalized-label
-       |     |              +--ro label-flags?   binary
-       |     +--ro te-dev:lsp-timers
-       |     |  +--ro te-dev:life-time?         uint32
-       |     |  +--ro te-dev:time-to-install?   uint32
-       |     |  +--ro te-dev:time-to-destroy?   uint32
-       |     +--ro te-dev:downstream-info
-       |     |  +--ro te-dev:nhop?                 inet:ip-address
-       |     |  +--ro te-dev:outgoing-interface?   if:interface-ref
-       |     |  +--ro te-dev:neighbor?             inet:ip-address
-       |     |  +--ro te-dev:label?                rt-types:generalized-label
-       |     +--ro te-dev:upstream-info
-       |     |  +--ro te-dev:phop?       inet:ip-address
-       |     |  +--ro te-dev:neighbor?   inet:ip-address
-       |     |  +--ro te-dev:label?      rt-types:generalized-label
-       |     +--ro rsvp-te:associated-rsvp-session?            -> /rt:routing/control-plane-protocols/control-plane-protocol/rsvp:rsvp/globals/sessions/session/local-index
-       |     +--ro rsvp-te:lsp-signaled-name?                  string
-       |     +--ro rsvp-te:local-recording-desired?            boolean
-       |     +--ro rsvp-te:se-style-desired?                   boolean
-       |     +--ro rsvp-te:path-reevaluation-request?          boolean
-       |     +--ro rsvp-te:soft-preemption-desired?            boolean
-       |     +--ro rsvp-te:lsp-rerouting?                      enumeration
-       |     +--ro rsvp-te:lsp-integrity-required?             boolean
-       |     +--ro rsvp-te:lsp-contiguous?                     boolean
-       |     +--ro rsvp-te:lsp-stitching-desired?              boolean
-       |     +--ro rsvp-te:lsp-preplanned?                     boolean
-       |     +--ro rsvp-te:lsp-oob-mapping?                    boolean
-       |     +--ro rsvp-te:explicit-route-objects
-       |     |  +--ro rsvp-te:incoming-explicit-route-hop* [index]
-       |     |  |  +--ro rsvp-te:index    -> ../state/index
-       |     |  |  +--ro rsvp-te:state
-       |     |  |     +--ro rsvp-te:index?            uint32
-       |     |  |     +--ro (rsvp-te:type)?
-       |     |  |        +--:(rsvp-te:numbered)
-       |     |  |        |  +--ro rsvp-te:numbered-hop
-       |     |  |        |     +--ro rsvp-te:address?    te-types:te-tp-id
-       |     |  |        |     +--ro rsvp-te:hop-type?   te-hop-type
-       |     |  |        +--:(rsvp-te:as-number)
-       |     |  |        |  +--ro rsvp-te:as-number-hop
-       |     |  |        |     +--ro rsvp-te:as-number?   binary
-       |     |  |        |     +--ro rsvp-te:hop-type?    te-hop-type
-       |     |  |        +--:(rsvp-te:unnumbered)
-       |     |  |        |  +--ro rsvp-te:unnumbered-hop
-       |     |  |        |     +--ro rsvp-te:node-id?      te-types:te-node-id
-       |     |  |        |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
-       |     |  |        |     +--ro rsvp-te:hop-type?     te-hop-type
-       |     |  |        +--:(rsvp-te:label)
-       |     |  |        |  +--ro rsvp-te:label-hop
-       |     |  |        |     +--ro rsvp-te:value?   rt-types:generalized-label
-       |     |  |        +--:(rsvp-te:sid)
-       |     |  |           +--ro rsvp-te:sid-hop
-       |     |  |              +--ro rsvp-te:sid?   rt-types:generalized-label
-       |     |  +--ro rsvp-te:outgoing-explicit-route-hop* [index]
-       |     |     +--ro rsvp-te:index    -> ../state/index
-       |     |     +--ro rsvp-te:state
-       |     |        +--ro rsvp-te:index?            uint32
-       |     |        +--ro (rsvp-te:type)?
-       |     |           +--:(rsvp-te:numbered)
-       |     |           |  +--ro rsvp-te:numbered-hop
-       |     |           |     +--ro rsvp-te:address?    te-types:te-tp-id
-       |     |           |     +--ro rsvp-te:hop-type?   te-hop-type
-       |     |           +--:(rsvp-te:as-number)
-       |     |           |  +--ro rsvp-te:as-number-hop
-       |     |           |     +--ro rsvp-te:as-number?   binary
-       |     |           |     +--ro rsvp-te:hop-type?    te-hop-type
-       |     |           +--:(rsvp-te:unnumbered)
-       |     |           |  +--ro rsvp-te:unnumbered-hop
-       |     |           |     +--ro rsvp-te:node-id?      te-types:te-node-id
-       |     |           |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
-       |     |           |     +--ro rsvp-te:hop-type?     te-hop-type
-       |     |           +--:(rsvp-te:label)
-       |     |           |  +--ro rsvp-te:label-hop
-       |     |           |     +--ro rsvp-te:value?   rt-types:generalized-label
-       |     |           +--:(rsvp-te:sid)
-       |     |              +--ro rsvp-te:sid-hop
-       |     |                 +--ro rsvp-te:sid?   rt-types:generalized-label
-       |     +--ro rsvp-te:incoming-record-route-subobjects
-       |     |  +--ro rsvp-te:incoming-record-route-subobject* [index]
-       |     |     +--ro rsvp-te:index    -> ../state/index
-       |     |     +--ro rsvp-te:state
-       |     |        +--ro rsvp-te:index?         uint32
-       |     |        +--ro (rsvp-te:type)?
-       |     |           +--:(rsvp-te:numbered)
-       |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
-       |     |           |  +--ro rsvp-te:ip-flags?      binary
-       |     |           +--:(rsvp-te:unnumbered)
-       |     |           |  +--ro rsvp-te:node-id?       te-types:te-node-id
-       |     |           |  +--ro rsvp-te:link-tp-id?    te-types:te-tp-id
-       |     |           +--:(rsvp-te:label)
-       |     |              +--ro rsvp-te:value?         rt-types:generalized-label
-       |     |              +--ro rsvp-te:label-flags?   binary
-       |     +--ro rsvp-te:outgoing-record-route-subobjects
-       |     |  +--ro rsvp-te:outgoing-record-route-subobject* [index]
-       |     |     +--ro rsvp-te:index    -> ../state/index
-       |     |     +--ro rsvp-te:state
-       |     |        +--ro rsvp-te:index?         uint32
-       |     |        +--ro (rsvp-te:type)?
-       |     |           +--:(rsvp-te:numbered)
-       |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
-       |     |           |  +--ro rsvp-te:ip-flags?      binary
-       |     |           +--:(rsvp-te:unnumbered)
-       |     |           |  +--ro rsvp-te:node-id?       te-types:te-node-id
-       |     |           |  +--ro rsvp-te:link-tp-id?    te-types:te-tp-id
-       |     |           +--:(rsvp-te:label)
-       |     |              +--ro rsvp-te:value?         rt-types:generalized-label
-       |     |              +--ro rsvp-te:label-flags?   binary
-       |     +--ro rsvp-te-mpls:state
-       |     |  +--ro rsvp-te-mpls:local-protection-desired?       empty
-       |     |  +--ro rsvp-te-mpls:bandwidth-protection-desired?   empty
-       |     |  +--ro rsvp-te-mpls:node-protection-desired?        empty
-       |     |  +--ro rsvp-te-mpls:non-php-desired?                empty
-       |     |  +--ro rsvp-te-mpls:entropy-label-cap?              empty
-       |     |  +--ro rsvp-te-mpls:oam-mep-entities-desired?       empty
-       |     |  +--ro rsvp-te-mpls:oam-mip-entities-desired?       empty
-       |     +--ro rsvp-te-mpls:backup-info
-       |        +--ro rsvp-te-mpls:state
-       |           +--ro rsvp-te-mpls:backup-tunnel-name?         string
-       |           +--ro rsvp-te-mpls:backup-frr-on?              uint8
-       |           +--ro rsvp-te-mpls:backup-protected-lsp-num?   uint32
-       +---x protection-external-commands
-       |  +---w input
-       |     +---w protection-external-command?   identityref
-       |     +---w tunnel-using-lsp-resources?    te:tunnel-ref
-       +--rw te-dev:interfaces
-          +--rw te-dev:threshold-type?            enumeration
-          +--rw te-dev:delta-percentage?          te-types:percentage
-          +--rw te-dev:threshold-specification?   enumeration
-          +--rw te-dev:up-thresholds*             te-types:percentage
-          +--rw te-dev:down-thresholds*           te-types:percentage
-          +--rw te-dev:up-down-thresholds*        te-types:percentage
-          +--rw te-dev:interface* [interface]
-             +--rw te-dev:interface                          if:interface-ref
-             +--rw te-dev:te-metric?                         te-types:te-metric
-             +--rw (te-dev:admin-group-type)?
-             |  +--:(te-dev:value-admin-groups)
-             |  |  +--rw (te-dev:value-admin-group-type)?
-             |  |     +--:(te-dev:admin-groups)
-             |  |     |  +--rw te-dev:admin-group?                       te-types:admin-group
-             |  |     +--:(te-dev:extended-admin-groups) {te-types:extended-admin-groups}?
-             |  |        +--rw te-dev:extended-admin-group?              te-types:extended-admin-group
-             |  +--:(te-dev:named-admin-groups)
-             |     +--rw te-dev:named-admin-groups* [named-admin-group] {te-types:extended-admin-groups,te-types:named-extended-admin-groups}?
-             |        +--rw te-dev:named-admin-group    -> ../../../../te:globals/named-admin-groups/named-admin-group/name
-             +--rw (te-dev:srlg-type)?
-             |  +--:(te-dev:value-srlgs)
-             |  |  +--rw te-dev:values* [value]
-             |  |     +--rw te-dev:value    uint32
-             |  +--:(te-dev:named-srlgs)
-             |     +--rw te-dev:named-srlgs* [named-srlg] {te-types:named-srlg-groups}?
-             |        +--rw te-dev:named-srlg    -> ../../../../te:globals/named-srlgs/named-srlg/name
-             +--rw te-dev:threshold-type?                    enumeration
-             +--rw te-dev:delta-percentage?                  te-types:percentage
-             +--rw te-dev:threshold-specification?           enumeration
-             +--rw te-dev:up-thresholds*                     te-types:percentage
-             +--rw te-dev:down-thresholds*                   te-types:percentage
-             +--rw te-dev:up-down-thresholds*                te-types:percentage
-             +--rw te-dev:switching-capabilities* [switching-capability]
-             |  +--rw te-dev:switching-capability    identityref
-             |  +--rw te-dev:encoding?               identityref
-             +--ro te-dev:state
-             |  +--ro te-dev:te-advertisements_state
-             |     +--ro te-dev:flood-interval?           uint32
-             |     +--ro te-dev:last-flooded-time?        uint32
-             |     +--ro te-dev:next-flooded-time?        uint32
-             |     +--ro te-dev:last-flooded-trigger?     enumeration
-             |     +--ro te-dev:advertized-level-areas* [level-area]
-             |        +--ro te-dev:level-area    uint32
-             +--rw rsvp-te-mpls:bandwidth-mpls-reservable
-             |  +--rw (rsvp-te-mpls:bandwidth-value)?
-             |  |  +--:(rsvp-te-mpls:absolute)
-             |  |  |  +--rw rsvp-te-mpls:absolute-value?   uint32
-             |  |  +--:(rsvp-te-mpls:percentage)
-             |  |     +--rw rsvp-te-mpls:percent-value?    uint32
-             |  +--rw (rsvp-te-mpls:bc-model-type)?
-             |     +--:(rsvp-te-mpls:bc-model-rdm)
-             |     |  +--rw rsvp-te-mpls:bc-model-rdm
-             |     |     +--rw rsvp-te-mpls:bandwidth-mpls-constraints
-             |     |        +--rw rsvp-te-mpls:maximum-reservable?   uint32
-             |     |        +--rw rsvp-te-mpls:bc-value*             uint32
-             |     +--:(rsvp-te-mpls:bc-model-mam)
-             |     |  +--rw rsvp-te-mpls:bc-model-mam
-             |     |     +--rw rsvp-te-mpls:bandwidth-mpls-constraints
-             |     |        +--rw rsvp-te-mpls:maximum-reservable?   uint32
-             |     |        +--rw rsvp-te-mpls:bc-value*             uint32
-             |     +--:(rsvp-te-mpls:bc-model-mar)
-             |        +--rw rsvp-te-mpls:bc-model-mar
-             |           +--rw rsvp-te-mpls:bandwidth-mpls-constraints
-             |              +--rw rsvp-te-mpls:maximum-reservable?   uint32
-             |              +--rw rsvp-te-mpls:bc-value*             uint32
-             +--rw rsvp-te-mpls:rsvp-te-frr-backups
-                +--rw (rsvp-te-mpls:type)?
-                   +--:(rsvp-te-mpls:static-tunnel)
-                   |  +--rw rsvp-te-mpls:static-backups
-                   |     +--rw rsvp-te-mpls:static-backup* [backup-tunnel-name]
-                   |        +--rw rsvp-te-mpls:backup-tunnel-name    -> /te:te/tunnels/tunnel/name
-                   +--:(rsvp-te-mpls:auto-tunnel)
-                      +--rw rsvp-te-mpls:auto-tunnel-backups
-                         +--rw rsvp-te-mpls:auto-backup-protection?         identityref
-                         +--rw rsvp-te-mpls:auto-backup-path-computation?   identityref
+  +--rw te!
+     +--rw globals
+     |  +--rw named-admin-groups
+     |  |  +--rw named-admin-group* [name] {te-types:extended-admin-groups,te-types:named-extended-admin-groups}?
+     |  |     +--rw name            string
+     |  |     +--rw bit-position?   uint32
+     |  +--rw named-srlgs
+     |  |  +--rw named-srlg* [name] {te-types:named-srlg-groups}?
+     |  |     +--rw name     string
+     |  |     +--rw group?   te-types:srlg
+     |  |     +--rw cost?    uint32
+     |  +--rw named-explicit-paths
+     |  |  +--rw named-explicit-path* [name]
+     |  |     +--rw name                      string
+     |  |     +--rw explicit-route-objects
+     |  |        +--rw explicit-route-object* [index]
+     |  |           +--rw explicit-route-usage?   identityref
+     |  |           +--rw index                   uint32
+     |  |           +--rw (type)?
+     |  |              +--:(numbered)
+     |  |              |  +--rw numbered-hop
+     |  |              |     +--rw address?     te-types:te-tp-id
+     |  |              |     +--rw hop-type?    te-hop-type
+     |  |              |     +--rw direction?   te-link-direction
+     |  |              +--:(as-number)
+     |  |              |  +--rw as-number-hop
+     |  |              |     +--rw as-number?   binary
+     |  |              |     +--rw hop-type?    te-hop-type
+     |  |              +--:(unnumbered)
+     |  |              |  +--rw unnumbered-hop
+     |  |              |     +--rw node-id?      te-types:te-node-id
+     |  |              |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |              |     +--rw hop-type?     te-hop-type
+     |  |              |     +--rw direction?    te-link-direction
+     |  |              +--:(label)
+     |  |                 +--rw label-hop
+     |  |                    +--rw te-label
+     |  |                       +--rw (technology)?
+     |  |                       |  +--:(generic)
+     |  |                       |     +--rw generic?     rt-types:generalized-label
+     |  |                       +--rw direction?   te-label-direction
+     |  +--rw named-path-constraints
+     |  |  +--rw named-path-constraint* [name] {te-types:named-path-constraints}?
+     |  |     +--rw name                             string
+     |  |     +--rw topology-id?                     te-types:te-topology-id
+     |  |     +--rw te-bandwidth
+     |  |     |  +--rw (technology)?
+     |  |     |     +--:(generic)
+     |  |     |        +--rw generic?   te-bandwidth
+     |  |     +--rw disjointness?                    te-types:te-path-disjointness
+     |  |     +--rw setup-priority?                  uint8
+     |  |     +--rw hold-priority?                   uint8
+     |  |     +--rw signaling-type?                  identityref
+     |  |     +--rw path-metric-bounds
+     |  |     |  +--rw path-metric-bound* [metric-type]
+     |  |     |     +--rw metric-type    identityref
+     |  |     |     +--rw upper-bound?   uint64
+     |  |     +--rw optimizations
+     |  |     |  +--rw (algorithm)?
+     |  |     |     +--:(metric) {path-optimization-metric}?
+     |  |     |     |  +--rw optimization-metric* [metric-type]
+     |  |     |     |  |  +--rw metric-type    identityref
+     |  |     |     |  |  +--rw weight?        uint8
+     |  |     |     |  +--rw tiebreakers
+     |  |     |     |     +--rw tiebreaker* [tiebreaker-type]
+     |  |     |     |        +--rw tiebreaker-type    identityref
+     |  |     |     +--:(objective-function) {path-optimization-objective-function}?
+     |  |     |        +--rw objective-function
+     |  |     |           +--rw objective-function-type?   identityref
+     |  |     +--rw path-affinities
+     |  |     |  +--rw constraints* [usage]
+     |  |     |     +--rw usage             identityref
+     |  |     |     +--rw (style)?
+     |  |     |        +--:(value)
+     |  |     |        |  +--rw value?            te-types:admin-groups
+     |  |     |        +--:(named)
+     |  |     |           +--rw affinity-names* [name]
+     |  |     |              +--rw name    string
+     |  |     +--rw path-srlgs
+     |  |     |  +--rw (style)?
+     |  |     |     +--:(values)
+     |  |     |     |  +--rw usage?         identityref
+     |  |     |     |  +--rw values*        te-types:srlg
+     |  |     |     +--:(named)
+     |  |     |        +--rw constraints* [usage]
+     |  |     |           +--rw usage         identityref
+     |  |     |           +--rw constraint
+     |  |     |              +--rw srlg-names* [name]
+     |  |     |                 +--rw name    string
+     |  |     +--rw explicit-route-objects
+     |  |     |  +--rw route-object-exclude-always* [index]
+     |  |     |  |  +--rw index             uint32
+     |  |     |  |  +--rw (type)?
+     |  |     |  |     +--:(numbered)
+     |  |     |  |     |  +--rw numbered-hop
+     |  |     |  |     |     +--rw address?     te-types:te-tp-id
+     |  |     |  |     |     +--rw hop-type?    te-hop-type
+     |  |     |  |     |     +--rw direction?   te-link-direction
+     |  |     |  |     +--:(as-number)
+     |  |     |  |     |  +--rw as-number-hop
+     |  |     |  |     |     +--rw as-number?   binary
+     |  |     |  |     |     +--rw hop-type?    te-hop-type
+     |  |     |  |     +--:(unnumbered)
+     |  |     |  |     |  +--rw unnumbered-hop
+     |  |     |  |     |     +--rw node-id?      te-types:te-node-id
+     |  |     |  |     |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |     |  |     |     +--rw hop-type?     te-hop-type
+     |  |     |  |     |     +--rw direction?    te-link-direction
+     |  |     |  |     +--:(label)
+     |  |     |  |        +--rw label-hop
+     |  |     |  |           +--rw te-label
+     |  |     |  |              +--rw (technology)?
+     |  |     |  |              |  +--:(generic)
+     |  |     |  |              |     +--rw generic?     rt-types:generalized-label
+     |  |     |  |              +--rw direction?   te-label-direction
+     |  |     |  +--rw route-object-include-exclude* [index]
+     |  |     |     +--rw explicit-route-usage?   identityref
+     |  |     |     +--rw index                   uint32
+     |  |     |     +--rw (type)?
+     |  |     |        +--:(numbered)
+     |  |     |        |  +--rw numbered-hop
+     |  |     |        |     +--rw address?     te-types:te-tp-id
+     |  |     |        |     +--rw hop-type?    te-hop-type
+     |  |     |        |     +--rw direction?   te-link-direction
+     |  |     |        +--:(as-number)
+     |  |     |        |  +--rw as-number-hop
+     |  |     |        |     +--rw as-number?   binary
+     |  |     |        |     +--rw hop-type?    te-hop-type
+     |  |     |        +--:(unnumbered)
+     |  |     |        |  +--rw unnumbered-hop
+     |  |     |        |     +--rw node-id?      te-types:te-node-id
+     |  |     |        |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |     |        |     +--rw hop-type?     te-hop-type
+     |  |     |        |     +--rw direction?    te-link-direction
+     |  |     |        +--:(label)
+     |  |     |           +--rw label-hop
+     |  |     |              +--rw te-label
+     |  |     |                 +--rw (technology)?
+     |  |     |                 |  +--:(generic)
+     |  |     |                 |     +--rw generic?     rt-types:generalized-label
+     |  |     |                 +--rw direction?   te-label-direction
+     |  |     +--rw shared-resources-tunnels
+     |  |     |  +--rw lsp-shared-resources-tunnel*   te:tunnel-ref
+     |  |     +--rw path-in-segment!
+     |  |     |  +--rw forward
+     |  |     |  |  +--rw label-set* [inclusive-exclusive label-start]
+     |  |     |  |     +--rw inclusive-exclusive    enumeration
+     |  |     |  |     +--rw label-start            rt-types:generalized-label
+     |  |     |  |     +--rw label-end?             rt-types:generalized-label
+     |  |     |  |     +--rw range-bitmap?          binary
+     |  |     |  +--rw reverse
+     |  |     |     +--rw label-set* [inclusive-exclusive label-start]
+     |  |     |        +--rw inclusive-exclusive    enumeration
+     |  |     |        +--rw label-start            rt-types:generalized-label
+     |  |     |        +--rw label-end?             rt-types:generalized-label
+     |  |     |        +--rw range-bitmap?          binary
+     |  |     +--rw path-out-segment!
+     |  |     |  +--rw forward
+     |  |     |  |  +--rw label-set* [inclusive-exclusive label-start]
+     |  |     |  |     +--rw inclusive-exclusive    enumeration
+     |  |     |  |     +--rw label-start            rt-types:generalized-label
+     |  |     |  |     +--rw label-end?             rt-types:generalized-label
+     |  |     |  |     +--rw range-bitmap?          binary
+     |  |     |  +--rw reverse
+     |  |     |     +--rw label-set* [inclusive-exclusive label-start]
+     |  |     |        +--rw inclusive-exclusive    enumeration
+     |  |     |        +--rw label-start            rt-types:generalized-label
+     |  |     |        +--rw label-end?             rt-types:generalized-label
+     |  |     |        +--rw range-bitmap?          binary
+     |  |     +--ro state
+     |  |     |  +--ro bandwidth-generic_state?   te-types:te-bandwidth
+     |  |     |  +--ro disjointness_state?        te-types:te-path-disjointness
+     |  |     +--rw te-mpls:bandwidth
+     |  |     |  +--rw te-mpls:specification-type?   te-mpls-types:te-bandwidth-type
+     |  |     |  +--rw te-mpls:set-bandwidth?        te-mpls-types:bandwidth-kbps
+     |  |     |  +--rw te-mpls:class-type?           te-types:te-ds-class
+     |  |     |  +--ro te-mpls:state
+     |  |     |     +--ro te-mpls:signaled-bandwidth?   te-mpls-types:bandwidth-kbps
+     |  |     +--rw te-sr-mpls:sid-selection-mode?   te-sid-selection-mode
+     |  |     +--rw te-sr-mpls:sid-protection?       identityref
+     |  +--rw te-dev:lsp-install-interval?        uint32
+     |  +--rw te-dev:lsp-cleanup-interval?        uint32
+     |  +--rw te-dev:lsp-invalidation-interval?   uint32
+     +--rw tunnels
+     |  +--rw tunnel* [name]
+     |  |  +--rw name                                         string
+     |  |  +--rw identifier?                                  uint16
+     |  |  +--rw description?                                 string
+     |  |  +--rw encoding?                                    identityref
+     |  |  +--rw switching-type?                              identityref
+     |  |  +--rw provisioning-state?                          identityref
+     |  |  +--rw preference?                                  uint8
+     |  |  +--rw reoptimize-timer?                            uint16
+     |  |  +--rw source?                                      inet:ip-address
+     |  |  +--rw destination?                                 inet:ip-address
+     |  |  +--rw src-tp-id?                                   binary
+     |  |  +--rw dst-tp-id?                                   binary
+     |  |  +--rw ignore-overload?                             boolean
+     |  |  +--rw protection
+     |  |  |  +--rw enable?                         boolean
+     |  |  |  +--rw protection-type?                identityref
+     |  |  |  +--rw protection-reversion-disable?   boolean
+     |  |  |  +--rw hold-off-time?                  uint32
+     |  |  |  +--rw wait-to-revert?                 uint16
+     |  |  |  +--rw aps-signal-id?                  uint8
+     |  |  +--rw restoration
+     |  |  |  +--rw enable?                          boolean
+     |  |  |  +--rw restoration-type?                identityref
+     |  |  |  +--rw restoration-scheme?              identityref
+     |  |  |  +--rw restoration-reversion-disable?   boolean
+     |  |  |  +--rw hold-off-time?                   uint32
+     |  |  |  +--rw wait-to-restore?                 uint16
+     |  |  |  +--rw wait-to-revert?                  uint16
+     |  |  +--rw topology-id?                                 te-types:te-topology-id
+     |  |  +--rw te-bandwidth
+     |  |  |  +--rw (technology)?
+     |  |  |     +--:(generic)
+     |  |  |        +--rw generic?   te-bandwidth
+     |  |  +--rw disjointness?                                te-types:te-path-disjointness
+     |  |  +--rw setup-priority?                              uint8
+     |  |  +--rw hold-priority?                               uint8
+     |  |  +--rw signaling-type?                              identityref
+     |  |  +--rw dependency-tunnels
+     |  |  |  +--rw dependency-tunnel* [name]
+     |  |  |     +--rw name              -> ../../../../../tunnels/tunnel/name
+     |  |  |     +--rw encoding?         identityref
+     |  |  |     +--rw switching-type?   identityref
+     |  |  +--ro state
+     |  |  |  +--ro operational-state?                   identityref
+     |  |  |  +--ro te-dev:lsp-install-interval?         uint32
+     |  |  |  +--ro te-dev:lsp-cleanup-interval?         uint32
+     |  |  |  +--ro te-dev:lsp-invalidation-interval?    uint32
+     |  |  |  +--ro rsvp-te:lsp-signaled-name?           string
+     |  |  |  +--ro rsvp-te:local-recording-desired?     boolean
+     |  |  |  +--ro rsvp-te:se-style-desired?            boolean
+     |  |  |  +--ro rsvp-te:path-reevaluation-request?   boolean
+     |  |  |  +--ro rsvp-te:soft-preemption-desired?     boolean
+     |  |  |  +--ro rsvp-te:lsp-rerouting?               enumeration
+     |  |  |  +--ro rsvp-te:lsp-integrity-required?      boolean
+     |  |  |  +--ro rsvp-te:lsp-contiguous?              boolean
+     |  |  |  +--ro rsvp-te:lsp-stitching-desired?       boolean
+     |  |  |  +--ro rsvp-te:lsp-preplanned?              boolean
+     |  |  |  +--ro rsvp-te:lsp-oob-mapping?             boolean
+     |  |  |  +--ro rsvp-te:retry-timer?                 uint16
+     |  |  +--rw bidirectional
+     |  |  |  +--rw association
+     |  |  |     +--rw id?              uint16
+     |  |  |     +--rw source?          inet:ip-address
+     |  |  |     +--rw global-source?   inet:ip-address
+     |  |  |     +--rw type?            identityref
+     |  |  |     +--rw provisioning?    identityref
+     |  |  +--rw p2p-primary-paths
+     |  |  |  +--rw p2p-primary-path* [name]
+     |  |  |     +--rw hierarchical-link
+     |  |  |     |  +--rw local-te-node-id?      te-types:te-node-id
+     |  |  |     |  +--rw local-te-link-tp-id?   te-types:te-tp-id
+     |  |  |     |  +--rw remote-te-node-id?     te-types:te-node-id
+     |  |  |     |  +--rw te-topology-id?        te-types:te-topology-id
+     |  |  |     +--rw name                             string
+     |  |  |     +--rw path-setup-protocol?             identityref
+     |  |  |     +--rw path-computation-method?         identityref
+     |  |  |     +--rw path-computation-server?         inet:ip-address
+     |  |  |     +--rw compute-only?                    empty
+     |  |  |     +--rw use-path-computation?            boolean
+     |  |  |     +--rw lockdown?                        empty
+     |  |  |     +--rw path-scope?                      identityref
+     |  |  |     +--rw preference?                      uint8
+     |  |  |     +--rw named-explicit-path?             -> ../../../../../globals/named-explicit-paths/named-explicit-path/name
+     |  |  |     +--rw named-path-constraint?           -> ../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
+     |  |  |     +--ro state
+     |  |  |     |  +--ro computed-path-properties
+     |  |  |     |  |  +--ro path-metric* [metric-type]
+     |  |  |     |  |  |  +--ro metric-type    -> ../state/metric-type
+     |  |  |     |  |  |  +--ro state
+     |  |  |     |  |  |     +--ro metric-type?          identityref
+     |  |  |     |  |  |     +--ro accumulative-value?   uint64
+     |  |  |     |  |  +--ro path-affinities
+     |  |  |     |  |  |  +--ro constraints* [usage]
+     |  |  |     |  |  |     +--ro usage    -> ../state/usage
+     |  |  |     |  |  |     +--ro state
+     |  |  |     |  |  |        +--ro usage?            identityref
+     |  |  |     |  |  |        +--ro (style)?
+     |  |  |     |  |  |           +--:(value)
+     |  |  |     |  |  |           |  +--ro value?            te-types:admin-groups
+     |  |  |     |  |  |           +--:(named)
+     |  |  |     |  |  |              +--ro affinity-names* [name]
+     |  |  |     |  |  |                 +--ro name    string
+     |  |  |     |  |  +--ro path-srlgs
+     |  |  |     |  |  |  +--ro (style)?
+     |  |  |     |  |  |     +--:(values)
+     |  |  |     |  |  |     |  +--ro state
+     |  |  |     |  |  |     |     +--ro usage?    identityref
+     |  |  |     |  |  |     |     +--ro values*   te-types:srlg
+     |  |  |     |  |  |     +--:(named)
+     |  |  |     |  |  |        +--ro constraints
+     |  |  |     |  |  |           +--ro constraint* [usage]
+     |  |  |     |  |  |              +--ro usage         -> ../state/usage
+     |  |  |     |  |  |              +--ro state
+     |  |  |     |  |  |              |  +--ro usage?   identityref
+     |  |  |     |  |  |              +--ro srlg-names
+     |  |  |     |  |  |                 +--ro srlg-name* [name]
+     |  |  |     |  |  |                    +--ro name     -> ../state/name
+     |  |  |     |  |  |                    +--ro state
+     |  |  |     |  |  |                       +--ro name?   string
+     |  |  |     |  |  +--ro path-computed-route-objects
+     |  |  |     |  |  |  +--ro path-computed-route-object* [index]
+     |  |  |     |  |  |     +--ro index    -> ../state/index
+     |  |  |     |  |  |     +--ro state
+     |  |  |     |  |  |        +--ro index?            uint32
+     |  |  |     |  |  |        +--ro (type)?
+     |  |  |     |  |  |           +--:(numbered)
+     |  |  |     |  |  |           |  +--ro numbered-hop
+     |  |  |     |  |  |           |     +--ro address?     te-types:te-tp-id
+     |  |  |     |  |  |           |     +--ro hop-type?    te-hop-type
+     |  |  |     |  |  |           |     +--ro direction?   te-link-direction
+     |  |  |     |  |  |           +--:(as-number)
+     |  |  |     |  |  |           |  +--ro as-number-hop
+     |  |  |     |  |  |           |     +--ro as-number?   binary
+     |  |  |     |  |  |           |     +--ro hop-type?    te-hop-type
+     |  |  |     |  |  |           +--:(unnumbered)
+     |  |  |     |  |  |           |  +--ro unnumbered-hop
+     |  |  |     |  |  |           |     +--ro node-id?      te-types:te-node-id
+     |  |  |     |  |  |           |     +--ro link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |  |           |     +--ro hop-type?     te-hop-type
+     |  |  |     |  |  |           |     +--ro direction?    te-link-direction
+     |  |  |     |  |  |           +--:(label)
+     |  |  |     |  |  |              +--ro label-hop
+     |  |  |     |  |  |                 +--ro te-label
+     |  |  |     |  |  |                    +--ro (technology)?
+     |  |  |     |  |  |                    |  +--:(generic)
+     |  |  |     |  |  |                    |     +--ro generic?     rt-types:generalized-label
+     |  |  |     |  |  |                    +--ro direction?   te-label-direction
+     |  |  |     |  |  +--ro shared-resources-tunnels
+     |  |  |     |  |     +--ro lsp-shared-resources-tunnel*   te:tunnel-ref
+     |  |  |     |  +--ro lsps
+     |  |  |     |  |  +--ro lsp* [source destination tunnel-id lsp-id extended-tunnel-id]
+     |  |  |     |  |     +--ro source                                      inet:ip-address
+     |  |  |     |  |     +--ro destination                                 inet:ip-address
+     |  |  |     |  |     +--ro tunnel-id                                   uint16
+     |  |  |     |  |     +--ro lsp-id                                      uint16
+     |  |  |     |  |     +--ro extended-tunnel-id                          inet:ip-address
+     |  |  |     |  |     +--ro operational-state?                          identityref
+     |  |  |     |  |     +--ro path-setup-protocol?                        identityref
+     |  |  |     |  |     +--ro origin-type?                                enumeration
+     |  |  |     |  |     +--ro lsp-resource-status?                        enumeration
+     |  |  |     |  |     +--ro lockout-of-normal?                          boolean
+     |  |  |     |  |     +--ro freeze?                                     boolean
+     |  |  |     |  |     +--ro lsp-protection-role?                        enumeration
+     |  |  |     |  |     +--ro lsp-protection-state?                       identityref
+     |  |  |     |  |     +--ro lsp-shared-resources-tunnel?                te:tunnel-ref
+     |  |  |     |  |     +--ro lsp-record-route-subobjects
+     |  |  |     |  |     |  +--ro record-route-subobject* [index]
+     |  |  |     |  |     |     +--ro index    -> ../state/index
+     |  |  |     |  |     |     +--ro state
+     |  |  |     |  |     |        +--ro index?         uint32
+     |  |  |     |  |     |        +--ro (type)?
+     |  |  |     |  |     |           +--:(numbered)
+     |  |  |     |  |     |           |  +--ro address?       te-types:te-tp-id
+     |  |  |     |  |     |           |  +--ro ip-flags?      binary
+     |  |  |     |  |     |           +--:(unnumbered)
+     |  |  |     |  |     |           |  +--ro node-id?       te-types:te-node-id
+     |  |  |     |  |     |           |  +--ro link-tp-id?    te-types:te-tp-id
+     |  |  |     |  |     |           +--:(label)
+     |  |  |     |  |     |              +--ro value?         rt-types:generalized-label
+     |  |  |     |  |     |              +--ro label-flags?   binary
+     |  |  |     |  |     +--ro te-dev:lsp-timers
+     |  |  |     |  |     |  +--ro te-dev:life-time?         uint32
+     |  |  |     |  |     |  +--ro te-dev:time-to-install?   uint32
+     |  |  |     |  |     |  +--ro te-dev:time-to-destroy?   uint32
+     |  |  |     |  |     +--ro te-dev:downstream-info
+     |  |  |     |  |     |  +--ro te-dev:nhop?                 inet:ip-address
+     |  |  |     |  |     |  +--ro te-dev:outgoing-interface?   if:interface-ref
+     |  |  |     |  |     |  +--ro te-dev:neighbor?             inet:ip-address
+     |  |  |     |  |     |  +--ro te-dev:label?                rt-types:generalized-label
+     |  |  |     |  |     +--ro te-dev:upstream-info
+     |  |  |     |  |     |  +--ro te-dev:phop?       inet:ip-address
+     |  |  |     |  |     |  +--ro te-dev:neighbor?   inet:ip-address
+     |  |  |     |  |     |  +--ro te-dev:label?      rt-types:generalized-label
+     |  |  |     |  |     +--ro rsvp-te:associated-rsvp-session?            -> /rt:routing/control-plane-protocols/control-plane-protocol/rsvp:rsvp/globals/sessions/session/local-index
+     |  |  |     |  |     +--ro rsvp-te:lsp-signaled-name?                  string
+     |  |  |     |  |     +--ro rsvp-te:local-recording-desired?            boolean
+     |  |  |     |  |     +--ro rsvp-te:se-style-desired?                   boolean
+     |  |  |     |  |     +--ro rsvp-te:path-reevaluation-request?          boolean
+     |  |  |     |  |     +--ro rsvp-te:soft-preemption-desired?            boolean
+     |  |  |     |  |     +--ro rsvp-te:lsp-rerouting?                      enumeration
+     |  |  |     |  |     +--ro rsvp-te:lsp-integrity-required?             boolean
+     |  |  |     |  |     +--ro rsvp-te:lsp-contiguous?                     boolean
+     |  |  |     |  |     +--ro rsvp-te:lsp-stitching-desired?              boolean
+     |  |  |     |  |     +--ro rsvp-te:lsp-preplanned?                     boolean
+     |  |  |     |  |     +--ro rsvp-te:lsp-oob-mapping?                    boolean
+     |  |  |     |  |     +--ro rsvp-te:explicit-route-objects
+     |  |  |     |  |     |  +--ro rsvp-te:incoming-explicit-route-hop* [index]
+     |  |  |     |  |     |  |  +--ro rsvp-te:index    -> ../state/index
+     |  |  |     |  |     |  |  +--ro rsvp-te:state
+     |  |  |     |  |     |  |     +--ro rsvp-te:index?            uint32
+     |  |  |     |  |     |  |     +--ro (rsvp-te:type)?
+     |  |  |     |  |     |  |        +--:(rsvp-te:numbered)
+     |  |  |     |  |     |  |        |  +--ro rsvp-te:numbered-hop
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:address?     te-types:te-tp-id
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?    te-hop-type
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:direction?   te-link-direction
+     |  |  |     |  |     |  |        +--:(rsvp-te:as-number)
+     |  |  |     |  |     |  |        |  +--ro rsvp-te:as-number-hop
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:as-number?   binary
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?    te-hop-type
+     |  |  |     |  |     |  |        +--:(rsvp-te:unnumbered)
+     |  |  |     |  |     |  |        |  +--ro rsvp-te:unnumbered-hop
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:node-id?      te-types:te-node-id
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?     te-hop-type
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:direction?    te-link-direction
+     |  |  |     |  |     |  |        +--:(rsvp-te:label)
+     |  |  |     |  |     |  |           +--ro rsvp-te:label-hop
+     |  |  |     |  |     |  |              +--ro rsvp-te:te-label
+     |  |  |     |  |     |  |                 +--ro (rsvp-te:technology)?
+     |  |  |     |  |     |  |                 |  +--:(rsvp-te:generic)
+     |  |  |     |  |     |  |                 |     +--ro rsvp-te:generic?     rt-types:generalized-label
+     |  |  |     |  |     |  |                 +--ro rsvp-te:direction?   te-label-direction
+     |  |  |     |  |     |  +--ro rsvp-te:outgoing-explicit-route-hop* [index]
+     |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
+     |  |  |     |  |     |     +--ro rsvp-te:state
+     |  |  |     |  |     |        +--ro rsvp-te:index?            uint32
+     |  |  |     |  |     |        +--ro (rsvp-te:type)?
+     |  |  |     |  |     |           +--:(rsvp-te:numbered)
+     |  |  |     |  |     |           |  +--ro rsvp-te:numbered-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:address?     te-types:te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?    te-hop-type
+     |  |  |     |  |     |           |     +--ro rsvp-te:direction?   te-link-direction
+     |  |  |     |  |     |           +--:(rsvp-te:as-number)
+     |  |  |     |  |     |           |  +--ro rsvp-te:as-number-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:as-number?   binary
+     |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?    te-hop-type
+     |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
+     |  |  |     |  |     |           |  +--ro rsvp-te:unnumbered-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:node-id?      te-types:te-node-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?     te-hop-type
+     |  |  |     |  |     |           |     +--ro rsvp-te:direction?    te-link-direction
+     |  |  |     |  |     |           +--:(rsvp-te:label)
+     |  |  |     |  |     |              +--ro rsvp-te:label-hop
+     |  |  |     |  |     |                 +--ro rsvp-te:te-label
+     |  |  |     |  |     |                    +--ro (rsvp-te:technology)?
+     |  |  |     |  |     |                    |  +--:(rsvp-te:generic)
+     |  |  |     |  |     |                    |     +--ro rsvp-te:generic?     rt-types:generalized-label
+     |  |  |     |  |     |                    +--ro rsvp-te:direction?   te-label-direction
+     |  |  |     |  |     +--ro rsvp-te:incoming-record-route-subobjects
+     |  |  |     |  |     |  +--ro rsvp-te:incoming-record-route-subobject* [index]
+     |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
+     |  |  |     |  |     |     +--ro rsvp-te:state
+     |  |  |     |  |     |        +--ro rsvp-te:index?         uint32
+     |  |  |     |  |     |        +--ro (rsvp-te:type)?
+     |  |  |     |  |     |           +--:(rsvp-te:numbered)
+     |  |  |     |  |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
+     |  |  |     |  |     |           |  +--ro rsvp-te:ip-flags?      binary
+     |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
+     |  |  |     |  |     |           |  +--ro rsvp-te:node-id?       te-types:te-node-id
+     |  |  |     |  |     |           |  +--ro rsvp-te:link-tp-id?    te-types:te-tp-id
+     |  |  |     |  |     |           +--:(rsvp-te:label)
+     |  |  |     |  |     |              +--ro rsvp-te:value?         rt-types:generalized-label
+     |  |  |     |  |     |              +--ro rsvp-te:label-flags?   binary
+     |  |  |     |  |     +--ro rsvp-te:outgoing-record-route-subobjects
+     |  |  |     |  |     |  +--ro rsvp-te:outgoing-record-route-subobject* [index]
+     |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
+     |  |  |     |  |     |     +--ro rsvp-te:state
+     |  |  |     |  |     |        +--ro rsvp-te:index?         uint32
+     |  |  |     |  |     |        +--ro (rsvp-te:type)?
+     |  |  |     |  |     |           +--:(rsvp-te:numbered)
+     |  |  |     |  |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
+     |  |  |     |  |     |           |  +--ro rsvp-te:ip-flags?      binary
+     |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
+     |  |  |     |  |     |           |  +--ro rsvp-te:node-id?       te-types:te-node-id
+     |  |  |     |  |     |           |  +--ro rsvp-te:link-tp-id?    te-types:te-tp-id
+     |  |  |     |  |     |           +--:(rsvp-te:label)
+     |  |  |     |  |     |              +--ro rsvp-te:value?         rt-types:generalized-label
+     |  |  |     |  |     |              +--ro rsvp-te:label-flags?   binary
+     |  |  |     |  |     +--ro rsvp-te-mpls:state
+     |  |  |     |  |     |  +--ro rsvp-te-mpls:local-protection-desired?       empty
+     |  |  |     |  |     |  +--ro rsvp-te-mpls:bandwidth-protection-desired?   empty
+     |  |  |     |  |     |  +--ro rsvp-te-mpls:node-protection-desired?        empty
+     |  |  |     |  |     |  +--ro rsvp-te-mpls:non-php-desired?                empty
+     |  |  |     |  |     |  +--ro rsvp-te-mpls:entropy-label-cap?              empty
+     |  |  |     |  |     |  +--ro rsvp-te-mpls:oam-mep-entities-desired?       empty
+     |  |  |     |  |     |  +--ro rsvp-te-mpls:oam-mip-entities-desired?       empty
+     |  |  |     |  |     +--ro rsvp-te-mpls:backup-info
+     |  |  |     |  |        +--ro rsvp-te-mpls:state
+     |  |  |     |  |           +--ro rsvp-te-mpls:backup-tunnel-name?         string
+     |  |  |     |  |           +--ro rsvp-te-mpls:backup-frr-on?              uint8
+     |  |  |     |  |           +--ro rsvp-te-mpls:backup-protected-lsp-num?   uint32
+     |  |  |     |  +--ro te-mpls:static-lsp-name?    mpls-static:static-lsp-ref
+     |  |  |     +--rw p2p-reverse-primary-path
+     |  |  |     |  +--rw name?                         string
+     |  |  |     |  +--rw path-setup-protocol?          identityref
+     |  |  |     |  +--rw path-computation-method?      identityref
+     |  |  |     |  +--rw path-computation-server?      inet:ip-address
+     |  |  |     |  +--rw compute-only?                 empty
+     |  |  |     |  +--rw use-path-computation?         boolean
+     |  |  |     |  +--rw lockdown?                     empty
+     |  |  |     |  +--rw path-scope?                   identityref
+     |  |  |     |  +--rw named-explicit-path?          -> ../../../../../../globals/named-explicit-paths/named-explicit-path/name
+     |  |  |     |  +--rw named-path-constraint?        -> ../../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
+     |  |  |     |  +--ro state
+     |  |  |     |  |  +--ro computed-path-properties
+     |  |  |     |  |  |  +--ro path-metric* [metric-type]
+     |  |  |     |  |  |  |  +--ro metric-type    -> ../state/metric-type
+     |  |  |     |  |  |  |  +--ro state
+     |  |  |     |  |  |  |     +--ro metric-type?          identityref
+     |  |  |     |  |  |  |     +--ro accumulative-value?   uint64
+     |  |  |     |  |  |  +--ro path-affinities
+     |  |  |     |  |  |  |  +--ro constraints* [usage]
+     |  |  |     |  |  |  |     +--ro usage    -> ../state/usage
+     |  |  |     |  |  |  |     +--ro state
+     |  |  |     |  |  |  |        +--ro usage?            identityref
+     |  |  |     |  |  |  |        +--ro (style)?
+     |  |  |     |  |  |  |           +--:(value)
+     |  |  |     |  |  |  |           |  +--ro value?            te-types:admin-groups
+     |  |  |     |  |  |  |           +--:(named)
+     |  |  |     |  |  |  |              +--ro affinity-names* [name]
+     |  |  |     |  |  |  |                 +--ro name    string
+     |  |  |     |  |  |  +--ro path-srlgs
+     |  |  |     |  |  |  |  +--ro (style)?
+     |  |  |     |  |  |  |     +--:(values)
+     |  |  |     |  |  |  |     |  +--ro state
+     |  |  |     |  |  |  |     |     +--ro usage?    identityref
+     |  |  |     |  |  |  |     |     +--ro values*   te-types:srlg
+     |  |  |     |  |  |  |     +--:(named)
+     |  |  |     |  |  |  |        +--ro constraints
+     |  |  |     |  |  |  |           +--ro constraint* [usage]
+     |  |  |     |  |  |  |              +--ro usage         -> ../state/usage
+     |  |  |     |  |  |  |              +--ro state
+     |  |  |     |  |  |  |              |  +--ro usage?   identityref
+     |  |  |     |  |  |  |              +--ro srlg-names
+     |  |  |     |  |  |  |                 +--ro srlg-name* [name]
+     |  |  |     |  |  |  |                    +--ro name     -> ../state/name
+     |  |  |     |  |  |  |                    +--ro state
+     |  |  |     |  |  |  |                       +--ro name?   string
+     |  |  |     |  |  |  +--ro path-computed-route-objects
+     |  |  |     |  |  |  |  +--ro path-computed-route-object* [index]
+     |  |  |     |  |  |  |     +--ro index    -> ../state/index
+     |  |  |     |  |  |  |     +--ro state
+     |  |  |     |  |  |  |        +--ro index?            uint32
+     |  |  |     |  |  |  |        +--ro (type)?
+     |  |  |     |  |  |  |           +--:(numbered)
+     |  |  |     |  |  |  |           |  +--ro numbered-hop
+     |  |  |     |  |  |  |           |     +--ro address?     te-types:te-tp-id
+     |  |  |     |  |  |  |           |     +--ro hop-type?    te-hop-type
+     |  |  |     |  |  |  |           |     +--ro direction?   te-link-direction
+     |  |  |     |  |  |  |           +--:(as-number)
+     |  |  |     |  |  |  |           |  +--ro as-number-hop
+     |  |  |     |  |  |  |           |     +--ro as-number?   binary
+     |  |  |     |  |  |  |           |     +--ro hop-type?    te-hop-type
+     |  |  |     |  |  |  |           +--:(unnumbered)
+     |  |  |     |  |  |  |           |  +--ro unnumbered-hop
+     |  |  |     |  |  |  |           |     +--ro node-id?      te-types:te-node-id
+     |  |  |     |  |  |  |           |     +--ro link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |  |  |           |     +--ro hop-type?     te-hop-type
+     |  |  |     |  |  |  |           |     +--ro direction?    te-link-direction
+     |  |  |     |  |  |  |           +--:(label)
+     |  |  |     |  |  |  |              +--ro label-hop
+     |  |  |     |  |  |  |                 +--ro te-label
+     |  |  |     |  |  |  |                    +--ro (technology)?
+     |  |  |     |  |  |  |                    |  +--:(generic)
+     |  |  |     |  |  |  |                    |     +--ro generic?     rt-types:generalized-label
+     |  |  |     |  |  |  |                    +--ro direction?   te-label-direction
+     |  |  |     |  |  |  +--ro shared-resources-tunnels
+     |  |  |     |  |  |     +--ro lsp-shared-resources-tunnel*   te:tunnel-ref
+     |  |  |     |  |  +--ro lsps
+     |  |  |     |  |     +--ro lsp* [source destination tunnel-id lsp-id extended-tunnel-id]
+     |  |  |     |  |        +--ro source                         inet:ip-address
+     |  |  |     |  |        +--ro destination                    inet:ip-address
+     |  |  |     |  |        +--ro tunnel-id                      uint16
+     |  |  |     |  |        +--ro lsp-id                         uint16
+     |  |  |     |  |        +--ro extended-tunnel-id             inet:ip-address
+     |  |  |     |  |        +--ro operational-state?             identityref
+     |  |  |     |  |        +--ro path-setup-protocol?           identityref
+     |  |  |     |  |        +--ro origin-type?                   enumeration
+     |  |  |     |  |        +--ro lsp-resource-status?           enumeration
+     |  |  |     |  |        +--ro lockout-of-normal?             boolean
+     |  |  |     |  |        +--ro freeze?                        boolean
+     |  |  |     |  |        +--ro lsp-protection-role?           enumeration
+     |  |  |     |  |        +--ro lsp-protection-state?          identityref
+     |  |  |     |  |        +--ro lsp-shared-resources-tunnel?   te:tunnel-ref
+     |  |  |     |  |        +--ro lsp-record-route-subobjects
+     |  |  |     |  |           +--ro record-route-subobject* [index]
+     |  |  |     |  |              +--ro index    -> ../state/index
+     |  |  |     |  |              +--ro state
+     |  |  |     |  |                 +--ro index?         uint32
+     |  |  |     |  |                 +--ro (type)?
+     |  |  |     |  |                    +--:(numbered)
+     |  |  |     |  |                    |  +--ro address?       te-types:te-tp-id
+     |  |  |     |  |                    |  +--ro ip-flags?      binary
+     |  |  |     |  |                    +--:(unnumbered)
+     |  |  |     |  |                    |  +--ro node-id?       te-types:te-node-id
+     |  |  |     |  |                    |  +--ro link-tp-id?    te-types:te-tp-id
+     |  |  |     |  |                    +--:(label)
+     |  |  |     |  |                       +--ro value?         rt-types:generalized-label
+     |  |  |     |  |                       +--ro label-flags?   binary
+     |  |  |     |  +--rw p2p-reverse-secondary-path
+     |  |  |     |     +--rw secondary-path?        -> ../../../../../p2p-secondary-paths/p2p-secondary-path/name
+     |  |  |     |     +--rw path-setup-protocol?   identityref
+     |  |  |     +--rw candidate-p2p-secondary-paths
+     |  |  |     |  +--rw candidate-p2p-secondary-path* [secondary-path]
+     |  |  |     |     +--rw secondary-path         -> ../../../../../p2p-secondary-paths/p2p-secondary-path/name
+     |  |  |     |     +--rw path-setup-protocol?   identityref
+     |  |  |     |     +--ro state
+     |  |  |     |        +--ro active?   boolean
+     |  |  |     +--rw te-mpls:static-lsp-name?         mpls-static:static-lsp-ref
+     |  |  +--rw p2p-secondary-paths
+     |  |  |  +--rw p2p-secondary-path* [name]
+     |  |  |     +--rw name                       string
+     |  |  |     +--rw path-setup-protocol?       identityref
+     |  |  |     +--rw path-computation-method?   identityref
+     |  |  |     +--rw path-computation-server?   inet:ip-address
+     |  |  |     +--rw compute-only?              empty
+     |  |  |     +--rw use-path-computation?      boolean
+     |  |  |     +--rw lockdown?                  empty
+     |  |  |     +--rw path-scope?                identityref
+     |  |  |     +--rw preference?                uint8
+     |  |  |     +--rw named-explicit-path?       -> ../../../../../globals/named-explicit-paths/named-explicit-path/name
+     |  |  |     +--rw named-path-constraint?     -> ../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
+     |  |  |     +--rw protection
+     |  |  |     |  +--rw enable?                         boolean
+     |  |  |     |  +--rw protection-type?                identityref
+     |  |  |     |  +--rw protection-reversion-disable?   boolean
+     |  |  |     |  +--rw hold-off-time?                  uint32
+     |  |  |     |  +--rw wait-to-revert?                 uint16
+     |  |  |     |  +--rw aps-signal-id?                  uint8
+     |  |  |     +--rw restoration
+     |  |  |     |  +--rw enable?                          boolean
+     |  |  |     |  +--rw restoration-type?                identityref
+     |  |  |     |  +--rw restoration-scheme?              identityref
+     |  |  |     |  +--rw restoration-reversion-disable?   boolean
+     |  |  |     |  +--rw hold-off-time?                   uint32
+     |  |  |     |  +--rw wait-to-restore?                 uint16
+     |  |  |     |  +--rw wait-to-revert?                  uint16
+     |  |  |     +--ro state
+     |  |  |     |  +--ro computed-path-properties
+     |  |  |     |  |  +--ro path-metric* [metric-type]
+     |  |  |     |  |  |  +--ro metric-type    -> ../state/metric-type
+     |  |  |     |  |  |  +--ro state
+     |  |  |     |  |  |     +--ro metric-type?          identityref
+     |  |  |     |  |  |     +--ro accumulative-value?   uint64
+     |  |  |     |  |  +--ro path-affinities
+     |  |  |     |  |  |  +--ro constraints* [usage]
+     |  |  |     |  |  |     +--ro usage    -> ../state/usage
+     |  |  |     |  |  |     +--ro state
+     |  |  |     |  |  |        +--ro usage?            identityref
+     |  |  |     |  |  |        +--ro (style)?
+     |  |  |     |  |  |           +--:(value)
+     |  |  |     |  |  |           |  +--ro value?            te-types:admin-groups
+     |  |  |     |  |  |           +--:(named)
+     |  |  |     |  |  |              +--ro affinity-names* [name]
+     |  |  |     |  |  |                 +--ro name    string
+     |  |  |     |  |  +--ro path-srlgs
+     |  |  |     |  |  |  +--ro (style)?
+     |  |  |     |  |  |     +--:(values)
+     |  |  |     |  |  |     |  +--ro state
+     |  |  |     |  |  |     |     +--ro usage?    identityref
+     |  |  |     |  |  |     |     +--ro values*   te-types:srlg
+     |  |  |     |  |  |     +--:(named)
+     |  |  |     |  |  |        +--ro constraints
+     |  |  |     |  |  |           +--ro constraint* [usage]
+     |  |  |     |  |  |              +--ro usage         -> ../state/usage
+     |  |  |     |  |  |              +--ro state
+     |  |  |     |  |  |              |  +--ro usage?   identityref
+     |  |  |     |  |  |              +--ro srlg-names
+     |  |  |     |  |  |                 +--ro srlg-name* [name]
+     |  |  |     |  |  |                    +--ro name     -> ../state/name
+     |  |  |     |  |  |                    +--ro state
+     |  |  |     |  |  |                       +--ro name?   string
+     |  |  |     |  |  +--ro path-computed-route-objects
+     |  |  |     |  |  |  +--ro path-computed-route-object* [index]
+     |  |  |     |  |  |     +--ro index    -> ../state/index
+     |  |  |     |  |  |     +--ro state
+     |  |  |     |  |  |        +--ro index?            uint32
+     |  |  |     |  |  |        +--ro (type)?
+     |  |  |     |  |  |           +--:(numbered)
+     |  |  |     |  |  |           |  +--ro numbered-hop
+     |  |  |     |  |  |           |     +--ro address?     te-types:te-tp-id
+     |  |  |     |  |  |           |     +--ro hop-type?    te-hop-type
+     |  |  |     |  |  |           |     +--ro direction?   te-link-direction
+     |  |  |     |  |  |           +--:(as-number)
+     |  |  |     |  |  |           |  +--ro as-number-hop
+     |  |  |     |  |  |           |     +--ro as-number?   binary
+     |  |  |     |  |  |           |     +--ro hop-type?    te-hop-type
+     |  |  |     |  |  |           +--:(unnumbered)
+     |  |  |     |  |  |           |  +--ro unnumbered-hop
+     |  |  |     |  |  |           |     +--ro node-id?      te-types:te-node-id
+     |  |  |     |  |  |           |     +--ro link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |  |           |     +--ro hop-type?     te-hop-type
+     |  |  |     |  |  |           |     +--ro direction?    te-link-direction
+     |  |  |     |  |  |           +--:(label)
+     |  |  |     |  |  |              +--ro label-hop
+     |  |  |     |  |  |                 +--ro te-label
+     |  |  |     |  |  |                    +--ro (technology)?
+     |  |  |     |  |  |                    |  +--:(generic)
+     |  |  |     |  |  |                    |     +--ro generic?     rt-types:generalized-label
+     |  |  |     |  |  |                    +--ro direction?   te-label-direction
+     |  |  |     |  |  +--ro shared-resources-tunnels
+     |  |  |     |  |     +--ro lsp-shared-resources-tunnel*   te:tunnel-ref
+     |  |  |     |  +--ro lsps
+     |  |  |     |  |  +--ro lsp* [source destination tunnel-id lsp-id extended-tunnel-id]
+     |  |  |     |  |     +--ro source                                      inet:ip-address
+     |  |  |     |  |     +--ro destination                                 inet:ip-address
+     |  |  |     |  |     +--ro tunnel-id                                   uint16
+     |  |  |     |  |     +--ro lsp-id                                      uint16
+     |  |  |     |  |     +--ro extended-tunnel-id                          inet:ip-address
+     |  |  |     |  |     +--ro operational-state?                          identityref
+     |  |  |     |  |     +--ro path-setup-protocol?                        identityref
+     |  |  |     |  |     +--ro origin-type?                                enumeration
+     |  |  |     |  |     +--ro lsp-resource-status?                        enumeration
+     |  |  |     |  |     +--ro lockout-of-normal?                          boolean
+     |  |  |     |  |     +--ro freeze?                                     boolean
+     |  |  |     |  |     +--ro lsp-protection-role?                        enumeration
+     |  |  |     |  |     +--ro lsp-protection-state?                       identityref
+     |  |  |     |  |     +--ro lsp-shared-resources-tunnel?                te:tunnel-ref
+     |  |  |     |  |     +--ro lsp-record-route-subobjects
+     |  |  |     |  |     |  +--ro record-route-subobject* [index]
+     |  |  |     |  |     |     +--ro index    -> ../state/index
+     |  |  |     |  |     |     +--ro state
+     |  |  |     |  |     |        +--ro index?         uint32
+     |  |  |     |  |     |        +--ro (type)?
+     |  |  |     |  |     |           +--:(numbered)
+     |  |  |     |  |     |           |  +--ro address?       te-types:te-tp-id
+     |  |  |     |  |     |           |  +--ro ip-flags?      binary
+     |  |  |     |  |     |           +--:(unnumbered)
+     |  |  |     |  |     |           |  +--ro node-id?       te-types:te-node-id
+     |  |  |     |  |     |           |  +--ro link-tp-id?    te-types:te-tp-id
+     |  |  |     |  |     |           +--:(label)
+     |  |  |     |  |     |              +--ro value?         rt-types:generalized-label
+     |  |  |     |  |     |              +--ro label-flags?   binary
+     |  |  |     |  |     +--ro te-dev:lsp-timers
+     |  |  |     |  |     |  +--ro te-dev:life-time?         uint32
+     |  |  |     |  |     |  +--ro te-dev:time-to-install?   uint32
+     |  |  |     |  |     |  +--ro te-dev:time-to-destroy?   uint32
+     |  |  |     |  |     +--ro te-dev:downstream-info
+     |  |  |     |  |     |  +--ro te-dev:nhop?                 inet:ip-address
+     |  |  |     |  |     |  +--ro te-dev:outgoing-interface?   if:interface-ref
+     |  |  |     |  |     |  +--ro te-dev:neighbor?             inet:ip-address
+     |  |  |     |  |     |  +--ro te-dev:label?                rt-types:generalized-label
+     |  |  |     |  |     +--ro te-dev:upstream-info
+     |  |  |     |  |     |  +--ro te-dev:phop?       inet:ip-address
+     |  |  |     |  |     |  +--ro te-dev:neighbor?   inet:ip-address
+     |  |  |     |  |     |  +--ro te-dev:label?      rt-types:generalized-label
+     |  |  |     |  |     +--ro rsvp-te:associated-rsvp-session?            -> /rt:routing/control-plane-protocols/control-plane-protocol/rsvp:rsvp/globals/sessions/session/local-index
+     |  |  |     |  |     +--ro rsvp-te:lsp-signaled-name?                  string
+     |  |  |     |  |     +--ro rsvp-te:local-recording-desired?            boolean
+     |  |  |     |  |     +--ro rsvp-te:se-style-desired?                   boolean
+     |  |  |     |  |     +--ro rsvp-te:path-reevaluation-request?          boolean
+     |  |  |     |  |     +--ro rsvp-te:soft-preemption-desired?            boolean
+     |  |  |     |  |     +--ro rsvp-te:lsp-rerouting?                      enumeration
+     |  |  |     |  |     +--ro rsvp-te:lsp-integrity-required?             boolean
+     |  |  |     |  |     +--ro rsvp-te:lsp-contiguous?                     boolean
+     |  |  |     |  |     +--ro rsvp-te:lsp-stitching-desired?              boolean
+     |  |  |     |  |     +--ro rsvp-te:lsp-preplanned?                     boolean
+     |  |  |     |  |     +--ro rsvp-te:lsp-oob-mapping?                    boolean
+     |  |  |     |  |     +--ro rsvp-te:explicit-route-objects
+     |  |  |     |  |     |  +--ro rsvp-te:incoming-explicit-route-hop* [index]
+     |  |  |     |  |     |  |  +--ro rsvp-te:index    -> ../state/index
+     |  |  |     |  |     |  |  +--ro rsvp-te:state
+     |  |  |     |  |     |  |     +--ro rsvp-te:index?            uint32
+     |  |  |     |  |     |  |     +--ro (rsvp-te:type)?
+     |  |  |     |  |     |  |        +--:(rsvp-te:numbered)
+     |  |  |     |  |     |  |        |  +--ro rsvp-te:numbered-hop
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:address?     te-types:te-tp-id
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?    te-hop-type
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:direction?   te-link-direction
+     |  |  |     |  |     |  |        +--:(rsvp-te:as-number)
+     |  |  |     |  |     |  |        |  +--ro rsvp-te:as-number-hop
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:as-number?   binary
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?    te-hop-type
+     |  |  |     |  |     |  |        +--:(rsvp-te:unnumbered)
+     |  |  |     |  |     |  |        |  +--ro rsvp-te:unnumbered-hop
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:node-id?      te-types:te-node-id
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?     te-hop-type
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:direction?    te-link-direction
+     |  |  |     |  |     |  |        +--:(rsvp-te:label)
+     |  |  |     |  |     |  |           +--ro rsvp-te:label-hop
+     |  |  |     |  |     |  |              +--ro rsvp-te:te-label
+     |  |  |     |  |     |  |                 +--ro (rsvp-te:technology)?
+     |  |  |     |  |     |  |                 |  +--:(rsvp-te:generic)
+     |  |  |     |  |     |  |                 |     +--ro rsvp-te:generic?     rt-types:generalized-label
+     |  |  |     |  |     |  |                 +--ro rsvp-te:direction?   te-label-direction
+     |  |  |     |  |     |  +--ro rsvp-te:outgoing-explicit-route-hop* [index]
+     |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
+     |  |  |     |  |     |     +--ro rsvp-te:state
+     |  |  |     |  |     |        +--ro rsvp-te:index?            uint32
+     |  |  |     |  |     |        +--ro (rsvp-te:type)?
+     |  |  |     |  |     |           +--:(rsvp-te:numbered)
+     |  |  |     |  |     |           |  +--ro rsvp-te:numbered-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:address?     te-types:te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?    te-hop-type
+     |  |  |     |  |     |           |     +--ro rsvp-te:direction?   te-link-direction
+     |  |  |     |  |     |           +--:(rsvp-te:as-number)
+     |  |  |     |  |     |           |  +--ro rsvp-te:as-number-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:as-number?   binary
+     |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?    te-hop-type
+     |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
+     |  |  |     |  |     |           |  +--ro rsvp-te:unnumbered-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:node-id?      te-types:te-node-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?     te-hop-type
+     |  |  |     |  |     |           |     +--ro rsvp-te:direction?    te-link-direction
+     |  |  |     |  |     |           +--:(rsvp-te:label)
+     |  |  |     |  |     |              +--ro rsvp-te:label-hop
+     |  |  |     |  |     |                 +--ro rsvp-te:te-label
+     |  |  |     |  |     |                    +--ro (rsvp-te:technology)?
+     |  |  |     |  |     |                    |  +--:(rsvp-te:generic)
+     |  |  |     |  |     |                    |     +--ro rsvp-te:generic?     rt-types:generalized-label
+     |  |  |     |  |     |                    +--ro rsvp-te:direction?   te-label-direction
+     |  |  |     |  |     +--ro rsvp-te:incoming-record-route-subobjects
+     |  |  |     |  |     |  +--ro rsvp-te:incoming-record-route-subobject* [index]
+     |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
+     |  |  |     |  |     |     +--ro rsvp-te:state
+     |  |  |     |  |     |        +--ro rsvp-te:index?         uint32
+     |  |  |     |  |     |        +--ro (rsvp-te:type)?
+     |  |  |     |  |     |           +--:(rsvp-te:numbered)
+     |  |  |     |  |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
+     |  |  |     |  |     |           |  +--ro rsvp-te:ip-flags?      binary
+     |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
+     |  |  |     |  |     |           |  +--ro rsvp-te:node-id?       te-types:te-node-id
+     |  |  |     |  |     |           |  +--ro rsvp-te:link-tp-id?    te-types:te-tp-id
+     |  |  |     |  |     |           +--:(rsvp-te:label)
+     |  |  |     |  |     |              +--ro rsvp-te:value?         rt-types:generalized-label
+     |  |  |     |  |     |              +--ro rsvp-te:label-flags?   binary
+     |  |  |     |  |     +--ro rsvp-te:outgoing-record-route-subobjects
+     |  |  |     |  |     |  +--ro rsvp-te:outgoing-record-route-subobject* [index]
+     |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
+     |  |  |     |  |     |     +--ro rsvp-te:state
+     |  |  |     |  |     |        +--ro rsvp-te:index?         uint32
+     |  |  |     |  |     |        +--ro (rsvp-te:type)?
+     |  |  |     |  |     |           +--:(rsvp-te:numbered)
+     |  |  |     |  |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
+     |  |  |     |  |     |           |  +--ro rsvp-te:ip-flags?      binary
+     |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
+     |  |  |     |  |     |           |  +--ro rsvp-te:node-id?       te-types:te-node-id
+     |  |  |     |  |     |           |  +--ro rsvp-te:link-tp-id?    te-types:te-tp-id
+     |  |  |     |  |     |           +--:(rsvp-te:label)
+     |  |  |     |  |     |              +--ro rsvp-te:value?         rt-types:generalized-label
+     |  |  |     |  |     |              +--ro rsvp-te:label-flags?   binary
+     |  |  |     |  |     +--ro rsvp-te-mpls:state
+     |  |  |     |  |     |  +--ro rsvp-te-mpls:local-protection-desired?       empty
+     |  |  |     |  |     |  +--ro rsvp-te-mpls:bandwidth-protection-desired?   empty
+     |  |  |     |  |     |  +--ro rsvp-te-mpls:node-protection-desired?        empty
+     |  |  |     |  |     |  +--ro rsvp-te-mpls:non-php-desired?                empty
+     |  |  |     |  |     |  +--ro rsvp-te-mpls:entropy-label-cap?              empty
+     |  |  |     |  |     |  +--ro rsvp-te-mpls:oam-mep-entities-desired?       empty
+     |  |  |     |  |     |  +--ro rsvp-te-mpls:oam-mip-entities-desired?       empty
+     |  |  |     |  |     +--ro rsvp-te-mpls:backup-info
+     |  |  |     |  |        +--ro rsvp-te-mpls:state
+     |  |  |     |  |           +--ro rsvp-te-mpls:backup-tunnel-name?         string
+     |  |  |     |  |           +--ro rsvp-te-mpls:backup-frr-on?              uint8
+     |  |  |     |  |           +--ro rsvp-te-mpls:backup-protected-lsp-num?   uint32
+     |  |  |     |  +--ro te-mpls:static-lsp-name?    mpls-static:static-lsp-ref
+     |  |  |     +--rw te-mpls:static-lsp-name?   mpls-static:static-lsp-ref
+     |  |  +---x tunnel-action
+     |  |  |  +---w input
+     |  |  |  |  +---w action-type?   identityref
+     |  |  |  +--ro output
+     |  |  |     +--ro action-result?   identityref
+     |  |  +---x protection-external-commands
+     |  |  |  +---w input
+     |  |  |     +---w protection-external-command?   identityref
+     |  |  |     +---w path-ref?                      path-ref
+     |  |  |     +---w traffic-type?                  enumeration
+     |  |  |     +---w extra-traffic-tunnel-ref?      te:tunnel-ref
+     |  |  +--rw te-dev:lsp-install-interval?                 uint32
+     |  |  +--rw te-dev:lsp-cleanup-interval?                 uint32
+     |  |  +--rw te-dev:lsp-invalidation-interval?            uint32
+     |  |  +--rw rsvp-te:lsp-signaled-name?                   string
+     |  |  +--rw rsvp-te:local-recording-desired?             boolean
+     |  |  +--rw rsvp-te:se-style-desired?                    boolean
+     |  |  +--rw rsvp-te:path-reevaluation-request?           boolean
+     |  |  +--rw rsvp-te:soft-preemption-desired?             boolean
+     |  |  +--rw rsvp-te:lsp-rerouting?                       enumeration
+     |  |  +--rw rsvp-te:lsp-integrity-required?              boolean
+     |  |  +--rw rsvp-te:lsp-contiguous?                      boolean
+     |  |  +--rw rsvp-te:lsp-stitching-desired?               boolean
+     |  |  +--rw rsvp-te:lsp-preplanned?                      boolean
+     |  |  +--rw rsvp-te:lsp-oob-mapping?                     boolean
+     |  |  +--rw rsvp-te:retry-timer?                         uint16
+     |  |  +--rw rsvp-te-mpls:local-protection-desired?       empty
+     |  |  +--rw rsvp-te-mpls:bandwidth-protection-desired?   empty
+     |  |  +--rw rsvp-te-mpls:node-protection-desired?        empty
+     |  |  +--rw rsvp-te-mpls:non-php-desired?                empty
+     |  |  +--rw rsvp-te-mpls:entropy-label-cap?              empty
+     |  |  +--rw rsvp-te-mpls:oam-mep-entities-desired?       empty
+     |  |  +--rw rsvp-te-mpls:oam-mip-entities-desired?       empty
+     |  |  +--rw te-mpls:tunnel-igp-shortcut
+     |  |  |  +--rw te-mpls:shortcut-eligible?   boolean
+     |  |  |  +--rw te-mpls:metric-type?         identityref
+     |  |  |  +--rw te-mpls:metric?              int32
+     |  |  |  +--rw te-mpls:routing-afs*         inet:ip-version
+     |  |  +--rw te-mpls:forwarding
+     |  |  |  +--rw te-mpls:binding-label?   rt-types:mpls-label
+     |  |  |  +--rw te-mpls:load-share?      uint32
+     |  |  |  +--rw te-mpls:policy-class?    uint8
+     |  |  +--rw te-mpls:bandwidth-mpls
+     |  |     +--rw te-mpls:specification-type?   te-mpls-types:te-bandwidth-type
+     |  |     +--rw te-mpls:set-bandwidth?        te-mpls-types:bandwidth-kbps
+     |  |     +--rw te-mpls:class-type?           te-types:te-ds-class
+     |  |     +--ro te-mpls:state
+     |  |     |  +--ro te-mpls:signaled-bandwidth?   te-mpls-types:bandwidth-kbps
+     |  |     +--rw te-mpls:auto-bandwidth
+     |  |        +--rw te-mpls:enabled?            boolean
+     |  |        +--rw te-mpls:min-bw?             te-mpls-types:bandwidth-kbps
+     |  |        +--rw te-mpls:max-bw?             te-mpls-types:bandwidth-kbps
+     |  |        +--rw te-mpls:adjust-interval?    uint32
+     |  |        +--rw te-mpls:adjust-threshold?   te-types:percentage
+     |  |        +--rw te-mpls:overflow
+     |  |        |  +--rw te-mpls:enabled?               boolean
+     |  |        |  +--rw te-mpls:overflow-threshold?    te-types:percentage
+     |  |        |  +--rw te-mpls:trigger-event-count?   uint16
+     |  |        +--rw te-mpls:underflow
+     |  |           +--rw te-mpls:enabled?               boolean
+     |  |           +--rw te-mpls:underflow-threshold?   te-types:percentage
+     |  |           +--rw te-mpls:trigger-event-count?   uint16
+     |  +--rw tunnel-p2mp* [name]
+     |     +--rw name           string
+     |     +--rw identifier?    uint16
+     |     +--rw description?   string
+     |     +--ro state
+     |        +--ro operational-state?   identityref
+     +--ro lsps-state
+     |  +--ro lsp* [source destination tunnel-id lsp-id extended-tunnel-id]
+     |     +--ro source                                      inet:ip-address
+     |     +--ro destination                                 inet:ip-address
+     |     +--ro tunnel-id                                   uint16
+     |     +--ro lsp-id                                      uint16
+     |     +--ro extended-tunnel-id                          inet:ip-address
+     |     +--ro operational-state?                          identityref
+     |     +--ro path-setup-protocol?                        identityref
+     |     +--ro origin-type?                                enumeration
+     |     +--ro lsp-resource-status?                        enumeration
+     |     +--ro lockout-of-normal?                          boolean
+     |     +--ro freeze?                                     boolean
+     |     +--ro lsp-protection-role?                        enumeration
+     |     +--ro lsp-protection-state?                       identityref
+     |     +--ro lsp-record-route-subobjects
+     |     |  +--ro record-route-subobject* [index]
+     |     |     +--ro index    -> ../state/index
+     |     |     +--ro state
+     |     |        +--ro index?         uint32
+     |     |        +--ro (type)?
+     |     |           +--:(numbered)
+     |     |           |  +--ro address?       te-types:te-tp-id
+     |     |           |  +--ro ip-flags?      binary
+     |     |           +--:(unnumbered)
+     |     |           |  +--ro node-id?       te-types:te-node-id
+     |     |           |  +--ro link-tp-id?    te-types:te-tp-id
+     |     |           +--:(label)
+     |     |              +--ro value?         rt-types:generalized-label
+     |     |              +--ro label-flags?   binary
+     |     +--ro te-dev:lsp-timers
+     |     |  +--ro te-dev:life-time?         uint32
+     |     |  +--ro te-dev:time-to-install?   uint32
+     |     |  +--ro te-dev:time-to-destroy?   uint32
+     |     +--ro te-dev:downstream-info
+     |     |  +--ro te-dev:nhop?                 inet:ip-address
+     |     |  +--ro te-dev:outgoing-interface?   if:interface-ref
+     |     |  +--ro te-dev:neighbor?             inet:ip-address
+     |     |  +--ro te-dev:label?                rt-types:generalized-label
+     |     +--ro te-dev:upstream-info
+     |     |  +--ro te-dev:phop?       inet:ip-address
+     |     |  +--ro te-dev:neighbor?   inet:ip-address
+     |     |  +--ro te-dev:label?      rt-types:generalized-label
+     |     +--ro rsvp-te:associated-rsvp-session?            -> /rt:routing/control-plane-protocols/control-plane-protocol/rsvp:rsvp/globals/sessions/session/local-index
+     |     +--ro rsvp-te:lsp-signaled-name?                  string
+     |     +--ro rsvp-te:local-recording-desired?            boolean
+     |     +--ro rsvp-te:se-style-desired?                   boolean
+     |     +--ro rsvp-te:path-reevaluation-request?          boolean
+     |     +--ro rsvp-te:soft-preemption-desired?            boolean
+     |     +--ro rsvp-te:lsp-rerouting?                      enumeration
+     |     +--ro rsvp-te:lsp-integrity-required?             boolean
+     |     +--ro rsvp-te:lsp-contiguous?                     boolean
+     |     +--ro rsvp-te:lsp-stitching-desired?              boolean
+     |     +--ro rsvp-te:lsp-preplanned?                     boolean
+     |     +--ro rsvp-te:lsp-oob-mapping?                    boolean
+     |     +--ro rsvp-te:explicit-route-objects
+     |     |  +--ro rsvp-te:incoming-explicit-route-hop* [index]
+     |     |  |  +--ro rsvp-te:index    -> ../state/index
+     |     |  |  +--ro rsvp-te:state
+     |     |  |     +--ro rsvp-te:index?            uint32
+     |     |  |     +--ro (rsvp-te:type)?
+     |     |  |        +--:(rsvp-te:numbered)
+     |     |  |        |  +--ro rsvp-te:numbered-hop
+     |     |  |        |     +--ro rsvp-te:address?     te-types:te-tp-id
+     |     |  |        |     +--ro rsvp-te:hop-type?    te-hop-type
+     |     |  |        |     +--ro rsvp-te:direction?   te-link-direction
+     |     |  |        +--:(rsvp-te:as-number)
+     |     |  |        |  +--ro rsvp-te:as-number-hop
+     |     |  |        |     +--ro rsvp-te:as-number?   binary
+     |     |  |        |     +--ro rsvp-te:hop-type?    te-hop-type
+     |     |  |        +--:(rsvp-te:unnumbered)
+     |     |  |        |  +--ro rsvp-te:unnumbered-hop
+     |     |  |        |     +--ro rsvp-te:node-id?      te-types:te-node-id
+     |     |  |        |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |     |  |        |     +--ro rsvp-te:hop-type?     te-hop-type
+     |     |  |        |     +--ro rsvp-te:direction?    te-link-direction
+     |     |  |        +--:(rsvp-te:label)
+     |     |  |           +--ro rsvp-te:label-hop
+     |     |  |              +--ro rsvp-te:te-label
+     |     |  |                 +--ro (rsvp-te:technology)?
+     |     |  |                 |  +--:(rsvp-te:generic)
+     |     |  |                 |     +--ro rsvp-te:generic?     rt-types:generalized-label
+     |     |  |                 +--ro rsvp-te:direction?   te-label-direction
+     |     |  +--ro rsvp-te:outgoing-explicit-route-hop* [index]
+     |     |     +--ro rsvp-te:index    -> ../state/index
+     |     |     +--ro rsvp-te:state
+     |     |        +--ro rsvp-te:index?            uint32
+     |     |        +--ro (rsvp-te:type)?
+     |     |           +--:(rsvp-te:numbered)
+     |     |           |  +--ro rsvp-te:numbered-hop
+     |     |           |     +--ro rsvp-te:address?     te-types:te-tp-id
+     |     |           |     +--ro rsvp-te:hop-type?    te-hop-type
+     |     |           |     +--ro rsvp-te:direction?   te-link-direction
+     |     |           +--:(rsvp-te:as-number)
+     |     |           |  +--ro rsvp-te:as-number-hop
+     |     |           |     +--ro rsvp-te:as-number?   binary
+     |     |           |     +--ro rsvp-te:hop-type?    te-hop-type
+     |     |           +--:(rsvp-te:unnumbered)
+     |     |           |  +--ro rsvp-te:unnumbered-hop
+     |     |           |     +--ro rsvp-te:node-id?      te-types:te-node-id
+     |     |           |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |     |           |     +--ro rsvp-te:hop-type?     te-hop-type
+     |     |           |     +--ro rsvp-te:direction?    te-link-direction
+     |     |           +--:(rsvp-te:label)
+     |     |              +--ro rsvp-te:label-hop
+     |     |                 +--ro rsvp-te:te-label
+     |     |                    +--ro (rsvp-te:technology)?
+     |     |                    |  +--:(rsvp-te:generic)
+     |     |                    |     +--ro rsvp-te:generic?     rt-types:generalized-label
+     |     |                    +--ro rsvp-te:direction?   te-label-direction
+     |     +--ro rsvp-te:incoming-record-route-subobjects
+     |     |  +--ro rsvp-te:incoming-record-route-subobject* [index]
+     |     |     +--ro rsvp-te:index    -> ../state/index
+     |     |     +--ro rsvp-te:state
+     |     |        +--ro rsvp-te:index?         uint32
+     |     |        +--ro (rsvp-te:type)?
+     |     |           +--:(rsvp-te:numbered)
+     |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
+     |     |           |  +--ro rsvp-te:ip-flags?      binary
+     |     |           +--:(rsvp-te:unnumbered)
+     |     |           |  +--ro rsvp-te:node-id?       te-types:te-node-id
+     |     |           |  +--ro rsvp-te:link-tp-id?    te-types:te-tp-id
+     |     |           +--:(rsvp-te:label)
+     |     |              +--ro rsvp-te:value?         rt-types:generalized-label
+     |     |              +--ro rsvp-te:label-flags?   binary
+     |     +--ro rsvp-te:outgoing-record-route-subobjects
+     |     |  +--ro rsvp-te:outgoing-record-route-subobject* [index]
+     |     |     +--ro rsvp-te:index    -> ../state/index
+     |     |     +--ro rsvp-te:state
+     |     |        +--ro rsvp-te:index?         uint32
+     |     |        +--ro (rsvp-te:type)?
+     |     |           +--:(rsvp-te:numbered)
+     |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
+     |     |           |  +--ro rsvp-te:ip-flags?      binary
+     |     |           +--:(rsvp-te:unnumbered)
+     |     |           |  +--ro rsvp-te:node-id?       te-types:te-node-id
+     |     |           |  +--ro rsvp-te:link-tp-id?    te-types:te-tp-id
+     |     |           +--:(rsvp-te:label)
+     |     |              +--ro rsvp-te:value?         rt-types:generalized-label
+     |     |              +--ro rsvp-te:label-flags?   binary
+     |     +--ro rsvp-te-mpls:state
+     |     |  +--ro rsvp-te-mpls:local-protection-desired?       empty
+     |     |  +--ro rsvp-te-mpls:bandwidth-protection-desired?   empty
+     |     |  +--ro rsvp-te-mpls:node-protection-desired?        empty
+     |     |  +--ro rsvp-te-mpls:non-php-desired?                empty
+     |     |  +--ro rsvp-te-mpls:entropy-label-cap?              empty
+     |     |  +--ro rsvp-te-mpls:oam-mep-entities-desired?       empty
+     |     |  +--ro rsvp-te-mpls:oam-mip-entities-desired?       empty
+     |     +--ro rsvp-te-mpls:backup-info
+     |        +--ro rsvp-te-mpls:state
+     |           +--ro rsvp-te-mpls:backup-tunnel-name?         string
+     |           +--ro rsvp-te-mpls:backup-frr-on?              uint8
+     |           +--ro rsvp-te-mpls:backup-protected-lsp-num?   uint32
+     +--rw te-dev:interfaces
+        +--rw te-dev:threshold-type?            enumeration
+        +--rw te-dev:delta-percentage?          te-types:percentage
+        +--rw te-dev:threshold-specification?   enumeration
+        +--rw te-dev:up-thresholds*             te-types:percentage
+        +--rw te-dev:down-thresholds*           te-types:percentage
+        +--rw te-dev:up-down-thresholds*        te-types:percentage
+        +--rw te-dev:interface* [interface]
+           +--rw te-dev:interface                          if:interface-ref
+           +--rw te-dev:te-metric?                         te-types:te-metric
+           +--rw (te-dev:admin-group-type)?
+           |  +--:(te-dev:value-admin-groups)
+           |  |  +--rw (te-dev:value-admin-group-type)?
+           |  |     +--:(te-dev:admin-groups)
+           |  |     |  +--rw te-dev:admin-group?                       te-types:admin-group
+           |  |     +--:(te-dev:extended-admin-groups) {te-types:extended-admin-groups}?
+           |  |        +--rw te-dev:extended-admin-group?              te-types:extended-admin-group
+           |  +--:(te-dev:named-admin-groups)
+           |     +--rw te-dev:named-admin-groups* [named-admin-group] {te-types:extended-admin-groups,te-types:named-extended-admin-groups}?
+           |        +--rw te-dev:named-admin-group    -> ../../../../te:globals/named-admin-groups/named-admin-group/name
+           +--rw (te-dev:srlg-type)?
+           |  +--:(te-dev:value-srlgs)
+           |  |  +--rw te-dev:values* [value]
+           |  |     +--rw te-dev:value    uint32
+           |  +--:(te-dev:named-srlgs)
+           |     +--rw te-dev:named-srlgs* [named-srlg] {te-types:named-srlg-groups}?
+           |        +--rw te-dev:named-srlg    -> ../../../../te:globals/named-srlgs/named-srlg/name
+           +--rw te-dev:threshold-type?                    enumeration
+           +--rw te-dev:delta-percentage?                  te-types:percentage
+           +--rw te-dev:threshold-specification?           enumeration
+           +--rw te-dev:up-thresholds*                     te-types:percentage
+           +--rw te-dev:down-thresholds*                   te-types:percentage
+           +--rw te-dev:up-down-thresholds*                te-types:percentage
+           +--rw te-dev:switching-capabilities* [switching-capability]
+           |  +--rw te-dev:switching-capability    identityref
+           |  +--rw te-dev:encoding?               identityref
+           +--ro te-dev:state
+           |  +--ro te-dev:te-advertisements_state
+           |     +--ro te-dev:flood-interval?           uint32
+           |     +--ro te-dev:last-flooded-time?        uint32
+           |     +--ro te-dev:next-flooded-time?        uint32
+           |     +--ro te-dev:last-flooded-trigger?     enumeration
+           |     +--ro te-dev:advertized-level-areas* [level-area]
+           |        +--ro te-dev:level-area    uint32
+           +--rw rsvp-te-mpls:bandwidth-mpls-reservable
+           |  +--rw (rsvp-te-mpls:bandwidth-value)?
+           |  |  +--:(rsvp-te-mpls:absolute)
+           |  |  |  +--rw rsvp-te-mpls:absolute-value?   uint32
+           |  |  +--:(rsvp-te-mpls:percentage)
+           |  |     +--rw rsvp-te-mpls:percent-value?    uint32
+           |  +--rw (rsvp-te-mpls:bc-model-type)?
+           |     +--:(rsvp-te-mpls:bc-model-rdm)
+           |     |  +--rw rsvp-te-mpls:bc-model-rdm
+           |     |     +--rw rsvp-te-mpls:bandwidth-mpls-constraints
+           |     |        +--rw rsvp-te-mpls:maximum-reservable?   uint32
+           |     |        +--rw rsvp-te-mpls:bc-value*             uint32
+           |     +--:(rsvp-te-mpls:bc-model-mam)
+           |     |  +--rw rsvp-te-mpls:bc-model-mam
+           |     |     +--rw rsvp-te-mpls:bandwidth-mpls-constraints
+           |     |        +--rw rsvp-te-mpls:maximum-reservable?   uint32
+           |     |        +--rw rsvp-te-mpls:bc-value*             uint32
+           |     +--:(rsvp-te-mpls:bc-model-mar)
+           |        +--rw rsvp-te-mpls:bc-model-mar
+           |           +--rw rsvp-te-mpls:bandwidth-mpls-constraints
+           |              +--rw rsvp-te-mpls:maximum-reservable?   uint32
+           |              +--rw rsvp-te-mpls:bc-value*             uint32
+           +--rw rsvp-te-mpls:rsvp-te-frr-backups
+              +--rw (rsvp-te-mpls:type)?
+                 +--:(rsvp-te-mpls:static-tunnel)
+                 |  +--rw rsvp-te-mpls:static-backups
+                 |     +--rw rsvp-te-mpls:static-backup* [backup-tunnel-name]
+                 |        +--rw rsvp-te-mpls:backup-tunnel-name    -> /te:te/tunnels/tunnel/name
+                 +--:(rsvp-te-mpls:auto-tunnel)
+                    +--rw rsvp-te-mpls:auto-tunnel-backups
+                       +--rw rsvp-te-mpls:auto-backup-protection?         identityref
+                       +--rw rsvp-te-mpls:auto-backup-path-computation?   identityref
 
   rpcs:
     +---x globals-rpc

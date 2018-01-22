@@ -24,10 +24,6 @@ module ietf-te-topology {
     prefix "nt";
   }
 
-  import ietf-routing-types {
-    prefix "rt-types";
-  }
-
   organization
     "IETF Traffic Engineering Architecture and Signaling (TEAS)
      Working Group";
@@ -62,7 +58,7 @@ module ietf-te-topology {
 
   description "TE topology model";
 
-  revision "2017-10-25" {
+  revision "2017-12-20" {
     description "Initial revision";
     reference "RFC XXXX: YANG Data Model for TE Topologies";
   // RFC Ed.: replace XXXX with actual RFC number and remove
@@ -145,13 +141,18 @@ module ietf-te-topology {
       "List of abel restrictions specifying what labels may or may
        not be used on a link connectivity.";
     list label-restriction {
-      key "inclusive-exclusive label-start";
+      key "index";
       description
         "List of abel restrictions specifying what labels may or may
          not be used on a link connectivity.";
       reference
         "RFC7579: General Network Element Constraint Encoding
          for GMPLS-Controlled Networks";
+      leaf index {
+        type uint32;
+        description 
+          "Then index of the label restriction list entry.";
+      }
       leaf inclusive-exclusive {
         type enumeration {
           enum inclusive {
@@ -161,22 +162,23 @@ module ietf-te-topology {
             description "The label or label range is exclusive.";
           }
         }
+        default inclusive;
         description
           "Whether the list item is inclusive or exclusive.";
       }
-      leaf label-start {
-        type rt-types:generalized-label;
+      container label-start {
         description
           "This is the starting lable if a lable range is specified.
            This is the lable value if a single lable is specified,
            in which case, attribute 'label-end' is not set.";
+        uses te-types:te-label;
       }
-      leaf label-end {
-        type rt-types:generalized-label;
+      container label-end {
         description
           "The ending lable if a lable range is specified;
            This attribute is not set, If a single lable is
            specified.";
+        uses te-types:te-label;
       }
       leaf range-bitmap {
         type binary;
@@ -887,11 +889,7 @@ module ietf-te-topology {
         }
         description "Priority.";
       }
-      container bandwidth {
-        uses te-types:te-bandwidth;
-        description
-          "Unreserved bandwidth for this level.";
-      }
+      uses te-types:te-bandwidth;
     }
     leaf te-default-metric {
       type uint32;
@@ -966,11 +964,7 @@ module ietf-te-topology {
         }
         description "Priority.";
       }
-      container bandwidth {
-        uses te-types:te-bandwidth;
-        description
-          "Max LSP Bandwidth for this level";
-      }
+      uses te-types:te-bandwidth;
     }
   } // te-link-iscd-attributes
 
@@ -1495,11 +1489,7 @@ module ietf-te-topology {
           description
             "Encoding supported by the client layer adaption.";
         }
-        container bandwidth {
-          uses te-types:te-bandwidth;
-          description
-            "Bandwidth available for the client layer adaption.";
-        }
+        uses te-types:te-bandwidth;
       }
     }
   } // te-node-tunnel-termination-point-config-attributes
@@ -1538,7 +1528,7 @@ module ietf-te-topology {
     description
       "A group of attributes defining an element in a TE path
        such as TE node, TE link, TE atomic resource or label.";
-    uses te-types:explicit-route-hop_config;
+    uses te-types:explicit-route-hop;
   } // te-path-element
 
   grouping te-termination-point-augment {
