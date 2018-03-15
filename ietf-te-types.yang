@@ -53,7 +53,7 @@ module ietf-te-types {
     "This module contains a collection of generally
     useful TE specific YANG data type defintions.";
 
-  revision "2018-03-03" {
+  revision "2018-03-05" {
     description "Latest revision of TE types";
     reference "RFC3209";
   }
@@ -2084,7 +2084,6 @@ module ietf-te-types {
   }
 
   /*** End of TE tunnel groupings ***/
-
   grouping optimizations_config {
     description "Optimization metrics configuration grouping";
     leaf metric-type {
@@ -2097,11 +2096,19 @@ module ietf-te-types {
       type uint8;
       description "TE path metric normalization weight";
     }
-    uses path-route-exclude-objects {
-      when "metric-type = 'te-types:path-metric-optimize-excludes'";
+    container explicit-route-exclude-objects {
+      when "../metric-type = " +
+           "'te-types:path-metric-optimize-excludes'";
+      description
+        "Container for the exclude route object list";
+      uses path-route-exclude-objects;
     }
-    uses path-route-include-objects {
-      when "metric-type = 'te-types:path-metric-optimize-includes'";
+    container explicit-route-include-objects {
+      when "../metric-type = " +
+           "'te-types:path-metric-optimize-includes'";
+      description
+        "Container for the include route object list";
+      uses path-route-include-objects;
     }
   }
 
@@ -2209,16 +2216,12 @@ module ietf-te-types {
     description
       "List of EROs to be included when performing
        the path computation.";
-    container explicit-route-include-objects {
+    list route-object-include-object {
+      key index;
       description
-        "Container for the include route object list";
-      list route-object-include-object {
-        key index;
-        description
-          "List of explicit route objects to be included
-           in path computation";
-        uses te-types:explicit-route-hop;
-      }
+        "List of explicit route objects to be included
+         in path computation";
+      uses te-types:explicit-route-hop;
     }
   }
 
@@ -2226,16 +2229,12 @@ module ietf-te-types {
     description
       "List of EROs to be included when performing
        the path computation.";
-    container explicit-route-exclude-objects {
+    list route-object-exclude-object {
+      key index;
       description
-        "Container for the exclude route object list";
-      list route-object-exclude-object {
-        key index;
-        description
-          "List of explicit route objects to be excluded
-           in path computation";
-        uses te-types:explicit-route-hop;
-      }
+        "List of explicit route objects to be excluded
+         in path computation";
+      uses te-types:explicit-route-hop;
     }
   }
 
