@@ -53,7 +53,7 @@ module ietf-te-types {
     "This module contains a collection of generally
     useful TE specific YANG data type defintions.";
 
-  revision "2017-10-29" {
+  revision "2018-03-05" {
     description "Latest revision of TE types";
     reference "RFC3209";
   }
@@ -63,6 +63,7 @@ module ietf-te-types {
    */
   identity objective-function-type {
     description "Base objective function type";
+    reference "RFC4657";
   }
   identity of-minimize-cost-path {
     base objective-function-type;
@@ -171,6 +172,37 @@ module ietf-te-types {
     reference "RFC4124: section-4.3.1";
   }
 
+  typedef te-link-direction {
+    type enumeration {
+      enum INCOMING {
+        description
+          "explicit route represents an incoming link on a node";
+      }
+      enum OUTGOING {
+        description
+          "explicit route represents an outgoing link on a node";
+      }
+    }
+    description
+     "enumerated type for specifying direction of link on a node";
+  }
+
+  typedef te-label-direction {
+    type enumeration {
+      enum FORWARD {
+        description
+          "Label allocated for the forward LSP direction";
+      }
+      enum REVERSE {
+        description
+          "Label allocated for the reverse LSP direction";
+      }
+    }
+    description
+     "enumerated type for specifying the forward or reverse
+     label";
+  }
+
   typedef te-hop-type {
     type enumeration {
       enum LOOSE {
@@ -185,6 +217,7 @@ module ietf-te-types {
     description
      "enumerated type for specifying loose or strict
       paths";
+    reference "RFC3209: section-4.3.2";
   }
 
   identity LSP_METRIC_TYPE {
@@ -231,6 +264,7 @@ module ietf-te-types {
     base tunnel-type;
     description
       "TE point-to-multipoint tunnel type.";
+    reference "RFC4875";
   }
 
   identity tunnel-action-type {
@@ -407,6 +441,7 @@ module ietf-te-types {
   identity restoration-scheme-type {
     description
       "Base identity for LSP restoration schemes";
+    reference "RFC4872";
   }
 
   identity restoration-scheme-preconfigured {
@@ -475,18 +510,18 @@ module ietf-te-types {
     reference "RFC4872";
   }
 
-  identity lsp-protection-state {
-    description
-      "Base identity of protection states for reporting
-       purposes.";
-  }
-
   identity lsp-protection-extra-traffic {
     base lsp-protection-type;
     description
       "LSP protection 'Extra-Traffic'";
     reference
       "ITU-T G.808, RFC 4427.";
+  }
+
+  identity lsp-protection-state {
+    description
+      "Base identity of protection states for reporting
+       purposes.";
   }
 
   identity normal {
@@ -537,18 +572,18 @@ module ietf-te-types {
         "ITU-T G.808, RFC 4427";
   }
 
-  identity local-wait-to-restore {
+  identity manual-switch {
     base lsp-protection-state;
     description
-        "A local WTR is running.";
+        "A manual switch (MS) command is active.";
     reference
         "ITU-T G.808, RFC 4427";
   }
 
-  identity remote-wait-to-restore {
+  identity wait-to-restore {
     base lsp-protection-state;
     description
-        "A remote WTR is running.";
+        "A wait time to restore (WTR) is running.";
     reference
         "ITU-T G.808, RFC 4427";
   }
@@ -575,6 +610,42 @@ module ietf-te-types {
     description
       "Protection external commands for trouble shooting
       purposes.";
+  }
+
+  identity action-freeze {
+    base protection-external-commands;
+    description
+      "A temporary configuration action initiated by an operator
+       command to prevent any switch action to be taken and as such
+       freezes the current state.";
+    reference
+      "ITU-T G.808, RFC 4427";
+  }
+
+  identity clear-freeze {
+    base protection-external-commands;
+    description
+      "An action that clears the active freeze state.";
+    reference
+      "ITU-T G.808, RFC 4427";
+  }
+
+  identity action-lockout-of-normal {
+    base protection-external-commands;
+    description
+      "A temporary configuration action initiated by an operator
+       command to ensure that the normal traffic is not allowed
+       to use the protection transport entity.";
+    reference
+      "ITU-T G.808, RFC 4427";
+  }
+
+  identity clear-lockout-of-normal {
+    base protection-external-commands;
+    description
+      "An action that clears the active lockout of normal state.";
+    reference
+      "ITU-T G.808, RFC 4427";
   }
 
   identity action-lockout-of-protection {
@@ -614,7 +685,7 @@ module ietf-te-types {
   identity action-exercise {
     base protection-external-commands;
     description
-        "An action to start testing if the APS communication is 
+        "An action to start testing if the APS communication is
          operating correctly. It is lower priority than any other
          state or command.";
     reference
@@ -636,12 +707,14 @@ module ietf-te-types {
   identity switching-capabilities {
     description
       "Base identity for interface switching capabilities";
+    reference "RFC3471";
   }
 
   identity switching-psc1 {
     base switching-capabilities;
     description
       "Packet-Switch Capable-1 (PSC-1)";
+    reference "RFC3471";
   }
 
   identity switching-evpl {
@@ -654,12 +727,14 @@ module ietf-te-types {
     base switching-capabilities;
     description
       "Layer-2 Switch Capable (L2SC)";
+    reference "RFC3471";
   }
 
   identity switching-tdm {
     base switching-capabilities;
     description
       "Time-Division-Multiplex Capable (TDM)";
+    reference "RFC3471";
   }
 
   identity switching-otn {
@@ -678,65 +753,76 @@ module ietf-te-types {
     base switching-capabilities;
     description
       "Lambda-Switch Capable (LSC)";
+    reference "RFC3471";
   }
 
   identity switching-fsc {
     base switching-capabilities;
     description
       "Fiber-Switch Capable (FSC)";
+    reference "RFC3471";
   }
 
   identity lsp-encoding-types {
     description
       "Base identity for encoding types";
+    reference "RFC3471";
   }
 
   identity lsp-encoding-packet {
     base lsp-encoding-types;
     description
       "Packet LSP encoding";
+    reference "RFC3471";
   }
 
   identity lsp-encoding-ethernet {
     base lsp-encoding-types;
     description
       "Ethernet LSP encoding";
+    reference "RFC3471";
   }
 
   identity lsp-encoding-pdh {
     base lsp-encoding-types;
     description
       "ANSI/ETSI LSP encoding";
+    reference "RFC3471";
   }
 
   identity lsp-encoding-sdh {
     base lsp-encoding-types;
     description
       "SDH ITU-T G.707 / SONET ANSI T1.105 LSP encoding";
+    reference "RFC3471";
   }
 
   identity lsp-encoding-digital-wrapper {
     base lsp-encoding-types;
     description
       "Digital Wrapper LSP encoding";
+    reference "RFC3471";
   }
 
   identity lsp-encoding-lambda {
     base lsp-encoding-types;
     description
       "Lambda (photonic) LSP encoding";
+    reference "RFC3471";
   }
 
   identity lsp-encoding-fiber {
     base lsp-encoding-types;
     description
       "Fiber LSP encoding";
+    reference "RFC3471";
   }
 
   identity lsp-encoding-fiber-channel {
     base lsp-encoding-types;
     description
       "FiberChannel LSP encoding";
+    reference "RFC3471";
   }
 
   identity lsp-encoding-oduk {
@@ -759,7 +845,7 @@ module ietf-te-types {
 
   identity path-signaling-type {
     description
-      "base identity from which specific LSPs path 
+      "base identity from which specific LSPs path
        setup types are derived";
   }
 
@@ -773,6 +859,7 @@ module ietf-te-types {
     base path-signaling-type;
     description
       "RSVP-TE signaling path setup";
+    reference "RFC3209";
   }
 
   identity path-setup-sr {
@@ -803,17 +890,20 @@ module ietf-te-types {
   feature p2mp-te {
     description
       "Indicates support for P2MP-TE";
+    reference "RFC4875";
   }
 
   feature frr-te {
     description
       "Indicates support for TE FastReroute (FRR)";
+    reference "RFC4090";
   }
 
   feature extended-admin-groups {
     description
       "Indicates support for TE link extended admin
       groups.";
+    reference "RFC7308";
   }
 
   feature named-path-affinities {
@@ -878,12 +968,14 @@ module ietf-te-types {
     base path-metric-type;
     description
       "TE path metric";
+    reference "RFC3785";
   }
 
   identity path-metric-igp {
     base path-metric-type;
     description
       "IGP path metric";
+    reference "RFC3785";
   }
 
   identity path-metric-hop {
@@ -903,9 +995,23 @@ module ietf-te-types {
     base path-metric-type;
     description
       "Unidirectional Residual Bandwidth, which is defined to be
-       Maximum Bandwidth [RFC3630] minus the bandwidth currently 
+       Maximum Bandwidth [RFC3630] minus the bandwidth currently
        allocated to  LSPs.";
     reference "RFC7471";
+  }
+
+  identity path-metric-optimize-includes {
+    base path-metric-type;
+    description
+      "A metric that optimizes the number of included resources
+       specified in a set";
+  }
+
+  identity path-metric-optimize-excludes {
+    base path-metric-type;
+    description
+      "A metric that optimizes the number of excluded resources
+       specified in a set";
   }
 
   identity path-tiebreaker-type {
@@ -935,40 +1041,47 @@ module ietf-te-types {
     description
       "Base identity for bidirectional provisioning
       mode.";
+    reference "RFC7551";
   }
 
   identity bidir-provisioning-single-sided {
     base bidir-provisioning-mode;
     description
       "Single-sided bidirectional provioning mode";
+    reference "RFC7551";
   }
 
   identity bidir-provisioning-double-sided {
     base bidir-provisioning-mode;
     description
       "Double-sided bidirectional provioning mode";
+    reference "RFC7551";
   }
 
   identity bidir-association-type {
     description
       "Base identity for bidirectional association type";
+    reference "RFC7551";
   }
 
   identity bidir-assoc-corouted {
     base bidir-association-type;
     description
       "Co-routed bidirectional association type";
+    reference "RFC7551";
   }
 
   identity bidir-assoc-non-corouted {
     base bidir-association-type;
     description
       "Non co-routed bidirectional association type";
+    reference "RFC7551";
   }
 
   identity resource-affinities-type {
     description
       "Base identity for resource affinities";
+    reference "RFC2702";
   }
 
   identity resource-aff-include-all {
@@ -977,6 +1090,7 @@ module ietf-te-types {
       "The set of attribute filters associated with a
       tunnel all of which must be present for a link
       to be acceptable";
+    reference "RFC2702 and RFC3209";
   }
 
   identity resource-aff-include-any {
@@ -985,6 +1099,7 @@ module ietf-te-types {
       "The set of attribute filters associated with a
       tunnel any of which must be present for a link
       to be acceptable";
+    reference "RFC2702 and RFC3209";
   }
 
   identity resource-aff-exclude-any {
@@ -992,6 +1107,7 @@ module ietf-te-types {
     description
       "The set of attribute filters associated with a
       tunnel any of which renders a link unacceptable";
+    reference "RFC2702 and RFC3209";
   }
 
   typedef optimization-goal {
@@ -1324,12 +1440,14 @@ module ietf-te-types {
     }
     description
       "Administrative group/Resource class/Color.";
+    reference "RFC3630 and RFC5305";
   }
 
   typedef extended-admin-group {
     type binary;
     description
       "Extended administrative group/Resource class/Color.";
+    reference "RFC7308";
   }
 
   typedef admin-groups {
@@ -1343,6 +1461,7 @@ module ietf-te-types {
   typedef srlg {
     type uint32;
     description "SRLG type";
+    reference "RFC4203 and RFC5307";
   }
 
   identity path-computation-srlg-type {
@@ -1378,6 +1497,7 @@ module ietf-te-types {
     type uint32;
     description
       "TE link metric";
+    reference "RFC3785";
   }
 
   /**
@@ -1387,6 +1507,7 @@ module ietf-te-types {
     description
       "Base type to identify OTN bit rates of various information
        structures.";
+    reference "RFC7139";
   }
   identity odu0 {
     base otn-rate-type;
@@ -1435,18 +1556,18 @@ module ietf-te-types {
   }
   identity cwdm {
     base wdm-spectrum-type;
-    description
-        "CWDM.";
+    description "CWDM.";
+    reference "RFC6205";
   }
   identity dwdm {
     base wdm-spectrum-type;
-    description
-        "DWDM.";
+    description "DWDM.";
+    reference "RFC6205";
   }
   identity flexible-grid {
     base wdm-spectrum-type;
-    description
-        "Flexible grid.";
+    description "Flexible grid.";
+    reference "RFC6205";
   }
 
   grouping te-bandwidth {
@@ -1464,81 +1585,6 @@ module ietf-te-types {
         default generic;
         description
           "Data plane technology type.";
-        case psc {
-          leaf psc {
-            type rt-types:bandwidth-ieee-float32;
-            description
-              "Bandwidth in packet switching networks.";
-            reference
-              "RFC3630: Traffic Engineering (TE) Extensions to OSPF
-               Version 2.
-               RFC5305: IS-IS Extensions for Traffic Engineering.";
-          }
-        }
-        case otn {
-          list otn {
-            key "rate-type";
-            description
-              "Bandwidth in OTN (Optical Transport Network).";
-            reference
-              "ITU-T G.709/Y.1331: Interfaces for the optical
-               transport network.";
-            leaf rate-type {
-              type identityref {
-                base otn-rate-type;
-              }
-              description
-                "OTN bit rate types of various information
-                 structures.";
-            }
-            leaf counter {
-              type uint16;
-              description
-                "Number of channels.";
-            }
-          }
-        }
-        case lsc {
-          list wdm {
-            key "spectrum slot";
-            description
-              "Bandwidth in Lambda Switch Capable (LSC) networks.";
-            reference
-              "ITU-t G.694.1: Spectral grids for WDM applications:
-               DWDM frequency grid.";
-            leaf spectrum {
-              type identityref {
-                base wdm-spectrum-type;
-              }
-              description
-                "Optical spectrum allocation type.";
-              reference
-                "RFC7699: Generalized Labels for the Flexi-Grid in
-                 Lambda Switch Capable (LSC) Label Switching
-                 Routers";
-            }
-            leaf slot {
-              type int16;
-              description
-                "The value identifies the central frenquency of a
-                 frequency slot.";
-              reference
-                "RFC7792: RSVP-TE Signaling Extensions in Support of
-                 Flexi-Grid Dense Wavelength Division Multiplexing
-                 (DWDM) Networks.";
-            }
-            leaf width {
-              type uint16;
-              description
-                "The slot width is calculated as this value times
-                 12.5 GHz.";
-              reference
-                "RFC7792: RSVP-TE Signaling Extensions in Support of
-                 Flexi-Grid Dense Wavelength Division Multiplexing
-                 (DWDM) Networks.";
-            }
-          }
-        }
         case generic {
           leaf generic {
             type te-bandwidth;
@@ -1546,6 +1592,37 @@ module ietf-te-types {
               "Bandwidth specified in a generic format.";
           }
         }
+      }
+    }
+  }
+
+  /**
+   * TE label groupings
+   **/
+  grouping te-label {
+    description
+      "This grouping defines the generic TE label.
+       The modeling structure can be augmented for each technology.
+       For un-specified technologies, rt-types:generalized-label
+       is used.";
+    container te-label {
+      description
+        "Container that specifies TE label.";
+      choice technology {
+        default generic;
+        description
+          "Data plane technology type.";
+        case generic {
+          leaf generic {
+            type rt-types:generalized-label;
+            description
+              "TE label specified in a generic format.";
+          }
+        }
+      }
+      leaf direction {
+        type te-label-direction;
+        description "Label direction";
       }
     }
   }
@@ -1581,6 +1658,33 @@ module ietf-te-types {
       uses performance-metric-throttle-container;
     }
   } // performance-metric-container
+
+  grouping te-topology-identifier {
+    description
+      "Augmentation for TE topology.";
+    container te-topology-identifier {
+      description "TE topology identifier container";
+      leaf provider-id {
+        type te-types:te-global-id;
+        description
+          "An identifier to uniquely identify a provider.";
+      }
+      leaf client-id {
+        type te-types:te-global-id;
+        description
+          "An identifier to uniquely identify a client.";
+      }
+      leaf topology-id {
+        type te-types:te-topology-id;
+        description
+          "It is presumed that a datastore will contain many
+           topologies. To distinguish between topologies it is
+           vital to have UNIQUE topology identifiers.";
+      }
+    }
+  }
+
+
 
   grouping performance-metric-attributes {
     description
@@ -1778,7 +1882,7 @@ module ietf-te-types {
    **/
 
   /* Tunnel path selection parameters */
-  grouping explicit-route-hop_config {
+  grouping explicit-route-hop {
     description
       "The explicit route subobject grouping";
     leaf index {
@@ -1800,8 +1904,12 @@ module ietf-te-types {
           }
           leaf hop-type {
             type te-hop-type;
-              description
-                "strict or loose hop";
+            description "strict or loose hop";
+          }
+          leaf direction {
+            type te-link-direction;
+            default INCOMING;
+            description "Link ERO direction";
           }
         }
       }
@@ -1838,8 +1946,11 @@ module ietf-te-types {
           }
           leaf hop-type {
             type te-hop-type;
-              description
-                "strict or loose hop";
+            description "strict or loose hop";
+          }
+          leaf direction {
+            type te-link-direction;
+            description "Unnumbered Link ERO direction";
           }
           description
             "Unnumbered link explicit route subobject";
@@ -1851,23 +1962,10 @@ module ietf-te-types {
       case label {
         container label-hop {
           description "Label hop type";
-          leaf value {
-            type rt-types:generalized-label;
-            description "the label value";
-          }
+          uses te-label;
         }
         description
           "The Label ERO subobject";
-      }
-      case sid {
-        container sid-hop {
-          description "Segment routing SID hop";
-          leaf sid {
-            type rt-types:generalized-label;
-            description "Segment-routing identifier";
-          }
-        }
-        description "Segment-routing identifier";
       }
     }
   }
@@ -1986,7 +2084,6 @@ module ietf-te-types {
   }
 
   /*** End of TE tunnel groupings ***/
-
   grouping optimizations_config {
     description "Optimization metrics configuration grouping";
     leaf metric-type {
@@ -1999,35 +2096,39 @@ module ietf-te-types {
       type uint8;
       description "TE path metric normalization weight";
     }
+    container explicit-route-exclude-objects {
+      when "../metric-type = " +
+           "'te-types:path-metric-optimize-excludes'";
+      description
+        "Container for the exclude route object list";
+      uses path-route-exclude-objects;
+    }
+    container explicit-route-include-objects {
+      when "../metric-type = " +
+           "'te-types:path-metric-optimize-includes'";
+      description
+        "Container for the include route object list";
+      uses path-route-include-objects;
+    }
   }
 
   grouping common-constraints_config {
     description
       "Common constraints grouping that can be set on
        a constraint set or directly on the tunnel";
-    leaf topology-id {
-      type te-types:te-topology-id;
+
+    uses te-types:te-bandwidth {
       description
-        "The tunnel path is computed using the specific
-        topology identified by this identifier";
+        "A requested bandwidth to use for path computation";
     }
-    container bandwidth-generic {
-      uses te-types:te-bandwidth;
-      description
-        "A technology agnostic requested bandwidth to use
-         for path computation";
-    }
-    leaf disjointness {
-      type te-types:te-path-disjointness;
-      description
-        "The type of resource disjointness.";
-    }
+
     leaf setup-priority {
       type uint8 {
         range "0..7";
       }
       description
         "TE LSP requested setup priority";
+      reference "RFC3209";
     }
     leaf hold-priority {
       type uint8 {
@@ -2035,6 +2136,7 @@ module ietf-te-types {
       }
       description
         "TE LSP requested hold priority";
+      reference "RFC3209";
     }
     leaf signaling-type {
       type identityref {
@@ -2042,6 +2144,14 @@ module ietf-te-types {
       }
       description "TE tunnel path signaling type";
     }
+  }
+
+  grouping tunnel-constraints_config {
+    description
+      "Tunnel constraints grouping that can be set on
+       a constraint set or directly on the tunnel";
+    uses te-types:te-topology-identifier;
+    uses te-types:common-constraints_config;
   }
 
   grouping path-metrics-bounds_config {
@@ -2072,6 +2182,74 @@ module ietf-te-types {
   /**
    * TE interface generic groupings
    **/
+  grouping path-route-objects {
+    description
+      "List of EROs to be included or excluded when performing
+       the path computation.";
+    container explicit-route-objects {
+      description
+        "Container for the exclude route object list";
+      list route-object-exclude-always {
+        key index;
+        description
+          "List of explicit route objects to always exclude
+           from path computation";
+        uses te-types:explicit-route-hop;
+      }
+      list route-object-include-exclude {
+        key index;
+        description
+          "List of explicit route objects to include or
+           exclude in path computation";
+        leaf explicit-route-usage {
+          type identityref {
+            base te-types:route-usage-type;
+          }
+          description "Explicit-route usage.";
+        }
+        uses te-types:explicit-route-hop;
+      }
+    }
+  }
+
+  grouping path-route-include-objects {
+    description
+      "List of EROs to be included when performing
+       the path computation.";
+    list route-object-include-object {
+      key index;
+      description
+        "List of explicit route objects to be included
+         in path computation";
+      uses te-types:explicit-route-hop;
+    }
+  }
+
+  grouping path-route-exclude-objects {
+    description
+      "List of EROs to be included when performing
+       the path computation.";
+    list route-object-exclude-object {
+      key index;
+      description
+        "List of explicit route objects to be excluded
+         in path computation";
+      uses te-types:explicit-route-hop;
+    }
+  }
+
+  grouping generic-path-metric-bounds {
+    description "TE path metric bounds grouping";
+    container path-metric-bounds {
+      description "TE path metric bounds container";
+      list path-metric-bound {
+        key metric-type;
+        description "List of TE path metric bounds";
+        uses path-metrics-bounds_config;
+      }
+    }
+  }
+
   grouping generic-path-optimization {
     description "TE generic path optimization grouping";
 
@@ -2166,29 +2344,37 @@ module ietf-te-types {
     }
   }
 
+  grouping generic-path-disjointness {
+    description "Path disjointness grouping";
+    leaf disjointness {
+      type te-types:te-path-disjointness;
+      description
+        "The type of resource disjointness.
+         Under primary path, disjointness level applies to
+         all secondary LSPs. Under secondary, disjointness
+         level overrides the one under primary";
+    }
+  }
+
   grouping generic-path-constraints {
     description
       "Global named path constraints configuration
       grouping";
     container path-constraints {
       description "TE named path constraints container";
-      list path-metric-bound {
-        key metric-type;
-        description "List of TE path metrics";
-        uses path-metrics-bounds_config;
-      }
-
       uses common-constraints_config;
+      uses generic-path-disjointness;
+      uses generic-path-metric-bounds;
       uses generic-path-affinities;
       uses generic-path-srlgs;
     }
   }
 
-  grouping generic-computed-path-properties {
-    description "TE generic computed path properties grouping";
-    container computed-path-properties {
+  grouping generic-path-properties {
+    description "TE generic path properties grouping";
+    container path-properties {
       config false;
-      description "The TE path computed properties";
+      description "The TE path properties";
       list path-metric {
         key metric-type;
         description "TE path metric type";
@@ -2205,16 +2391,16 @@ module ietf-te-types {
       }
       uses generic-path-affinities;
       uses generic-path-srlgs;
-      container path-computed-route-objects {
+      container path-route-objects {
         description
-          "Container for the list of computed route objects
-           as returned by the computation engine";
-        list path-computed-route-object {
+          "Container for the list of route objects either returned by
+           the computation engine or actually used by an LSP";
+        list path-route-object {
           key index;
           description
-            "List of computed route objects returned by the
-             computation engine";
-          uses explicit-route-hop_config;
+            "List of route objects either returned by the computation
+             engine or actually used by an LSP";
+          uses explicit-route-hop;
         }
       }
     }
