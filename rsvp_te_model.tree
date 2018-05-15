@@ -15,7 +15,7 @@ module: ietf-rsvp
        |  |        +--ro session-state?      enumeration
        |  |        +--ro session-type?       identityref
        |  |        +--ro psbs
-       |  |        |  +--ro psb*[]
+       |  |        |  +--ro psb* []
        |  |        |     +--ro source-port?                  inet:port-number
        |  |        |     +--ro expires-in?                   uint32
        |  |        |     +--ro rsvp-te:tspec-average-rate?   rt-types:bandwidth-ieee-float32
@@ -24,7 +24,7 @@ module: ietf-rsvp
        |  |        |     +--ro rsvp-te:min-policed-unit?     uint32
        |  |        |     +--ro rsvp-te:max-packet-size?      uint32
        |  |        +--ro rsbs
-       |  |           +--ro rsb*[]
+       |  |           +--ro rsb* []
        |  |              +--ro source-port?                  inet:port-number
        |  |              +--ro reservation-style?            identityref
        |  |              +--ro expires-in?                   uint32
@@ -247,6 +247,45 @@ module: ietf-rsvp
        |        +--ro restart-time?                yang:date-and-time
        +--rw rsvp-te-mpls:fast-reroute-local-revertive
           +--rw rsvp-te-mpls:rsvp-frr-local-revert-delay?   uint32
+
+module: ietf-rsvp-te
+  augment /te:te/te-dev:interfaces/te-dev:interface:
+
+module: ietf-rsvp-te-mpls
+  augment /te:te/te-dev:interfaces/te-dev:interface:
+    +--rw bandwidth-mpls-reservable
+       +--rw (bandwidth-value)?
+       |  +--:(absolute)
+       |  |  +--rw absolute-value?   uint32
+       |  +--:(percentage)
+       |     +--rw percent-value?    uint32
+       +--rw (bc-model-type)?
+          +--:(bc-model-rdm)
+          |  +--rw bc-model-rdm
+          |     +--rw bandwidth-mpls-constraints
+          |        +--rw maximum-reservable?   uint32
+          |        +--rw bc-value*             uint32
+          +--:(bc-model-mam)
+          |  +--rw bc-model-mam
+          |     +--rw bandwidth-mpls-constraints
+          |        +--rw maximum-reservable?   uint32
+          |        +--rw bc-value*             uint32
+          +--:(bc-model-mar)
+             +--rw bc-model-mar
+                +--rw bandwidth-mpls-constraints
+                   +--rw maximum-reservable?   uint32
+                   +--rw bc-value*             uint32
+  augment /te:te/te-dev:interfaces/te-dev:interface:
+    +--rw rsvp-te-frr-backups
+       +--rw (type)?
+          +--:(static-tunnel)
+          |  +--rw static-backups
+          |     +--rw static-backup* [backup-tunnel-name]
+          |        +--rw backup-tunnel-name    -> /te:te/tunnels/tunnel/name
+          +--:(auto-tunnel)
+             +--rw auto-tunnel-backups
+                +--rw auto-backup-protection?         identityref
+                +--rw auto-backup-path-computation?   identityref
 module: ietf-te
   +--rw te!
      +--rw globals
@@ -276,7 +315,7 @@ module: ietf-te
      |  |     |     +--rw upper-bound?   uint64
      |  |     +--rw path-affinities
      |  |     |  +--rw constraints* [usage]
-     |  |     |     +--rw usage             identityref
+     |  |     |     +--rw usage                   identityref
      |  |     |     +--rw (style)?
      |  |     |        +--:(value)
      |  |     |        |  +--rw value?            te-types:admin-groups
@@ -297,7 +336,7 @@ module: ietf-te
      |  |     |                    +--rw name    string
      |  |     +--rw explicit-route-objects
      |  |     |  +--rw route-object-exclude-always* [index]
-     |  |     |  |  +--rw index             uint32
+     |  |     |  |  +--rw index                   uint32
      |  |     |  |  +--rw (type)?
      |  |     |  |     +--:(numbered)
      |  |     |  |     |  +--rw numbered-hop
@@ -319,8 +358,8 @@ module: ietf-te
      |  |     |  |           +--rw te-label
      |  |     |  |              +--rw (technology)?
      |  |     |  |              |  +--:(generic)
-     |  |     |  |              |     +--rw generic?     rt-types:generalized-label
-     |  |     |  |              +--rw direction?   te-label-direction
+     |  |     |  |              |     +--rw generic?   rt-types:generalized-label
+     |  |     |  |              +--rw direction?       te-label-direction
      |  |     |  +--rw route-object-include-exclude* [index]
      |  |     |     +--rw explicit-route-usage?   identityref
      |  |     |     +--rw index                   uint32
@@ -345,8 +384,8 @@ module: ietf-te
      |  |     |              +--rw te-label
      |  |     |                 +--rw (technology)?
      |  |     |                 |  +--:(generic)
-     |  |     |                 |     +--rw generic?     rt-types:generalized-label
-     |  |     |                 +--rw direction?   te-label-direction
+     |  |     |                 |     +--rw generic?   rt-types:generalized-label
+     |  |     |                 +--rw direction?       te-label-direction
      |  |     +--rw shared-resources-tunnels
      |  |     |  +--rw lsp-shared-resources-tunnel*   te:tunnel-ref
      |  |     +--rw path-in-segment!
@@ -403,6 +442,19 @@ module: ietf-te
      |  |  +--rw destination?                                 inet:ip-address
      |  |  +--rw src-tp-id?                                   binary
      |  |  +--rw dst-tp-id?                                   binary
+     |  |  +--rw bidirectional?                               binary
+     |  |  +--rw association-objects
+     |  |  |  +--rw association-object* [type ID source global-source]
+     |  |  |  |  +--rw type             identityref
+     |  |  |  |  +--rw ID               uint16
+     |  |  |  |  +--rw source           inet:ip-address
+     |  |  |  |  +--rw global-source    inet:ip-address
+     |  |  |  +--rw association-object-extended* [type ID source global-source extended-ID]
+     |  |  |     +--rw type             identityref
+     |  |  |     +--rw ID               uint16
+     |  |  |     +--rw source           inet:ip-address
+     |  |  |     +--rw global-source    inet:ip-address
+     |  |  |     +--rw extended-ID      binary
      |  |  +--rw protection
      |  |  |  +--rw enable?                         boolean
      |  |  |  +--rw protection-type?                identityref
@@ -451,13 +503,6 @@ module: ietf-te
      |  |  |  +--ro rsvp-te:lsp-preplanned?              boolean
      |  |  |  +--ro rsvp-te:lsp-oob-mapping?             boolean
      |  |  |  +--ro rsvp-te:retry-timer?                 uint16
-     |  |  +--rw bidirectional
-     |  |  |  +--rw association
-     |  |  |     +--rw id?              uint16
-     |  |  |     +--rw source?          inet:ip-address
-     |  |  |     +--rw global-source?   inet:ip-address
-     |  |  |     +--rw type?            identityref
-     |  |  |     +--rw provisioning?    identityref
      |  |  +--rw p2p-primary-paths
      |  |  |  +--rw p2p-primary-path* [name]
      |  |  |     +--rw hierarchical-link
@@ -490,7 +535,7 @@ module: ietf-te
      |  |  |     |     +--rw upper-bound?   uint64
      |  |  |     +--rw path-affinities
      |  |  |     |  +--rw constraints* [usage]
-     |  |  |     |     +--rw usage             identityref
+     |  |  |     |     +--rw usage                   identityref
      |  |  |     |     +--rw (style)?
      |  |  |     |        +--:(value)
      |  |  |     |        |  +--rw value?            te-types:admin-groups
@@ -511,7 +556,7 @@ module: ietf-te
      |  |  |     |                    +--rw name    string
      |  |  |     +--rw explicit-route-objects
      |  |  |     |  +--rw route-object-exclude-always* [index]
-     |  |  |     |  |  +--rw index             uint32
+     |  |  |     |  |  +--rw index                   uint32
      |  |  |     |  |  +--rw (type)?
      |  |  |     |  |     +--:(numbered)
      |  |  |     |  |     |  +--rw numbered-hop
@@ -533,8 +578,8 @@ module: ietf-te
      |  |  |     |  |           +--rw te-label
      |  |  |     |  |              +--rw (technology)?
      |  |  |     |  |              |  +--:(generic)
-     |  |  |     |  |              |     +--rw generic?     rt-types:generalized-label
-     |  |  |     |  |              +--rw direction?   te-label-direction
+     |  |  |     |  |              |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |  |              +--rw direction?       te-label-direction
      |  |  |     |  +--rw route-object-include-exclude* [index]
      |  |  |     |     +--rw explicit-route-usage?   identityref
      |  |  |     |     +--rw index                   uint32
@@ -559,8 +604,8 @@ module: ietf-te
      |  |  |     |              +--rw te-label
      |  |  |     |                 +--rw (technology)?
      |  |  |     |                 |  +--:(generic)
-     |  |  |     |                 |     +--rw generic?     rt-types:generalized-label
-     |  |  |     |                 +--rw direction?   te-label-direction
+     |  |  |     |                 |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |                 +--rw direction?       te-label-direction
      |  |  |     +--rw shared-resources-tunnels
      |  |  |     |  +--rw lsp-shared-resources-tunnel*   te:tunnel-ref
      |  |  |     +--rw path-in-segment!
@@ -597,7 +642,7 @@ module: ietf-te
      |  |  |     |     |  |  +--rw weight?                           uint8
      |  |  |     |     |  |  +--rw explicit-route-exclude-objects
      |  |  |     |     |  |  |  +--rw route-object-exclude-object* [index]
-     |  |  |     |     |  |  |     +--rw index             uint32
+     |  |  |     |     |  |  |     +--rw index                   uint32
      |  |  |     |     |  |  |     +--rw (type)?
      |  |  |     |     |  |  |        +--:(numbered)
      |  |  |     |     |  |  |        |  +--rw numbered-hop
@@ -619,11 +664,11 @@ module: ietf-te
      |  |  |     |     |  |  |              +--rw te-label
      |  |  |     |     |  |  |                 +--rw (technology)?
      |  |  |     |     |  |  |                 |  +--:(generic)
-     |  |  |     |     |  |  |                 |     +--rw generic?     rt-types:generalized-label
-     |  |  |     |     |  |  |                 +--rw direction?   te-label-direction
+     |  |  |     |     |  |  |                 |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |     |  |  |                 +--rw direction?       te-label-direction
      |  |  |     |     |  |  +--rw explicit-route-include-objects
      |  |  |     |     |  |     +--rw route-object-include-object* [index]
-     |  |  |     |     |  |        +--rw index             uint32
+     |  |  |     |     |  |        +--rw index                   uint32
      |  |  |     |     |  |        +--rw (type)?
      |  |  |     |     |  |           +--:(numbered)
      |  |  |     |     |  |           |  +--rw numbered-hop
@@ -645,8 +690,8 @@ module: ietf-te
      |  |  |     |     |  |                 +--rw te-label
      |  |  |     |     |  |                    +--rw (technology)?
      |  |  |     |     |  |                    |  +--:(generic)
-     |  |  |     |     |  |                    |     +--rw generic?     rt-types:generalized-label
-     |  |  |     |     |  |                    +--rw direction?   te-label-direction
+     |  |  |     |     |  |                    |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |     |  |                    +--rw direction?       te-label-direction
      |  |  |     |     |  +--rw tiebreakers
      |  |  |     |     |     +--rw tiebreaker* [tiebreaker-type]
      |  |  |     |     |        +--rw tiebreaker-type    identityref
@@ -664,7 +709,7 @@ module: ietf-te
      |  |  |     |  |  |     +--ro accumulative-value?   uint64
      |  |  |     |  |  +--ro path-affinities
      |  |  |     |  |  |  +--ro constraints* [usage]
-     |  |  |     |  |  |     +--ro usage             identityref
+     |  |  |     |  |  |     +--ro usage                   identityref
      |  |  |     |  |  |     +--ro (style)?
      |  |  |     |  |  |        +--:(value)
      |  |  |     |  |  |        |  +--ro value?            te-types:admin-groups
@@ -687,7 +732,7 @@ module: ietf-te
      |  |  |     |  |  |  +--ro path-computed-route-object* [index]
      |  |  |     |  |  |     +--ro index    -> ../state/index
      |  |  |     |  |  |     +--ro state
-     |  |  |     |  |  |        +--ro index?            uint32
+     |  |  |     |  |  |        +--ro index?                  uint32
      |  |  |     |  |  |        +--ro (type)?
      |  |  |     |  |  |           +--:(numbered)
      |  |  |     |  |  |           |  +--ro numbered-hop
@@ -709,8 +754,8 @@ module: ietf-te
      |  |  |     |  |  |                 +--ro te-label
      |  |  |     |  |  |                    +--ro (technology)?
      |  |  |     |  |  |                    |  +--:(generic)
-     |  |  |     |  |  |                    |     +--ro generic?     rt-types:generalized-label
-     |  |  |     |  |  |                    +--ro direction?   te-label-direction
+     |  |  |     |  |  |                    |     +--ro generic?   rt-types:generalized-label
+     |  |  |     |  |  |                    +--ro direction?       te-label-direction
      |  |  |     |  |  +--ro shared-resources-tunnels
      |  |  |     |  |     +--ro lsp-shared-resources-tunnel*   te:tunnel-ref
      |  |  |     |  +--ro lsps
@@ -733,7 +778,7 @@ module: ietf-te
      |  |  |     |  |     +--ro lsp-shared-resources-tunnel?                te:tunnel-ref
      |  |  |     |  |     +--ro lsp-record-route-subobjects
      |  |  |     |  |     |  +--ro record-route-subobject* [index]
-     |  |  |     |  |     |     +--ro index          uint32
+     |  |  |     |  |     |     +--ro index                uint32
      |  |  |     |  |     |     +--ro (type)?
      |  |  |     |  |     |        +--:(numbered)
      |  |  |     |  |     |        |  +--ro address?       te-types:te-tp-id
@@ -752,7 +797,7 @@ module: ietf-te
      |  |  |     |  |     |  |     +--ro accumulative-value?   uint64
      |  |  |     |  |     |  +--ro path-affinities
      |  |  |     |  |     |  |  +--ro constraints* [usage]
-     |  |  |     |  |     |  |     +--ro usage             identityref
+     |  |  |     |  |     |  |     +--ro usage                   identityref
      |  |  |     |  |     |  |     +--ro (style)?
      |  |  |     |  |     |  |        +--:(value)
      |  |  |     |  |     |  |        |  +--ro value?            te-types:admin-groups
@@ -775,7 +820,7 @@ module: ietf-te
      |  |  |     |  |     |  |  +--ro path-computed-route-object* [index]
      |  |  |     |  |     |  |     +--ro index    -> ../state/index
      |  |  |     |  |     |  |     +--ro state
-     |  |  |     |  |     |  |        +--ro index?            uint32
+     |  |  |     |  |     |  |        +--ro index?                  uint32
      |  |  |     |  |     |  |        +--ro (type)?
      |  |  |     |  |     |  |           +--:(numbered)
      |  |  |     |  |     |  |           |  +--ro numbered-hop
@@ -797,8 +842,8 @@ module: ietf-te
      |  |  |     |  |     |  |                 +--ro te-label
      |  |  |     |  |     |  |                    +--ro (technology)?
      |  |  |     |  |     |  |                    |  +--:(generic)
-     |  |  |     |  |     |  |                    |     +--ro generic?     rt-types:generalized-label
-     |  |  |     |  |     |  |                    +--ro direction?   te-label-direction
+     |  |  |     |  |     |  |                    |     +--ro generic?   rt-types:generalized-label
+     |  |  |     |  |     |  |                    +--ro direction?       te-label-direction
      |  |  |     |  |     |  +--ro shared-resources-tunnels
      |  |  |     |  |     |     +--ro lsp-shared-resources-tunnel*   te:tunnel-ref
      |  |  |     |  |     +--ro te-dev:lsp-timers
@@ -830,7 +875,7 @@ module: ietf-te
      |  |  |     |  |     |  +--ro rsvp-te:incoming-explicit-route-hop* [index]
      |  |  |     |  |     |  |  +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |  |  +--ro rsvp-te:state
-     |  |  |     |  |     |  |     +--ro rsvp-te:index?            uint32
+     |  |  |     |  |     |  |     +--ro rsvp-te:index?                  uint32
      |  |  |     |  |     |  |     +--ro (rsvp-te:type)?
      |  |  |     |  |     |  |        +--:(rsvp-te:numbered)
      |  |  |     |  |     |  |        |  +--ro rsvp-te:numbered-hop
@@ -852,12 +897,12 @@ module: ietf-te
      |  |  |     |  |     |  |              +--ro rsvp-te:te-label
      |  |  |     |  |     |  |                 +--ro (rsvp-te:technology)?
      |  |  |     |  |     |  |                 |  +--:(rsvp-te:generic)
-     |  |  |     |  |     |  |                 |     +--ro rsvp-te:generic?     rt-types:generalized-label
-     |  |  |     |  |     |  |                 +--ro rsvp-te:direction?   te-label-direction
+     |  |  |     |  |     |  |                 |     +--ro rsvp-te:generic?   rt-types:generalized-label
+     |  |  |     |  |     |  |                 +--ro rsvp-te:direction?       te-label-direction
      |  |  |     |  |     |  +--ro rsvp-te:outgoing-explicit-route-hop* [index]
      |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |     +--ro rsvp-te:state
-     |  |  |     |  |     |        +--ro rsvp-te:index?            uint32
+     |  |  |     |  |     |        +--ro rsvp-te:index?                  uint32
      |  |  |     |  |     |        +--ro (rsvp-te:type)?
      |  |  |     |  |     |           +--:(rsvp-te:numbered)
      |  |  |     |  |     |           |  +--ro rsvp-te:numbered-hop
@@ -879,13 +924,13 @@ module: ietf-te
      |  |  |     |  |     |                 +--ro rsvp-te:te-label
      |  |  |     |  |     |                    +--ro (rsvp-te:technology)?
      |  |  |     |  |     |                    |  +--:(rsvp-te:generic)
-     |  |  |     |  |     |                    |     +--ro rsvp-te:generic?     rt-types:generalized-label
-     |  |  |     |  |     |                    +--ro rsvp-te:direction?   te-label-direction
+     |  |  |     |  |     |                    |     +--ro rsvp-te:generic?   rt-types:generalized-label
+     |  |  |     |  |     |                    +--ro rsvp-te:direction?       te-label-direction
      |  |  |     |  |     +--ro rsvp-te:incoming-record-route-subobjects
      |  |  |     |  |     |  +--ro rsvp-te:incoming-record-route-subobject* [index]
      |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |     +--ro rsvp-te:state
-     |  |  |     |  |     |        +--ro rsvp-te:index?         uint32
+     |  |  |     |  |     |        +--ro rsvp-te:index?               uint32
      |  |  |     |  |     |        +--ro (rsvp-te:type)?
      |  |  |     |  |     |           +--:(rsvp-te:numbered)
      |  |  |     |  |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
@@ -900,7 +945,7 @@ module: ietf-te
      |  |  |     |  |     |  +--ro rsvp-te:outgoing-record-route-subobject* [index]
      |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |     +--ro rsvp-te:state
-     |  |  |     |  |     |        +--ro rsvp-te:index?         uint32
+     |  |  |     |  |     |        +--ro rsvp-te:index?               uint32
      |  |  |     |  |     |        +--ro (rsvp-te:type)?
      |  |  |     |  |     |           +--:(rsvp-te:numbered)
      |  |  |     |  |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
@@ -948,7 +993,7 @@ module: ietf-te
      |  |  |     |  |     +--rw upper-bound?   uint64
      |  |  |     |  +--rw path-affinities
      |  |  |     |  |  +--rw constraints* [usage]
-     |  |  |     |  |     +--rw usage             identityref
+     |  |  |     |  |     +--rw usage                   identityref
      |  |  |     |  |     +--rw (style)?
      |  |  |     |  |        +--:(value)
      |  |  |     |  |        |  +--rw value?            te-types:admin-groups
@@ -969,7 +1014,7 @@ module: ietf-te
      |  |  |     |  |                    +--rw name    string
      |  |  |     |  +--rw explicit-route-objects
      |  |  |     |  |  +--rw route-object-exclude-always* [index]
-     |  |  |     |  |  |  +--rw index             uint32
+     |  |  |     |  |  |  +--rw index                   uint32
      |  |  |     |  |  |  +--rw (type)?
      |  |  |     |  |  |     +--:(numbered)
      |  |  |     |  |  |     |  +--rw numbered-hop
@@ -991,8 +1036,8 @@ module: ietf-te
      |  |  |     |  |  |           +--rw te-label
      |  |  |     |  |  |              +--rw (technology)?
      |  |  |     |  |  |              |  +--:(generic)
-     |  |  |     |  |  |              |     +--rw generic?     rt-types:generalized-label
-     |  |  |     |  |  |              +--rw direction?   te-label-direction
+     |  |  |     |  |  |              |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |  |  |              +--rw direction?       te-label-direction
      |  |  |     |  |  +--rw route-object-include-exclude* [index]
      |  |  |     |  |     +--rw explicit-route-usage?   identityref
      |  |  |     |  |     +--rw index                   uint32
@@ -1017,8 +1062,8 @@ module: ietf-te
      |  |  |     |  |              +--rw te-label
      |  |  |     |  |                 +--rw (technology)?
      |  |  |     |  |                 |  +--:(generic)
-     |  |  |     |  |                 |     +--rw generic?     rt-types:generalized-label
-     |  |  |     |  |                 +--rw direction?   te-label-direction
+     |  |  |     |  |                 |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |  |                 +--rw direction?       te-label-direction
      |  |  |     |  +--rw shared-resources-tunnels
      |  |  |     |  |  +--rw lsp-shared-resources-tunnel*   te:tunnel-ref
      |  |  |     |  +--rw path-in-segment!
@@ -1055,7 +1100,7 @@ module: ietf-te
      |  |  |     |  |     |  |  +--rw weight?                           uint8
      |  |  |     |  |     |  |  +--rw explicit-route-exclude-objects
      |  |  |     |  |     |  |  |  +--rw route-object-exclude-object* [index]
-     |  |  |     |  |     |  |  |     +--rw index             uint32
+     |  |  |     |  |     |  |  |     +--rw index                   uint32
      |  |  |     |  |     |  |  |     +--rw (type)?
      |  |  |     |  |     |  |  |        +--:(numbered)
      |  |  |     |  |     |  |  |        |  +--rw numbered-hop
@@ -1077,11 +1122,11 @@ module: ietf-te
      |  |  |     |  |     |  |  |              +--rw te-label
      |  |  |     |  |     |  |  |                 +--rw (technology)?
      |  |  |     |  |     |  |  |                 |  +--:(generic)
-     |  |  |     |  |     |  |  |                 |     +--rw generic?     rt-types:generalized-label
-     |  |  |     |  |     |  |  |                 +--rw direction?   te-label-direction
+     |  |  |     |  |     |  |  |                 |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |  |     |  |  |                 +--rw direction?       te-label-direction
      |  |  |     |  |     |  |  +--rw explicit-route-include-objects
      |  |  |     |  |     |  |     +--rw route-object-include-object* [index]
-     |  |  |     |  |     |  |        +--rw index             uint32
+     |  |  |     |  |     |  |        +--rw index                   uint32
      |  |  |     |  |     |  |        +--rw (type)?
      |  |  |     |  |     |  |           +--:(numbered)
      |  |  |     |  |     |  |           |  +--rw numbered-hop
@@ -1103,8 +1148,8 @@ module: ietf-te
      |  |  |     |  |     |  |                 +--rw te-label
      |  |  |     |  |     |  |                    +--rw (technology)?
      |  |  |     |  |     |  |                    |  +--:(generic)
-     |  |  |     |  |     |  |                    |     +--rw generic?     rt-types:generalized-label
-     |  |  |     |  |     |  |                    +--rw direction?   te-label-direction
+     |  |  |     |  |     |  |                    |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |  |     |  |                    +--rw direction?       te-label-direction
      |  |  |     |  |     |  +--rw tiebreakers
      |  |  |     |  |     |     +--rw tiebreaker* [tiebreaker-type]
      |  |  |     |  |     |        +--rw tiebreaker-type    identityref
@@ -1121,7 +1166,7 @@ module: ietf-te
      |  |  |     |  |  |  |     +--ro accumulative-value?   uint64
      |  |  |     |  |  |  +--ro path-affinities
      |  |  |     |  |  |  |  +--ro constraints* [usage]
-     |  |  |     |  |  |  |     +--ro usage             identityref
+     |  |  |     |  |  |  |     +--ro usage                   identityref
      |  |  |     |  |  |  |     +--ro (style)?
      |  |  |     |  |  |  |        +--:(value)
      |  |  |     |  |  |  |        |  +--ro value?            te-types:admin-groups
@@ -1144,7 +1189,7 @@ module: ietf-te
      |  |  |     |  |  |  |  +--ro path-computed-route-object* [index]
      |  |  |     |  |  |  |     +--ro index    -> ../state/index
      |  |  |     |  |  |  |     +--ro state
-     |  |  |     |  |  |  |        +--ro index?            uint32
+     |  |  |     |  |  |  |        +--ro index?                  uint32
      |  |  |     |  |  |  |        +--ro (type)?
      |  |  |     |  |  |  |           +--:(numbered)
      |  |  |     |  |  |  |           |  +--ro numbered-hop
@@ -1166,8 +1211,8 @@ module: ietf-te
      |  |  |     |  |  |  |                 +--ro te-label
      |  |  |     |  |  |  |                    +--ro (technology)?
      |  |  |     |  |  |  |                    |  +--:(generic)
-     |  |  |     |  |  |  |                    |     +--ro generic?     rt-types:generalized-label
-     |  |  |     |  |  |  |                    +--ro direction?   te-label-direction
+     |  |  |     |  |  |  |                    |     +--ro generic?   rt-types:generalized-label
+     |  |  |     |  |  |  |                    +--ro direction?       te-label-direction
      |  |  |     |  |  |  +--ro shared-resources-tunnels
      |  |  |     |  |  |     +--ro lsp-shared-resources-tunnel*   te:tunnel-ref
      |  |  |     |  |  +--ro lsps
@@ -1190,7 +1235,7 @@ module: ietf-te
      |  |  |     |  |        +--ro lsp-shared-resources-tunnel?        te:tunnel-ref
      |  |  |     |  |        +--ro lsp-record-route-subobjects
      |  |  |     |  |        |  +--ro record-route-subobject* [index]
-     |  |  |     |  |        |     +--ro index          uint32
+     |  |  |     |  |        |     +--ro index                uint32
      |  |  |     |  |        |     +--ro (type)?
      |  |  |     |  |        |        +--:(numbered)
      |  |  |     |  |        |        |  +--ro address?       te-types:te-tp-id
@@ -1209,7 +1254,7 @@ module: ietf-te
      |  |  |     |  |           |     +--ro accumulative-value?   uint64
      |  |  |     |  |           +--ro path-affinities
      |  |  |     |  |           |  +--ro constraints* [usage]
-     |  |  |     |  |           |     +--ro usage             identityref
+     |  |  |     |  |           |     +--ro usage                   identityref
      |  |  |     |  |           |     +--ro (style)?
      |  |  |     |  |           |        +--:(value)
      |  |  |     |  |           |        |  +--ro value?            te-types:admin-groups
@@ -1232,7 +1277,7 @@ module: ietf-te
      |  |  |     |  |           |  +--ro path-computed-route-object* [index]
      |  |  |     |  |           |     +--ro index    -> ../state/index
      |  |  |     |  |           |     +--ro state
-     |  |  |     |  |           |        +--ro index?            uint32
+     |  |  |     |  |           |        +--ro index?                  uint32
      |  |  |     |  |           |        +--ro (type)?
      |  |  |     |  |           |           +--:(numbered)
      |  |  |     |  |           |           |  +--ro numbered-hop
@@ -1254,8 +1299,8 @@ module: ietf-te
      |  |  |     |  |           |                 +--ro te-label
      |  |  |     |  |           |                    +--ro (technology)?
      |  |  |     |  |           |                    |  +--:(generic)
-     |  |  |     |  |           |                    |     +--ro generic?     rt-types:generalized-label
-     |  |  |     |  |           |                    +--ro direction?   te-label-direction
+     |  |  |     |  |           |                    |     +--ro generic?   rt-types:generalized-label
+     |  |  |     |  |           |                    +--ro direction?       te-label-direction
      |  |  |     |  |           +--ro shared-resources-tunnels
      |  |  |     |  |              +--ro lsp-shared-resources-tunnel*   te:tunnel-ref
      |  |  |     |  +--rw p2p-reverse-secondary-path
@@ -1292,7 +1337,7 @@ module: ietf-te
      |  |  |     |     +--rw upper-bound?   uint64
      |  |  |     +--rw path-affinities
      |  |  |     |  +--rw constraints* [usage]
-     |  |  |     |     +--rw usage             identityref
+     |  |  |     |     +--rw usage                   identityref
      |  |  |     |     +--rw (style)?
      |  |  |     |        +--:(value)
      |  |  |     |        |  +--rw value?            te-types:admin-groups
@@ -1313,7 +1358,7 @@ module: ietf-te
      |  |  |     |                    +--rw name    string
      |  |  |     +--rw explicit-route-objects
      |  |  |     |  +--rw route-object-exclude-always* [index]
-     |  |  |     |  |  +--rw index             uint32
+     |  |  |     |  |  +--rw index                   uint32
      |  |  |     |  |  +--rw (type)?
      |  |  |     |  |     +--:(numbered)
      |  |  |     |  |     |  +--rw numbered-hop
@@ -1335,8 +1380,8 @@ module: ietf-te
      |  |  |     |  |           +--rw te-label
      |  |  |     |  |              +--rw (technology)?
      |  |  |     |  |              |  +--:(generic)
-     |  |  |     |  |              |     +--rw generic?     rt-types:generalized-label
-     |  |  |     |  |              +--rw direction?   te-label-direction
+     |  |  |     |  |              |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |  |              +--rw direction?       te-label-direction
      |  |  |     |  +--rw route-object-include-exclude* [index]
      |  |  |     |     +--rw explicit-route-usage?   identityref
      |  |  |     |     +--rw index                   uint32
@@ -1361,8 +1406,8 @@ module: ietf-te
      |  |  |     |              +--rw te-label
      |  |  |     |                 +--rw (technology)?
      |  |  |     |                 |  +--:(generic)
-     |  |  |     |                 |     +--rw generic?     rt-types:generalized-label
-     |  |  |     |                 +--rw direction?   te-label-direction
+     |  |  |     |                 |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |                 +--rw direction?       te-label-direction
      |  |  |     +--rw shared-resources-tunnels
      |  |  |     |  +--rw lsp-shared-resources-tunnel*   te:tunnel-ref
      |  |  |     +--rw path-in-segment!
@@ -1399,7 +1444,7 @@ module: ietf-te
      |  |  |     |     |  |  +--rw weight?                           uint8
      |  |  |     |     |  |  +--rw explicit-route-exclude-objects
      |  |  |     |     |  |  |  +--rw route-object-exclude-object* [index]
-     |  |  |     |     |  |  |     +--rw index             uint32
+     |  |  |     |     |  |  |     +--rw index                   uint32
      |  |  |     |     |  |  |     +--rw (type)?
      |  |  |     |     |  |  |        +--:(numbered)
      |  |  |     |     |  |  |        |  +--rw numbered-hop
@@ -1421,11 +1466,11 @@ module: ietf-te
      |  |  |     |     |  |  |              +--rw te-label
      |  |  |     |     |  |  |                 +--rw (technology)?
      |  |  |     |     |  |  |                 |  +--:(generic)
-     |  |  |     |     |  |  |                 |     +--rw generic?     rt-types:generalized-label
-     |  |  |     |     |  |  |                 +--rw direction?   te-label-direction
+     |  |  |     |     |  |  |                 |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |     |  |  |                 +--rw direction?       te-label-direction
      |  |  |     |     |  |  +--rw explicit-route-include-objects
      |  |  |     |     |  |     +--rw route-object-include-object* [index]
-     |  |  |     |     |  |        +--rw index             uint32
+     |  |  |     |     |  |        +--rw index                   uint32
      |  |  |     |     |  |        +--rw (type)?
      |  |  |     |     |  |           +--:(numbered)
      |  |  |     |     |  |           |  +--rw numbered-hop
@@ -1447,8 +1492,8 @@ module: ietf-te
      |  |  |     |     |  |                 +--rw te-label
      |  |  |     |     |  |                    +--rw (technology)?
      |  |  |     |     |  |                    |  +--:(generic)
-     |  |  |     |     |  |                    |     +--rw generic?     rt-types:generalized-label
-     |  |  |     |     |  |                    +--rw direction?   te-label-direction
+     |  |  |     |     |  |                    |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |     |  |                    +--rw direction?       te-label-direction
      |  |  |     |     |  +--rw tiebreakers
      |  |  |     |     |     +--rw tiebreaker* [tiebreaker-type]
      |  |  |     |     |        +--rw tiebreaker-type    identityref
@@ -1481,7 +1526,7 @@ module: ietf-te
      |  |  |     |  |  |     +--ro accumulative-value?   uint64
      |  |  |     |  |  +--ro path-affinities
      |  |  |     |  |  |  +--ro constraints* [usage]
-     |  |  |     |  |  |     +--ro usage             identityref
+     |  |  |     |  |  |     +--ro usage                   identityref
      |  |  |     |  |  |     +--ro (style)?
      |  |  |     |  |  |        +--:(value)
      |  |  |     |  |  |        |  +--ro value?            te-types:admin-groups
@@ -1504,7 +1549,7 @@ module: ietf-te
      |  |  |     |  |  |  +--ro path-computed-route-object* [index]
      |  |  |     |  |  |     +--ro index    -> ../state/index
      |  |  |     |  |  |     +--ro state
-     |  |  |     |  |  |        +--ro index?            uint32
+     |  |  |     |  |  |        +--ro index?                  uint32
      |  |  |     |  |  |        +--ro (type)?
      |  |  |     |  |  |           +--:(numbered)
      |  |  |     |  |  |           |  +--ro numbered-hop
@@ -1526,8 +1571,8 @@ module: ietf-te
      |  |  |     |  |  |                 +--ro te-label
      |  |  |     |  |  |                    +--ro (technology)?
      |  |  |     |  |  |                    |  +--:(generic)
-     |  |  |     |  |  |                    |     +--ro generic?     rt-types:generalized-label
-     |  |  |     |  |  |                    +--ro direction?   te-label-direction
+     |  |  |     |  |  |                    |     +--ro generic?   rt-types:generalized-label
+     |  |  |     |  |  |                    +--ro direction?       te-label-direction
      |  |  |     |  |  +--ro shared-resources-tunnels
      |  |  |     |  |     +--ro lsp-shared-resources-tunnel*   te:tunnel-ref
      |  |  |     |  +--ro lsps
@@ -1550,7 +1595,7 @@ module: ietf-te
      |  |  |     |  |     +--ro lsp-shared-resources-tunnel?                te:tunnel-ref
      |  |  |     |  |     +--ro lsp-record-route-subobjects
      |  |  |     |  |     |  +--ro record-route-subobject* [index]
-     |  |  |     |  |     |     +--ro index          uint32
+     |  |  |     |  |     |     +--ro index                uint32
      |  |  |     |  |     |     +--ro (type)?
      |  |  |     |  |     |        +--:(numbered)
      |  |  |     |  |     |        |  +--ro address?       te-types:te-tp-id
@@ -1569,7 +1614,7 @@ module: ietf-te
      |  |  |     |  |     |  |     +--ro accumulative-value?   uint64
      |  |  |     |  |     |  +--ro path-affinities
      |  |  |     |  |     |  |  +--ro constraints* [usage]
-     |  |  |     |  |     |  |     +--ro usage             identityref
+     |  |  |     |  |     |  |     +--ro usage                   identityref
      |  |  |     |  |     |  |     +--ro (style)?
      |  |  |     |  |     |  |        +--:(value)
      |  |  |     |  |     |  |        |  +--ro value?            te-types:admin-groups
@@ -1592,7 +1637,7 @@ module: ietf-te
      |  |  |     |  |     |  |  +--ro path-computed-route-object* [index]
      |  |  |     |  |     |  |     +--ro index    -> ../state/index
      |  |  |     |  |     |  |     +--ro state
-     |  |  |     |  |     |  |        +--ro index?            uint32
+     |  |  |     |  |     |  |        +--ro index?                  uint32
      |  |  |     |  |     |  |        +--ro (type)?
      |  |  |     |  |     |  |           +--:(numbered)
      |  |  |     |  |     |  |           |  +--ro numbered-hop
@@ -1614,8 +1659,8 @@ module: ietf-te
      |  |  |     |  |     |  |                 +--ro te-label
      |  |  |     |  |     |  |                    +--ro (technology)?
      |  |  |     |  |     |  |                    |  +--:(generic)
-     |  |  |     |  |     |  |                    |     +--ro generic?     rt-types:generalized-label
-     |  |  |     |  |     |  |                    +--ro direction?   te-label-direction
+     |  |  |     |  |     |  |                    |     +--ro generic?   rt-types:generalized-label
+     |  |  |     |  |     |  |                    +--ro direction?       te-label-direction
      |  |  |     |  |     |  +--ro shared-resources-tunnels
      |  |  |     |  |     |     +--ro lsp-shared-resources-tunnel*   te:tunnel-ref
      |  |  |     |  |     +--ro te-dev:lsp-timers
@@ -1647,7 +1692,7 @@ module: ietf-te
      |  |  |     |  |     |  +--ro rsvp-te:incoming-explicit-route-hop* [index]
      |  |  |     |  |     |  |  +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |  |  +--ro rsvp-te:state
-     |  |  |     |  |     |  |     +--ro rsvp-te:index?            uint32
+     |  |  |     |  |     |  |     +--ro rsvp-te:index?                  uint32
      |  |  |     |  |     |  |     +--ro (rsvp-te:type)?
      |  |  |     |  |     |  |        +--:(rsvp-te:numbered)
      |  |  |     |  |     |  |        |  +--ro rsvp-te:numbered-hop
@@ -1669,12 +1714,12 @@ module: ietf-te
      |  |  |     |  |     |  |              +--ro rsvp-te:te-label
      |  |  |     |  |     |  |                 +--ro (rsvp-te:technology)?
      |  |  |     |  |     |  |                 |  +--:(rsvp-te:generic)
-     |  |  |     |  |     |  |                 |     +--ro rsvp-te:generic?     rt-types:generalized-label
-     |  |  |     |  |     |  |                 +--ro rsvp-te:direction?   te-label-direction
+     |  |  |     |  |     |  |                 |     +--ro rsvp-te:generic?   rt-types:generalized-label
+     |  |  |     |  |     |  |                 +--ro rsvp-te:direction?       te-label-direction
      |  |  |     |  |     |  +--ro rsvp-te:outgoing-explicit-route-hop* [index]
      |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |     +--ro rsvp-te:state
-     |  |  |     |  |     |        +--ro rsvp-te:index?            uint32
+     |  |  |     |  |     |        +--ro rsvp-te:index?                  uint32
      |  |  |     |  |     |        +--ro (rsvp-te:type)?
      |  |  |     |  |     |           +--:(rsvp-te:numbered)
      |  |  |     |  |     |           |  +--ro rsvp-te:numbered-hop
@@ -1696,13 +1741,13 @@ module: ietf-te
      |  |  |     |  |     |                 +--ro rsvp-te:te-label
      |  |  |     |  |     |                    +--ro (rsvp-te:technology)?
      |  |  |     |  |     |                    |  +--:(rsvp-te:generic)
-     |  |  |     |  |     |                    |     +--ro rsvp-te:generic?     rt-types:generalized-label
-     |  |  |     |  |     |                    +--ro rsvp-te:direction?   te-label-direction
+     |  |  |     |  |     |                    |     +--ro rsvp-te:generic?   rt-types:generalized-label
+     |  |  |     |  |     |                    +--ro rsvp-te:direction?       te-label-direction
      |  |  |     |  |     +--ro rsvp-te:incoming-record-route-subobjects
      |  |  |     |  |     |  +--ro rsvp-te:incoming-record-route-subobject* [index]
      |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |     +--ro rsvp-te:state
-     |  |  |     |  |     |        +--ro rsvp-te:index?         uint32
+     |  |  |     |  |     |        +--ro rsvp-te:index?               uint32
      |  |  |     |  |     |        +--ro (rsvp-te:type)?
      |  |  |     |  |     |           +--:(rsvp-te:numbered)
      |  |  |     |  |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
@@ -1717,7 +1762,7 @@ module: ietf-te
      |  |  |     |  |     |  +--ro rsvp-te:outgoing-record-route-subobject* [index]
      |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |     +--ro rsvp-te:state
-     |  |  |     |  |     |        +--ro rsvp-te:index?         uint32
+     |  |  |     |  |     |        +--ro rsvp-te:index?               uint32
      |  |  |     |  |     |        +--ro (rsvp-te:type)?
      |  |  |     |  |     |           +--:(rsvp-te:numbered)
      |  |  |     |  |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
@@ -1832,7 +1877,7 @@ module: ietf-te
      |     +--ro protection-group-egress-node-id?            te-types:te-node-id
      |     +--ro lsp-record-route-subobjects
      |     |  +--ro record-route-subobject* [index]
-     |     |     +--ro index          uint32
+     |     |     +--ro index                uint32
      |     |     +--ro (type)?
      |     |        +--:(numbered)
      |     |        |  +--ro address?       te-types:te-tp-id
@@ -1872,7 +1917,7 @@ module: ietf-te
      |     |  +--ro rsvp-te:incoming-explicit-route-hop* [index]
      |     |  |  +--ro rsvp-te:index    -> ../state/index
      |     |  |  +--ro rsvp-te:state
-     |     |  |     +--ro rsvp-te:index?            uint32
+     |     |  |     +--ro rsvp-te:index?                  uint32
      |     |  |     +--ro (rsvp-te:type)?
      |     |  |        +--:(rsvp-te:numbered)
      |     |  |        |  +--ro rsvp-te:numbered-hop
@@ -1894,12 +1939,12 @@ module: ietf-te
      |     |  |              +--ro rsvp-te:te-label
      |     |  |                 +--ro (rsvp-te:technology)?
      |     |  |                 |  +--:(rsvp-te:generic)
-     |     |  |                 |     +--ro rsvp-te:generic?     rt-types:generalized-label
-     |     |  |                 +--ro rsvp-te:direction?   te-label-direction
+     |     |  |                 |     +--ro rsvp-te:generic?   rt-types:generalized-label
+     |     |  |                 +--ro rsvp-te:direction?       te-label-direction
      |     |  +--ro rsvp-te:outgoing-explicit-route-hop* [index]
      |     |     +--ro rsvp-te:index    -> ../state/index
      |     |     +--ro rsvp-te:state
-     |     |        +--ro rsvp-te:index?            uint32
+     |     |        +--ro rsvp-te:index?                  uint32
      |     |        +--ro (rsvp-te:type)?
      |     |           +--:(rsvp-te:numbered)
      |     |           |  +--ro rsvp-te:numbered-hop
@@ -1921,13 +1966,13 @@ module: ietf-te
      |     |                 +--ro rsvp-te:te-label
      |     |                    +--ro (rsvp-te:technology)?
      |     |                    |  +--:(rsvp-te:generic)
-     |     |                    |     +--ro rsvp-te:generic?     rt-types:generalized-label
-     |     |                    +--ro rsvp-te:direction?   te-label-direction
+     |     |                    |     +--ro rsvp-te:generic?   rt-types:generalized-label
+     |     |                    +--ro rsvp-te:direction?       te-label-direction
      |     +--ro rsvp-te:incoming-record-route-subobjects
      |     |  +--ro rsvp-te:incoming-record-route-subobject* [index]
      |     |     +--ro rsvp-te:index    -> ../state/index
      |     |     +--ro rsvp-te:state
-     |     |        +--ro rsvp-te:index?         uint32
+     |     |        +--ro rsvp-te:index?               uint32
      |     |        +--ro (rsvp-te:type)?
      |     |           +--:(rsvp-te:numbered)
      |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
@@ -1942,7 +1987,7 @@ module: ietf-te
      |     |  +--ro rsvp-te:outgoing-record-route-subobject* [index]
      |     |     +--ro rsvp-te:index    -> ../state/index
      |     |     +--ro rsvp-te:state
-     |     |        +--ro rsvp-te:index?         uint32
+     |     |        +--ro rsvp-te:index?               uint32
      |     |        +--ro (rsvp-te:type)?
      |     |           +--:(rsvp-te:numbered)
      |     |           |  +--ro rsvp-te:address?       te-types:te-tp-id
@@ -1974,15 +2019,15 @@ module: ietf-te
         +--rw te-dev:down-thresholds*           te-types:percentage
         +--rw te-dev:up-down-thresholds*        te-types:percentage
         +--rw te-dev:interface* [interface]
-           +--rw te-dev:interface                          if:interface-ref
-           +--rw te-dev:te-metric?                         te-types:te-metric
+           +--rw te-dev:interface                           if:interface-ref
+           +--rw te-dev:te-metric?                          te-types:te-metric
            +--rw (te-dev:admin-group-type)?
            |  +--:(te-dev:value-admin-groups)
            |  |  +--rw (te-dev:value-admin-group-type)?
            |  |     +--:(te-dev:admin-groups)
-           |  |     |  +--rw te-dev:admin-group?                       te-types:admin-group
+           |  |     |  +--rw te-dev:admin-group?            te-types:admin-group
            |  |     +--:(te-dev:extended-admin-groups) {te-types:extended-admin-groups}?
-           |  |        +--rw te-dev:extended-admin-group?              te-types:extended-admin-group
+           |  |        +--rw te-dev:extended-admin-group?   te-types:extended-admin-group
            |  +--:(te-dev:named-admin-groups)
            |     +--rw te-dev:named-admin-groups* [named-admin-group] {te-types:extended-admin-groups,te-types:named-extended-admin-groups}?
            |        +--rw te-dev:named-admin-group    -> ../../../../te:globals/named-admin-groups/named-admin-group/name
@@ -1993,12 +2038,12 @@ module: ietf-te
            |  +--:(te-dev:named-srlgs)
            |     +--rw te-dev:named-srlgs* [named-srlg] {te-types:named-srlg-groups}?
            |        +--rw te-dev:named-srlg    -> ../../../../te:globals/named-srlgs/named-srlg/name
-           +--rw te-dev:threshold-type?                    enumeration
-           +--rw te-dev:delta-percentage?                  te-types:percentage
-           +--rw te-dev:threshold-specification?           enumeration
-           +--rw te-dev:up-thresholds*                     te-types:percentage
-           +--rw te-dev:down-thresholds*                   te-types:percentage
-           +--rw te-dev:up-down-thresholds*                te-types:percentage
+           +--rw te-dev:threshold-type?                     enumeration
+           +--rw te-dev:delta-percentage?                   te-types:percentage
+           +--rw te-dev:threshold-specification?            enumeration
+           +--rw te-dev:up-thresholds*                      te-types:percentage
+           +--rw te-dev:down-thresholds*                    te-types:percentage
+           +--rw te-dev:up-down-thresholds*                 te-types:percentage
            +--rw te-dev:switching-capabilities* [switching-capability]
            |  +--rw te-dev:switching-capability    identityref
            |  +--rw te-dev:encoding?               identityref
@@ -2061,10 +2106,3 @@ module: ietf-te
   notifications:
     +---n globals-notif
     +---n tunnels-notif
-module: ietf-te-device
-
-  rpcs:
-    +---x interfaces-rpc
-
-  notifications:
-    +---n interfaces-notif
