@@ -689,7 +689,7 @@ module ietf-te-types {
     description
       "A temporary configuration action initiated by an operator
        command to ensure that the protection transport entity is
-       temporarily not available to transport a traffic signal
+       temporarily not availabel to transport a traffic signal
        (either normal or extra traffic).";
     reference
         "ITU-T G.808, RFC 4427";
@@ -2051,20 +2051,20 @@ module ietf-te-types {
            RSVP-TE";
       }
       case label {
-        leaf value {
-          type rt-types:generalized-label;
-          description "the label value";
-        }
-        leaf label-flags {
-          type binary {
-            length 8;
+        container label-hop {
+          description "Label hop type";
+          uses te-label;
+          leaf label-flags {
+            type binary {
+              length 8;
+            }
+            description
+              "Label sub-object flags";
+            reference "RFC3209";
           }
-          description
-            "Label sub-object flags";
-          reference "RFC3209";
         }
         description
-          "The Label ERO subobject";
+          "The Label RRO subobject";
       }
     }
   }
@@ -2083,19 +2083,23 @@ module ietf-te-types {
       description
         "Whether the list item is inclusive or exclusive.";
     }
-    leaf label-start {
-      type rt-types:generalized-label;
-      description
-        "This is the starting lable if a lable range is specified.
-         This is the lable value if a single lable is specified,
-         in which case, attribute 'label-end' is not set.";
+    leaf index {
+      type uint32;
+      description "List index for identify an entry";
     }
-    leaf label-end {
-      type rt-types:generalized-label;
+    container label-start {
       description
-        "The ending lable if a lable range is specified;
-         This attribute is not set, If a single lable is
+        "This is the starting label if a label range is specified.
+         This is the label value if a single label is specified,
+         in which case, attribute 'label-end' is not set.";
+      uses te-label;
+    }
+    container label-end {
+      description
+        "The ending label if a label range is specified;
+         This attribute is not set, If a single label is
          specified.";
+      uses te-label;
     }
     leaf range-bitmap {
       type binary;
@@ -2109,7 +2113,7 @@ module ietf-te-types {
   grouping label-set-info {
     description "Label set info grouping";
     list label-set {
-      key "inclusive-exclusive label-start";
+      key "index";
       description
         "The absence of label-set implies that all labels are
          acceptable; otherwise only restricted labels are
@@ -2399,7 +2403,6 @@ module ietf-te-types {
     container path-constraints {
       description "TE named path constraints container";
       uses common-constraints_config;
-      uses generic-path-disjointness;
       uses generic-path-metric-bounds;
       uses generic-path-affinities;
       uses generic-path-srlgs;
