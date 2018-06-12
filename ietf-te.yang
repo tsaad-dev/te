@@ -51,7 +51,7 @@ module ietf-te {
     "YANG data module for TE configuration,
     state, RPC and notifications.";
 
-  revision "2018-03-03" {
+  revision "2018-06-12" {
     description "Latest update to TE generic YANG module.";
     reference "TBA";
   }
@@ -200,6 +200,7 @@ module ietf-te {
     container p2p-reverse-primary-path {
       description "Tunnel reverse primary path properties";
       uses p2p-path-reverse-properties_config;
+      uses path-constraints-primary_config;
       container state {
         config false;
         description
@@ -216,6 +217,7 @@ module ietf-te {
   grouping p2p-secondary-path-properties {
     description "tunnel path properties.";
     uses p2p-path-properties_config;
+    uses path-constraints-secondary_config;
     uses protection-restoration-params_config;
     container state {
       config false;
@@ -229,6 +231,7 @@ module ietf-te {
     description
       "TE tunnel primary path properties grouping";
     uses p2p-path-properties_config;
+    uses path-constraints-primary_config;
     container state {
       config false;
       description
@@ -391,7 +394,6 @@ module ietf-te {
       "TE tunnel reverse path properties configuration
        grouping";
     uses p2p-path-properties-common_config;
-    uses path-constraints_config;
     uses te-types:generic-path-optimization;
     leaf named-path-constraint {
       if-feature te-types:named-path-constraints;
@@ -410,7 +412,6 @@ module ietf-te {
     description
       "TE tunnel path properties configuration grouping";
     uses p2p-path-properties-common_config;
-    uses path-constraints_config;
     uses te-types:generic-path-optimization;
     leaf preference {
       type uint8 {
@@ -1284,12 +1285,11 @@ module ietf-te {
     }
   }
 
-  grouping path-constraints_config {
+  grouping path-constraints-common_config {
     description
       "Global named path constraints configuration
       grouping";
     uses te-types:common-constraints_config;
-    uses te-types:generic-path-disjointness;
     uses te-types:generic-path-metric-bounds;
     uses path-affinities;
     uses path-srlgs;
@@ -1305,9 +1305,24 @@ module ietf-te {
     }
   }
 
+  grouping path-constraints-primary_config {
+    description
+      "Global named path constraints configuration
+      grouping";
+    uses path-constraints-common_config;
+  }
+
+  grouping path-constraints-secondary_config {
+    description
+      "Global named path constraints configuration
+      grouping";
+    uses path-constraints-common_config;
+    uses te-types:generic-path-disjointness;
+  }
+
   grouping path-constraints {
     description "Per path constraints";
-    uses path-constraints_config;
+    uses path-constraints-common_config;
     container state {
       config false;
       description

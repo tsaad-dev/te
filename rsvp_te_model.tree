@@ -247,45 +247,6 @@ module: ietf-rsvp
        |        +--ro restart-time?                yang:date-and-time
        +--rw rsvp-te-mpls:fast-reroute-local-revertive
           +--rw rsvp-te-mpls:rsvp-frr-local-revert-delay?   uint32
-
-module: ietf-rsvp-te
-  augment /te:te/te-dev:interfaces/te-dev:interface:
-
-module: ietf-rsvp-te-mpls
-  augment /te:te/te-dev:interfaces/te-dev:interface:
-    +--rw bandwidth-mpls-reservable
-       +--rw (bandwidth-value)?
-       |  +--:(absolute)
-       |  |  +--rw absolute-value?   uint32
-       |  +--:(percentage)
-       |     +--rw percent-value?    uint32
-       +--rw (bc-model-type)?
-          +--:(bc-model-rdm)
-          |  +--rw bc-model-rdm
-          |     +--rw bandwidth-mpls-constraints
-          |        +--rw maximum-reservable?   uint32
-          |        +--rw bc-value*             uint32
-          +--:(bc-model-mam)
-          |  +--rw bc-model-mam
-          |     +--rw bandwidth-mpls-constraints
-          |        +--rw maximum-reservable?   uint32
-          |        +--rw bc-value*             uint32
-          +--:(bc-model-mar)
-             +--rw bc-model-mar
-                +--rw bandwidth-mpls-constraints
-                   +--rw maximum-reservable?   uint32
-                   +--rw bc-value*             uint32
-  augment /te:te/te-dev:interfaces/te-dev:interface:
-    +--rw rsvp-te-frr-backups
-       +--rw (type)?
-          +--:(static-tunnel)
-          |  +--rw static-backups
-          |     +--rw static-backup* [backup-tunnel-name]
-          |        +--rw backup-tunnel-name    -> /te:te/tunnels/tunnel/name
-          +--:(auto-tunnel)
-             +--rw auto-tunnel-backups
-                +--rw auto-backup-protection?         identityref
-                +--rw auto-backup-path-computation?   identityref
 module: ietf-te
   +--rw te!
      +--rw globals
@@ -308,7 +269,6 @@ module: ietf-te
      |  |     +--rw setup-priority?                  uint8
      |  |     +--rw hold-priority?                   uint8
      |  |     +--rw signaling-type?                  identityref
-     |  |     +--rw disjointness?                    te-types:te-path-disjointness
      |  |     +--rw path-metric-bounds
      |  |     |  +--rw path-metric-bound* [metric-type]
      |  |     |     +--rw metric-type    identityref
@@ -562,6 +522,65 @@ module: ietf-te
      |  |  |     +--rw use-path-computation?            boolean
      |  |  |     +--rw lockdown?                        empty
      |  |  |     +--rw path-scope?                      identityref
+     |  |  |     +--rw optimizations
+     |  |  |     |  +--rw (algorithm)?
+     |  |  |     |     +--:(metric) {path-optimization-metric}?
+     |  |  |     |     |  +--rw optimization-metric* [metric-type]
+     |  |  |     |     |  |  +--rw metric-type                       identityref
+     |  |  |     |     |  |  +--rw weight?                           uint8
+     |  |  |     |     |  |  +--rw explicit-route-exclude-objects
+     |  |  |     |     |  |  |  +--rw route-object-exclude-object* [index]
+     |  |  |     |     |  |  |     +--rw index                  uint32
+     |  |  |     |     |  |  |     +--rw (type)?
+     |  |  |     |     |  |  |        +--:(num-unnum-hop)
+     |  |  |     |     |  |  |        |  +--rw num-unnum-hop
+     |  |  |     |     |  |  |        |     +--rw node-id?      te-types:te-node-id
+     |  |  |     |     |  |  |        |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |     |  |  |        |     +--rw hop-type?     te-hop-type
+     |  |  |     |     |  |  |        |     +--rw direction?    te-link-direction
+     |  |  |     |     |  |  |        +--:(as-number)
+     |  |  |     |     |  |  |        |  +--rw as-number-hop
+     |  |  |     |     |  |  |        |     +--rw as-number?   binary
+     |  |  |     |     |  |  |        |     +--rw hop-type?    te-hop-type
+     |  |  |     |     |  |  |        +--:(label)
+     |  |  |     |     |  |  |        |  +--rw label-hop
+     |  |  |     |     |  |  |        |     +--rw te-label
+     |  |  |     |     |  |  |        |        +--rw (technology)?
+     |  |  |     |     |  |  |        |        |  +--:(generic)
+     |  |  |     |     |  |  |        |        |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |     |  |  |        |        +--rw direction?       te-label-direction
+     |  |  |     |     |  |  |        +--:(srlg)
+     |  |  |     |     |  |  |           +--rw srlg
+     |  |  |     |     |  |  |              +--rw srlg?   uint32
+     |  |  |     |     |  |  +--rw explicit-route-include-objects
+     |  |  |     |     |  |     +--rw route-object-include-object* [index]
+     |  |  |     |     |  |        +--rw index                  uint32
+     |  |  |     |     |  |        +--rw (type)?
+     |  |  |     |     |  |           +--:(num-unnum-hop)
+     |  |  |     |     |  |           |  +--rw num-unnum-hop
+     |  |  |     |     |  |           |     +--rw node-id?      te-types:te-node-id
+     |  |  |     |     |  |           |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |     |  |           |     +--rw hop-type?     te-hop-type
+     |  |  |     |     |  |           |     +--rw direction?    te-link-direction
+     |  |  |     |     |  |           +--:(as-number)
+     |  |  |     |     |  |           |  +--rw as-number-hop
+     |  |  |     |     |  |           |     +--rw as-number?   binary
+     |  |  |     |     |  |           |     +--rw hop-type?    te-hop-type
+     |  |  |     |     |  |           +--:(label)
+     |  |  |     |     |  |              +--rw label-hop
+     |  |  |     |     |  |                 +--rw te-label
+     |  |  |     |     |  |                    +--rw (technology)?
+     |  |  |     |     |  |                    |  +--:(generic)
+     |  |  |     |     |  |                    |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |     |  |                    +--rw direction?       te-label-direction
+     |  |  |     |     |  +--rw tiebreakers
+     |  |  |     |     |     +--rw tiebreaker* [tiebreaker-type]
+     |  |  |     |     |        +--rw tiebreaker-type    identityref
+     |  |  |     |     +--:(objective-function) {path-optimization-objective-function}?
+     |  |  |     |        +--rw objective-function
+     |  |  |     |           +--rw objective-function-type?   identityref
+     |  |  |     +--rw preference?                      uint8
+     |  |  |     +--rw named-path-constraint?           -> ../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
      |  |  |     +--rw te-bandwidth
      |  |  |     |  +--rw (technology)?
      |  |  |     |     +--:(generic)
@@ -569,7 +588,6 @@ module: ietf-te
      |  |  |     +--rw setup-priority?                  uint8
      |  |  |     +--rw hold-priority?                   uint8
      |  |  |     +--rw signaling-type?                  identityref
-     |  |  |     +--rw disjointness?                    te-types:te-path-disjointness
      |  |  |     +--rw path-metric-bounds
      |  |  |     |  +--rw path-metric-bound* [metric-type]
      |  |  |     |     +--rw metric-type    identityref
@@ -716,65 +734,6 @@ module: ietf-te
      |  |  |     |           |     |     +--rw generic?   rt-types:generalized-label
      |  |  |     |           |     +--rw direction?       te-label-direction
      |  |  |     |           +--rw range-bitmap?   binary
-     |  |  |     +--rw optimizations
-     |  |  |     |  +--rw (algorithm)?
-     |  |  |     |     +--:(metric) {path-optimization-metric}?
-     |  |  |     |     |  +--rw optimization-metric* [metric-type]
-     |  |  |     |     |  |  +--rw metric-type                       identityref
-     |  |  |     |     |  |  +--rw weight?                           uint8
-     |  |  |     |     |  |  +--rw explicit-route-exclude-objects
-     |  |  |     |     |  |  |  +--rw route-object-exclude-object* [index]
-     |  |  |     |     |  |  |     +--rw index                  uint32
-     |  |  |     |     |  |  |     +--rw (type)?
-     |  |  |     |     |  |  |        +--:(num-unnum-hop)
-     |  |  |     |     |  |  |        |  +--rw num-unnum-hop
-     |  |  |     |     |  |  |        |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |     |  |  |        |     +--rw link-tp-id?   te-types:te-tp-id
-     |  |  |     |     |  |  |        |     +--rw hop-type?     te-hop-type
-     |  |  |     |     |  |  |        |     +--rw direction?    te-link-direction
-     |  |  |     |     |  |  |        +--:(as-number)
-     |  |  |     |     |  |  |        |  +--rw as-number-hop
-     |  |  |     |     |  |  |        |     +--rw as-number?   binary
-     |  |  |     |     |  |  |        |     +--rw hop-type?    te-hop-type
-     |  |  |     |     |  |  |        +--:(label)
-     |  |  |     |     |  |  |        |  +--rw label-hop
-     |  |  |     |     |  |  |        |     +--rw te-label
-     |  |  |     |     |  |  |        |        +--rw (technology)?
-     |  |  |     |     |  |  |        |        |  +--:(generic)
-     |  |  |     |     |  |  |        |        |     +--rw generic?   rt-types:generalized-label
-     |  |  |     |     |  |  |        |        +--rw direction?       te-label-direction
-     |  |  |     |     |  |  |        +--:(srlg)
-     |  |  |     |     |  |  |           +--rw srlg
-     |  |  |     |     |  |  |              +--rw srlg?   uint32
-     |  |  |     |     |  |  +--rw explicit-route-include-objects
-     |  |  |     |     |  |     +--rw route-object-include-object* [index]
-     |  |  |     |     |  |        +--rw index                  uint32
-     |  |  |     |     |  |        +--rw (type)?
-     |  |  |     |     |  |           +--:(num-unnum-hop)
-     |  |  |     |     |  |           |  +--rw num-unnum-hop
-     |  |  |     |     |  |           |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |     |  |           |     +--rw link-tp-id?   te-types:te-tp-id
-     |  |  |     |     |  |           |     +--rw hop-type?     te-hop-type
-     |  |  |     |     |  |           |     +--rw direction?    te-link-direction
-     |  |  |     |     |  |           +--:(as-number)
-     |  |  |     |     |  |           |  +--rw as-number-hop
-     |  |  |     |     |  |           |     +--rw as-number?   binary
-     |  |  |     |     |  |           |     +--rw hop-type?    te-hop-type
-     |  |  |     |     |  |           +--:(label)
-     |  |  |     |     |  |              +--rw label-hop
-     |  |  |     |     |  |                 +--rw te-label
-     |  |  |     |     |  |                    +--rw (technology)?
-     |  |  |     |     |  |                    |  +--:(generic)
-     |  |  |     |     |  |                    |     +--rw generic?   rt-types:generalized-label
-     |  |  |     |     |  |                    +--rw direction?       te-label-direction
-     |  |  |     |     |  +--rw tiebreakers
-     |  |  |     |     |     +--rw tiebreaker* [tiebreaker-type]
-     |  |  |     |     |        +--rw tiebreaker-type    identityref
-     |  |  |     |     +--:(objective-function) {path-optimization-objective-function}?
-     |  |  |     |        +--rw objective-function
-     |  |  |     |           +--rw objective-function-type?   identityref
-     |  |  |     +--rw preference?                      uint8
-     |  |  |     +--rw named-path-constraint?           -> ../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
      |  |  |     +--ro state
      |  |  |     |  +--ro path-properties
      |  |  |     |  |  +--ro path-metric* [metric-type]
@@ -1049,6 +1008,64 @@ module: ietf-te
      |  |  |     |  +--rw use-path-computation?         boolean
      |  |  |     |  +--rw lockdown?                     empty
      |  |  |     |  +--rw path-scope?                   identityref
+     |  |  |     |  +--rw optimizations
+     |  |  |     |  |  +--rw (algorithm)?
+     |  |  |     |  |     +--:(metric) {path-optimization-metric}?
+     |  |  |     |  |     |  +--rw optimization-metric* [metric-type]
+     |  |  |     |  |     |  |  +--rw metric-type                       identityref
+     |  |  |     |  |     |  |  +--rw weight?                           uint8
+     |  |  |     |  |     |  |  +--rw explicit-route-exclude-objects
+     |  |  |     |  |     |  |  |  +--rw route-object-exclude-object* [index]
+     |  |  |     |  |     |  |  |     +--rw index                  uint32
+     |  |  |     |  |     |  |  |     +--rw (type)?
+     |  |  |     |  |     |  |  |        +--:(num-unnum-hop)
+     |  |  |     |  |     |  |  |        |  +--rw num-unnum-hop
+     |  |  |     |  |     |  |  |        |     +--rw node-id?      te-types:te-node-id
+     |  |  |     |  |     |  |  |        |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |  |  |        |     +--rw hop-type?     te-hop-type
+     |  |  |     |  |     |  |  |        |     +--rw direction?    te-link-direction
+     |  |  |     |  |     |  |  |        +--:(as-number)
+     |  |  |     |  |     |  |  |        |  +--rw as-number-hop
+     |  |  |     |  |     |  |  |        |     +--rw as-number?   binary
+     |  |  |     |  |     |  |  |        |     +--rw hop-type?    te-hop-type
+     |  |  |     |  |     |  |  |        +--:(label)
+     |  |  |     |  |     |  |  |        |  +--rw label-hop
+     |  |  |     |  |     |  |  |        |     +--rw te-label
+     |  |  |     |  |     |  |  |        |        +--rw (technology)?
+     |  |  |     |  |     |  |  |        |        |  +--:(generic)
+     |  |  |     |  |     |  |  |        |        |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |  |     |  |  |        |        +--rw direction?       te-label-direction
+     |  |  |     |  |     |  |  |        +--:(srlg)
+     |  |  |     |  |     |  |  |           +--rw srlg
+     |  |  |     |  |     |  |  |              +--rw srlg?   uint32
+     |  |  |     |  |     |  |  +--rw explicit-route-include-objects
+     |  |  |     |  |     |  |     +--rw route-object-include-object* [index]
+     |  |  |     |  |     |  |        +--rw index                  uint32
+     |  |  |     |  |     |  |        +--rw (type)?
+     |  |  |     |  |     |  |           +--:(num-unnum-hop)
+     |  |  |     |  |     |  |           |  +--rw num-unnum-hop
+     |  |  |     |  |     |  |           |     +--rw node-id?      te-types:te-node-id
+     |  |  |     |  |     |  |           |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |  |           |     +--rw hop-type?     te-hop-type
+     |  |  |     |  |     |  |           |     +--rw direction?    te-link-direction
+     |  |  |     |  |     |  |           +--:(as-number)
+     |  |  |     |  |     |  |           |  +--rw as-number-hop
+     |  |  |     |  |     |  |           |     +--rw as-number?   binary
+     |  |  |     |  |     |  |           |     +--rw hop-type?    te-hop-type
+     |  |  |     |  |     |  |           +--:(label)
+     |  |  |     |  |     |  |              +--rw label-hop
+     |  |  |     |  |     |  |                 +--rw te-label
+     |  |  |     |  |     |  |                    +--rw (technology)?
+     |  |  |     |  |     |  |                    |  +--:(generic)
+     |  |  |     |  |     |  |                    |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |  |     |  |                    +--rw direction?       te-label-direction
+     |  |  |     |  |     |  +--rw tiebreakers
+     |  |  |     |  |     |     +--rw tiebreaker* [tiebreaker-type]
+     |  |  |     |  |     |        +--rw tiebreaker-type    identityref
+     |  |  |     |  |     +--:(objective-function) {path-optimization-objective-function}?
+     |  |  |     |  |        +--rw objective-function
+     |  |  |     |  |           +--rw objective-function-type?   identityref
+     |  |  |     |  +--rw named-path-constraint?        -> ../../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
      |  |  |     |  +--rw te-bandwidth
      |  |  |     |  |  +--rw (technology)?
      |  |  |     |  |     +--:(generic)
@@ -1056,7 +1073,6 @@ module: ietf-te
      |  |  |     |  +--rw setup-priority?               uint8
      |  |  |     |  +--rw hold-priority?                uint8
      |  |  |     |  +--rw signaling-type?               identityref
-     |  |  |     |  +--rw disjointness?                 te-types:te-path-disjointness
      |  |  |     |  +--rw path-metric-bounds
      |  |  |     |  |  +--rw path-metric-bound* [metric-type]
      |  |  |     |  |     +--rw metric-type    identityref
@@ -1203,64 +1219,6 @@ module: ietf-te
      |  |  |     |  |           |     |     +--rw generic?   rt-types:generalized-label
      |  |  |     |  |           |     +--rw direction?       te-label-direction
      |  |  |     |  |           +--rw range-bitmap?   binary
-     |  |  |     |  +--rw optimizations
-     |  |  |     |  |  +--rw (algorithm)?
-     |  |  |     |  |     +--:(metric) {path-optimization-metric}?
-     |  |  |     |  |     |  +--rw optimization-metric* [metric-type]
-     |  |  |     |  |     |  |  +--rw metric-type                       identityref
-     |  |  |     |  |     |  |  +--rw weight?                           uint8
-     |  |  |     |  |     |  |  +--rw explicit-route-exclude-objects
-     |  |  |     |  |     |  |  |  +--rw route-object-exclude-object* [index]
-     |  |  |     |  |     |  |  |     +--rw index                  uint32
-     |  |  |     |  |     |  |  |     +--rw (type)?
-     |  |  |     |  |     |  |  |        +--:(num-unnum-hop)
-     |  |  |     |  |     |  |  |        |  +--rw num-unnum-hop
-     |  |  |     |  |     |  |  |        |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |  |     |  |  |        |     +--rw link-tp-id?   te-types:te-tp-id
-     |  |  |     |  |     |  |  |        |     +--rw hop-type?     te-hop-type
-     |  |  |     |  |     |  |  |        |     +--rw direction?    te-link-direction
-     |  |  |     |  |     |  |  |        +--:(as-number)
-     |  |  |     |  |     |  |  |        |  +--rw as-number-hop
-     |  |  |     |  |     |  |  |        |     +--rw as-number?   binary
-     |  |  |     |  |     |  |  |        |     +--rw hop-type?    te-hop-type
-     |  |  |     |  |     |  |  |        +--:(label)
-     |  |  |     |  |     |  |  |        |  +--rw label-hop
-     |  |  |     |  |     |  |  |        |     +--rw te-label
-     |  |  |     |  |     |  |  |        |        +--rw (technology)?
-     |  |  |     |  |     |  |  |        |        |  +--:(generic)
-     |  |  |     |  |     |  |  |        |        |     +--rw generic?   rt-types:generalized-label
-     |  |  |     |  |     |  |  |        |        +--rw direction?       te-label-direction
-     |  |  |     |  |     |  |  |        +--:(srlg)
-     |  |  |     |  |     |  |  |           +--rw srlg
-     |  |  |     |  |     |  |  |              +--rw srlg?   uint32
-     |  |  |     |  |     |  |  +--rw explicit-route-include-objects
-     |  |  |     |  |     |  |     +--rw route-object-include-object* [index]
-     |  |  |     |  |     |  |        +--rw index                  uint32
-     |  |  |     |  |     |  |        +--rw (type)?
-     |  |  |     |  |     |  |           +--:(num-unnum-hop)
-     |  |  |     |  |     |  |           |  +--rw num-unnum-hop
-     |  |  |     |  |     |  |           |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |  |     |  |           |     +--rw link-tp-id?   te-types:te-tp-id
-     |  |  |     |  |     |  |           |     +--rw hop-type?     te-hop-type
-     |  |  |     |  |     |  |           |     +--rw direction?    te-link-direction
-     |  |  |     |  |     |  |           +--:(as-number)
-     |  |  |     |  |     |  |           |  +--rw as-number-hop
-     |  |  |     |  |     |  |           |     +--rw as-number?   binary
-     |  |  |     |  |     |  |           |     +--rw hop-type?    te-hop-type
-     |  |  |     |  |     |  |           +--:(label)
-     |  |  |     |  |     |  |              +--rw label-hop
-     |  |  |     |  |     |  |                 +--rw te-label
-     |  |  |     |  |     |  |                    +--rw (technology)?
-     |  |  |     |  |     |  |                    |  +--:(generic)
-     |  |  |     |  |     |  |                    |     +--rw generic?   rt-types:generalized-label
-     |  |  |     |  |     |  |                    +--rw direction?       te-label-direction
-     |  |  |     |  |     |  +--rw tiebreakers
-     |  |  |     |  |     |     +--rw tiebreaker* [tiebreaker-type]
-     |  |  |     |  |     |        +--rw tiebreaker-type    identityref
-     |  |  |     |  |     +--:(objective-function) {path-optimization-objective-function}?
-     |  |  |     |  |        +--rw objective-function
-     |  |  |     |  |           +--rw objective-function-type?   identityref
-     |  |  |     |  +--rw named-path-constraint?        -> ../../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
      |  |  |     |  +--ro state
      |  |  |     |  |  +--ro path-properties
      |  |  |     |  |  |  +--ro path-metric* [metric-type]
@@ -1422,6 +1380,65 @@ module: ietf-te
      |  |  |     +--rw use-path-computation?       boolean
      |  |  |     +--rw lockdown?                   empty
      |  |  |     +--rw path-scope?                 identityref
+     |  |  |     +--rw optimizations
+     |  |  |     |  +--rw (algorithm)?
+     |  |  |     |     +--:(metric) {path-optimization-metric}?
+     |  |  |     |     |  +--rw optimization-metric* [metric-type]
+     |  |  |     |     |  |  +--rw metric-type                       identityref
+     |  |  |     |     |  |  +--rw weight?                           uint8
+     |  |  |     |     |  |  +--rw explicit-route-exclude-objects
+     |  |  |     |     |  |  |  +--rw route-object-exclude-object* [index]
+     |  |  |     |     |  |  |     +--rw index                  uint32
+     |  |  |     |     |  |  |     +--rw (type)?
+     |  |  |     |     |  |  |        +--:(num-unnum-hop)
+     |  |  |     |     |  |  |        |  +--rw num-unnum-hop
+     |  |  |     |     |  |  |        |     +--rw node-id?      te-types:te-node-id
+     |  |  |     |     |  |  |        |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |     |  |  |        |     +--rw hop-type?     te-hop-type
+     |  |  |     |     |  |  |        |     +--rw direction?    te-link-direction
+     |  |  |     |     |  |  |        +--:(as-number)
+     |  |  |     |     |  |  |        |  +--rw as-number-hop
+     |  |  |     |     |  |  |        |     +--rw as-number?   binary
+     |  |  |     |     |  |  |        |     +--rw hop-type?    te-hop-type
+     |  |  |     |     |  |  |        +--:(label)
+     |  |  |     |     |  |  |        |  +--rw label-hop
+     |  |  |     |     |  |  |        |     +--rw te-label
+     |  |  |     |     |  |  |        |        +--rw (technology)?
+     |  |  |     |     |  |  |        |        |  +--:(generic)
+     |  |  |     |     |  |  |        |        |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |     |  |  |        |        +--rw direction?       te-label-direction
+     |  |  |     |     |  |  |        +--:(srlg)
+     |  |  |     |     |  |  |           +--rw srlg
+     |  |  |     |     |  |  |              +--rw srlg?   uint32
+     |  |  |     |     |  |  +--rw explicit-route-include-objects
+     |  |  |     |     |  |     +--rw route-object-include-object* [index]
+     |  |  |     |     |  |        +--rw index                  uint32
+     |  |  |     |     |  |        +--rw (type)?
+     |  |  |     |     |  |           +--:(num-unnum-hop)
+     |  |  |     |     |  |           |  +--rw num-unnum-hop
+     |  |  |     |     |  |           |     +--rw node-id?      te-types:te-node-id
+     |  |  |     |     |  |           |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |     |  |           |     +--rw hop-type?     te-hop-type
+     |  |  |     |     |  |           |     +--rw direction?    te-link-direction
+     |  |  |     |     |  |           +--:(as-number)
+     |  |  |     |     |  |           |  +--rw as-number-hop
+     |  |  |     |     |  |           |     +--rw as-number?   binary
+     |  |  |     |     |  |           |     +--rw hop-type?    te-hop-type
+     |  |  |     |     |  |           +--:(label)
+     |  |  |     |     |  |              +--rw label-hop
+     |  |  |     |     |  |                 +--rw te-label
+     |  |  |     |     |  |                    +--rw (technology)?
+     |  |  |     |     |  |                    |  +--:(generic)
+     |  |  |     |     |  |                    |     +--rw generic?   rt-types:generalized-label
+     |  |  |     |     |  |                    +--rw direction?       te-label-direction
+     |  |  |     |     |  +--rw tiebreakers
+     |  |  |     |     |     +--rw tiebreaker* [tiebreaker-type]
+     |  |  |     |     |        +--rw tiebreaker-type    identityref
+     |  |  |     |     +--:(objective-function) {path-optimization-objective-function}?
+     |  |  |     |        +--rw objective-function
+     |  |  |     |           +--rw objective-function-type?   identityref
+     |  |  |     +--rw preference?                 uint8
+     |  |  |     +--rw named-path-constraint?      -> ../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
      |  |  |     +--rw te-bandwidth
      |  |  |     |  +--rw (technology)?
      |  |  |     |     +--:(generic)
@@ -1429,7 +1446,6 @@ module: ietf-te
      |  |  |     +--rw setup-priority?             uint8
      |  |  |     +--rw hold-priority?              uint8
      |  |  |     +--rw signaling-type?             identityref
-     |  |  |     +--rw disjointness?               te-types:te-path-disjointness
      |  |  |     +--rw path-metric-bounds
      |  |  |     |  +--rw path-metric-bound* [metric-type]
      |  |  |     |     +--rw metric-type    identityref
@@ -1576,65 +1592,7 @@ module: ietf-te
      |  |  |     |           |     |     +--rw generic?   rt-types:generalized-label
      |  |  |     |           |     +--rw direction?       te-label-direction
      |  |  |     |           +--rw range-bitmap?   binary
-     |  |  |     +--rw optimizations
-     |  |  |     |  +--rw (algorithm)?
-     |  |  |     |     +--:(metric) {path-optimization-metric}?
-     |  |  |     |     |  +--rw optimization-metric* [metric-type]
-     |  |  |     |     |  |  +--rw metric-type                       identityref
-     |  |  |     |     |  |  +--rw weight?                           uint8
-     |  |  |     |     |  |  +--rw explicit-route-exclude-objects
-     |  |  |     |     |  |  |  +--rw route-object-exclude-object* [index]
-     |  |  |     |     |  |  |     +--rw index                  uint32
-     |  |  |     |     |  |  |     +--rw (type)?
-     |  |  |     |     |  |  |        +--:(num-unnum-hop)
-     |  |  |     |     |  |  |        |  +--rw num-unnum-hop
-     |  |  |     |     |  |  |        |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |     |  |  |        |     +--rw link-tp-id?   te-types:te-tp-id
-     |  |  |     |     |  |  |        |     +--rw hop-type?     te-hop-type
-     |  |  |     |     |  |  |        |     +--rw direction?    te-link-direction
-     |  |  |     |     |  |  |        +--:(as-number)
-     |  |  |     |     |  |  |        |  +--rw as-number-hop
-     |  |  |     |     |  |  |        |     +--rw as-number?   binary
-     |  |  |     |     |  |  |        |     +--rw hop-type?    te-hop-type
-     |  |  |     |     |  |  |        +--:(label)
-     |  |  |     |     |  |  |        |  +--rw label-hop
-     |  |  |     |     |  |  |        |     +--rw te-label
-     |  |  |     |     |  |  |        |        +--rw (technology)?
-     |  |  |     |     |  |  |        |        |  +--:(generic)
-     |  |  |     |     |  |  |        |        |     +--rw generic?   rt-types:generalized-label
-     |  |  |     |     |  |  |        |        +--rw direction?       te-label-direction
-     |  |  |     |     |  |  |        +--:(srlg)
-     |  |  |     |     |  |  |           +--rw srlg
-     |  |  |     |     |  |  |              +--rw srlg?   uint32
-     |  |  |     |     |  |  +--rw explicit-route-include-objects
-     |  |  |     |     |  |     +--rw route-object-include-object* [index]
-     |  |  |     |     |  |        +--rw index                  uint32
-     |  |  |     |     |  |        +--rw (type)?
-     |  |  |     |     |  |           +--:(num-unnum-hop)
-     |  |  |     |     |  |           |  +--rw num-unnum-hop
-     |  |  |     |     |  |           |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |     |  |           |     +--rw link-tp-id?   te-types:te-tp-id
-     |  |  |     |     |  |           |     +--rw hop-type?     te-hop-type
-     |  |  |     |     |  |           |     +--rw direction?    te-link-direction
-     |  |  |     |     |  |           +--:(as-number)
-     |  |  |     |     |  |           |  +--rw as-number-hop
-     |  |  |     |     |  |           |     +--rw as-number?   binary
-     |  |  |     |     |  |           |     +--rw hop-type?    te-hop-type
-     |  |  |     |     |  |           +--:(label)
-     |  |  |     |     |  |              +--rw label-hop
-     |  |  |     |     |  |                 +--rw te-label
-     |  |  |     |     |  |                    +--rw (technology)?
-     |  |  |     |     |  |                    |  +--:(generic)
-     |  |  |     |     |  |                    |     +--rw generic?   rt-types:generalized-label
-     |  |  |     |     |  |                    +--rw direction?       te-label-direction
-     |  |  |     |     |  +--rw tiebreakers
-     |  |  |     |     |     +--rw tiebreaker* [tiebreaker-type]
-     |  |  |     |     |        +--rw tiebreaker-type    identityref
-     |  |  |     |     +--:(objective-function) {path-optimization-objective-function}?
-     |  |  |     |        +--rw objective-function
-     |  |  |     |           +--rw objective-function-type?   identityref
-     |  |  |     +--rw preference?                 uint8
-     |  |  |     +--rw named-path-constraint?      -> ../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
+     |  |  |     +--rw disjointness?               te-types:te-path-disjointness
      |  |  |     +--rw protection
      |  |  |     |  +--rw enable?                         boolean
      |  |  |     |  +--rw protection-type?                identityref
@@ -2239,3 +2197,10 @@ module: ietf-te
   notifications:
     +---n globals-notif
     +---n tunnels-notif
+module: ietf-te-device
+
+  rpcs:
+    +---x interfaces-rpc
+
+  notifications:
+    +---n interfaces-notif
