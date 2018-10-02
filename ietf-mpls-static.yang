@@ -39,12 +39,6 @@ module ietf-mpls-static {
      WG Chair: Loa Andersson
                <mailto:loa@pi.nu>
 
-     WG Chair: Ross Callon
-               <mailto:rcallon@juniper.net>
-
-     WG Chair: George Swallow
-               <mailto:swallow.ietf@gmail.com>
-
      Editor:   Tarek Saad
                <mailto:tsaad@cisco.com>
 
@@ -64,16 +58,7 @@ module ietf-mpls-static {
                <mailto:hshah@ciena.com>
 
      Editor:   Igor Bryskin
-               <mailto: Igor.Bryskin@huawei.com>
-
-     Editor:   Xia Chen
-               <mailto:jescia.chenxia@huawei.com>
-
-     Editor:   Raqib Jones
-               <mailto:raqib@Brocade.com>
-
-     Editor:   Bin Wen
-               <mailto:Bin_Wen@cable.comcast.com>";
+               <mailto: Igor.Bryskin@huawei.com>";
 
   description
      "This YANG module augments the 'ietf-routing' module with basic
@@ -125,7 +110,7 @@ module ietf-mpls-static {
     description "MPLS operations types";
   }
 
-  grouping path-basic_config {
+  grouping path-basic {
     description "common definitions for statics";
 
     leaf next-hop {
@@ -147,23 +132,6 @@ module ietf-mpls-static {
     }
   }
 
-  grouping path-outgoing-labels_config {
-    description "Path outgoing labels grouping";
-    leaf index {
-      type uint8 {
-        range "0..255";
-      }
-      description
-        "Index of the label. Index 0 indicates
-         top of the label stack";
-    }
-    leaf label {
-      type rt-types:mpls-label;
-      description
-        "The outgoing MPLS labels to impose";
-    }
-  }
-
   grouping path-outgoing-labels {
     description "Path outgoing labels grouping";
     container outgoing-labels {
@@ -172,23 +140,17 @@ module ietf-mpls-static {
         key "index";
         description "Outgoing label list";
         leaf index {
-          type leafref {
-            path "../config/index";
+          type uint8 {
+            range "0..255";
           }
           description
             "Index of the label. Index 0 indicates
              top of the label stack";
         }
-        container config {
+        leaf label {
+          type rt-types:mpls-label;
           description
-            "Configuration intended parameters";
-          uses path-outgoing-labels_config;
-        }
-        container state {
-          config false;
-          description
-            "Configuration applied parameters and state";
-          uses path-outgoing-labels_config;
+            "The outgoing MPLS labels to impose";
         }
       }
     }
@@ -252,22 +214,13 @@ module ietf-mpls-static {
 
   grouping static-lsp-paths {
     description "Static LSP path grouping";
+    uses in-segment;
     choice out-segment {
       description "The MPLS out-segment type choice";
       case simple-path {
         container simple-path {
           description "Simple path container";
-          container config {
-            description
-              "Holds the intended configuration";
-            uses path-basic_config;
-          }
-          container state {
-            config false;
-            description
-              "Holds the state and inuse configuration";
-            uses path-basic_config;
-          }
+            uses path-basic;
         }
       }
       case multiple-paths {
@@ -277,23 +230,7 @@ module ietf-mpls-static {
             key path-index;
             description
               "The list of MPLS paths associated with the FEC";
-            leaf path-index {
-              type leafref {
-                path "../config/path-index";
-              }
-              description "Index of the path";
-            }
-            container config {
-              description
-                "Holds the intended configuration";
-              uses path-properties_config;
-            }
-            container state {
-              config false;
-              description
-                "Holds the state and inuse configuration";
-              uses path-properties_config;
-            }
+            uses path-properties_config;
           }
           uses path-outgoing-labels;
         }
@@ -337,22 +274,12 @@ module ietf-mpls-static {
     description "In-segment grouping";
     container in-segment {
       description
-        "MPLS incoming segment";
-      container config {
-        description
-          "Holds the intended configuration";
-        uses in-segment_config;
-      }
-      container state {
-        config false;
-        description
-          "Holds the state and inuse configuration";
-        uses in-segment_config;
-      }
+       "MPLS incoming segment";
+      uses in-segment_config;
     }
   }
 
-  grouping static-lsp-top_config {
+  grouping static-lsp-top {
     description "Static LSP configuration grouping";
     leaf name {
       type string;
@@ -365,21 +292,6 @@ module ietf-mpls-static {
     }
   }
 
-  grouping static-lsp-top {
-    description "common definitions for static LSPs";
-    container config {
-      description
-        "Holds the intended configuration";
-      uses static-lsp-top_config;
-    }
-    container state {
-      config false;
-      description
-        "Holds the state and inuse configuration";
-      uses static-lsp-top_config;
-    }
-  }
-
   augment "/rt:routing/mpls:mpls" {
     description "Augmentations for MPLS Static LSPs";
     container static-lsps {
@@ -388,12 +300,6 @@ module ietf-mpls-static {
       list static-lsp {
         key name;
         description "list of defined static LSPs";
-        leaf name {
-          type leafref {
-            path "../config/name";
-          }
-          description "name to identify the LSP";
-        }
         uses static-lsp-top;
         uses static-lsp-paths;
       }
