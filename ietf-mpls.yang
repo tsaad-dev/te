@@ -1,5 +1,5 @@
 module ietf-mpls {
-
+  yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-mpls";
 
   prefix "mpls";
@@ -177,7 +177,7 @@ module ietf-mpls {
     uses nhlfe-simple-contents;
   }
 
-  grouping interface-mpls_config {
+  grouping interface-mpls-properties {
     description "MPLS interface contents grouping";
     leaf enabled {
       type boolean;
@@ -203,19 +203,11 @@ module ietf-mpls {
         description
           "The name of a configured MPLS interface";
       }
-      container config {
-        description "Holds intended configuration";
-        uses interface-mpls_config;
-      }
-      container state {
-        config false;
-        description "Holds inuse configuration";
-        uses interface-mpls_config;
-      }
+      uses interface-mpls-properties;
     }
   }
 
-  grouping label-block_config {
+  grouping label-block-properties {
     description "Label-block configuration items";
     leaf index {
       type string;
@@ -244,38 +236,25 @@ module ietf-mpls {
   grouping label-block_state {
     description "Label-block state items";
     leaf free-labels-count {
-      when 
-      "../block-allocation-mode = 'label-block-alloc-mode-manager'";
+      when "../../block-allocation-mode = " +
+      "'label-block-alloc-mode-manager'";
       type uint32;
       description "Label-block free labels count";
     }
     leaf inuse-labels-count {
-      when
-      "../block-allocation-mode = 'label-block-alloc-mode-manager'";
+      when "../../block-allocation-mode = " +
+      "'label-block-alloc-mode-manager'";
       type uint32;
       description "Label-block inuse labels count";
     }
   }
 
-  grouping globals_config {
-    description "MPLS global configuration leafs grouping";
+  grouping globals {
+    description "MPLS global configuration grouping";
     leaf ttl-propagate {
       type boolean;
       default 'true';
       description "Propagate TTL between IP and MPLS";
-    }
-  }
-
-  grouping globals {
-    description "MPLS global configuration grouping";
-    container config {
-      description "Holds intended configuration";
-      uses globals_config;
-    }
-    container state {
-      config false;
-      description "Holds inuse configuration";
-      uses globals_config;
     }
   }
   grouping label-blocks {
@@ -288,35 +267,11 @@ module ietf-mpls {
         }
         key index;
         unique "start-label end-label";
-        leaf index {
-          type leafref {
-            path "../config/index";
-          }
-          description "Label-block index";
-        }
-        leaf start-label {
-          type leafref {
-            path "../config/start-label";
-          }
-          description
-            "Label-block start label reference";
-        }
-        leaf end-label {
-          type leafref {
-            path "../config/end-label";
-          }
-          description
-            "Label-block end label reference";
-        }
         description "List of MPLS label-blocks";
-        container config {
-          description "Holds intended configuration";
-          uses label-block_config;
-        }
+        uses label-block-properties;
         container state {
           config false;
-          description "Holds inuse configuration";
-          uses label-block_config;
+          description "Holds state information";
           uses label-block_state;
         }
       }
