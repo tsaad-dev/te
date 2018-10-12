@@ -6,14 +6,17 @@ module ietf-mpls {
 
   import ietf-routing {
     prefix "rt";
-  }
-
-  import ietf-interfaces {
-    prefix "if";
+    reference "RFC8349: A YANG Data Model for Routing Management";
   }
 
   import ietf-routing-types {
     prefix "rt-types";
+    reference "RFC6991: Common YANG Data Types";
+  }
+
+  import ietf-interfaces {
+    prefix "if";
+    reference "RFC7223: A YANG Data Model for Interface Management";
   }
 
   organization "IETF MPLS Working Group";
@@ -26,11 +29,8 @@ module ietf-mpls {
      WG Chair: Loa Andersson
                <mailto:loa@pi.nu>
 
-     WG Chair: Ross Callon
-               <mailto:rcallon@juniper.net>
-
-     WG Chair: George Swallow
-               <mailto:swallow.ietf@gmail.com>
+     WG Chair: Nic Leymann
+               <mailto:N.Leymann@telekom.de>
 
      Editor:   Tarek Saad
                <mailto:tsaad@cisco.com>
@@ -51,22 +51,13 @@ module ietf-mpls {
                <mailto:hshah@ciena.com>
 
      Editor:   Igor Bryskin
-               <mailto: Igor.Bryskin@huawei.com>
-
-     Editor:   Xia Chen
-               <mailto:jescia.chenxia@huawei.com>
-
-     Editor:   Raqib Jones
-               <mailto:raqib@Brocade.com>
-
-     Editor:   Bin Wen
-               <mailto:Bin_Wen@cable.comcast.com>";
+               <mailto: Igor.Bryskin@huawei.com>";
 
   description
     "This YANG module defines the essential components for the
      management of the MPLS subsystem.";
 
-  revision "2017-10-29" {
+  revision "2018-10-10" {
     description
       "Latest revision:
         - Addressed MPLS-RT review comments";
@@ -100,6 +91,38 @@ module ietf-mpls {
        is managed by application";
   }
 
+  /**
+   * Typedefs
+   */
+  typedef mpls-operations-type {
+    type enumeration {
+      enum impose-and-forward {
+        description 
+          "Operation impose outgoing label(s) and forward to
+           next-hop";
+      }
+      enum pop-and-forward {
+        description
+          "Operation pop incoming label and forward to next-hop";
+      }
+      enum pop-impose-and-forward {
+        description
+          "Operation pop incoming label, impose one or more
+           outgoing label(s) and forward to next-hop";
+      }
+      enum swap-and-forward {
+        description
+          "Operation swap incoming label, with outgoing label and
+           forward to next-hop";
+      }
+      enum pop-and-lookup {
+        description
+          "Operation pop incoming label and perform a lookup";
+      }
+    }
+    description "MPLS operations types";
+  }
+
   typedef nhlfe-role {
     type enumeration {
       enum PRIMARY {
@@ -118,29 +141,32 @@ module ietf-mpls {
     description "The next-hop role";
   }
 
-  grouping nhlfe-simple-contents {
+  grouping nhlfe-single-contents {
     description
       "MPLS simple NHLFE contents";
-    list remote-labels {
-      key "index";
-      description "Remote label list";
-      leaf index {
-        type uint8 {
-          range "0..255";
+    container remote-labels {
+      description "Remote labels container";
+      list remote-label {
+        key "index";
+        description "Remote label list";
+        leaf index {
+          type uint8 {
+            range "0..255";
+          }
+          description
+            "Index of the label. Index 0 indicates
+             top of the label stack";
         }
-        description
-          "Index of the label. Index 0 indicates
-           top of the label stack";
-      }
-      leaf label {
-        type rt-types:mpls-label;
-        description
-          "The outgoing MPLS labels to impose";
+        leaf label {
+          type rt-types:mpls-label;
+          description
+            "The outgoing MPLS labels to impose";
+        }
       }
     }
   }
 
-  grouping nhlfe-contents {
+  grouping nhlfe-multiple-contents {
     description
       "MPLS NHLFE contents";
     leaf index {
@@ -174,7 +200,7 @@ module ietf-mpls {
       type nhlfe-role;
       description "NHLFE role";
     }
-    uses nhlfe-simple-contents;
+    uses nhlfe-single-contents;
   }
 
   grouping interface-mpls-properties {
@@ -189,7 +215,7 @@ module ietf-mpls {
     leaf mtu {
       type uint32;
       description
-        "MPLS Maximum Transmission Unit (MTU)";
+        "MPLS Maximum Transmission Unit (MTU) in bytes";
     }
   }
 
@@ -213,9 +239,7 @@ module ietf-mpls {
       type string;
       description
         "A user-specified identifier utilised to uniquely
-         reference the next-hop entry in the next-hop list.
-         The value of this index has no semantic meaning
-         other than for referencing the entry.";
+         reference an MPLS label block";
     }
     leaf start-label {
       type rt-types:mpls-label;
@@ -291,10 +315,15 @@ module ietf-mpls {
     }
   }
 
-  /* State data */
-  augment "/rt:routing-state/rt:ribs/rt:rib/rt:routes/rt:route" {
+  /* MPLS routes augmentation */
+  augment "/rt:routing/rt:ribs/rt:rib/rt:routes/rt:route" {
+    when "derived-from-or-self(../../rt:address-family, "
+       + "'mpls:mpls')" {
+      description
+        "This augment is valid only for IPv4 unicast.";
+    }
     description
-      "This leaf augments an IPv4 unicast route.";
+      "This leaf augments an MPLS routes.";
     leaf local-label {
       type rt-types:mpls-label;
       description
@@ -302,35 +331,64 @@ module ietf-mpls {
     }
   }
 
-  augment "/rt:routing-state/rt:ribs/rt:rib/rt:routes/rt:route/"
+  /* MPLS simple-next-hop augmentation */
+  augment "/rt:routing/rt:ribs/rt:rib/rt:routes/rt:route/"
         + "rt:next-hop/rt:next-hop-options/rt:simple-next-hop" {
+    when "derived-from-or-self(../../../rt:address-family, "
+       + "'mpls:mpls')" {
+      description
+        "This augment is valid only for IPv4 unicast.";
+    }
     description
       "Augment 'simple-next-hop' case in IPv4 unicast routes.";
-    uses nhlfe-simple-contents;
+    uses nhlfe-single-contents;
   }
 
-  augment "/rt:routing-state/rt:ribs/rt:rib/rt:routes/rt:route/"
+  /* MPLS next-hop-list augmentation */
+  augment "/rt:routing/rt:ribs/rt:rib/rt:routes/rt:route/"
         + "rt:next-hop/rt:next-hop-options/rt:next-hop-list/"
         + "rt:next-hop-list/rt:next-hop" {
+    when "derived-from-or-self(../../../../../rt:address-family, "
+       + "'mpls:mpls')" {
+      description
+        "This augment is valid only for IPv4 unicast.";
+    }
     description
       "This leaf augments the 'next-hop-list' case of IPv4 unicast
        routes.";
-    uses nhlfe-contents;
+    uses nhlfe-multiple-contents;
   }
 
+  /* MPLS RPC input augmentation */
   augment
-    "/rt:routing-state/rt:ribs/rt:rib/rt:active-route/rt:input" {
+    "/rt:routing/rt:ribs/rt:rib/rt:active-route/rt:input" {
     description
       "This augment adds the input parameter of the 'active-route'
        action.";
-    uses nhlfe-contents;
+    /* uses nhlfe-multiple-contents; */
+    leaf local-label {
+      type rt-types:mpls-label;
+      description
+        "MPLS local label.";
+    }
   }
 
-  augment "/rt:routing-state/rt:ribs/rt:rib/rt:active-route/"
-        + "rt:output/rt:route" {
+  /* MPLS RPC output augmentation */
+  augment "/rt:routing/rt:ribs/rt:rib/rt:active-route/"
+        + "rt:output/rt:route/"
+        + "rt:next-hop/rt:next-hop-options/rt:simple-next-hop" {
     description
       "This augment adds the destination prefix to the reply of the
        'active-route' action.";
-    uses nhlfe-contents;
+    uses nhlfe-multiple-contents;
+  }
+  augment "/rt:routing/rt:ribs/rt:rib/rt:active-route/"
+        + "rt:output/rt:route/"
+        + "rt:next-hop/rt:next-hop-options/rt:next-hop-list/"
+        + "rt:next-hop-list/rt:next-hop" {
+    description
+      "This augment adds the destination prefix to the reply of the
+       'active-route' action.";
+    uses nhlfe-multiple-contents;
   }
 }
