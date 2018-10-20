@@ -9,10 +9,13 @@ module ietf-te {
   /* Import TE generic types */
   import ietf-te-types {
     prefix te-types;
+    reference "draft-ietf-teas-yang-te-types: A YANG Data Model for
+               Common Traffic Engineering Types";
   }
 
   import ietf-inet-types {
     prefix inet;
+    reference "RFC6991: Common YANG Data Types";
   }
 
   organization
@@ -51,7 +54,7 @@ module ietf-te {
     "YANG data module for TE configuration,
     state, RPC and notifications.";
 
-  revision "2018-10-08" {
+  revision "2018-10-10" {
     description "Latest update to TE generic YANG module.";
     reference "TBA";
   }
@@ -209,8 +212,20 @@ module ietf-te {
 
   grouping p2p-path-properties_state {
     description "TE per path state parameters";
-    uses path-properties {
-      description "The TE path computed properties";
+    container computed-paths-properties {
+      description "Computed path properties container";
+      list computed-path-properties {
+        key k-index;
+        description "List of computed paths";
+        leaf k-index {
+          type uint8;
+          description
+            "The k-th path returned from the computation server.";
+        }
+        uses path-properties {
+          description "The TE path computed properties";
+        }
+      }
     }
     container lsps {
       description "TE LSPs container";
@@ -324,6 +339,13 @@ module ietf-te {
       description
         "Specifies a preference for this path. The lower the
         number higher the preference";
+    }
+    leaf k-requested-paths {
+      type uint8;
+      description
+        "The number of k-shortest-paths  requested from the path
+         computation server and returned sorted by its optimization
+         objective";
     }
     leaf named-path-constraint {
       if-feature te-types:named-path-constraints;
