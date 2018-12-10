@@ -85,7 +85,9 @@ module ietf-te-types {
        as '0,2,3,1', indicating 2 odu0's and 1 odu3.
        For DWDM, a list of pairs of slot number and width can be
        used, such as '0, 2, 3, 3', indicating a frequency slot 0 with
-       slot width 2 and a frequency slot 3 with slot width 3.";
+       slot width 2 and a frequency slot 3 with slot width 3.
+       Canonically, the string is represented as all lowercase and in
+       hex where the prefix '0x' precedes the hex number";
   } // te-bandwidth
 
   typedef te-ds-class {
@@ -99,11 +101,11 @@ module ietf-te-types {
 
   typedef te-link-direction {
     type enumeration {
-      enum INCOMING {
+      enum incoming {
         description
           "explicit route represents an incoming link on a node";
       }
-      enum OUTGOING {
+      enum outgoing {
         description
           "explicit route represents an outgoing link on a node";
       }
@@ -114,11 +116,11 @@ module ietf-te-types {
 
   typedef te-label-direction {
     type enumeration {
-      enum FORWARD {
+      enum forward {
         description
           "Label allocated for the forward LSP direction";
       }
-      enum REVERSE {
+      enum reverse {
         description
           "Label allocated for the reverse LSP direction";
       }
@@ -130,11 +132,11 @@ module ietf-te-types {
 
   typedef te-hop-type {
     type enumeration {
-      enum LOOSE {
+      enum loose {
         description
           "loose hop in an explicit path";
       }
-      enum STRICT {
+      enum strict {
         description
           "strict hop in an explicit path";
       }
@@ -393,10 +395,15 @@ module ietf-te-types {
   } // te-topology-event-type
 
   typedef te-topology-id {
-    type string {
-      pattern
-        '([a-zA-Z0-9\-_.]+:)*'
-      + '/?([a-zA-Z0-9\-_.]+)(/[a-zA-Z0-9\-_.]+)*';
+    type union {
+        type string {
+          length 0; // empty string
+        }
+        type string {
+          pattern
+            '([a-zA-Z0-9\-_.]+:)*'
+          + '/?([a-zA-Z0-9\-_.]+)(/[a-zA-Z0-9\-_.]+)*';
+        }
     }
     description
       "An identifier for a topology.
@@ -449,8 +456,7 @@ module ietf-te-types {
 
   typedef te-metric {
     type uint32;
-    description
-      "TE link metric";
+    description "TE link metric";
     reference "RFC3785";
   }
 
@@ -511,26 +517,32 @@ module ietf-te-types {
     description "Base identity for link protection type.";
   }
   identity link-protection-unprotected {
+    base link-protection-type;
     description "Unprotected link type";
     reference "RFC4872";
   }
   identity link-protection-extra-traffic {
+    base link-protection-type;
     description "Extra-traffic protected link type";
     reference "RFC4427.";
   }
   identity link-protection-shared {
+    base link-protection-type;
     description "Shared protected link type";
     reference "RFC4872";
   }
   identity link-protection-1-for-1 {
+    base link-protection-type;
     description "One for one protected link type";
     reference "RFC4872";
   }
   identity link-protection-1-plus-1 {
+    base link-protection-type;
     description "One plus one protected link type";
     reference "RFC4872";
   }
   identity link-protection-enhanced {
+    base link-protection-type;
     description "Enhanced protection protected link type";
     reference "RFC4872";
   }
@@ -643,25 +655,25 @@ module ietf-te-types {
       hops";
   }
 
-  identity LSP_METRIC_TYPE {
+  identity lsp-metric-type {
     description
       "Base identity for types of LSP metric specification";
   }
-  identity LSP_METRIC_RELATIVE {
-    base LSP_METRIC_TYPE;
+  identity lsp-metric-relative {
+    base lsp-metric-type;
     description
       "The metric specified for the LSPs to which this identity refers
       is specified as a relative value to the IGP metric cost to the
       LSP's tail-end.";
   }
-  identity LSP_METRIC_ABSOLUTE {
-    base LSP_METRIC_TYPE;
+  identity lsp-metric-absolute {
+    base lsp-metric-type;
     description
       "The metric specified for the LSPs to which this identity refers
       is specified as an absolute value";
   }
-  identity LSP_METRIC_INHERITED {
-    base LSP_METRIC_TYPE;
+  identity lsp-metric-inherited {
+    base lsp-metric-type;
     description
       "The metric for the LSPs to which this identity refers is
       not specified explicitly - but rather inherited from the IGP
@@ -883,13 +895,25 @@ module ietf-te-types {
       "LSP protection '1:N Protection with Extra-Traffic'";
     reference "RFC4872";
   }
-  identity lsp-protection-unidir-1-to-1 {
+  identity lsp-protection-unidir-1-for-1 {
+    base lsp-protection-type;
+    description
+      "LSP protection '1:1 Unidirectional Protection'";
+    reference "RFC4872";
+  }
+  identity lsp-protection-bidir-1-for-1 {
+    base lsp-protection-type;
+    description
+      "LSP protection '1:1 Bidirectional Protection'";
+    reference "RFC4872";
+  }
+  identity lsp-protection-unidir-1-plus-1 {
     base lsp-protection-type;
     description
       "LSP protection '1+1 Unidirectional Protection'";
     reference "RFC4872";
   }
-  identity lsp-protection-bidir-1-to-1 {
+  identity lsp-protection-bidir-1-plus-1 {
     base lsp-protection-type;
     description
       "LSP protection '1+1 Bidirectional Protection'";
@@ -1176,16 +1200,19 @@ module ietf-te-types {
     base lsp-encoding-types;
     description
       "G.709 ODUk (Digital Path) LSP encoding";
+    reference "RFC4328";
   }
   identity lsp-encoding-optical-channel {
     base lsp-encoding-types;
     description
-      "Line (e.g., 8B/10B) LSP encoding";
+      "G.709 Optical Channel LSP encoding";
+    reference "RFC4328";
   }
   identity lsp-encoding-line {
     base lsp-encoding-types;
     description
       "Line (e.g., 8B/10B) LSP encoding";
+      reference "RFC6004";
   }
   identity path-signaling-type {
     description
@@ -1229,20 +1256,19 @@ module ietf-te-types {
     description
       "Base identity for route usage";
   }
-  identity route-include-ero {
+  identity route-include-route-object {
     base route-usage-type;
     description
-      "Include ERO resource in route";
+      "Include route object";
   }
-  identity route-exclude-ero {
+  identity route-exclude-route-object {
     base route-usage-type;
     description
-      "Exclude ERO resource from route";
+      "Exclude route object";
   }
   identity route-exclude-srlg {
     base route-usage-type;
-    description
-      "Exclude SRLG from route";
+    description "Exclude SRLG";
   }
 
   identity path-metric-type {
@@ -1475,7 +1501,8 @@ module ietf-te-types {
        technologies.";
     container te-bandwidth {
       description
-        "Container that specifies TE bandwidth.";
+        "Container that specifies TE bandwidth. The choices
+         can be augmented for sepcific dataplane technologies.";
       choice technology {
         default generic;
         description
@@ -1502,7 +1529,8 @@ module ietf-te-types {
        is used.";
     container te-label {
       description
-        "Container that specifies TE label.";
+        "Container that specifies TE label. The choices can
+         be augmented for sepcific dataplane technologies.";
       choice technology {
         default generic;
         description
@@ -1517,6 +1545,7 @@ module ietf-te-types {
       }
       leaf direction {
         type te-label-direction;
+        default forward;
         description "Label direction";
       }
     }
@@ -1528,21 +1557,26 @@ module ietf-te-types {
     container te-topology-identifier {
       description "TE topology identifier container";
       leaf provider-id {
-        type te-types:te-global-id;
+        type te-global-id;
+        default 0;
         description
-          "An identifier to uniquely identify a provider.";
+          "An identifier to uniquely identify a provider. If omitted,
+           it assumes the default topology provider ID=0";
       }
       leaf client-id {
-        type te-types:te-global-id;
+        type te-global-id;
+        default 0;
         description
-          "An identifier to uniquely identify a client.";
+          "An identifier to uniquely identify a client. If omitted,
+           it assumes the default topology client ID=0";
       }
       leaf topology-id {
-        type te-types:te-topology-id;
+        type te-topology-id;
+        default '';
         description
-          "It is presumed that a datastore will contain many
-           topologies. To distinguish between topologies it is
-           vital to have UNIQUE topology identifiers.";
+          "When the datastore contains several topologies, the topology-id
+           distinguishes between them. If omitted, the default empty string
+           topology-id is assumed";
       }
     }
   }
@@ -1720,36 +1754,87 @@ module ietf-te-types {
    **/
   grouping explicit-route-hop {
     description
-      "The explicit route subobject grouping";
+      "The explicit route entry grouping";
     choice type {
       description
-        "The explicit route subobject type";
-      case num-unnum-hop {
-        container num-unnum-hop {
+        "The explicit route entry type";
+      case numbered-node-hop {
+        container numbered-node-hop {
           leaf node-id {
-            type te-types:te-node-id;
+            type te-node-id;
+            mandatory true;
             description
               "The identifier of a node in the TE topology.";
           }
-          leaf link-tp-id {
-            type te-types:te-tp-id;
-              description
-                "TE link termination point identifier. The combination
-                 of TE link ID and the TE node ID is used to identify an
-                 unnumbered TE link.";
-          }
           leaf hop-type {
             type te-hop-type;
+            default strict;
             description "strict or loose hop";
           }
           leaf direction {
             type te-link-direction;
-            default INCOMING;
-            description "Link ERO direction";
+            default incoming;
+            description "Link route object direction";
+          }
+          description "Numbered node route hop";
+          reference
+            "RFC3209: section 4.3 for EXPLICIT_ROUTE in RSVP-TE
+             RFC3477: Signalling Unnumbered Links in RSVP-TE";
+        }
+      }
+      case numbered-link-hop {
+        container numbered-link-hop {
+          leaf link-tp-id {
+            type te-tp-id;
+            mandatory true;
+            description
+              "TE link termination point identifier.";
+          }
+          leaf hop-type {
+            type te-hop-type;
+            default strict;
+            description "strict or loose hop";
+          }
+          leaf direction {
+            type te-link-direction;
+            default incoming;
+            description "Link route object direction";
           }
           description
-            "Numbered and Unnumbered link/node explicit route
-             subobject";
+            "Numbered link explicit route hop";
+          reference
+            "RFC3209: section 4.3 for EXPLICIT_ROUTE in RSVP-TE
+             RFC3477: Signalling Unnumbered Links in RSVP-TE";
+        }
+      }
+      case unnumbered-link-hop {
+        container unnumbered-link-hop {
+          leaf link-tp-id {
+            type te-tp-id;
+            mandatory true;
+            description
+              "TE link termination point identifier. The combination
+               of TE link ID and the TE node ID is used to identify an
+               unnumbered TE link.";
+          }
+          leaf node-id {
+            type te-node-id;
+            mandatory true;
+            description
+              "The identifier of a node in the TE topology.";
+          }
+          leaf hop-type {
+            type te-hop-type;
+            default strict;
+            description "strict or loose hop";
+          }
+          leaf direction {
+            type te-link-direction;
+            default incoming;
+            description "Link route object direction";
+          }
+          description
+            "Unnumbered link explicit route hop";
           reference
             "RFC3209: section 4.3 for EXPLICIT_ROUTE in RSVP-TE
              RFC3477: Signalling Unnumbered Links in RSVP-TE";
@@ -1759,17 +1844,18 @@ module ietf-te-types {
         container as-number-hop {
           leaf as-number {
             type binary {
-              length 16;
+              length 2;
             }
-            description "AS number";
+            mandatory true;
+            description "The AS number";
           }
           leaf hop-type {
             type te-hop-type;
-              description
-                "strict or loose hop";
+            default strict;
+            description "strict or loose hop";
           }
           description
-            "Autonomous System explicit route subobject";
+            "Autonomous System explicit route hop";
         }
       }
       case label {
@@ -1778,70 +1864,99 @@ module ietf-te-types {
           uses te-label;
         }
         description
-          "The Label ERO subobject";
+          "The label explicit route hop type";
       }
     }
   }
 
-  grouping record-route-subobject_state {
+  grouping record-route_state {
     description
-      "The record route subobject grouping";
+      "The record route grouping";
     leaf index {
       type uint32;
-      description "RRO subobject index";
+      description
+        "Record route hop index. The index is used to
+         identify an entry in the list. A lower index
+         indicates the path traverses it earlier";
     }
     choice type {
       description
-        "The record route subobject type";
-      case numbered {
-        leaf address {
-          type te-types:te-tp-id;
-          description
-            "Numbered link TE termination point address.";
+        "The record route entry type";
+      case numbered-node-hop {
+        container numbered-node-hop {
+          description "Numbered node route hop container";
+          leaf node-id {
+            type te-node-id;
+            mandatory true;
+            description
+              "The identifier of a node in the TE topology.";
+          }
+          leaf ip-flags {
+            type binary {
+              length 1;
+            }
+            description "Record route link ID entry flags";
+            reference "RFC3209";
+          }
         }
-        leaf ip-flags {
-          type binary {
-            length 8;
+        description "Numbered node route hop";
+      }
+      case numbered-link-hop {
+        container numbered-link-hop {
+          description "Numbered link route hop container";
+          leaf link-tp-id {
+            type te-tp-id;
+            mandatory true;
+            description
+              "Numbered TE link termination point identifier.";
+          }
+          leaf ip-flags {
+            type binary {
+              length 1;
+            }
+            description "Record route node ID entry flags";
+            reference "RFC3209";
+          }
+        }
+        description "Numbered link route hop";
+      }
+      case unnumbered-link-hop {
+        container unnumbered-link-hop {
+          leaf link-tp-id {
+            type te-tp-id;
+            mandatory true;
+            description
+                "TE link termination point identifier. The combination
+                 of TE link ID and the TE node ID is used to identify an
+                 unnumbered TE link.";
+          }
+          leaf node-id {
+            type te-node-id;
+            description
+              "The identifier of a node in the TE topology.";
           }
           description
-            "RRO IP address sub-object flags";
-          reference "RFC3209";
+            "Unnumbered link record route hop";
+          reference
+            "RFC3477: Signalling Unnumbered Links in
+             RSVP-TE";
         }
-      }
-      case unnumbered {
-        leaf node-id {
-          type te-types:te-node-id;
-          description
-            "The identifier of a node in the TE topology.";
-        }
-        leaf link-tp-id {
-          type te-types:te-tp-id;
-            description
-              "TE link termination point identifier, used
-               together with te-node-id to identify the
-               link termination point";
-        }
-        description
-          "Unnumbered link record route subobject";
-        reference
-          "RFC3477: Signalling Unnumbered Links in
-           RSVP-TE";
+        description "Unnumbered link route hop";
       }
       case label {
         container label-hop {
-          description "Label hop type";
+          description "Label route hop type";
           uses te-label;
           leaf label-flags {
             type binary {
-              length 8;
+              length 1;
             }
-            description
-              "Label sub-object flags";
+            description "Label hop flags";
             reference "RFC3209";
           }
         }
         description
-          "The Label RRO subobject";
+          "The Label record route entry types";
       }
     }
   }
@@ -1857,6 +1972,7 @@ module ietf-te-types {
           description "The label or label range is exclusive.";
         }
       }
+      default inclusive;
       description
         "Whether the list item is inclusive or exclusive.";
     }
@@ -1879,12 +1995,6 @@ module ietf-te-types {
       uses te-label;
     }
     container label-end {
-      must "not(../label-end/te-label/direction) or "
-        + "not(te-label/direction) "
-        + "or ../label-end/te-label/direction = te-label/direction" {
-        error-message
-          "label-start and label-end must have the same direction.";
-      }
       description
         "The ending label if a label range is specified;
          This attribute is not set, If a single label is
@@ -1916,7 +2026,8 @@ module ietf-te-types {
       description
         "When there are gaps between label-start and label-end,
          this attribute is used to specify the positions
-         of the used labels.";
+         of the used labels. This is represented in big-endian and
+         in base64 representation as RFC7951, section 6.6 states";
     }
   }
 
@@ -1945,24 +2056,27 @@ module ietf-te-types {
     description "Optimization metrics configuration grouping";
     leaf metric-type {
       type identityref {
-        base te-types:path-metric-type;
+        base path-metric-type;
       }
-      description "TE path metric type";
+      description
+        "Identifies an entry in the list of metric-types to
+         optimize the TE path for.";
     }
     leaf weight {
       type uint8;
+      default 1;
       description "TE path metric normalization weight";
     }
     container explicit-route-exclude-objects {
       when "../metric-type = " +
-           "'te-types:path-metric-optimize-excludes'";
+           "'path-metric-optimize-excludes'";
       description
         "Container for the exclude route object list";
       uses path-route-exclude-objects;
     }
     container explicit-route-include-objects {
       when "../metric-type = " +
-           "'te-types:path-metric-optimize-includes'";
+           "'path-metric-optimize-includes'";
       description
         "Container for the include route object list";
       uses path-route-include-objects;
@@ -1974,7 +2088,7 @@ module ietf-te-types {
       "Common constraints grouping that can be set on
        a constraint set or directly on the tunnel";
 
-    uses te-types:te-bandwidth {
+    uses te-bandwidth {
       description
         "A requested bandwidth to use for path computation";
     }
@@ -1983,6 +2097,7 @@ module ietf-te-types {
       type identityref {
         base link-protection-type;
       }
+      default link-protection-unprotected;
       description
         "Link Protection Type desired for this link.";
       reference
@@ -1994,6 +2109,7 @@ module ietf-te-types {
       type uint8 {
         range "0..7";
       }
+      default 7;
       description
         "TE LSP requested setup priority";
       reference "RFC3209";
@@ -2002,14 +2118,16 @@ module ietf-te-types {
       type uint8 {
         range "0..7";
       }
+      default 7;
       description
         "TE LSP requested hold priority";
       reference "RFC3209";
     }
     leaf signaling-type {
       type identityref {
-        base te-types:path-signaling-type;
+        base path-signaling-type;
       }
+      default path-setup-rsvp;
       description "TE tunnel path signaling type";
     }
   }
@@ -2018,69 +2136,64 @@ module ietf-te-types {
     description
       "Tunnel constraints grouping that can be set on
        a constraint set or directly on the tunnel";
-    uses te-types:te-topology-identifier;
-    uses te-types:common-constraints_config;
+    uses te-topology-identifier;
+    uses common-constraints_config;
   }
 
   grouping path-metrics-bounds_config {
     description "TE path metric bounds grouping";
-    leaf metric-type {
-      type identityref {
-        base te-types:path-metric-type;
-      }
-      description "TE path metric type";
-    }
-    leaf upper-bound {
-      type uint64;
-      description "Upper bound on end-to-end TE path metric";
-    }
   }
 
   grouping path-objective-function_config {
     description "Optimization metrics configuration grouping";
     leaf objective-function-type {
       type identityref {
-        base te-types:objective-function-type;
+        base objective-function-type;
       }
-      description
-        "Objective function entry";
+      description "Objective function entry";
     }
   }
 
-  grouping path-route-objects {
+  grouping path-constraints-route-objects {
     description
-      "List of EROs to be included or excluded when performing
-       the path computation.";
-    container explicit-route-objects {
+      "List of route entries to be included or excluded when performing
+       path computation.";
+    container explicit-route-objects-always {
       description
         "Container for the exclude route object list";
       list route-object-exclude-always {
         key index;
         description
-          "List of explicit route objects to always exclude
+          "List of route objects to always exclude
            from path computation";
         leaf index {
           type uint32;
-          description "ERO subobject index";
+          description
+            "Explicit route object index. The index is used to
+             identify an entry in the list. A lower index indicates
+             the path traverses it earlier";
         }
-        uses te-types:explicit-route-hop;
+        uses explicit-route-hop;
       }
       list route-object-include-exclude {
         key index;
         description
-          "List of explicit route objects to include or
-           exclude in path computation";
+          "List of route objects to include or exclude in path
+           computation";
         leaf explicit-route-usage {
           type identityref {
-            base te-types:route-usage-type;
+            base route-usage-type;
           }
-          description "Explicit-route usage.";
+          description "Include or exclude usage";
         }
         leaf index {
           type uint32;
-          description "ERO subobject index";
+          description
+            "Route object entry index. A lower index indicates
+             path traverses the hop earlier than the higher index
+             hop(s)";
         }
-        uses te-types:explicit-route-hop {
+        uses explicit-route-hop {
           augment "type" {
             case srlg {
               container srlg {
@@ -2103,7 +2216,7 @@ module ietf-te-types {
 
   grouping path-route-include-objects {
     description
-      "List of EROs to be included when performing
+      "List of route object(s) to be included when performing
        the path computation.";
     list route-object-include-object {
       key index;
@@ -2112,15 +2225,18 @@ module ietf-te-types {
          in path computation";
       leaf index {
         type uint32;
-        description "ERO subobject index";
+        description
+          "Route object entry index. A lower index indicates
+           path traverses the hop earlier than the higher index
+           hop(s)";
       }
-      uses te-types:explicit-route-hop;
+      uses explicit-route-hop;
     }
   }
 
   grouping path-route-exclude-objects {
     description
-      "List of EROs to be included when performing
+      "List of route object(s) to be excluded when performing
        the path computation.";
     list route-object-exclude-object {
       key index;
@@ -2129,9 +2245,11 @@ module ietf-te-types {
          in path computation";
       leaf index {
         type uint32;
-        description "ERO subobject index";
+        description
+          "Route object entry index. The index in this case
+           identifies the entry and holds no other meaning";
       }
-      uses te-types:explicit-route-hop {
+      uses explicit-route-hop {
         augment "type" {
           case srlg {
             container srlg {
@@ -2157,7 +2275,21 @@ module ietf-te-types {
       list path-metric-bound {
         key metric-type;
         description "List of TE path metric bounds";
-        uses path-metrics-bounds_config;
+        leaf metric-type {
+          type identityref {
+            base path-metric-type;
+          }
+          description
+            "Identifies an entry in the list of metric-types
+             bound for the TE path.";
+        }
+        leaf upper-bound {
+          type uint64;
+          default 0;
+          description
+            "Upper bound on end-to-end TE path metric. A zero indicate
+             an unbounded upper limit for the specific metric-type";
+        }
       }
     }
   }
@@ -2192,9 +2324,10 @@ module ietf-te-types {
                  on an equally favored set of paths to pick best";
               leaf tiebreaker-type {
                 type identityref {
-                  base te-types:path-metric-type;
+                  base path-metric-type;
                 }
-                description "The objective function";
+                description
+                  "Identifies an entry in the list of tiebreakers.";
               }
             }
           }
@@ -2227,11 +2360,14 @@ module ietf-te-types {
           type identityref {
             base resource-affinities-type;
           }
-          description "Affinities usage";
+          description
+            "Identifies an entry in the list of value affinities
+             constraints";
         }
         leaf value {
           type admin-groups;
-          description "Affinity value";
+          default '';
+          description "The affinity value. The default is empty.";
         }
       }
     }
@@ -2243,15 +2379,17 @@ module ietf-te-types {
         description "List of named affinity constraints";
         leaf usage {
           type identityref {
-            base te-types:resource-affinities-type;
+            base resource-affinities-type;
           }
-          description "Affinities usage";
+          description
+            "Identifies an entry in the list of named affinities
+             constraints";
         }
         list affinity-name {
           key "name";
           leaf name {
             type string;
-            description "Affinity name";
+            description "Identify a named affinity entry.";
           }
           description "List of named affinities";
         }
@@ -2262,37 +2400,43 @@ module ietf-te-types {
   grouping generic-path-srlgs {
     description
       "Path SRLG grouping";
-    container path-srlgs-values {
+    container path-srlgs-lists {
       description
         "Path SRLG properties container";
-      leaf usage {
-        type identityref {
-          base te-types:route-exclude-srlg;
+      list path-srlgs-list {
+        key "usage";
+        description
+          "List entries of value SRLGs to be included or excluded";
+        leaf usage {
+          type identityref {
+            base route-usage-type;
+          }
+          description
+            "Identifies an entry of list of SRLGs to either include
+             or exclude";
         }
-        description "SRLG usage";
-      }
-      leaf-list values {
-        type srlg;
-        description "SRLG value";
+        leaf-list values {
+          type srlg;
+          description "List of SRLG values";
+        }
       }
     }
     container path-srlgs-names {
       description "Container for named SRLG list";
       list path-srlgs-name {
         key "usage";
-        description "List of named SRLGs";
+        description
+          "List entries of named SRLGs to be included or excluded";
         leaf usage {
           type identityref {
-            base te-types:route-exclude-srlg;
+            base route-usage-type;
           }
-          description "SRLG usage";
+          description
+            "Identifies an entry of list of named SRLGs to either
+             include or exclude";
         }
-        list srlg-name {
-          key "name";
-          leaf name {
-            type string;
-            description "The SRLG name";
-          }
+        leaf-list names {
+          type string;
           description "List named SRLGs";
         }
       }
@@ -2302,7 +2446,7 @@ module ietf-te-types {
   grouping generic-path-disjointness {
     description "Path disjointness grouping";
     leaf disjointness {
-      type te-types:te-path-disjointness;
+      type te-path-disjointness;
       description
         "The type of resource disjointness.
          Under primary path, disjointness level applies to
@@ -2341,7 +2485,7 @@ module ietf-te-types {
         description "TE path metric type";
         leaf metric-type {
           type identityref {
-            base te-types:path-metric-type;
+            base path-metric-type;
           }
           description "TE path metric type";
         }
@@ -2363,7 +2507,10 @@ module ietf-te-types {
              engine or actually used by an LSP";
           leaf index {
             type uint32;
-            description "ERO subobject index";
+            description
+              "Route object entry index. A lower index indicates
+               path traverses the hop earlier than the higher index
+               hop(s)";
           }
           uses explicit-route-hop;
         }
