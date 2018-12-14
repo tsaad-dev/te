@@ -64,6 +64,18 @@ module ietf-te-types {
   /**
    * Typedefs
    */
+   typedef path-attribute-flags {
+     type union {
+       type identityref {
+         base session-attributes-flags;
+       }
+       type identityref {
+         base lsp-attributes-flags;
+       }
+     }
+     description "Path attributes flags type";
+   }
+
   typedef te-bandwidth {
     type string {
       pattern
@@ -513,6 +525,165 @@ module ietf-te-types {
   /*
    * Identities
    */
+  identity session-attributes-flags {
+    description
+      "Base identity for the RSVP-TE session attributes flags";
+  }
+  identity local-protection-desired {
+    base session-attributes-flags;
+    description "Fastreroute local protection is desired.";
+    reference "RFC3209";
+  }
+  identity se-style-desired {
+    description
+      "Shared explicit style to allow the LSP to be
+       established sharing resources with the old LSP.";
+    reference "RFC3209";
+  }
+  identity local-recording-desired {
+    description "Local recording desired";
+    reference "RFC3209";
+  }
+  identity bandwidth-protection-desired {
+    base session-attributes-flags;
+    description
+      "Request FRR bandwidth protection on LSRs if
+      present.";
+    reference "RFC4090";
+  }
+  identity node-protection-desired {
+    base session-attributes-flags;
+    description
+      "Request FRR node protection on LSRs if
+      present.";
+    reference "RFC4090";
+  }
+  identity path-reevaluation-request {
+    base session-attributes-flags;
+    description
+      "This flag indicates that a path re-evaluation (of the
+       current path in use) is requested. Note that this does
+       not trigger any LSP Reroute but instead just signals a
+       request to evaluate whether a preferable path exists.";
+    reference "RFC4736";
+  }
+  identity soft-preemption-desired {
+    base session-attributes-flags;
+    description
+      "Soft-preemption of LSP resources is desired";
+    reference "RFC5712";
+  }
+
+  identity lsp-attributes-flags {
+    description "Base identity for per hop attribute flags";
+  }
+  identity end-to-end-rerouting-desired {
+    base lsp-attributes-flags;
+    description
+      "Indicates end-to-end re-routing behavior for an
+       LSP under establishment.  This MAY also be used for
+       specifying the behavior of end-to-end LSP recovery for
+       established LSPs.";
+    reference "RFC4920, RFC5420, RFC7570";
+  }
+  identity boundary-rerouting-desired {
+    base lsp-attributes-flags;
+    description
+      "Indicates boundary re-routing behavior for an LSP under
+       establishment. This MAY also be used for specifying the
+       segment-based LSP recovery through nested crankback for
+       established LSPs.  The boundary ABR/ASBR can either decide
+       to forward the PathErr message upstream to an upstream boundary
+       ABR/ASBR or to the ingress LSR.
+       Alternatively, it can try to select another egress boundary
+       LSR.";
+    reference "RFC4920, RFC5420, RFC7570";
+  }
+  identity segment-based-rerouting-desired {
+    base lsp-attributes-flags;
+    description
+      "Indicates segment-based re-routing behavior for an LSP under
+       establishment. This MAY also be used to specify the segment-
+       based LSP recovery for established LSPs.";
+    reference "RFC4920, RFC5420, RFC7570";
+  }
+  identity lsp-integrity-required {
+    base lsp-attributes-flags;
+    description "Indicates LSP integrity is required";
+    reference "RFC4875, RFC7570";
+
+  }
+  identity contiguous-lsp-desired {
+    base lsp-attributes-flags;
+    description "Indicates contiguous LSP is desired";
+    reference "RFC5151, RFC7570";
+  }
+  identity lsp-stitching-desired {
+    base lsp-attributes-flags;
+    description "Indicates LSP stitching is desired";
+    reference "RFC5150, RFC7570";
+  }
+  identity pre-planned-lsp-flag {
+    base lsp-attributes-flags;
+    description
+      "Indicates the LSP MUST be provisioned in the
+       control plane only.";
+    reference "RFC6001, RFC7570";
+  }
+  identity non-php-behavior-flag {
+    base lsp-attributes-flags;
+    description
+      "Indicates non-php behavior for the LSP is desired";
+    reference "RFC6511, RFC7570";
+  }
+  identity oob-mapping-flag {
+    base lsp-attributes-flags;
+    description
+      "Indicates signaling of the egress binding information
+       is out-of-band , (e.g., via Border Gateway Protocol (BGP))";
+    reference "RFC6511, RFC7570";
+  }
+  identity entropy-label-capability {
+    base lsp-attributes-flags;
+    description "Indicates entropy label capability";
+    reference "RFC6790, RFC7570";
+  }
+  identity oam-mep-entity-desired {
+    base lsp-attributes-flags;
+    description "OAM MEP entities desired";
+    reference "RFC7260";
+  }
+  identity oam-mip-entity-desired {
+    base lsp-attributes-flags;
+    description "OAM MIP entities desired";
+    reference "RFC7260";
+  }
+  identity srlg-collection-desired {
+    base lsp-attributes-flags;
+    description "SRLG collection desired";
+    reference "RFC8001, RFC7570";
+  }
+  identity loopback-desired {
+    base lsp-attributes-flags;
+    description
+      "This flag indicates a particular node on the LSP is
+       required to enter loopback mode.  This can also be
+       used for specifying the loopback state of the node.";
+    reference "RFC7571";
+  }
+  identity p2mp-te-tree-eval-request {
+    base lsp-attributes-flags;
+    description "P2MP-TE tree re-evaluation request";
+    reference "RFC8149";
+  }
+  identity rtm-set-desired {
+    base lsp-attributes-flags;
+    description
+      "Residence Time Measurement (RTM) attribute flag";
+    reference "RFC8169";
+  }
+
+
   identity link-protection-type {
     description "Base identity for link protection type.";
   }
@@ -1256,12 +1427,12 @@ module ietf-te-types {
     description
       "Base identity for route usage";
   }
-  identity route-include-route-object {
+  identity route-include-object {
     base route-usage-type;
     description
       "Include route object";
   }
-  identity route-exclude-route-object {
+  identity route-exclude-object {
     base route-usage-type;
     description
       "Exclude route object";
@@ -1502,7 +1673,7 @@ module ietf-te-types {
     container te-bandwidth {
       description
         "Container that specifies TE bandwidth. The choices
-         can be augmented for sepcific dataplane technologies.";
+         can be augmented for specific dataplane technologies.";
       choice technology {
         default generic;
         description
@@ -1530,7 +1701,7 @@ module ietf-te-types {
     container te-label {
       description
         "Container that specifies TE label. The choices can
-         be augmented for sepcific dataplane technologies.";
+         be augmented for specific dataplane technologies.";
       choice technology {
         default generic;
         description
@@ -1771,11 +1942,6 @@ module ietf-te-types {
             default strict;
             description "strict or loose hop";
           }
-          leaf direction {
-            type te-link-direction;
-            default incoming;
-            description "Link route object direction";
-          }
           description "Numbered node route hop";
           reference
             "RFC3209: section 4.3 for EXPLICIT_ROUTE in RSVP-TE
@@ -1797,7 +1963,7 @@ module ietf-te-types {
           }
           leaf direction {
             type te-link-direction;
-            default incoming;
+            default outgoing;
             description "Link route object direction";
           }
           description
@@ -1830,7 +1996,7 @@ module ietf-te-types {
           }
           leaf direction {
             type te-link-direction;
-            default incoming;
+            default outgoing;
             description "Link route object direction";
           }
           description
@@ -1891,12 +2057,10 @@ module ietf-te-types {
             description
               "The identifier of a node in the TE topology.";
           }
-          leaf ip-flags {
-            type binary {
-              length 1;
-            }
-            description "Record route link ID entry flags";
-            reference "RFC3209";
+          leaf-list flags {
+            type path-attribute-flags;
+            description "Record route per hop flags";
+            reference "RFC3209 and others";
           }
         }
         description "Numbered node route hop";
@@ -1910,12 +2074,10 @@ module ietf-te-types {
             description
               "Numbered TE link termination point identifier.";
           }
-          leaf ip-flags {
-            type binary {
-              length 1;
-            }
-            description "Record route node ID entry flags";
-            reference "RFC3209";
+          leaf-list flags {
+            type path-attribute-flags;
+            description "Record route per hop flags";
+            reference "RFC3209 and others";
           }
         }
         description "Numbered link route hop";
@@ -1935,6 +2097,11 @@ module ietf-te-types {
             description
               "The identifier of a node in the TE topology.";
           }
+          leaf-list flags {
+            type path-attribute-flags;
+            description "Record route per hop flags";
+            reference "RFC3209 and others";
+          }
           description
             "Unnumbered link record route hop";
           reference
@@ -1947,12 +2114,10 @@ module ietf-te-types {
         container label-hop {
           description "Label route hop type";
           uses te-label;
-          leaf label-flags {
-            type binary {
-              length 1;
-            }
-            description "Label hop flags";
-            reference "RFC3209";
+          leaf-list flags {
+            type path-attribute-flags;
+            description "Record route per hop flags";
+            reference "RFC3209 and others";
           }
         }
         description
