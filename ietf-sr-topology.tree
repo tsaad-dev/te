@@ -1,12 +1,14 @@
+
 module: ietf-sr-topology
-  augment /nd:networks/nd:network/nd:network-types/l3t:l3-unicast-topology:
-    +--rw sr!
-  augment /nd:networks/nd:network/l3t:l3-topology-attributes:
+  augment /nw:networks/nw:network/nw:network-types
+            /l3t:l3-unicast-topology:
+    +--rw sr-mpls!
+  augment /nw:networks/nw:network/l3t:l3-topology-attributes:
     +--rw sr
        +--rw srgb* [lower-bound upper-bound]
           +--rw lower-bound    uint32
           +--rw upper-bound    uint32
-  augment /nd:networks/nd:network/nd:node/l3t:l3-node-attributes:
+  augment /nw:networks/nw:network/nw:node/l3t:l3-node-attributes:
     +--rw sr
        +--rw srgb* [lower-bound upper-bound]
        |  +--rw lower-bound    uint32
@@ -14,29 +16,38 @@ module: ietf-sr-topology
        +--rw srlb* [lower-bound upper-bound]
        |  +--rw lower-bound    uint32
        |  +--rw upper-bound    uint32
-       +--rw node-capabilities
-       |  +--rw transport-planes* [transport-plane]
-       |  |  +--rw transport-plane    identityref
-       |  +--rw readable-label-stack-depth?   uint8
+       +--ro node-capabilities
+       |  +--ro transport-planes* [transport-plane]
+       |  |  +--ro transport-plane    identityref
+       |  +--ro entropy-readable-label-depth?   uint8
+       +--rw msd?                        uint8 {msd}?
        +--ro information-source?         enumeration
        +--ro information-source-state
           +--ro credibility-preference?   uint16
-  augment /nd:networks/nd:network/nd:node/l3t:l3-node-attributes/l3t:prefix:
+  augment /nw:networks/nw:network/nw:node/l3t:l3-node-attributes
+            /l3t:prefix:
     +--rw sr!
        +--rw value-type?          enumeration
        +--rw start-sid            uint32
        +--rw range?               uint32
        +--rw algorithm?           identityref
-       +--rw last-hop-behavior?   enumeration {sid-last-hop-behavior}?
+       +--rw last-hop-behavior?   enumeration
+       |       {sid-last-hop-behavior}?
        +--rw is-local?            boolean
-  augment /nd:networks/nd:network/nd:node/lnk:termination-point/l3t:l3-termination-point-attributes:
-  augment /nd:networks/nd:network/lnk:link/l3t:l3-link-attributes:
-    +--rw sr
-       +--rw sid?                        uint32
+       +--rw is-node?             boolean
+       +--ro is-readvertisment?   boolean
+  augment /nw:networks/nw:network/nt:link/l3t:l3-link-attributes:
+    +--rw sr!
        +--rw value-type?                 enumeration
+       +--rw sid                         uint32
+       +--rw advertise-protection?       enumeration
        +--rw is-local?                   boolean
-       +--ro is-part-of-set?             boolean
-       +--ro is-on-lan?                  boolean
+       +--rw msd?                        uint8 {msd}?
+       +--rw address-family?             enumeration
+       +--rw is-backup?                  boolean
+       +--rw is-part-of-set?             boolean
+       +--rw is-persistent?              boolean
+       +--rw is-on-lan?                  boolean
        +--ro information-source?         enumeration
        +--ro information-source-state
           +--ro credibility-preference?   uint16

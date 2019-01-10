@@ -6,22 +6,29 @@ module ietf-te-topology {
 
   import ietf-yang-types {
     prefix "yang";
+    reference "RFC 6991: Common YANG Data Types";
   }
 
   import ietf-inet-types {
     prefix "inet";
+    reference "RFC 6991: Common YANG Data Types";
   }
 
   import ietf-te-types {
     prefix "te-types";
+    reference
+      "I-D.ietf-teas-yang-te: A YANG Data Model for Traffic
+       Engineering Tunnels and Interfaces";
   }
 
   import ietf-network {
     prefix "nw";
+    reference "RFC 8345: A YANG Data Model for Network Topologies";
   }
 
   import ietf-network-topology {
     prefix "nt";
+    reference "RFC 8345: A YANG Data Model for Network Topologies";
   }
 
   organization
@@ -32,14 +39,8 @@ module ietf-te-topology {
     "WG Web:   <http://tools.ietf.org/wg/teas/>
      WG List:  <mailto:teas@ietf.org>
 
-     WG Chair: Lou Berger
-               <mailto:lberger@labn.net>
-
-     WG Chair: Vishnu Pavan Beeram
-               <mailto:vbeeram@juniper.net>
-
      Editor:   Xufeng Liu
-               <mailto:Xufeng_Liu@jabil.com>
+               <mailto:xufeng.liu.ietf@gmail.com>
 
      Editor:   Igor Bryskin
                <mailto:Igor.Bryskin@huawei.com>
@@ -56,9 +57,24 @@ module ietf-te-topology {
      Editor:   Oscar Gonzalez De Dios
                <mailto:oscar.gonzalezdedios@telefonica.com>";
 
-  description "TE topology model";
+  description
+    "TE topology model for representing and manipulating technology
+     agnostic TE Topologies.
 
-  revision "2017-12-20" {
+     Copyright (c) 2018 IETF Trust and the persons identified as
+     authors of the code.  All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject to
+     the license terms contained in, the Simplified BSD License set
+     forth in Section 4.c of the IETF Trust's Legal Provisions
+     Relating to IETF Documents
+     (http://trustee.ietf.org/license-info).
+
+     This version of this YANG module is part of RFC XXXX; see the
+     RFC itself for full legal notices.";
+
+  revision "2019-01-03" {
     description "Initial revision";
     reference "RFC XXXX: YANG Data Model for TE Topologies";
   // RFC Ed.: replace XXXX with actual RFC number and remove
@@ -118,7 +134,7 @@ module ietf-te-topology {
       enum "bgp-ls" {
         description "BGP-LS.";
         reference
-          "RFC7752: North-Bound Distribution of Link-State and
+          "RFC 7752: North-Bound Distribution of Link-State and
            Traffic Engineering (TE) Information Using BGP";
       }
       enum "system-processed" {
@@ -136,60 +152,6 @@ module ietf-te-topology {
   /*
    * Groupings
    */
-  grouping connectivity-label-restriction-list {
-    description
-      "List of abel restrictions specifying what labels may or may
-       not be used on a link connectivity.";
-    list label-restriction {
-      key "index";
-      description
-        "List of abel restrictions specifying what labels may or may
-         not be used on a link connectivity.";
-      reference
-        "RFC7579: General Network Element Constraint Encoding
-         for GMPLS-Controlled Networks";
-      leaf index {
-        type uint32;
-        description 
-          "Then index of the label restriction list entry.";
-      }
-      leaf inclusive-exclusive {
-        type enumeration {
-          enum inclusive {
-            description "The label or label range is inclusive.";
-          }
-          enum exclusive {
-            description "The label or label range is exclusive.";
-          }
-        }
-        default inclusive;
-        description
-          "Whether the list item is inclusive or exclusive.";
-      }
-      container label-start {
-        description
-          "This is the starting lable if a lable range is specified.
-           This is the lable value if a single lable is specified,
-           in which case, attribute 'label-end' is not set.";
-        uses te-types:te-label;
-      }
-      container label-end {
-        description
-          "The ending lable if a lable range is specified;
-           This attribute is not set, If a single lable is
-           specified.";
-        uses te-types:te-label;
-      }
-      leaf range-bitmap {
-        type binary;
-        description
-          "When there are gaps between label-start and label-end,
-           this attribute is used to specified the possitions
-           of the used labels.";
-      }
-    }
-  } // connectivity-label-restriction-list
-
   grouping connectivity-matrix-entry-path-attributes {
     description
       "Attributes of connectivity matrix entry.";
@@ -203,7 +165,7 @@ module ietf-te-topology {
       if-feature te-topology-hierarchy;
       description "Attributes of the te-link underlay.";
       reference
-        "RFC4206: Label Switched Paths (LSP) Hierarchy with
+        "RFC 4206: Label Switched Paths (LSP) Hierarchy with
          Generalized Multi-Protocol Label Switching (GMPLS)
          Traffic Engineering (TE)";
 
@@ -212,7 +174,7 @@ module ietf-te-topology {
 
     uses te-types:generic-path-constraints;
     uses te-types:generic-path-optimization;
-    uses te-types:generic-computed-path-properties;
+    uses te-types:generic-path-properties;
   } // connectivity-matrix-entry-path-attributes
 
   grouping geolocation-container {
@@ -335,9 +297,9 @@ module ietf-te-topology {
         "List of Interface Switching Capabilities Descriptors (ISCD)
          for this link.";
       reference
-        "RFC3471: Generalized Multi-Protocol Label Switching (GMPLS)
+        "RFC 3471: Generalized Multi-Protocol Label Switching (GMPLS)
          Signaling Functional Description.
-         RFC4203: OSPF Extensions in Support of Generalized
+         RFC 4203: OSPF Extensions in Support of Generalized
          Multi-Protocol Label Switching (GMPLS).";
       leaf switching-capability {
         type identityref {
@@ -362,7 +324,6 @@ module ietf-te-topology {
       "Statistics attributes per TE link.";
     leaf discontinuity-time {
       type yang:date-and-time;
-      mandatory true;
       description
         "The time on the most recent occasion at which any one or
          more of this interface's counters suffered a
@@ -474,7 +435,6 @@ module ietf-te-topology {
       "Statistics attributes per TE node.";
     leaf discontinuity-time {
       type yang:date-and-time;
-      mandatory true;
       description
         "The time on the most recent occasion at which any one or
          more of this interface's counters suffered a
@@ -522,7 +482,7 @@ module ietf-te-topology {
           "Number of times that a connectivity matrix entry was
            created.";
         reference
-          "RFC6241. Section 7.2 for 'create' operation. ";
+          "RFC 6241. Section 7.2 for 'create' operation. ";
       }
       leaf deletes {
         type yang:counter32;
@@ -530,7 +490,7 @@ module ietf-te-topology {
           "Number of times that a connectivity matrix entry was
            deleted.";
         reference
-          "RFC6241. Section 7.2 for 'delete' operation. ";
+          "RFC 6241. Section 7.2 for 'delete' operation. ";
       }
       leaf disables {
         type yang:counter32;
@@ -558,7 +518,6 @@ module ietf-te-topology {
       "Statistics attributes per TE TTP (Tunnel Termination Point).";
     leaf discontinuity-time {
       type yang:date-and-time;
-      mandatory true;
       description
         "The time on the most recent occasion at which any one or
          more of this interface's counters suffered a
@@ -631,14 +590,14 @@ module ietf-te-topology {
         description
           "Number of times that an LLCL entry was created.";
         reference
-          "RFC6241. Section 7.2 for 'create' operation. ";
+          "RFC 6241. Section 7.2 for 'create' operation.";
       }
       leaf deletes {
         type yang:counter32;
         description
           "Number of times that an LLCL entry was deleted.";
         reference
-          "RFC6241. Section 7.2 for 'delete' operation.";
+          "RFC 6241. Section 7.2 for 'delete' operation.";
       }
       leaf disables {
         type yang:counter32;
@@ -683,7 +642,7 @@ module ietf-te-topology {
           description
             "A set of bundled links.";
           reference
-            "RFC4201: Link Bundling in MPLS Traffic Engineering
+            "RFC 4201: Link Bundling in MPLS Traffic Engineering
             (TE).";
           list bundled-link {
             key "sequence";
@@ -786,7 +745,7 @@ module ietf-te-topology {
         if-feature te-topology-hierarchy;
         description "Attributes of the te-link underlay.";
         reference
-          "RFC4206: Label Switched Paths (LSP) Hierarchy with
+          "RFC 4206: Label Switched Paths (LSP) Hierarchy with
            Generalized Multi-Protocol Label Switching (GMPLS)
            Traffic Engineering (TE)";
 
@@ -818,12 +777,12 @@ module ietf-te-topology {
       description
         "Administrative group or color of the link.
          This attribute covers both administrative group (defined in
-         RFC3630, RFC5329, and RFC5305), and extended administrative
-         group (defined in RFC7308).";
+         RFC 3630, RFC 5305 and RFC 5329), and extended
+         administrative group (defined in RFC 7308).";
     }
 
     uses interface-switching-capability-list;
-    uses connectivity-label-restriction-list;
+    uses te-types:label-set-info;
 
     leaf link-protection-type {
       type identityref {
@@ -832,7 +791,7 @@ module ietf-te-topology {
       description
         "Link Protection Type desired for this link.";
       reference
-        "RFC4202: Routing Extensions in Support of
+        "RFC 4202: Routing Extensions in Support of
          Generalized Multi-Protocol Label Switching (GMPLS).";
     }
 
@@ -842,9 +801,9 @@ module ietf-te-topology {
         "Maximum bandwidth that can be seen on this link in this
          direction. Units in bytes per second.";
       reference
-        "RFC3630: Traffic Engineering (TE) Extensions to OSPF
+        "RFC 3630: Traffic Engineering (TE) Extensions to OSPF
          Version 2.
-         RFC5305: IS-IS Extensions for Traffic Engineering.";
+         RFC 5305: IS-IS Extensions for Traffic Engineering.";
     }
     container max-resv-link-bandwidth {
       uses te-types:te-bandwidth;
@@ -852,9 +811,9 @@ module ietf-te-topology {
         "Maximum amount of bandwidth that can be reserved in this
          direction in this link. Units in bytes per second.";
       reference
-        "RFC3630: Traffic Engineering (TE) Extensions to OSPF
+        "RFC 3630: Traffic Engineering (TE) Extensions to OSPF
          Version 2.
-         RFC5305: IS-IS Extensions for Traffic Engineering.";
+         RFC 5305: IS-IS Extensions for Traffic Engineering.";
     }
     list unreserved-bandwidth {
       key "priority";
@@ -863,9 +822,9 @@ module ietf-te-topology {
         "Unreserved bandwidth for 0-7 priority levels. Units in
          bytes per second.";
       reference
-        "RFC3630: Traffic Engineering (TE) Extensions to OSPF
+        "RFC 3630: Traffic Engineering (TE) Extensions to OSPF
          Version 2.
-         RFC5305: IS-IS Extensions for Traffic Engineering.";
+         RFC 5305: IS-IS Extensions for Traffic Engineering.";
       leaf priority {
         type uint8 {
           range "0..7";
@@ -879,23 +838,23 @@ module ietf-te-topology {
       description
         "Traffic engineering metric.";
       reference
-        "RFC3630: Traffic Engineering (TE) Extensions to OSPF
+        "RFC 3630: Traffic Engineering (TE) Extensions to OSPF
          Version 2.
-         RFC5305: IS-IS Extensions for Traffic Engineering.";
+         RFC 5305: IS-IS Extensions for Traffic Engineering.";
     }
     leaf te-delay-metric {
       type uint32;
       description
         "Traffic engineering delay metric.";
       reference
-        "RFC7471: OSPF Traffic Engineering (TE) Metric Extensions.";
+        "RFC 7471: OSPF Traffic Engineering (TE) Metric Extensions.";
     }
     leaf te-igp-metric {
       type uint32;
       description
         "IGP metric used for traffic engineering.";
       reference
-        "RFC3785: Use of Interior Gateway Protocol (IGP) Metric as a
+        "RFC 3785: Use of Interior Gateway Protocol (IGP) Metric as a
          Second MPLS Traffic Engineering (TE) Metric.";
     }
     container te-srlgs {
@@ -905,7 +864,7 @@ module ietf-te-topology {
         type te-types:srlg;
         description "SRLG value.";
         reference
-          "RFC4202: Routing Extensions in Support of
+          "RFC 4202: Routing Extensions in Support of
            Generalized Multi-Protocol Label Switching (GMPLS).";
       }
     }
@@ -922,7 +881,7 @@ module ietf-te-topology {
         description
           "NSRLG ID, uniquely configured within a topology.";
         reference
-          "RFC4872: RSVP-TE Extensions in Support of End-to-End
+          "RFC 4872: RSVP-TE Extensions in Support of End-to-End
            Generalized Multi-Protocol Label Switching (GMPLS)
            Recovery";
       }
@@ -934,7 +893,7 @@ module ietf-te-topology {
       "TE link ISCD (Interface Switching Capability Descriptor)
        attributes.";
     reference
-      "Sec 1.4, RFC4203: OSPF Extensions in Support of Generalized
+      "Sec 1.4, RFC 4203: OSPF Extensions in Support of Generalized
        Multi-Protocol Label Switching (GMPLS). Section 1.4.";
     list max-lsp-bandwidth {
       key "priority";
@@ -969,9 +928,9 @@ module ietf-te-topology {
          for path computation in a TE topology covering multiple
          layers or multiple regions.";
       reference
-        "RFC5212: Requirements for GMPLS-Based Multi-Region and
+        "RFC 5212: Requirements for GMPLS-Based Multi-Region and
          Multi-Layer Networks (MRN/MLN).
-         RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
+         RFC 6001: Generalized MPLS (GMPLS) Protocol Extensions
          for Multi-Layer and Multi-Region Networks (MLN/MRN).";
     }
     uses information-source-per-link-attributes;
@@ -1019,7 +978,7 @@ module ietf-te-topology {
   grouping te-link-underlay-attributes {
     description "Attributes for  te-link underlay.";
     reference
-      "RFC4206: Label Switched Paths (LSP) Hierarchy with
+      "RFC 4206: Label Switched Paths (LSP) Hierarchy with
        Generalized Multi-Protocol Label Switching (GMPLS)
        Traffic Engineering (TE)";
     leaf enabled {
@@ -1118,7 +1077,7 @@ module ietf-te-topology {
              used together with the source-node of this link.
              The detailed information of this tunnel can be retrieved
              from the ietf-te model.";
-          reference "RFC3209";
+          reference "RFC 3209";
         }
         leaf sharing {
           type boolean;
@@ -1245,13 +1204,13 @@ module ietf-te-topology {
         type uint16;
         description
           "The number of connectivity matrix entries.
-           If this number is speficied in the configuration request,
+           If this number is specified in the configuration request,
            the number is requested number of entries, which may not
            all be listed in the list;
            if this number is reported in the state data,
            the number is the current number of operational entries.";
       }
-      uses connectivity-label-restriction-list;
+      uses te-types:label-set-info;
       uses connectivity-matrix-entry-path-attributes;
       list connectivity-matrix {
         key "id";
@@ -1259,7 +1218,7 @@ module ietf-te-topology {
           "Represents node's switching limitations, i.e. limitations
            in interconnecting network TE links across the node.";
         reference
-          "RFC7579: General Network Element Constraint Encoding
+          "RFC 7579: General Network Element Constraint Encoding
            for GMPLS-Controlled Networks.";
         leaf id {
           type uint32;
@@ -1282,7 +1241,7 @@ module ietf-te-topology {
         description
           "Relative reference to a termination point.";
       }
-      uses connectivity-label-restriction-list;
+      uses te-types:label-set-info;
     }
     container to {
       description
@@ -1294,7 +1253,7 @@ module ietf-te-topology {
         description
           "Relative reference to a termination point.";
       }
-      uses connectivity-label-restriction-list;
+      uses te-types:label-set-info;
     }
     uses connectivity-matrix-entry-path-attributes;
   } // te-node-connectivity-matrix-attributes
@@ -1308,12 +1267,12 @@ module ietf-te-topology {
         "Identifies the domain that this node belongs.
          This attribute is used to support inter-domain links.";
       reference
-        "RFC5152: A Per-Domain Path Computation Method for
+        "RFC 5152: A Per-Domain Path Computation Method for
          Establishing Inter-Domain Traffic Engineering (TE)
          Label Switched Paths (LSPs).
-         RFC5392: OSPF Extensions in Support of Inter-Autonomous
+         RFC 5392: OSPF Extensions in Support of Inter-Autonomous
          System (AS) MPLS and GMPLS Traffic Engineering.
-         RFC5316: ISIS Extensions in Support of Inter-Autonomous
+         RFC 5316: ISIS Extensions in Support of Inter-Autonomous
          System (AS) MPLS and GMPLS Traffic Engineering.";
     }
     leaf is-abstract {
@@ -1355,9 +1314,9 @@ module ietf-te-topology {
         "The presence of this attribute indicates that this TE node
          is a pseudonode elected as a designated router.";
       reference
-        "RFC3630: Traffic Engineering (TE) Extensions to OSPF
+        "RFC 3630: Traffic Engineering (TE) Extensions to OSPF
          Version 2.
-         RFC1195: Use of OSI IS-IS for Routing in TCP/IP and Dual
+         RFC 1195: Use of OSI IS-IS for Routing in TCP/IP and Dual
          Environments.";
     }
     uses information-source-per-node-attributes;
@@ -1386,13 +1345,13 @@ module ietf-te-topology {
         type uint16;
         description
           "The number of local link connectivity list entries.
-           If this number is speficied in the configuration request,
+           If this number is specified in the configuration request,
            the number is requested number of entries, which may not
            all be listed in the list;
            if this number is reported in the state data,
            the number is the current number of operational entries.";
       }
-      uses connectivity-label-restriction-list;
+      uses te-types:label-set-info;
       uses connectivity-matrix-entry-path-attributes;
     } // local-link-connectivities
   } // te-node-tunnel-termination-point-config
@@ -1431,9 +1390,9 @@ module ietf-te-topology {
         "Inter layer lock ID, used for path computation in a TE
          topology covering multiple layers or multiple regions.";
       reference
-        "RFC5212: Requirements for GMPLS-Based Multi-Region and
+        "RFC 5212: Requirements for GMPLS-Based Multi-Region and
          Multi-Layer Networks (MRN/MLN).
-         RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
+         RFC 6001: Generalized MPLS (GMPLS) Protocol Extensions
          for Multi-Layer and Multi-Region Networks (MLN/MRN).";
     }
     leaf protection-type {
@@ -1454,9 +1413,9 @@ module ietf-te-topology {
         description
           "List of supported switching capabilities";
         reference
-          "RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
+          "RFC 6001: Generalized MPLS (GMPLS) Protocol Extensions
            for Multi-Layer and Multi-Region Networks (MLN/MRN).
-           RFC4202: Routing Extensions in Support of
+           RFC 4202: Routing Extensions in Support of
            Generalized Multi-Protocol Label Switching (GMPLS).";
         leaf switching-capability {
           type identityref {
@@ -1489,10 +1448,10 @@ module ietf-te-topology {
          The capability information can be used to compute
          the tunnel path.
          The Interface Adjustment Capability Descriptors (IACD)
-         [RFC6001] on each link-tp can be derived from this
-         local-link-connectivity list.";
+         (defined in RFC 6001) on each link-tp can be derived from
+         this local-link-connectivity list.";
       reference
-        "RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
+        "RFC 6001: Generalized MPLS (GMPLS) Protocol Extensions
          for Multi-Layer and Multi-Region Networks (MLN/MRN).";
 
       leaf link-tp-ref {
@@ -1502,7 +1461,7 @@ module ietf-te-topology {
         description
           "Link termination point.";
       }
-      uses connectivity-label-restriction-list;
+      uses te-types:label-set-info;
       uses connectivity-matrix-entry-path-attributes;
     } // local-link-connectivity
   } // te-node-tunnel-termination-point-config
@@ -1572,9 +1531,9 @@ module ietf-te-topology {
         "Inter layer lock ID, used for path computation in a TE
          topology covering multiple layers or multiple regions.";
       reference
-        "RFC5212: Requirements for GMPLS-Based Multi-Region and
+        "RFC 5212: Requirements for GMPLS-Based Multi-Region and
          Multi-Layer Networks (MRN/MLN).
-         RFC6001: Generalized MPLS (GMPLS) Protocol Extensions
+         RFC 6001: Generalized MPLS (GMPLS) Protocol Extensions
          for Multi-Layer and Multi-Region Networks (MLN/MRN).";
     }
   } // te-termination-point-config
@@ -1684,7 +1643,7 @@ module ietf-te-topology {
       description
         "Optimization criterion applied to this topology.";
       reference
-        "RFC3272: Overview and Principles of Internet Traffic
+        "RFC 3272: Overview and Principles of Internet Traffic
          Engineering.";
     }
     list nsrlg {
@@ -1693,7 +1652,7 @@ module ietf-te-topology {
       description
         "List of NSRLGs (Not Sharing Risk Link Groups).";
       reference
-        "RFC4872: RSVP-TE Extensions in Support of End-to-End
+        "RFC 4872: RSVP-TE Extensions in Support of End-to-End
          Generalized Multi-Protocol Label Switching (GMPLS)
          Recovery";
       leaf id {
@@ -1863,7 +1822,7 @@ module ietf-te-topology {
       }
       description
         "Reference to another TE termination point on the
-         same souruce node.";
+         same source node.";
     }
     leaf des-tp-ref {
       type leafref {

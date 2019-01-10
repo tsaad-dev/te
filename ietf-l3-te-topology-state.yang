@@ -1,10 +1,10 @@
-module ietf-sr-topology-state {
+module ietf-l3-te-topology-state {
   yang-version 1.1;
-  namespace "urn:ietf:params:xml:ns:yang:ietf-sr-topology-state";
-  prefix "srt-s";
+  namespace "urn:ietf:params:xml:ns:yang:ietf-l3-te-topology-state";
+  prefix "l3tet-s";
 
-  import ietf-sr-topology {
-    prefix "srt";
+  import ietf-l3-te-topology {
+    prefix "l3tet";
   }
   import ietf-network-state {
     prefix "nw-s";
@@ -17,11 +17,6 @@ module ietf-sr-topology-state {
   import ietf-l3-unicast-topology-state {
     prefix "l3t-s";
     reference "RFC 8346: A YANG Data Model for Layer 3 Topologies";
-  }
-  import ietf-segment-routing-common {
-    prefix "sr-cmn";
-    reference
-      "I-D.ietf-spring-sr-yang: YANG Data Model for Segment Routing";
   }
 
   organization
@@ -47,12 +42,12 @@ module ietf-sr-topology-state {
      Editor:   Himanshu Shah
                <mailto:hshah@ciena.com>
 
-     Editor:   Stephane Litkowski
-               <mailto:stephane.litkowski@orange.com>";
+     Editor:   Oscar Gonzalez De Dios
+               <mailto:oscar.gonzalezdedios@telefonica.com>";
 
   description
     "YANG data model for representing operational state information
-     of Segment Routing Topologies, when NMDA is not supported.
+     of Layer 3 TE Topologies, when NMDA is not supported.
 
      Copyright (c) 2018 IETF Trust and the persons identified as
      authors of the code.  All rights reserved.
@@ -67,65 +62,57 @@ module ietf-sr-topology-state {
      This version of this YANG module is part of RFC XXXX; see the
      RFC itself for full legal notices.";
 
-  revision 2018-10-03 {
+  revision 2018-06-22 {
+
     description "Initial revision";
-    reference
-      "RFC XXXX: YANG Data Model for SR and SR TE Topologies";
+    reference "RFC XXXX: YANG Data Model for Layer 3 TE Topologies";
   }
 
   augment "/nw-s:networks/nw-s:network/nw-s:network-types/"
     + "l3t-s:l3-unicast-topology" {
     description
-      "Defines the SR topology type.";
-    uses srt:sr-topology-type;
+      "Defines the L3 TE topology type.";
+    uses l3tet:l3-te-topology-type;
   }
 
   augment "/nw-s:networks/nw-s:network/"
     + "l3t-s:l3-topology-attributes" {
     when "../nw-s:network-types/l3t-s:l3-unicast-topology/"
-      + "srt-s:sr-mpls" {
-      description "Augment only for SR topology.";
+      + "l3tet-s:l3-te" {
+      description "Augment only for L3 TE topology";
     }
     description "Augment topology configuration";
-    uses srt:sr-topology-attributes;
+    uses l3tet:l3-te-topology-attributes;
   }
 
   augment "/nw-s:networks/nw-s:network/nw-s:node/"
     + "l3t-s:l3-node-attributes" {
     when "../../nw-s:network-types/l3t-s:l3-unicast-topology/"
-      + "srt-s:sr-mpls" {
-      description "Augment only for SR topology.";
+      + "l3tet-s:l3-te" {
+      description "Augment only for L3 TE topology";
     }
-    description "Augment node configuration.";
-    uses srt:sr-node-attributes;
+    description "Augment node configuration";
+    uses l3tet:l3-te-node-attributes;
   }
 
   augment "/nw-s:networks/nw-s:network/nw-s:node/"
-    + "l3t-s:l3-node-attributes/l3t-s:prefix" {
+    + "nt-s:termination-point/"
+    + "l3t-s:l3-termination-point-attributes" {
     when "../../../nw-s:network-types/l3t-s:l3-unicast-topology/"
-      + "srt-s:sr-mpls" {
-      description "Augment only for SR topology.";
+      + "l3tet-s:l3-te" {
+      description "Augment only for L3 TE topology";
     }
-    description "Augment node prefix.";
-    uses srt:sr-node-prefix-attributes;
+    description "Augment termination point configuration";
+    uses l3tet:l3-te-tp-attributes;
   }
 
   augment "/nw-s:networks/nw-s:network/nt-s:link/"
     + "l3t-s:l3-link-attributes" {
     when "../../nw-s:network-types/l3t-s:l3-unicast-topology/"
-      + "srt-s:sr-mpls" {
-      description "Augment only for SR topology.";
+      + "l3tet-s:l3-te" {
+      description "Augment only for L3 TE topology";
     }
     description "Augment link configuration";
-    uses srt:sr-link-attributes;
+    uses l3tet:l3-te-link-attributes;
   }
-
-  grouping sr-topology-attributes {
-    description "SR topology scope attributes.";
-    container sr {
-      description
-        "Containing SR attributes.";
-      uses sr-cmn:srgb-cfg;
-    } // sr
-  } // sr-topology-attributes
 }
