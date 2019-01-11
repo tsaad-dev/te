@@ -283,28 +283,37 @@ module: ietf-te
      |  |     |     +--rw usage            identityref
      |  |     |     +--rw affinity-name* [name]
      |  |     |        +--rw name    string
-     |  |     +--rw path-srlgs-values
-     |  |     |  +--rw usage?    identityref
-     |  |     |  +--rw values*   srlg
+     |  |     +--rw path-srlgs-lists
+     |  |     |  +--rw path-srlgs-list* [usage]
+     |  |     |     +--rw usage     identityref
+     |  |     |     +--rw values*   srlg
      |  |     +--rw path-srlgs-names
      |  |     |  +--rw path-srlgs-name* [usage]
-     |  |     |     +--rw usage        identityref
-     |  |     |     +--rw srlg-name* [name]
-     |  |     |        +--rw name    string
-     |  |     +--rw disjointness?                    te-types:te-path-disjointness
-     |  |     +--rw explicit-route-objects
+     |  |     |     +--rw usage    identityref
+     |  |     |     +--rw names*   string
+     |  |     +--rw disjointness?                    te-path-disjointness
+     |  |     +--rw explicit-route-objects-always
      |  |     |  +--rw route-object-exclude-always* [index]
-     |  |     |  |  +--rw index                  uint32
+     |  |     |  |  +--rw index                        uint32
      |  |     |  |  +--rw (type)?
-     |  |     |  |     +--:(num-unnum-hop)
-     |  |     |  |     |  +--rw num-unnum-hop
-     |  |     |  |     |     +--rw node-id?      te-types:te-node-id
-     |  |     |  |     |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |     |  |     +--:(numbered-node-hop)
+     |  |     |  |     |  +--rw numbered-node-hop
+     |  |     |  |     |     +--rw node-id     te-node-id
+     |  |     |  |     |     +--rw hop-type?   te-hop-type
+     |  |     |  |     +--:(numbered-link-hop)
+     |  |     |  |     |  +--rw numbered-link-hop
+     |  |     |  |     |     +--rw link-tp-id    te-tp-id
+     |  |     |  |     |     +--rw hop-type?     te-hop-type
+     |  |     |  |     |     +--rw direction?    te-link-direction
+     |  |     |  |     +--:(unnumbered-link-hop)
+     |  |     |  |     |  +--rw unnumbered-link-hop
+     |  |     |  |     |     +--rw link-tp-id    te-tp-id
+     |  |     |  |     |     +--rw node-id       te-node-id
      |  |     |  |     |     +--rw hop-type?     te-hop-type
      |  |     |  |     |     +--rw direction?    te-link-direction
      |  |     |  |     +--:(as-number)
      |  |     |  |     |  +--rw as-number-hop
-     |  |     |  |     |     +--rw as-number?   binary
+     |  |     |  |     |     +--rw as-number    binary
      |  |     |  |     |     +--rw hop-type?    te-hop-type
      |  |     |  |     +--:(label)
      |  |     |  |        +--rw label-hop
@@ -314,18 +323,27 @@ module: ietf-te
      |  |     |  |              |     +--rw generic?   rt-types:generalized-label
      |  |     |  |              +--rw direction?       te-label-direction
      |  |     |  +--rw route-object-include-exclude* [index]
-     |  |     |     +--rw explicit-route-usage?   identityref
-     |  |     |     +--rw index                   uint32
+     |  |     |     +--rw explicit-route-usage?        identityref
+     |  |     |     +--rw index                        uint32
      |  |     |     +--rw (type)?
-     |  |     |        +--:(num-unnum-hop)
-     |  |     |        |  +--rw num-unnum-hop
-     |  |     |        |     +--rw node-id?      te-types:te-node-id
-     |  |     |        |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |     |        +--:(numbered-node-hop)
+     |  |     |        |  +--rw numbered-node-hop
+     |  |     |        |     +--rw node-id     te-node-id
+     |  |     |        |     +--rw hop-type?   te-hop-type
+     |  |     |        +--:(numbered-link-hop)
+     |  |     |        |  +--rw numbered-link-hop
+     |  |     |        |     +--rw link-tp-id    te-tp-id
+     |  |     |        |     +--rw hop-type?     te-hop-type
+     |  |     |        |     +--rw direction?    te-link-direction
+     |  |     |        +--:(unnumbered-link-hop)
+     |  |     |        |  +--rw unnumbered-link-hop
+     |  |     |        |     +--rw link-tp-id    te-tp-id
+     |  |     |        |     +--rw node-id       te-node-id
      |  |     |        |     +--rw hop-type?     te-hop-type
      |  |     |        |     +--rw direction?    te-link-direction
      |  |     |        +--:(as-number)
      |  |     |        |  +--rw as-number-hop
-     |  |     |        |     +--rw as-number?   binary
+     |  |     |        |     +--rw as-number    binary
      |  |     |        |     +--rw hop-type?    te-hop-type
      |  |     |        +--:(label)
      |  |     |        |  +--rw label-hop
@@ -387,11 +405,11 @@ module: ietf-te
      |  |     |  +--ro bandwidth-generic_state?   te-types:te-bandwidth
      |  |     |  +--ro disjointness_state?        te-types:te-path-disjointness
      |  |     +--rw te-mpls:bandwidth
-     |  |     |  +--rw te-mpls:specification-type?   te-mpls-types:te-bandwidth-requested-type
-     |  |     |  +--rw te-mpls:set-bandwidth?        te-mpls-types:bandwidth-kbps
+     |  |     |  +--rw te-mpls:specification-type?   te-packet-types:te-bandwidth-requested-type
+     |  |     |  +--rw te-mpls:set-bandwidth?        te-packet-types:bandwidth-kbps
      |  |     |  +--rw te-mpls:class-type?           te-types:te-ds-class
      |  |     |  +--ro te-mpls:state
-     |  |     |     +--ro te-mpls:signaled-bandwidth?   te-mpls-types:bandwidth-kbps
+     |  |     |     +--ro te-mpls:signaled-bandwidth?   te-packet-types:bandwidth-kbps
      |  |     +--rw te-sr-mpls:sid-selection-mode?   te-sid-selection-mode
      |  |     +--rw te-sr-mpls:sid-protection?       identityref
      |  +--rw te-dev:lsp-install-interval?        uint32
@@ -440,9 +458,9 @@ module: ietf-te
      |  |  |  +--rw wait-to-restore?                 uint16
      |  |  |  +--rw wait-to-revert?                  uint16
      |  |  +--rw te-topology-identifier
-     |  |  |  +--rw provider-id?   te-types:te-global-id
-     |  |  |  +--rw client-id?     te-types:te-global-id
-     |  |  |  +--rw topology-id?   te-types:te-topology-id
+     |  |  |  +--rw provider-id?   te-global-id
+     |  |  |  +--rw client-id?     te-global-id
+     |  |  |  +--rw topology-id?   te-topology-id
      |  |  +--rw te-bandwidth
      |  |  |  +--rw (technology)?
      |  |  |     +--:(generic)
@@ -461,9 +479,9 @@ module: ietf-te
      |  |  |  +--rw local-te-link-tp-id?      te-types:te-tp-id
      |  |  |  +--rw remote-te-node-id?        te-types:te-node-id
      |  |  |  +--rw te-topology-identifier
-     |  |  |     +--rw provider-id?   te-types:te-global-id
-     |  |  |     +--rw client-id?     te-types:te-global-id
-     |  |  |     +--rw topology-id?   te-types:te-topology-id
+     |  |  |     +--rw provider-id?   te-global-id
+     |  |  |     +--rw client-id?     te-global-id
+     |  |  |     +--rw topology-id?   te-topology-id
      |  |  +--ro state
      |  |  |  +--ro operational-state?                   identityref
      |  |  |  +--ro te-dev:lsp-install-interval?         uint32
@@ -499,17 +517,26 @@ module: ietf-te
      |  |  |     |     |  |  +--rw weight?                           uint8
      |  |  |     |     |  |  +--rw explicit-route-exclude-objects
      |  |  |     |     |  |  |  +--rw route-object-exclude-object* [index]
-     |  |  |     |     |  |  |     +--rw index                  uint32
+     |  |  |     |     |  |  |     +--rw index                        uint32
      |  |  |     |     |  |  |     +--rw (type)?
-     |  |  |     |     |  |  |        +--:(num-unnum-hop)
-     |  |  |     |     |  |  |        |  +--rw num-unnum-hop
-     |  |  |     |     |  |  |        |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |     |  |  |        |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |     |  |  |        +--:(numbered-node-hop)
+     |  |  |     |     |  |  |        |  +--rw numbered-node-hop
+     |  |  |     |     |  |  |        |     +--rw node-id     te-node-id
+     |  |  |     |     |  |  |        |     +--rw hop-type?   te-hop-type
+     |  |  |     |     |  |  |        +--:(numbered-link-hop)
+     |  |  |     |     |  |  |        |  +--rw numbered-link-hop
+     |  |  |     |     |  |  |        |     +--rw link-tp-id    te-tp-id
+     |  |  |     |     |  |  |        |     +--rw hop-type?     te-hop-type
+     |  |  |     |     |  |  |        |     +--rw direction?    te-link-direction
+     |  |  |     |     |  |  |        +--:(unnumbered-link-hop)
+     |  |  |     |     |  |  |        |  +--rw unnumbered-link-hop
+     |  |  |     |     |  |  |        |     +--rw link-tp-id    te-tp-id
+     |  |  |     |     |  |  |        |     +--rw node-id       te-node-id
      |  |  |     |     |  |  |        |     +--rw hop-type?     te-hop-type
      |  |  |     |     |  |  |        |     +--rw direction?    te-link-direction
      |  |  |     |     |  |  |        +--:(as-number)
      |  |  |     |     |  |  |        |  +--rw as-number-hop
-     |  |  |     |     |  |  |        |     +--rw as-number?   binary
+     |  |  |     |     |  |  |        |     +--rw as-number    binary
      |  |  |     |     |  |  |        |     +--rw hop-type?    te-hop-type
      |  |  |     |     |  |  |        +--:(label)
      |  |  |     |     |  |  |        |  +--rw label-hop
@@ -523,17 +550,26 @@ module: ietf-te
      |  |  |     |     |  |  |              +--rw srlg?   uint32
      |  |  |     |     |  |  +--rw explicit-route-include-objects
      |  |  |     |     |  |     +--rw route-object-include-object* [index]
-     |  |  |     |     |  |        +--rw index                  uint32
+     |  |  |     |     |  |        +--rw index                        uint32
      |  |  |     |     |  |        +--rw (type)?
-     |  |  |     |     |  |           +--:(num-unnum-hop)
-     |  |  |     |     |  |           |  +--rw num-unnum-hop
-     |  |  |     |     |  |           |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |     |  |           |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |     |  |           +--:(numbered-node-hop)
+     |  |  |     |     |  |           |  +--rw numbered-node-hop
+     |  |  |     |     |  |           |     +--rw node-id     te-node-id
+     |  |  |     |     |  |           |     +--rw hop-type?   te-hop-type
+     |  |  |     |     |  |           +--:(numbered-link-hop)
+     |  |  |     |     |  |           |  +--rw numbered-link-hop
+     |  |  |     |     |  |           |     +--rw link-tp-id    te-tp-id
+     |  |  |     |     |  |           |     +--rw hop-type?     te-hop-type
+     |  |  |     |     |  |           |     +--rw direction?    te-link-direction
+     |  |  |     |     |  |           +--:(unnumbered-link-hop)
+     |  |  |     |     |  |           |  +--rw unnumbered-link-hop
+     |  |  |     |     |  |           |     +--rw link-tp-id    te-tp-id
+     |  |  |     |     |  |           |     +--rw node-id       te-node-id
      |  |  |     |     |  |           |     +--rw hop-type?     te-hop-type
      |  |  |     |     |  |           |     +--rw direction?    te-link-direction
      |  |  |     |     |  |           +--:(as-number)
      |  |  |     |     |  |           |  +--rw as-number-hop
-     |  |  |     |     |  |           |     +--rw as-number?   binary
+     |  |  |     |     |  |           |     +--rw as-number    binary
      |  |  |     |     |  |           |     +--rw hop-type?    te-hop-type
      |  |  |     |     |  |           +--:(label)
      |  |  |     |     |  |              +--rw label-hop
@@ -572,28 +608,37 @@ module: ietf-te
      |  |  |     |     +--rw usage            identityref
      |  |  |     |     +--rw affinity-name* [name]
      |  |  |     |        +--rw name    string
-     |  |  |     +--rw path-srlgs-values
-     |  |  |     |  +--rw usage?    identityref
-     |  |  |     |  +--rw values*   srlg
+     |  |  |     +--rw path-srlgs-lists
+     |  |  |     |  +--rw path-srlgs-list* [usage]
+     |  |  |     |     +--rw usage     identityref
+     |  |  |     |     +--rw values*   srlg
      |  |  |     +--rw path-srlgs-names
      |  |  |     |  +--rw path-srlgs-name* [usage]
-     |  |  |     |     +--rw usage        identityref
-     |  |  |     |     +--rw srlg-name* [name]
-     |  |  |     |        +--rw name    string
-     |  |  |     +--rw disjointness?                    te-types:te-path-disjointness
-     |  |  |     +--rw explicit-route-objects
+     |  |  |     |     +--rw usage    identityref
+     |  |  |     |     +--rw names*   string
+     |  |  |     +--rw disjointness?                    te-path-disjointness
+     |  |  |     +--rw explicit-route-objects-always
      |  |  |     |  +--rw route-object-exclude-always* [index]
-     |  |  |     |  |  +--rw index                  uint32
+     |  |  |     |  |  +--rw index                        uint32
      |  |  |     |  |  +--rw (type)?
-     |  |  |     |  |     +--:(num-unnum-hop)
-     |  |  |     |  |     |  +--rw num-unnum-hop
-     |  |  |     |  |     |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |  |     |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     +--:(numbered-node-hop)
+     |  |  |     |  |     |  +--rw numbered-node-hop
+     |  |  |     |  |     |     +--rw node-id     te-node-id
+     |  |  |     |  |     |     +--rw hop-type?   te-hop-type
+     |  |  |     |  |     +--:(numbered-link-hop)
+     |  |  |     |  |     |  +--rw numbered-link-hop
+     |  |  |     |  |     |     +--rw link-tp-id    te-tp-id
+     |  |  |     |  |     |     +--rw hop-type?     te-hop-type
+     |  |  |     |  |     |     +--rw direction?    te-link-direction
+     |  |  |     |  |     +--:(unnumbered-link-hop)
+     |  |  |     |  |     |  +--rw unnumbered-link-hop
+     |  |  |     |  |     |     +--rw link-tp-id    te-tp-id
+     |  |  |     |  |     |     +--rw node-id       te-node-id
      |  |  |     |  |     |     +--rw hop-type?     te-hop-type
      |  |  |     |  |     |     +--rw direction?    te-link-direction
      |  |  |     |  |     +--:(as-number)
      |  |  |     |  |     |  +--rw as-number-hop
-     |  |  |     |  |     |     +--rw as-number?   binary
+     |  |  |     |  |     |     +--rw as-number    binary
      |  |  |     |  |     |     +--rw hop-type?    te-hop-type
      |  |  |     |  |     +--:(label)
      |  |  |     |  |        +--rw label-hop
@@ -603,18 +648,27 @@ module: ietf-te
      |  |  |     |  |              |     +--rw generic?   rt-types:generalized-label
      |  |  |     |  |              +--rw direction?       te-label-direction
      |  |  |     |  +--rw route-object-include-exclude* [index]
-     |  |  |     |     +--rw explicit-route-usage?   identityref
-     |  |  |     |     +--rw index                   uint32
+     |  |  |     |     +--rw explicit-route-usage?        identityref
+     |  |  |     |     +--rw index                        uint32
      |  |  |     |     +--rw (type)?
-     |  |  |     |        +--:(num-unnum-hop)
-     |  |  |     |        |  +--rw num-unnum-hop
-     |  |  |     |        |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |        |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |        +--:(numbered-node-hop)
+     |  |  |     |        |  +--rw numbered-node-hop
+     |  |  |     |        |     +--rw node-id     te-node-id
+     |  |  |     |        |     +--rw hop-type?   te-hop-type
+     |  |  |     |        +--:(numbered-link-hop)
+     |  |  |     |        |  +--rw numbered-link-hop
+     |  |  |     |        |     +--rw link-tp-id    te-tp-id
+     |  |  |     |        |     +--rw hop-type?     te-hop-type
+     |  |  |     |        |     +--rw direction?    te-link-direction
+     |  |  |     |        +--:(unnumbered-link-hop)
+     |  |  |     |        |  +--rw unnumbered-link-hop
+     |  |  |     |        |     +--rw link-tp-id    te-tp-id
+     |  |  |     |        |     +--rw node-id       te-node-id
      |  |  |     |        |     +--rw hop-type?     te-hop-type
      |  |  |     |        |     +--rw direction?    te-link-direction
      |  |  |     |        +--:(as-number)
      |  |  |     |        |  +--rw as-number-hop
-     |  |  |     |        |     +--rw as-number?   binary
+     |  |  |     |        |     +--rw as-number    binary
      |  |  |     |        |     +--rw hop-type?    te-hop-type
      |  |  |     |        +--:(label)
      |  |  |     |        |  +--rw label-hop
@@ -691,29 +745,38 @@ module: ietf-te
      |  |  |     |  |        |     +--ro usage            identityref
      |  |  |     |  |        |     +--ro affinity-name* [name]
      |  |  |     |  |        |        +--ro name    string
-     |  |  |     |  |        +--ro path-srlgs-values
-     |  |  |     |  |        |  +--ro usage?    identityref
-     |  |  |     |  |        |  +--ro values*   srlg
+     |  |  |     |  |        +--ro path-srlgs-lists
+     |  |  |     |  |        |  +--ro path-srlgs-list* [usage]
+     |  |  |     |  |        |     +--ro usage     identityref
+     |  |  |     |  |        |     +--ro values*   srlg
      |  |  |     |  |        +--ro path-srlgs-names
      |  |  |     |  |        |  +--ro path-srlgs-name* [usage]
-     |  |  |     |  |        |     +--ro usage        identityref
-     |  |  |     |  |        |     +--ro srlg-name* [name]
-     |  |  |     |  |        |        +--ro name    string
+     |  |  |     |  |        |     +--ro usage    identityref
+     |  |  |     |  |        |     +--ro names*   string
      |  |  |     |  |        +--ro path-route-objects
      |  |  |     |  |        |  +--ro path-computed-route-object* [index]
      |  |  |     |  |        |     +--ro index    -> ../state/index
      |  |  |     |  |        |     +--ro state
-     |  |  |     |  |        |        +--ro index?                 uint32
+     |  |  |     |  |        |        +--ro index?                       uint32
      |  |  |     |  |        |        +--ro (type)?
-     |  |  |     |  |        |           +--:(num-unnum-hop)
-     |  |  |     |  |        |           |  +--ro num-unnum-hop
-     |  |  |     |  |        |           |     +--ro node-id?      te-types:te-node-id
-     |  |  |     |  |        |           |     +--ro link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |        |           +--:(numbered-node-hop)
+     |  |  |     |  |        |           |  +--ro numbered-node-hop
+     |  |  |     |  |        |           |     +--ro node-id     te-node-id
+     |  |  |     |  |        |           |     +--ro hop-type?   te-hop-type
+     |  |  |     |  |        |           +--:(numbered-link-hop)
+     |  |  |     |  |        |           |  +--ro numbered-link-hop
+     |  |  |     |  |        |           |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |        |           |     +--ro hop-type?     te-hop-type
+     |  |  |     |  |        |           |     +--ro direction?    te-link-direction
+     |  |  |     |  |        |           +--:(unnumbered-link-hop)
+     |  |  |     |  |        |           |  +--ro unnumbered-link-hop
+     |  |  |     |  |        |           |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |        |           |     +--ro node-id       te-node-id
      |  |  |     |  |        |           |     +--ro hop-type?     te-hop-type
      |  |  |     |  |        |           |     +--ro direction?    te-link-direction
      |  |  |     |  |        |           +--:(as-number)
      |  |  |     |  |        |           |  +--ro as-number-hop
-     |  |  |     |  |        |           |     +--ro as-number?   binary
+     |  |  |     |  |        |           |     +--ro as-number    binary
      |  |  |     |  |        |           |     +--ro hop-type?    te-hop-type
      |  |  |     |  |        |           +--:(label)
      |  |  |     |  |        |              +--ro label-hop
@@ -742,16 +805,23 @@ module: ietf-te
      |  |  |     |  |     +--ro protection-group-ingress-node-id?           te-types:te-node-id
      |  |  |     |  |     +--ro protection-group-egress-node-id?            te-types:te-node-id
      |  |  |     |  |     +--ro lsp-shared-resources-tunnel?                tunnel-ref
-     |  |  |     |  |     +--ro lsp-record-route-subobjects
-     |  |  |     |  |     |  +--ro record-route-subobject* [index]
-     |  |  |     |  |     |     +--ro index               uint32
+     |  |  |     |  |     +--ro lsp-record-route-information
+     |  |  |     |  |     |  +--ro lsp-record-route-information* [index]
+     |  |  |     |  |     |     +--ro index                        uint32
      |  |  |     |  |     |     +--ro (type)?
-     |  |  |     |  |     |        +--:(numbered)
-     |  |  |     |  |     |        |  +--ro address?      te-types:te-tp-id
-     |  |  |     |  |     |        |  +--ro ip-flags?     binary
-     |  |  |     |  |     |        +--:(unnumbered)
-     |  |  |     |  |     |        |  +--ro node-id?      te-types:te-node-id
-     |  |  |     |  |     |        |  +--ro link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |        +--:(numbered-node-hop)
+     |  |  |     |  |     |        |  +--ro numbered-node-hop
+     |  |  |     |  |     |        |     +--ro node-id    te-node-id
+     |  |  |     |  |     |        |     +--ro flags*     path-attribute-flags
+     |  |  |     |  |     |        +--:(numbered-link-hop)
+     |  |  |     |  |     |        |  +--ro numbered-link-hop
+     |  |  |     |  |     |        |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |     |        |     +--ro flags*        path-attribute-flags
+     |  |  |     |  |     |        +--:(unnumbered-link-hop)
+     |  |  |     |  |     |        |  +--ro unnumbered-link-hop
+     |  |  |     |  |     |        |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |     |        |     +--ro node-id?      te-node-id
+     |  |  |     |  |     |        |     +--ro flags*        path-attribute-flags
      |  |  |     |  |     |        +--:(label)
      |  |  |     |  |     |           +--ro label-hop
      |  |  |     |  |     |              +--ro te-label
@@ -759,7 +829,7 @@ module: ietf-te
      |  |  |     |  |     |              |  |  +--:(generic)
      |  |  |     |  |     |              |  |     +--ro generic?   rt-types:generalized-label
      |  |  |     |  |     |              |  +--ro direction?       te-label-direction
-     |  |  |     |  |     |              +--ro label-flags?   binary
+     |  |  |     |  |     |              +--ro flags*      path-attribute-flags
      |  |  |     |  |     +--ro path-properties
      |  |  |     |  |     |  +--ro path-metric* [metric-type]
      |  |  |     |  |     |  |  +--ro metric-type    -> ../state/metric-type
@@ -775,29 +845,38 @@ module: ietf-te
      |  |  |     |  |     |  |     +--ro usage            identityref
      |  |  |     |  |     |  |     +--ro affinity-name* [name]
      |  |  |     |  |     |  |        +--ro name    string
-     |  |  |     |  |     |  +--ro path-srlgs-values
-     |  |  |     |  |     |  |  +--ro usage?    identityref
-     |  |  |     |  |     |  |  +--ro values*   srlg
+     |  |  |     |  |     |  +--ro path-srlgs-lists
+     |  |  |     |  |     |  |  +--ro path-srlgs-list* [usage]
+     |  |  |     |  |     |  |     +--ro usage     identityref
+     |  |  |     |  |     |  |     +--ro values*   srlg
      |  |  |     |  |     |  +--ro path-srlgs-names
      |  |  |     |  |     |  |  +--ro path-srlgs-name* [usage]
-     |  |  |     |  |     |  |     +--ro usage        identityref
-     |  |  |     |  |     |  |     +--ro srlg-name* [name]
-     |  |  |     |  |     |  |        +--ro name    string
+     |  |  |     |  |     |  |     +--ro usage    identityref
+     |  |  |     |  |     |  |     +--ro names*   string
      |  |  |     |  |     |  +--ro path-route-objects
      |  |  |     |  |     |  |  +--ro path-computed-route-object* [index]
      |  |  |     |  |     |  |     +--ro index    -> ../state/index
      |  |  |     |  |     |  |     +--ro state
-     |  |  |     |  |     |  |        +--ro index?                 uint32
+     |  |  |     |  |     |  |        +--ro index?                       uint32
      |  |  |     |  |     |  |        +--ro (type)?
-     |  |  |     |  |     |  |           +--:(num-unnum-hop)
-     |  |  |     |  |     |  |           |  +--ro num-unnum-hop
-     |  |  |     |  |     |  |           |     +--ro node-id?      te-types:te-node-id
-     |  |  |     |  |     |  |           |     +--ro link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |  |           +--:(numbered-node-hop)
+     |  |  |     |  |     |  |           |  +--ro numbered-node-hop
+     |  |  |     |  |     |  |           |     +--ro node-id     te-node-id
+     |  |  |     |  |     |  |           |     +--ro hop-type?   te-hop-type
+     |  |  |     |  |     |  |           +--:(numbered-link-hop)
+     |  |  |     |  |     |  |           |  +--ro numbered-link-hop
+     |  |  |     |  |     |  |           |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |     |  |           |     +--ro hop-type?     te-hop-type
+     |  |  |     |  |     |  |           |     +--ro direction?    te-link-direction
+     |  |  |     |  |     |  |           +--:(unnumbered-link-hop)
+     |  |  |     |  |     |  |           |  +--ro unnumbered-link-hop
+     |  |  |     |  |     |  |           |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |     |  |           |     +--ro node-id       te-node-id
      |  |  |     |  |     |  |           |     +--ro hop-type?     te-hop-type
      |  |  |     |  |     |  |           |     +--ro direction?    te-link-direction
      |  |  |     |  |     |  |           +--:(as-number)
      |  |  |     |  |     |  |           |  +--ro as-number-hop
-     |  |  |     |  |     |  |           |     +--ro as-number?   binary
+     |  |  |     |  |     |  |           |     +--ro as-number    binary
      |  |  |     |  |     |  |           |     +--ro hop-type?    te-hop-type
      |  |  |     |  |     |  |           +--:(label)
      |  |  |     |  |     |  |              +--ro label-hop
@@ -837,17 +916,26 @@ module: ietf-te
      |  |  |     |  |     |  +--ro rsvp-te:incoming-explicit-route-hop* [index]
      |  |  |     |  |     |  |  +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |  |  +--ro rsvp-te:state
-     |  |  |     |  |     |  |     +--ro rsvp-te:index?                 uint32
+     |  |  |     |  |     |  |     +--ro rsvp-te:index?                       uint32
      |  |  |     |  |     |  |     +--ro (rsvp-te:type)?
-     |  |  |     |  |     |  |        +--:(rsvp-te:num-unnum-hop)
-     |  |  |     |  |     |  |        |  +--ro rsvp-te:num-unnum-hop
-     |  |  |     |  |     |  |        |     +--ro rsvp-te:node-id?      te-types:te-node-id
-     |  |  |     |  |     |  |        |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |  |        +--:(rsvp-te:numbered-node-hop)
+     |  |  |     |  |     |  |        |  +--ro rsvp-te:numbered-node-hop
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:node-id     te-node-id
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?   te-hop-type
+     |  |  |     |  |     |  |        +--:(rsvp-te:numbered-link-hop)
+     |  |  |     |  |     |  |        |  +--ro rsvp-te:numbered-link-hop
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?     te-hop-type
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:direction?    te-link-direction
+     |  |  |     |  |     |  |        +--:(rsvp-te:unnumbered-link-hop)
+     |  |  |     |  |     |  |        |  +--ro rsvp-te:unnumbered-link-hop
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:node-id       te-node-id
      |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?     te-hop-type
      |  |  |     |  |     |  |        |     +--ro rsvp-te:direction?    te-link-direction
      |  |  |     |  |     |  |        +--:(rsvp-te:as-number)
      |  |  |     |  |     |  |        |  +--ro rsvp-te:as-number-hop
-     |  |  |     |  |     |  |        |     +--ro rsvp-te:as-number?   binary
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:as-number    binary
      |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?    te-hop-type
      |  |  |     |  |     |  |        +--:(rsvp-te:label)
      |  |  |     |  |     |  |           +--ro rsvp-te:label-hop
@@ -859,17 +947,26 @@ module: ietf-te
      |  |  |     |  |     |  +--ro rsvp-te:outgoing-explicit-route-hop* [index]
      |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |     +--ro rsvp-te:state
-     |  |  |     |  |     |        +--ro rsvp-te:index?                 uint32
+     |  |  |     |  |     |        +--ro rsvp-te:index?                       uint32
      |  |  |     |  |     |        +--ro (rsvp-te:type)?
-     |  |  |     |  |     |           +--:(rsvp-te:num-unnum-hop)
-     |  |  |     |  |     |           |  +--ro rsvp-te:num-unnum-hop
-     |  |  |     |  |     |           |     +--ro rsvp-te:node-id?      te-types:te-node-id
-     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |           +--:(rsvp-te:numbered-node-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:numbered-node-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:node-id     te-node-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?   te-hop-type
+     |  |  |     |  |     |           +--:(rsvp-te:numbered-link-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:numbered-link-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?     te-hop-type
+     |  |  |     |  |     |           |     +--ro rsvp-te:direction?    te-link-direction
+     |  |  |     |  |     |           +--:(rsvp-te:unnumbered-link-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:unnumbered-link-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:node-id       te-node-id
      |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?     te-hop-type
      |  |  |     |  |     |           |     +--ro rsvp-te:direction?    te-link-direction
      |  |  |     |  |     |           +--:(rsvp-te:as-number)
      |  |  |     |  |     |           |  +--ro rsvp-te:as-number-hop
-     |  |  |     |  |     |           |     +--ro rsvp-te:as-number?   binary
+     |  |  |     |  |     |           |     +--ro rsvp-te:as-number    binary
      |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?    te-hop-type
      |  |  |     |  |     |           +--:(rsvp-te:label)
      |  |  |     |  |     |              +--ro rsvp-te:label-hop
@@ -882,14 +979,21 @@ module: ietf-te
      |  |  |     |  |     |  +--ro rsvp-te:incoming-record-route-subobject* [index]
      |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |     +--ro rsvp-te:state
-     |  |  |     |  |     |        +--ro rsvp-te:index?              uint32
+     |  |  |     |  |     |        +--ro rsvp-te:index?                       uint32
      |  |  |     |  |     |        +--ro (rsvp-te:type)?
-     |  |  |     |  |     |           +--:(rsvp-te:numbered)
-     |  |  |     |  |     |           |  +--ro rsvp-te:address?      te-types:te-tp-id
-     |  |  |     |  |     |           |  +--ro rsvp-te:ip-flags?     binary
-     |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
-     |  |  |     |  |     |           |  +--ro rsvp-te:node-id?      te-types:te-node-id
-     |  |  |     |  |     |           |  +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |           +--:(rsvp-te:numbered-node-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:numbered-node-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:node-id    te-node-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:flags*     path-attribute-flags
+     |  |  |     |  |     |           +--:(rsvp-te:numbered-link-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:numbered-link-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:flags*        path-attribute-flags
+     |  |  |     |  |     |           +--:(rsvp-te:unnumbered-link-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:unnumbered-link-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:node-id?      te-node-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:flags*        path-attribute-flags
      |  |  |     |  |     |           +--:(rsvp-te:label)
      |  |  |     |  |     |              +--ro rsvp-te:label-hop
      |  |  |     |  |     |                 +--ro rsvp-te:te-label
@@ -897,19 +1001,26 @@ module: ietf-te
      |  |  |     |  |     |                 |  |  +--:(rsvp-te:generic)
      |  |  |     |  |     |                 |  |     +--ro rsvp-te:generic?   rt-types:generalized-label
      |  |  |     |  |     |                 |  +--ro rsvp-te:direction?       te-label-direction
-     |  |  |     |  |     |                 +--ro rsvp-te:label-flags?   binary
+     |  |  |     |  |     |                 +--ro rsvp-te:flags*      path-attribute-flags
      |  |  |     |  |     +--ro rsvp-te:outgoing-record-route-subobjects
      |  |  |     |  |     |  +--ro rsvp-te:outgoing-record-route-subobject* [index]
      |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |     +--ro rsvp-te:state
-     |  |  |     |  |     |        +--ro rsvp-te:index?              uint32
+     |  |  |     |  |     |        +--ro rsvp-te:index?                       uint32
      |  |  |     |  |     |        +--ro (rsvp-te:type)?
-     |  |  |     |  |     |           +--:(rsvp-te:numbered)
-     |  |  |     |  |     |           |  +--ro rsvp-te:address?      te-types:te-tp-id
-     |  |  |     |  |     |           |  +--ro rsvp-te:ip-flags?     binary
-     |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
-     |  |  |     |  |     |           |  +--ro rsvp-te:node-id?      te-types:te-node-id
-     |  |  |     |  |     |           |  +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |           +--:(rsvp-te:numbered-node-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:numbered-node-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:node-id    te-node-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:flags*     path-attribute-flags
+     |  |  |     |  |     |           +--:(rsvp-te:numbered-link-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:numbered-link-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:flags*        path-attribute-flags
+     |  |  |     |  |     |           +--:(rsvp-te:unnumbered-link-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:unnumbered-link-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:node-id?      te-node-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:flags*        path-attribute-flags
      |  |  |     |  |     |           +--:(rsvp-te:label)
      |  |  |     |  |     |              +--ro rsvp-te:label-hop
      |  |  |     |  |     |                 +--ro rsvp-te:te-label
@@ -917,7 +1028,7 @@ module: ietf-te
      |  |  |     |  |     |                 |  |  +--:(rsvp-te:generic)
      |  |  |     |  |     |                 |  |     +--ro rsvp-te:generic?   rt-types:generalized-label
      |  |  |     |  |     |                 |  +--ro rsvp-te:direction?       te-label-direction
-     |  |  |     |  |     |                 +--ro rsvp-te:label-flags?   binary
+     |  |  |     |  |     |                 +--ro rsvp-te:flags*      path-attribute-flags
      |  |  |     |  |     +--ro rsvp-te-mpls:state
      |  |  |     |  |     |  +--ro rsvp-te-mpls:local-protection-desired?       empty
      |  |  |     |  |     |  +--ro rsvp-te-mpls:bandwidth-protection-desired?   empty
@@ -931,31 +1042,44 @@ module: ietf-te
      |  |  |     |  |     |     +--ro rsvp-te-mpls:backup-tunnel-name?         string
      |  |  |     |  |     |     +--ro rsvp-te-mpls:backup-frr-on?              uint8
      |  |  |     |  |     |     +--ro rsvp-te-mpls:backup-protected-lsp-num?   uint32
-     |  |  |     |  |     +--ro te-mpls:performance-metric-one-way
-     |  |  |     |  |     |  +--ro te-mpls:one-way-delay?                 uint32
-     |  |  |     |  |     |  +--ro te-mpls:one-way-min-delay?             uint32
-     |  |  |     |  |     |  +--ro te-mpls:one-way-max-delay?             uint32
-     |  |  |     |  |     |  +--ro te-mpls:one-way-delay-variation?       uint32
-     |  |  |     |  |     |  +--ro te-mpls:one-way-packet-loss?           decimal64
-     |  |  |     |  |     |  +--ro te-mpls:one-way-residual-bandwidth?    rt-types:bandwidth-ieee-float32
-     |  |  |     |  |     |  +--ro te-mpls:one-way-available-bandwidth?   rt-types:bandwidth-ieee-float32
-     |  |  |     |  |     |  +--ro te-mpls:one-way-utilized-bandwidth?    rt-types:bandwidth-ieee-float32
-     |  |  |     |  |     +--ro te-mpls:performance-metric-two-way
-     |  |  |     |  |        +--ro te-mpls:two-way-delay?             uint32
-     |  |  |     |  |        +--ro te-mpls:two-way-min-delay?         uint32
-     |  |  |     |  |        +--ro te-mpls:two-way-max-delay?         uint32
-     |  |  |     |  |        +--ro te-mpls:two-way-delay-variation?   uint32
-     |  |  |     |  |        +--ro te-mpls:two-way-packet-loss?       decimal64
+     |  |  |     |  |     +--ro te-mpls:performance-metrics-one-way
+     |  |  |     |  |     |  +--ro te-mpls:one-way-delay?                           uint32
+     |  |  |     |  |     |  +--ro te-mpls:one-way-delay-normality?                 te-types:performance-metrics-normality
+     |  |  |     |  |     |  +--ro te-mpls:one-way-residual-bandwidth?              rt-types:bandwidth-ieee-float32
+     |  |  |     |  |     |  +--ro te-mpls:one-way-residual-bandwidth-normality?    te-types:performance-metrics-normality
+     |  |  |     |  |     |  +--ro te-mpls:one-way-available-bandwidth?             rt-types:bandwidth-ieee-float32
+     |  |  |     |  |     |  +--ro te-mpls:one-way-available-bandwidth-normality?   te-types:performance-metrics-normality
+     |  |  |     |  |     |  +--ro te-mpls:one-way-utilized-bandwidth?              rt-types:bandwidth-ieee-float32
+     |  |  |     |  |     |  +--ro te-mpls:one-way-utilized-bandwidth-normality?    te-types:performance-metrics-normality
+     |  |  |     |  |     |  +--ro te-mpls:one-way-min-delay?                       uint32
+     |  |  |     |  |     |  +--ro te-mpls:one-way-min-delay-normality?             te-types:performance-metrics-normality
+     |  |  |     |  |     |  +--ro te-mpls:one-way-max-delay?                       uint32
+     |  |  |     |  |     |  +--ro te-mpls:one-way-max-delay-normality?             te-types:performance-metrics-normality
+     |  |  |     |  |     |  +--ro te-mpls:one-way-delay-variation?                 uint32
+     |  |  |     |  |     |  +--ro te-mpls:one-way-delay-variation-normality?       te-types:performance-metrics-normality
+     |  |  |     |  |     |  +--ro te-mpls:one-way-packet-loss?                     decimal64
+     |  |  |     |  |     |  +--ro te-mpls:one-way-packet-loss-normality?           te-types:performance-metrics-normality
+     |  |  |     |  |     +--ro te-mpls:performance-metrics-two-way
+     |  |  |     |  |        +--ro te-mpls:two-way-delay?                       uint32
+     |  |  |     |  |        +--ro te-mpls:two-way-delay-normality?             te-types:performance-metrics-normality
+     |  |  |     |  |        +--ro te-mpls:two-way-min-delay?                   uint32
+     |  |  |     |  |        +--ro te-mpls:two-way-min-delay-normality?         te-types:performance-metrics-normality
+     |  |  |     |  |        +--ro te-mpls:two-way-max-delay?                   uint32
+     |  |  |     |  |        +--ro te-mpls:two-way-max-delay-normality?         te-types:performance-metrics-normality
+     |  |  |     |  |        +--ro te-mpls:two-way-delay-variation?             uint32
+     |  |  |     |  |        +--ro te-mpls:two-way-delay-variation-normality?   te-types:performance-metrics-normality
+     |  |  |     |  |        +--ro te-mpls:two-way-packet-loss?                 decimal64
+     |  |  |     |  |        +--ro te-mpls:two-way-packet-loss-normality?       te-types:performance-metrics-normality
      |  |  |     |  +--ro te-mpls:static-lsp-name?     mpls-static:static-lsp-ref
      |  |  |     +--rw p2p-reverse-primary-path
-     |  |  |     |  +--rw name?                         string
-     |  |  |     |  +--rw path-setup-protocol?          identityref
-     |  |  |     |  +--rw path-computation-method?      identityref
-     |  |  |     |  +--rw path-computation-server?      inet:ip-address
-     |  |  |     |  +--rw compute-only?                 empty
-     |  |  |     |  +--rw use-path-computation?         boolean
-     |  |  |     |  +--rw lockdown?                     empty
-     |  |  |     |  +--rw path-scope?                   identityref
+     |  |  |     |  +--rw name?                            string
+     |  |  |     |  +--rw path-setup-protocol?             identityref
+     |  |  |     |  +--rw path-computation-method?         identityref
+     |  |  |     |  +--rw path-computation-server?         inet:ip-address
+     |  |  |     |  +--rw compute-only?                    empty
+     |  |  |     |  +--rw use-path-computation?            boolean
+     |  |  |     |  +--rw lockdown?                        empty
+     |  |  |     |  +--rw path-scope?                      identityref
      |  |  |     |  +--rw optimizations
      |  |  |     |  |  +--rw (algorithm)?
      |  |  |     |  |     +--:(metric) {path-optimization-metric}?
@@ -964,17 +1088,26 @@ module: ietf-te
      |  |  |     |  |     |  |  +--rw weight?                           uint8
      |  |  |     |  |     |  |  +--rw explicit-route-exclude-objects
      |  |  |     |  |     |  |  |  +--rw route-object-exclude-object* [index]
-     |  |  |     |  |     |  |  |     +--rw index                  uint32
+     |  |  |     |  |     |  |  |     +--rw index                        uint32
      |  |  |     |  |     |  |  |     +--rw (type)?
-     |  |  |     |  |     |  |  |        +--:(num-unnum-hop)
-     |  |  |     |  |     |  |  |        |  +--rw num-unnum-hop
-     |  |  |     |  |     |  |  |        |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |  |     |  |  |        |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |  |  |        +--:(numbered-node-hop)
+     |  |  |     |  |     |  |  |        |  +--rw numbered-node-hop
+     |  |  |     |  |     |  |  |        |     +--rw node-id     te-node-id
+     |  |  |     |  |     |  |  |        |     +--rw hop-type?   te-hop-type
+     |  |  |     |  |     |  |  |        +--:(numbered-link-hop)
+     |  |  |     |  |     |  |  |        |  +--rw numbered-link-hop
+     |  |  |     |  |     |  |  |        |     +--rw link-tp-id    te-tp-id
+     |  |  |     |  |     |  |  |        |     +--rw hop-type?     te-hop-type
+     |  |  |     |  |     |  |  |        |     +--rw direction?    te-link-direction
+     |  |  |     |  |     |  |  |        +--:(unnumbered-link-hop)
+     |  |  |     |  |     |  |  |        |  +--rw unnumbered-link-hop
+     |  |  |     |  |     |  |  |        |     +--rw link-tp-id    te-tp-id
+     |  |  |     |  |     |  |  |        |     +--rw node-id       te-node-id
      |  |  |     |  |     |  |  |        |     +--rw hop-type?     te-hop-type
      |  |  |     |  |     |  |  |        |     +--rw direction?    te-link-direction
      |  |  |     |  |     |  |  |        +--:(as-number)
      |  |  |     |  |     |  |  |        |  +--rw as-number-hop
-     |  |  |     |  |     |  |  |        |     +--rw as-number?   binary
+     |  |  |     |  |     |  |  |        |     +--rw as-number    binary
      |  |  |     |  |     |  |  |        |     +--rw hop-type?    te-hop-type
      |  |  |     |  |     |  |  |        +--:(label)
      |  |  |     |  |     |  |  |        |  +--rw label-hop
@@ -988,17 +1121,26 @@ module: ietf-te
      |  |  |     |  |     |  |  |              +--rw srlg?   uint32
      |  |  |     |  |     |  |  +--rw explicit-route-include-objects
      |  |  |     |  |     |  |     +--rw route-object-include-object* [index]
-     |  |  |     |  |     |  |        +--rw index                  uint32
+     |  |  |     |  |     |  |        +--rw index                        uint32
      |  |  |     |  |     |  |        +--rw (type)?
-     |  |  |     |  |     |  |           +--:(num-unnum-hop)
-     |  |  |     |  |     |  |           |  +--rw num-unnum-hop
-     |  |  |     |  |     |  |           |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |  |     |  |           |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |  |           +--:(numbered-node-hop)
+     |  |  |     |  |     |  |           |  +--rw numbered-node-hop
+     |  |  |     |  |     |  |           |     +--rw node-id     te-node-id
+     |  |  |     |  |     |  |           |     +--rw hop-type?   te-hop-type
+     |  |  |     |  |     |  |           +--:(numbered-link-hop)
+     |  |  |     |  |     |  |           |  +--rw numbered-link-hop
+     |  |  |     |  |     |  |           |     +--rw link-tp-id    te-tp-id
+     |  |  |     |  |     |  |           |     +--rw hop-type?     te-hop-type
+     |  |  |     |  |     |  |           |     +--rw direction?    te-link-direction
+     |  |  |     |  |     |  |           +--:(unnumbered-link-hop)
+     |  |  |     |  |     |  |           |  +--rw unnumbered-link-hop
+     |  |  |     |  |     |  |           |     +--rw link-tp-id    te-tp-id
+     |  |  |     |  |     |  |           |     +--rw node-id       te-node-id
      |  |  |     |  |     |  |           |     +--rw hop-type?     te-hop-type
      |  |  |     |  |     |  |           |     +--rw direction?    te-link-direction
      |  |  |     |  |     |  |           +--:(as-number)
      |  |  |     |  |     |  |           |  +--rw as-number-hop
-     |  |  |     |  |     |  |           |     +--rw as-number?   binary
+     |  |  |     |  |     |  |           |     +--rw as-number    binary
      |  |  |     |  |     |  |           |     +--rw hop-type?    te-hop-type
      |  |  |     |  |     |  |           +--:(label)
      |  |  |     |  |     |  |              +--rw label-hop
@@ -1013,15 +1155,15 @@ module: ietf-te
      |  |  |     |  |     +--:(objective-function) {path-optimization-objective-function}?
      |  |  |     |  |        +--rw objective-function
      |  |  |     |  |           +--rw objective-function-type?   identityref
-     |  |  |     |  +--rw named-path-constraint?        -> ../../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
+     |  |  |     |  +--rw named-path-constraint?           -> ../../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
      |  |  |     |  +--rw te-bandwidth
      |  |  |     |  |  +--rw (technology)?
      |  |  |     |  |     +--:(generic)
      |  |  |     |  |        +--rw generic?   te-bandwidth
-     |  |  |     |  +--rw link-protection?              identityref
-     |  |  |     |  +--rw setup-priority?               uint8
-     |  |  |     |  +--rw hold-priority?                uint8
-     |  |  |     |  +--rw signaling-type?               identityref
+     |  |  |     |  +--rw link-protection?                 identityref
+     |  |  |     |  +--rw setup-priority?                  uint8
+     |  |  |     |  +--rw hold-priority?                   uint8
+     |  |  |     |  +--rw signaling-type?                  identityref
      |  |  |     |  +--rw path-metric-bounds
      |  |  |     |  |  +--rw path-metric-bound* [metric-type]
      |  |  |     |  |     +--rw metric-type    identityref
@@ -1035,28 +1177,37 @@ module: ietf-te
      |  |  |     |  |     +--rw usage            identityref
      |  |  |     |  |     +--rw affinity-name* [name]
      |  |  |     |  |        +--rw name    string
-     |  |  |     |  +--rw path-srlgs-values
-     |  |  |     |  |  +--rw usage?    identityref
-     |  |  |     |  |  +--rw values*   srlg
+     |  |  |     |  +--rw path-srlgs-lists
+     |  |  |     |  |  +--rw path-srlgs-list* [usage]
+     |  |  |     |  |     +--rw usage     identityref
+     |  |  |     |  |     +--rw values*   srlg
      |  |  |     |  +--rw path-srlgs-names
      |  |  |     |  |  +--rw path-srlgs-name* [usage]
-     |  |  |     |  |     +--rw usage        identityref
-     |  |  |     |  |     +--rw srlg-name* [name]
-     |  |  |     |  |        +--rw name    string
-     |  |  |     |  +--rw disjointness?                 te-types:te-path-disjointness
-     |  |  |     |  +--rw explicit-route-objects
+     |  |  |     |  |     +--rw usage    identityref
+     |  |  |     |  |     +--rw names*   string
+     |  |  |     |  +--rw disjointness?                    te-path-disjointness
+     |  |  |     |  +--rw explicit-route-objects-always
      |  |  |     |  |  +--rw route-object-exclude-always* [index]
-     |  |  |     |  |  |  +--rw index                  uint32
+     |  |  |     |  |  |  +--rw index                        uint32
      |  |  |     |  |  |  +--rw (type)?
-     |  |  |     |  |  |     +--:(num-unnum-hop)
-     |  |  |     |  |  |     |  +--rw num-unnum-hop
-     |  |  |     |  |  |     |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |  |  |     |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |  |     +--:(numbered-node-hop)
+     |  |  |     |  |  |     |  +--rw numbered-node-hop
+     |  |  |     |  |  |     |     +--rw node-id     te-node-id
+     |  |  |     |  |  |     |     +--rw hop-type?   te-hop-type
+     |  |  |     |  |  |     +--:(numbered-link-hop)
+     |  |  |     |  |  |     |  +--rw numbered-link-hop
+     |  |  |     |  |  |     |     +--rw link-tp-id    te-tp-id
+     |  |  |     |  |  |     |     +--rw hop-type?     te-hop-type
+     |  |  |     |  |  |     |     +--rw direction?    te-link-direction
+     |  |  |     |  |  |     +--:(unnumbered-link-hop)
+     |  |  |     |  |  |     |  +--rw unnumbered-link-hop
+     |  |  |     |  |  |     |     +--rw link-tp-id    te-tp-id
+     |  |  |     |  |  |     |     +--rw node-id       te-node-id
      |  |  |     |  |  |     |     +--rw hop-type?     te-hop-type
      |  |  |     |  |  |     |     +--rw direction?    te-link-direction
      |  |  |     |  |  |     +--:(as-number)
      |  |  |     |  |  |     |  +--rw as-number-hop
-     |  |  |     |  |  |     |     +--rw as-number?   binary
+     |  |  |     |  |  |     |     +--rw as-number    binary
      |  |  |     |  |  |     |     +--rw hop-type?    te-hop-type
      |  |  |     |  |  |     +--:(label)
      |  |  |     |  |  |        +--rw label-hop
@@ -1066,18 +1217,27 @@ module: ietf-te
      |  |  |     |  |  |              |     +--rw generic?   rt-types:generalized-label
      |  |  |     |  |  |              +--rw direction?       te-label-direction
      |  |  |     |  |  +--rw route-object-include-exclude* [index]
-     |  |  |     |  |     +--rw explicit-route-usage?   identityref
-     |  |  |     |  |     +--rw index                   uint32
+     |  |  |     |  |     +--rw explicit-route-usage?        identityref
+     |  |  |     |  |     +--rw index                        uint32
      |  |  |     |  |     +--rw (type)?
-     |  |  |     |  |        +--:(num-unnum-hop)
-     |  |  |     |  |        |  +--rw num-unnum-hop
-     |  |  |     |  |        |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |  |        |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |        +--:(numbered-node-hop)
+     |  |  |     |  |        |  +--rw numbered-node-hop
+     |  |  |     |  |        |     +--rw node-id     te-node-id
+     |  |  |     |  |        |     +--rw hop-type?   te-hop-type
+     |  |  |     |  |        +--:(numbered-link-hop)
+     |  |  |     |  |        |  +--rw numbered-link-hop
+     |  |  |     |  |        |     +--rw link-tp-id    te-tp-id
+     |  |  |     |  |        |     +--rw hop-type?     te-hop-type
+     |  |  |     |  |        |     +--rw direction?    te-link-direction
+     |  |  |     |  |        +--:(unnumbered-link-hop)
+     |  |  |     |  |        |  +--rw unnumbered-link-hop
+     |  |  |     |  |        |     +--rw link-tp-id    te-tp-id
+     |  |  |     |  |        |     +--rw node-id       te-node-id
      |  |  |     |  |        |     +--rw hop-type?     te-hop-type
      |  |  |     |  |        |     +--rw direction?    te-link-direction
      |  |  |     |  |        +--:(as-number)
      |  |  |     |  |        |  +--rw as-number-hop
-     |  |  |     |  |        |     +--rw as-number?   binary
+     |  |  |     |  |        |     +--rw as-number    binary
      |  |  |     |  |        |     +--rw hop-type?    te-hop-type
      |  |  |     |  |        +--:(label)
      |  |  |     |  |        |  +--rw label-hop
@@ -1154,29 +1314,38 @@ module: ietf-te
      |  |  |     |  |  |        |     +--ro usage            identityref
      |  |  |     |  |  |        |     +--ro affinity-name* [name]
      |  |  |     |  |  |        |        +--ro name    string
-     |  |  |     |  |  |        +--ro path-srlgs-values
-     |  |  |     |  |  |        |  +--ro usage?    identityref
-     |  |  |     |  |  |        |  +--ro values*   srlg
+     |  |  |     |  |  |        +--ro path-srlgs-lists
+     |  |  |     |  |  |        |  +--ro path-srlgs-list* [usage]
+     |  |  |     |  |  |        |     +--ro usage     identityref
+     |  |  |     |  |  |        |     +--ro values*   srlg
      |  |  |     |  |  |        +--ro path-srlgs-names
      |  |  |     |  |  |        |  +--ro path-srlgs-name* [usage]
-     |  |  |     |  |  |        |     +--ro usage        identityref
-     |  |  |     |  |  |        |     +--ro srlg-name* [name]
-     |  |  |     |  |  |        |        +--ro name    string
+     |  |  |     |  |  |        |     +--ro usage    identityref
+     |  |  |     |  |  |        |     +--ro names*   string
      |  |  |     |  |  |        +--ro path-route-objects
      |  |  |     |  |  |        |  +--ro path-computed-route-object* [index]
      |  |  |     |  |  |        |     +--ro index    -> ../state/index
      |  |  |     |  |  |        |     +--ro state
-     |  |  |     |  |  |        |        +--ro index?                 uint32
+     |  |  |     |  |  |        |        +--ro index?                       uint32
      |  |  |     |  |  |        |        +--ro (type)?
-     |  |  |     |  |  |        |           +--:(num-unnum-hop)
-     |  |  |     |  |  |        |           |  +--ro num-unnum-hop
-     |  |  |     |  |  |        |           |     +--ro node-id?      te-types:te-node-id
-     |  |  |     |  |  |        |           |     +--ro link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |  |        |           +--:(numbered-node-hop)
+     |  |  |     |  |  |        |           |  +--ro numbered-node-hop
+     |  |  |     |  |  |        |           |     +--ro node-id     te-node-id
+     |  |  |     |  |  |        |           |     +--ro hop-type?   te-hop-type
+     |  |  |     |  |  |        |           +--:(numbered-link-hop)
+     |  |  |     |  |  |        |           |  +--ro numbered-link-hop
+     |  |  |     |  |  |        |           |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |  |        |           |     +--ro hop-type?     te-hop-type
+     |  |  |     |  |  |        |           |     +--ro direction?    te-link-direction
+     |  |  |     |  |  |        |           +--:(unnumbered-link-hop)
+     |  |  |     |  |  |        |           |  +--ro unnumbered-link-hop
+     |  |  |     |  |  |        |           |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |  |        |           |     +--ro node-id       te-node-id
      |  |  |     |  |  |        |           |     +--ro hop-type?     te-hop-type
      |  |  |     |  |  |        |           |     +--ro direction?    te-link-direction
      |  |  |     |  |  |        |           +--:(as-number)
      |  |  |     |  |  |        |           |  +--ro as-number-hop
-     |  |  |     |  |  |        |           |     +--ro as-number?   binary
+     |  |  |     |  |  |        |           |     +--ro as-number    binary
      |  |  |     |  |  |        |           |     +--ro hop-type?    te-hop-type
      |  |  |     |  |  |        |           +--:(label)
      |  |  |     |  |  |        |              +--ro label-hop
@@ -1205,16 +1374,23 @@ module: ietf-te
      |  |  |     |  |        +--ro protection-group-ingress-node-id?   te-types:te-node-id
      |  |  |     |  |        +--ro protection-group-egress-node-id?    te-types:te-node-id
      |  |  |     |  |        +--ro lsp-shared-resources-tunnel?        tunnel-ref
-     |  |  |     |  |        +--ro lsp-record-route-subobjects
-     |  |  |     |  |        |  +--ro record-route-subobject* [index]
-     |  |  |     |  |        |     +--ro index               uint32
+     |  |  |     |  |        +--ro lsp-record-route-information
+     |  |  |     |  |        |  +--ro lsp-record-route-information* [index]
+     |  |  |     |  |        |     +--ro index                        uint32
      |  |  |     |  |        |     +--ro (type)?
-     |  |  |     |  |        |        +--:(numbered)
-     |  |  |     |  |        |        |  +--ro address?      te-types:te-tp-id
-     |  |  |     |  |        |        |  +--ro ip-flags?     binary
-     |  |  |     |  |        |        +--:(unnumbered)
-     |  |  |     |  |        |        |  +--ro node-id?      te-types:te-node-id
-     |  |  |     |  |        |        |  +--ro link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |        |        +--:(numbered-node-hop)
+     |  |  |     |  |        |        |  +--ro numbered-node-hop
+     |  |  |     |  |        |        |     +--ro node-id    te-node-id
+     |  |  |     |  |        |        |     +--ro flags*     path-attribute-flags
+     |  |  |     |  |        |        +--:(numbered-link-hop)
+     |  |  |     |  |        |        |  +--ro numbered-link-hop
+     |  |  |     |  |        |        |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |        |        |     +--ro flags*        path-attribute-flags
+     |  |  |     |  |        |        +--:(unnumbered-link-hop)
+     |  |  |     |  |        |        |  +--ro unnumbered-link-hop
+     |  |  |     |  |        |        |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |        |        |     +--ro node-id?      te-node-id
+     |  |  |     |  |        |        |     +--ro flags*        path-attribute-flags
      |  |  |     |  |        |        +--:(label)
      |  |  |     |  |        |           +--ro label-hop
      |  |  |     |  |        |              +--ro te-label
@@ -1222,7 +1398,7 @@ module: ietf-te
      |  |  |     |  |        |              |  |  +--:(generic)
      |  |  |     |  |        |              |  |     +--ro generic?   rt-types:generalized-label
      |  |  |     |  |        |              |  +--ro direction?       te-label-direction
-     |  |  |     |  |        |              +--ro label-flags?   binary
+     |  |  |     |  |        |              +--ro flags*      path-attribute-flags
      |  |  |     |  |        +--ro path-properties
      |  |  |     |  |           +--ro path-metric* [metric-type]
      |  |  |     |  |           |  +--ro metric-type    -> ../state/metric-type
@@ -1238,29 +1414,38 @@ module: ietf-te
      |  |  |     |  |           |     +--ro usage            identityref
      |  |  |     |  |           |     +--ro affinity-name* [name]
      |  |  |     |  |           |        +--ro name    string
-     |  |  |     |  |           +--ro path-srlgs-values
-     |  |  |     |  |           |  +--ro usage?    identityref
-     |  |  |     |  |           |  +--ro values*   srlg
+     |  |  |     |  |           +--ro path-srlgs-lists
+     |  |  |     |  |           |  +--ro path-srlgs-list* [usage]
+     |  |  |     |  |           |     +--ro usage     identityref
+     |  |  |     |  |           |     +--ro values*   srlg
      |  |  |     |  |           +--ro path-srlgs-names
      |  |  |     |  |           |  +--ro path-srlgs-name* [usage]
-     |  |  |     |  |           |     +--ro usage        identityref
-     |  |  |     |  |           |     +--ro srlg-name* [name]
-     |  |  |     |  |           |        +--ro name    string
+     |  |  |     |  |           |     +--ro usage    identityref
+     |  |  |     |  |           |     +--ro names*   string
      |  |  |     |  |           +--ro path-route-objects
      |  |  |     |  |           |  +--ro path-computed-route-object* [index]
      |  |  |     |  |           |     +--ro index    -> ../state/index
      |  |  |     |  |           |     +--ro state
-     |  |  |     |  |           |        +--ro index?                 uint32
+     |  |  |     |  |           |        +--ro index?                       uint32
      |  |  |     |  |           |        +--ro (type)?
-     |  |  |     |  |           |           +--:(num-unnum-hop)
-     |  |  |     |  |           |           |  +--ro num-unnum-hop
-     |  |  |     |  |           |           |     +--ro node-id?      te-types:te-node-id
-     |  |  |     |  |           |           |     +--ro link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |           |           +--:(numbered-node-hop)
+     |  |  |     |  |           |           |  +--ro numbered-node-hop
+     |  |  |     |  |           |           |     +--ro node-id     te-node-id
+     |  |  |     |  |           |           |     +--ro hop-type?   te-hop-type
+     |  |  |     |  |           |           +--:(numbered-link-hop)
+     |  |  |     |  |           |           |  +--ro numbered-link-hop
+     |  |  |     |  |           |           |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |           |           |     +--ro hop-type?     te-hop-type
+     |  |  |     |  |           |           |     +--ro direction?    te-link-direction
+     |  |  |     |  |           |           +--:(unnumbered-link-hop)
+     |  |  |     |  |           |           |  +--ro unnumbered-link-hop
+     |  |  |     |  |           |           |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |           |           |     +--ro node-id       te-node-id
      |  |  |     |  |           |           |     +--ro hop-type?     te-hop-type
      |  |  |     |  |           |           |     +--ro direction?    te-link-direction
      |  |  |     |  |           |           +--:(as-number)
      |  |  |     |  |           |           |  +--ro as-number-hop
-     |  |  |     |  |           |           |     +--ro as-number?   binary
+     |  |  |     |  |           |           |     +--ro as-number    binary
      |  |  |     |  |           |           |     +--ro hop-type?    te-hop-type
      |  |  |     |  |           |           +--:(label)
      |  |  |     |  |           |              +--ro label-hop
@@ -1283,14 +1468,14 @@ module: ietf-te
      |  |  |     +--rw te-mpls:static-lsp-name?         mpls-static:static-lsp-ref
      |  |  +--rw p2p-secondary-paths
      |  |  |  +--rw p2p-secondary-path* [name]
-     |  |  |     +--rw name                        string
-     |  |  |     +--rw path-setup-protocol?        identityref
-     |  |  |     +--rw path-computation-method?    identityref
-     |  |  |     +--rw path-computation-server?    inet:ip-address
-     |  |  |     +--rw compute-only?               empty
-     |  |  |     +--rw use-path-computation?       boolean
-     |  |  |     +--rw lockdown?                   empty
-     |  |  |     +--rw path-scope?                 identityref
+     |  |  |     +--rw name                             string
+     |  |  |     +--rw path-setup-protocol?             identityref
+     |  |  |     +--rw path-computation-method?         identityref
+     |  |  |     +--rw path-computation-server?         inet:ip-address
+     |  |  |     +--rw compute-only?                    empty
+     |  |  |     +--rw use-path-computation?            boolean
+     |  |  |     +--rw lockdown?                        empty
+     |  |  |     +--rw path-scope?                      identityref
      |  |  |     +--rw optimizations
      |  |  |     |  +--rw (algorithm)?
      |  |  |     |     +--:(metric) {path-optimization-metric}?
@@ -1299,17 +1484,26 @@ module: ietf-te
      |  |  |     |     |  |  +--rw weight?                           uint8
      |  |  |     |     |  |  +--rw explicit-route-exclude-objects
      |  |  |     |     |  |  |  +--rw route-object-exclude-object* [index]
-     |  |  |     |     |  |  |     +--rw index                  uint32
+     |  |  |     |     |  |  |     +--rw index                        uint32
      |  |  |     |     |  |  |     +--rw (type)?
-     |  |  |     |     |  |  |        +--:(num-unnum-hop)
-     |  |  |     |     |  |  |        |  +--rw num-unnum-hop
-     |  |  |     |     |  |  |        |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |     |  |  |        |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |     |  |  |        +--:(numbered-node-hop)
+     |  |  |     |     |  |  |        |  +--rw numbered-node-hop
+     |  |  |     |     |  |  |        |     +--rw node-id     te-node-id
+     |  |  |     |     |  |  |        |     +--rw hop-type?   te-hop-type
+     |  |  |     |     |  |  |        +--:(numbered-link-hop)
+     |  |  |     |     |  |  |        |  +--rw numbered-link-hop
+     |  |  |     |     |  |  |        |     +--rw link-tp-id    te-tp-id
+     |  |  |     |     |  |  |        |     +--rw hop-type?     te-hop-type
+     |  |  |     |     |  |  |        |     +--rw direction?    te-link-direction
+     |  |  |     |     |  |  |        +--:(unnumbered-link-hop)
+     |  |  |     |     |  |  |        |  +--rw unnumbered-link-hop
+     |  |  |     |     |  |  |        |     +--rw link-tp-id    te-tp-id
+     |  |  |     |     |  |  |        |     +--rw node-id       te-node-id
      |  |  |     |     |  |  |        |     +--rw hop-type?     te-hop-type
      |  |  |     |     |  |  |        |     +--rw direction?    te-link-direction
      |  |  |     |     |  |  |        +--:(as-number)
      |  |  |     |     |  |  |        |  +--rw as-number-hop
-     |  |  |     |     |  |  |        |     +--rw as-number?   binary
+     |  |  |     |     |  |  |        |     +--rw as-number    binary
      |  |  |     |     |  |  |        |     +--rw hop-type?    te-hop-type
      |  |  |     |     |  |  |        +--:(label)
      |  |  |     |     |  |  |        |  +--rw label-hop
@@ -1323,17 +1517,26 @@ module: ietf-te
      |  |  |     |     |  |  |              +--rw srlg?   uint32
      |  |  |     |     |  |  +--rw explicit-route-include-objects
      |  |  |     |     |  |     +--rw route-object-include-object* [index]
-     |  |  |     |     |  |        +--rw index                  uint32
+     |  |  |     |     |  |        +--rw index                        uint32
      |  |  |     |     |  |        +--rw (type)?
-     |  |  |     |     |  |           +--:(num-unnum-hop)
-     |  |  |     |     |  |           |  +--rw num-unnum-hop
-     |  |  |     |     |  |           |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |     |  |           |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |     |  |           +--:(numbered-node-hop)
+     |  |  |     |     |  |           |  +--rw numbered-node-hop
+     |  |  |     |     |  |           |     +--rw node-id     te-node-id
+     |  |  |     |     |  |           |     +--rw hop-type?   te-hop-type
+     |  |  |     |     |  |           +--:(numbered-link-hop)
+     |  |  |     |     |  |           |  +--rw numbered-link-hop
+     |  |  |     |     |  |           |     +--rw link-tp-id    te-tp-id
+     |  |  |     |     |  |           |     +--rw hop-type?     te-hop-type
+     |  |  |     |     |  |           |     +--rw direction?    te-link-direction
+     |  |  |     |     |  |           +--:(unnumbered-link-hop)
+     |  |  |     |     |  |           |  +--rw unnumbered-link-hop
+     |  |  |     |     |  |           |     +--rw link-tp-id    te-tp-id
+     |  |  |     |     |  |           |     +--rw node-id       te-node-id
      |  |  |     |     |  |           |     +--rw hop-type?     te-hop-type
      |  |  |     |     |  |           |     +--rw direction?    te-link-direction
      |  |  |     |     |  |           +--:(as-number)
      |  |  |     |     |  |           |  +--rw as-number-hop
-     |  |  |     |     |  |           |     +--rw as-number?   binary
+     |  |  |     |     |  |           |     +--rw as-number    binary
      |  |  |     |     |  |           |     +--rw hop-type?    te-hop-type
      |  |  |     |     |  |           +--:(label)
      |  |  |     |     |  |              +--rw label-hop
@@ -1348,17 +1551,17 @@ module: ietf-te
      |  |  |     |     +--:(objective-function) {path-optimization-objective-function}?
      |  |  |     |        +--rw objective-function
      |  |  |     |           +--rw objective-function-type?   identityref
-     |  |  |     +--rw preference?                 uint8
-     |  |  |     +--rw k-requested-paths?          uint8
-     |  |  |     +--rw named-path-constraint?      -> ../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
+     |  |  |     +--rw preference?                      uint8
+     |  |  |     +--rw k-requested-paths?               uint8
+     |  |  |     +--rw named-path-constraint?           -> ../../../../../globals/named-path-constraints/named-path-constraint/name {te-types:named-path-constraints}?
      |  |  |     +--rw te-bandwidth
      |  |  |     |  +--rw (technology)?
      |  |  |     |     +--:(generic)
      |  |  |     |        +--rw generic?   te-bandwidth
-     |  |  |     +--rw link-protection?            identityref
-     |  |  |     +--rw setup-priority?             uint8
-     |  |  |     +--rw hold-priority?              uint8
-     |  |  |     +--rw signaling-type?             identityref
+     |  |  |     +--rw link-protection?                 identityref
+     |  |  |     +--rw setup-priority?                  uint8
+     |  |  |     +--rw hold-priority?                   uint8
+     |  |  |     +--rw signaling-type?                  identityref
      |  |  |     +--rw path-metric-bounds
      |  |  |     |  +--rw path-metric-bound* [metric-type]
      |  |  |     |     +--rw metric-type    identityref
@@ -1372,28 +1575,37 @@ module: ietf-te
      |  |  |     |     +--rw usage            identityref
      |  |  |     |     +--rw affinity-name* [name]
      |  |  |     |        +--rw name    string
-     |  |  |     +--rw path-srlgs-values
-     |  |  |     |  +--rw usage?    identityref
-     |  |  |     |  +--rw values*   srlg
+     |  |  |     +--rw path-srlgs-lists
+     |  |  |     |  +--rw path-srlgs-list* [usage]
+     |  |  |     |     +--rw usage     identityref
+     |  |  |     |     +--rw values*   srlg
      |  |  |     +--rw path-srlgs-names
      |  |  |     |  +--rw path-srlgs-name* [usage]
-     |  |  |     |     +--rw usage        identityref
-     |  |  |     |     +--rw srlg-name* [name]
-     |  |  |     |        +--rw name    string
-     |  |  |     +--rw disjointness?               te-types:te-path-disjointness
-     |  |  |     +--rw explicit-route-objects
+     |  |  |     |     +--rw usage    identityref
+     |  |  |     |     +--rw names*   string
+     |  |  |     +--rw disjointness?                    te-path-disjointness
+     |  |  |     +--rw explicit-route-objects-always
      |  |  |     |  +--rw route-object-exclude-always* [index]
-     |  |  |     |  |  +--rw index                  uint32
+     |  |  |     |  |  +--rw index                        uint32
      |  |  |     |  |  +--rw (type)?
-     |  |  |     |  |     +--:(num-unnum-hop)
-     |  |  |     |  |     |  +--rw num-unnum-hop
-     |  |  |     |  |     |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |  |     |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     +--:(numbered-node-hop)
+     |  |  |     |  |     |  +--rw numbered-node-hop
+     |  |  |     |  |     |     +--rw node-id     te-node-id
+     |  |  |     |  |     |     +--rw hop-type?   te-hop-type
+     |  |  |     |  |     +--:(numbered-link-hop)
+     |  |  |     |  |     |  +--rw numbered-link-hop
+     |  |  |     |  |     |     +--rw link-tp-id    te-tp-id
+     |  |  |     |  |     |     +--rw hop-type?     te-hop-type
+     |  |  |     |  |     |     +--rw direction?    te-link-direction
+     |  |  |     |  |     +--:(unnumbered-link-hop)
+     |  |  |     |  |     |  +--rw unnumbered-link-hop
+     |  |  |     |  |     |     +--rw link-tp-id    te-tp-id
+     |  |  |     |  |     |     +--rw node-id       te-node-id
      |  |  |     |  |     |     +--rw hop-type?     te-hop-type
      |  |  |     |  |     |     +--rw direction?    te-link-direction
      |  |  |     |  |     +--:(as-number)
      |  |  |     |  |     |  +--rw as-number-hop
-     |  |  |     |  |     |     +--rw as-number?   binary
+     |  |  |     |  |     |     +--rw as-number    binary
      |  |  |     |  |     |     +--rw hop-type?    te-hop-type
      |  |  |     |  |     +--:(label)
      |  |  |     |  |        +--rw label-hop
@@ -1403,18 +1615,27 @@ module: ietf-te
      |  |  |     |  |              |     +--rw generic?   rt-types:generalized-label
      |  |  |     |  |              +--rw direction?       te-label-direction
      |  |  |     |  +--rw route-object-include-exclude* [index]
-     |  |  |     |     +--rw explicit-route-usage?   identityref
-     |  |  |     |     +--rw index                   uint32
+     |  |  |     |     +--rw explicit-route-usage?        identityref
+     |  |  |     |     +--rw index                        uint32
      |  |  |     |     +--rw (type)?
-     |  |  |     |        +--:(num-unnum-hop)
-     |  |  |     |        |  +--rw num-unnum-hop
-     |  |  |     |        |     +--rw node-id?      te-types:te-node-id
-     |  |  |     |        |     +--rw link-tp-id?   te-types:te-tp-id
+     |  |  |     |        +--:(numbered-node-hop)
+     |  |  |     |        |  +--rw numbered-node-hop
+     |  |  |     |        |     +--rw node-id     te-node-id
+     |  |  |     |        |     +--rw hop-type?   te-hop-type
+     |  |  |     |        +--:(numbered-link-hop)
+     |  |  |     |        |  +--rw numbered-link-hop
+     |  |  |     |        |     +--rw link-tp-id    te-tp-id
+     |  |  |     |        |     +--rw hop-type?     te-hop-type
+     |  |  |     |        |     +--rw direction?    te-link-direction
+     |  |  |     |        +--:(unnumbered-link-hop)
+     |  |  |     |        |  +--rw unnumbered-link-hop
+     |  |  |     |        |     +--rw link-tp-id    te-tp-id
+     |  |  |     |        |     +--rw node-id       te-node-id
      |  |  |     |        |     +--rw hop-type?     te-hop-type
      |  |  |     |        |     +--rw direction?    te-link-direction
      |  |  |     |        +--:(as-number)
      |  |  |     |        |  +--rw as-number-hop
-     |  |  |     |        |     +--rw as-number?   binary
+     |  |  |     |        |     +--rw as-number    binary
      |  |  |     |        |     +--rw hop-type?    te-hop-type
      |  |  |     |        +--:(label)
      |  |  |     |        |  +--rw label-hop
@@ -1506,29 +1727,38 @@ module: ietf-te
      |  |  |     |  |        |     +--ro usage            identityref
      |  |  |     |  |        |     +--ro affinity-name* [name]
      |  |  |     |  |        |        +--ro name    string
-     |  |  |     |  |        +--ro path-srlgs-values
-     |  |  |     |  |        |  +--ro usage?    identityref
-     |  |  |     |  |        |  +--ro values*   srlg
+     |  |  |     |  |        +--ro path-srlgs-lists
+     |  |  |     |  |        |  +--ro path-srlgs-list* [usage]
+     |  |  |     |  |        |     +--ro usage     identityref
+     |  |  |     |  |        |     +--ro values*   srlg
      |  |  |     |  |        +--ro path-srlgs-names
      |  |  |     |  |        |  +--ro path-srlgs-name* [usage]
-     |  |  |     |  |        |     +--ro usage        identityref
-     |  |  |     |  |        |     +--ro srlg-name* [name]
-     |  |  |     |  |        |        +--ro name    string
+     |  |  |     |  |        |     +--ro usage    identityref
+     |  |  |     |  |        |     +--ro names*   string
      |  |  |     |  |        +--ro path-route-objects
      |  |  |     |  |        |  +--ro path-computed-route-object* [index]
      |  |  |     |  |        |     +--ro index    -> ../state/index
      |  |  |     |  |        |     +--ro state
-     |  |  |     |  |        |        +--ro index?                 uint32
+     |  |  |     |  |        |        +--ro index?                       uint32
      |  |  |     |  |        |        +--ro (type)?
-     |  |  |     |  |        |           +--:(num-unnum-hop)
-     |  |  |     |  |        |           |  +--ro num-unnum-hop
-     |  |  |     |  |        |           |     +--ro node-id?      te-types:te-node-id
-     |  |  |     |  |        |           |     +--ro link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |        |           +--:(numbered-node-hop)
+     |  |  |     |  |        |           |  +--ro numbered-node-hop
+     |  |  |     |  |        |           |     +--ro node-id     te-node-id
+     |  |  |     |  |        |           |     +--ro hop-type?   te-hop-type
+     |  |  |     |  |        |           +--:(numbered-link-hop)
+     |  |  |     |  |        |           |  +--ro numbered-link-hop
+     |  |  |     |  |        |           |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |        |           |     +--ro hop-type?     te-hop-type
+     |  |  |     |  |        |           |     +--ro direction?    te-link-direction
+     |  |  |     |  |        |           +--:(unnumbered-link-hop)
+     |  |  |     |  |        |           |  +--ro unnumbered-link-hop
+     |  |  |     |  |        |           |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |        |           |     +--ro node-id       te-node-id
      |  |  |     |  |        |           |     +--ro hop-type?     te-hop-type
      |  |  |     |  |        |           |     +--ro direction?    te-link-direction
      |  |  |     |  |        |           +--:(as-number)
      |  |  |     |  |        |           |  +--ro as-number-hop
-     |  |  |     |  |        |           |     +--ro as-number?   binary
+     |  |  |     |  |        |           |     +--ro as-number    binary
      |  |  |     |  |        |           |     +--ro hop-type?    te-hop-type
      |  |  |     |  |        |           +--:(label)
      |  |  |     |  |        |              +--ro label-hop
@@ -1557,16 +1787,23 @@ module: ietf-te
      |  |  |     |  |     +--ro protection-group-ingress-node-id?           te-types:te-node-id
      |  |  |     |  |     +--ro protection-group-egress-node-id?            te-types:te-node-id
      |  |  |     |  |     +--ro lsp-shared-resources-tunnel?                tunnel-ref
-     |  |  |     |  |     +--ro lsp-record-route-subobjects
-     |  |  |     |  |     |  +--ro record-route-subobject* [index]
-     |  |  |     |  |     |     +--ro index               uint32
+     |  |  |     |  |     +--ro lsp-record-route-information
+     |  |  |     |  |     |  +--ro lsp-record-route-information* [index]
+     |  |  |     |  |     |     +--ro index                        uint32
      |  |  |     |  |     |     +--ro (type)?
-     |  |  |     |  |     |        +--:(numbered)
-     |  |  |     |  |     |        |  +--ro address?      te-types:te-tp-id
-     |  |  |     |  |     |        |  +--ro ip-flags?     binary
-     |  |  |     |  |     |        +--:(unnumbered)
-     |  |  |     |  |     |        |  +--ro node-id?      te-types:te-node-id
-     |  |  |     |  |     |        |  +--ro link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |        +--:(numbered-node-hop)
+     |  |  |     |  |     |        |  +--ro numbered-node-hop
+     |  |  |     |  |     |        |     +--ro node-id    te-node-id
+     |  |  |     |  |     |        |     +--ro flags*     path-attribute-flags
+     |  |  |     |  |     |        +--:(numbered-link-hop)
+     |  |  |     |  |     |        |  +--ro numbered-link-hop
+     |  |  |     |  |     |        |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |     |        |     +--ro flags*        path-attribute-flags
+     |  |  |     |  |     |        +--:(unnumbered-link-hop)
+     |  |  |     |  |     |        |  +--ro unnumbered-link-hop
+     |  |  |     |  |     |        |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |     |        |     +--ro node-id?      te-node-id
+     |  |  |     |  |     |        |     +--ro flags*        path-attribute-flags
      |  |  |     |  |     |        +--:(label)
      |  |  |     |  |     |           +--ro label-hop
      |  |  |     |  |     |              +--ro te-label
@@ -1574,7 +1811,7 @@ module: ietf-te
      |  |  |     |  |     |              |  |  +--:(generic)
      |  |  |     |  |     |              |  |     +--ro generic?   rt-types:generalized-label
      |  |  |     |  |     |              |  +--ro direction?       te-label-direction
-     |  |  |     |  |     |              +--ro label-flags?   binary
+     |  |  |     |  |     |              +--ro flags*      path-attribute-flags
      |  |  |     |  |     +--ro path-properties
      |  |  |     |  |     |  +--ro path-metric* [metric-type]
      |  |  |     |  |     |  |  +--ro metric-type    -> ../state/metric-type
@@ -1590,29 +1827,38 @@ module: ietf-te
      |  |  |     |  |     |  |     +--ro usage            identityref
      |  |  |     |  |     |  |     +--ro affinity-name* [name]
      |  |  |     |  |     |  |        +--ro name    string
-     |  |  |     |  |     |  +--ro path-srlgs-values
-     |  |  |     |  |     |  |  +--ro usage?    identityref
-     |  |  |     |  |     |  |  +--ro values*   srlg
+     |  |  |     |  |     |  +--ro path-srlgs-lists
+     |  |  |     |  |     |  |  +--ro path-srlgs-list* [usage]
+     |  |  |     |  |     |  |     +--ro usage     identityref
+     |  |  |     |  |     |  |     +--ro values*   srlg
      |  |  |     |  |     |  +--ro path-srlgs-names
      |  |  |     |  |     |  |  +--ro path-srlgs-name* [usage]
-     |  |  |     |  |     |  |     +--ro usage        identityref
-     |  |  |     |  |     |  |     +--ro srlg-name* [name]
-     |  |  |     |  |     |  |        +--ro name    string
+     |  |  |     |  |     |  |     +--ro usage    identityref
+     |  |  |     |  |     |  |     +--ro names*   string
      |  |  |     |  |     |  +--ro path-route-objects
      |  |  |     |  |     |  |  +--ro path-computed-route-object* [index]
      |  |  |     |  |     |  |     +--ro index    -> ../state/index
      |  |  |     |  |     |  |     +--ro state
-     |  |  |     |  |     |  |        +--ro index?                 uint32
+     |  |  |     |  |     |  |        +--ro index?                       uint32
      |  |  |     |  |     |  |        +--ro (type)?
-     |  |  |     |  |     |  |           +--:(num-unnum-hop)
-     |  |  |     |  |     |  |           |  +--ro num-unnum-hop
-     |  |  |     |  |     |  |           |     +--ro node-id?      te-types:te-node-id
-     |  |  |     |  |     |  |           |     +--ro link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |  |           +--:(numbered-node-hop)
+     |  |  |     |  |     |  |           |  +--ro numbered-node-hop
+     |  |  |     |  |     |  |           |     +--ro node-id     te-node-id
+     |  |  |     |  |     |  |           |     +--ro hop-type?   te-hop-type
+     |  |  |     |  |     |  |           +--:(numbered-link-hop)
+     |  |  |     |  |     |  |           |  +--ro numbered-link-hop
+     |  |  |     |  |     |  |           |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |     |  |           |     +--ro hop-type?     te-hop-type
+     |  |  |     |  |     |  |           |     +--ro direction?    te-link-direction
+     |  |  |     |  |     |  |           +--:(unnumbered-link-hop)
+     |  |  |     |  |     |  |           |  +--ro unnumbered-link-hop
+     |  |  |     |  |     |  |           |     +--ro link-tp-id    te-tp-id
+     |  |  |     |  |     |  |           |     +--ro node-id       te-node-id
      |  |  |     |  |     |  |           |     +--ro hop-type?     te-hop-type
      |  |  |     |  |     |  |           |     +--ro direction?    te-link-direction
      |  |  |     |  |     |  |           +--:(as-number)
      |  |  |     |  |     |  |           |  +--ro as-number-hop
-     |  |  |     |  |     |  |           |     +--ro as-number?   binary
+     |  |  |     |  |     |  |           |     +--ro as-number    binary
      |  |  |     |  |     |  |           |     +--ro hop-type?    te-hop-type
      |  |  |     |  |     |  |           +--:(label)
      |  |  |     |  |     |  |              +--ro label-hop
@@ -1652,17 +1898,26 @@ module: ietf-te
      |  |  |     |  |     |  +--ro rsvp-te:incoming-explicit-route-hop* [index]
      |  |  |     |  |     |  |  +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |  |  +--ro rsvp-te:state
-     |  |  |     |  |     |  |     +--ro rsvp-te:index?                 uint32
+     |  |  |     |  |     |  |     +--ro rsvp-te:index?                       uint32
      |  |  |     |  |     |  |     +--ro (rsvp-te:type)?
-     |  |  |     |  |     |  |        +--:(rsvp-te:num-unnum-hop)
-     |  |  |     |  |     |  |        |  +--ro rsvp-te:num-unnum-hop
-     |  |  |     |  |     |  |        |     +--ro rsvp-te:node-id?      te-types:te-node-id
-     |  |  |     |  |     |  |        |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |  |        +--:(rsvp-te:numbered-node-hop)
+     |  |  |     |  |     |  |        |  +--ro rsvp-te:numbered-node-hop
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:node-id     te-node-id
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?   te-hop-type
+     |  |  |     |  |     |  |        +--:(rsvp-te:numbered-link-hop)
+     |  |  |     |  |     |  |        |  +--ro rsvp-te:numbered-link-hop
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?     te-hop-type
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:direction?    te-link-direction
+     |  |  |     |  |     |  |        +--:(rsvp-te:unnumbered-link-hop)
+     |  |  |     |  |     |  |        |  +--ro rsvp-te:unnumbered-link-hop
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:node-id       te-node-id
      |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?     te-hop-type
      |  |  |     |  |     |  |        |     +--ro rsvp-te:direction?    te-link-direction
      |  |  |     |  |     |  |        +--:(rsvp-te:as-number)
      |  |  |     |  |     |  |        |  +--ro rsvp-te:as-number-hop
-     |  |  |     |  |     |  |        |     +--ro rsvp-te:as-number?   binary
+     |  |  |     |  |     |  |        |     +--ro rsvp-te:as-number    binary
      |  |  |     |  |     |  |        |     +--ro rsvp-te:hop-type?    te-hop-type
      |  |  |     |  |     |  |        +--:(rsvp-te:label)
      |  |  |     |  |     |  |           +--ro rsvp-te:label-hop
@@ -1674,17 +1929,26 @@ module: ietf-te
      |  |  |     |  |     |  +--ro rsvp-te:outgoing-explicit-route-hop* [index]
      |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |     +--ro rsvp-te:state
-     |  |  |     |  |     |        +--ro rsvp-te:index?                 uint32
+     |  |  |     |  |     |        +--ro rsvp-te:index?                       uint32
      |  |  |     |  |     |        +--ro (rsvp-te:type)?
-     |  |  |     |  |     |           +--:(rsvp-te:num-unnum-hop)
-     |  |  |     |  |     |           |  +--ro rsvp-te:num-unnum-hop
-     |  |  |     |  |     |           |     +--ro rsvp-te:node-id?      te-types:te-node-id
-     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |           +--:(rsvp-te:numbered-node-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:numbered-node-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:node-id     te-node-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?   te-hop-type
+     |  |  |     |  |     |           +--:(rsvp-te:numbered-link-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:numbered-link-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?     te-hop-type
+     |  |  |     |  |     |           |     +--ro rsvp-te:direction?    te-link-direction
+     |  |  |     |  |     |           +--:(rsvp-te:unnumbered-link-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:unnumbered-link-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:node-id       te-node-id
      |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?     te-hop-type
      |  |  |     |  |     |           |     +--ro rsvp-te:direction?    te-link-direction
      |  |  |     |  |     |           +--:(rsvp-te:as-number)
      |  |  |     |  |     |           |  +--ro rsvp-te:as-number-hop
-     |  |  |     |  |     |           |     +--ro rsvp-te:as-number?   binary
+     |  |  |     |  |     |           |     +--ro rsvp-te:as-number    binary
      |  |  |     |  |     |           |     +--ro rsvp-te:hop-type?    te-hop-type
      |  |  |     |  |     |           +--:(rsvp-te:label)
      |  |  |     |  |     |              +--ro rsvp-te:label-hop
@@ -1697,14 +1961,21 @@ module: ietf-te
      |  |  |     |  |     |  +--ro rsvp-te:incoming-record-route-subobject* [index]
      |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |     +--ro rsvp-te:state
-     |  |  |     |  |     |        +--ro rsvp-te:index?              uint32
+     |  |  |     |  |     |        +--ro rsvp-te:index?                       uint32
      |  |  |     |  |     |        +--ro (rsvp-te:type)?
-     |  |  |     |  |     |           +--:(rsvp-te:numbered)
-     |  |  |     |  |     |           |  +--ro rsvp-te:address?      te-types:te-tp-id
-     |  |  |     |  |     |           |  +--ro rsvp-te:ip-flags?     binary
-     |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
-     |  |  |     |  |     |           |  +--ro rsvp-te:node-id?      te-types:te-node-id
-     |  |  |     |  |     |           |  +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |           +--:(rsvp-te:numbered-node-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:numbered-node-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:node-id    te-node-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:flags*     path-attribute-flags
+     |  |  |     |  |     |           +--:(rsvp-te:numbered-link-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:numbered-link-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:flags*        path-attribute-flags
+     |  |  |     |  |     |           +--:(rsvp-te:unnumbered-link-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:unnumbered-link-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:node-id?      te-node-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:flags*        path-attribute-flags
      |  |  |     |  |     |           +--:(rsvp-te:label)
      |  |  |     |  |     |              +--ro rsvp-te:label-hop
      |  |  |     |  |     |                 +--ro rsvp-te:te-label
@@ -1712,19 +1983,26 @@ module: ietf-te
      |  |  |     |  |     |                 |  |  +--:(rsvp-te:generic)
      |  |  |     |  |     |                 |  |     +--ro rsvp-te:generic?   rt-types:generalized-label
      |  |  |     |  |     |                 |  +--ro rsvp-te:direction?       te-label-direction
-     |  |  |     |  |     |                 +--ro rsvp-te:label-flags?   binary
+     |  |  |     |  |     |                 +--ro rsvp-te:flags*      path-attribute-flags
      |  |  |     |  |     +--ro rsvp-te:outgoing-record-route-subobjects
      |  |  |     |  |     |  +--ro rsvp-te:outgoing-record-route-subobject* [index]
      |  |  |     |  |     |     +--ro rsvp-te:index    -> ../state/index
      |  |  |     |  |     |     +--ro rsvp-te:state
-     |  |  |     |  |     |        +--ro rsvp-te:index?              uint32
+     |  |  |     |  |     |        +--ro rsvp-te:index?                       uint32
      |  |  |     |  |     |        +--ro (rsvp-te:type)?
-     |  |  |     |  |     |           +--:(rsvp-te:numbered)
-     |  |  |     |  |     |           |  +--ro rsvp-te:address?      te-types:te-tp-id
-     |  |  |     |  |     |           |  +--ro rsvp-te:ip-flags?     binary
-     |  |  |     |  |     |           +--:(rsvp-te:unnumbered)
-     |  |  |     |  |     |           |  +--ro rsvp-te:node-id?      te-types:te-node-id
-     |  |  |     |  |     |           |  +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |  |  |     |  |     |           +--:(rsvp-te:numbered-node-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:numbered-node-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:node-id    te-node-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:flags*     path-attribute-flags
+     |  |  |     |  |     |           +--:(rsvp-te:numbered-link-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:numbered-link-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:flags*        path-attribute-flags
+     |  |  |     |  |     |           +--:(rsvp-te:unnumbered-link-hop)
+     |  |  |     |  |     |           |  +--ro rsvp-te:unnumbered-link-hop
+     |  |  |     |  |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:node-id?      te-node-id
+     |  |  |     |  |     |           |     +--ro rsvp-te:flags*        path-attribute-flags
      |  |  |     |  |     |           +--:(rsvp-te:label)
      |  |  |     |  |     |              +--ro rsvp-te:label-hop
      |  |  |     |  |     |                 +--ro rsvp-te:te-label
@@ -1732,7 +2010,7 @@ module: ietf-te
      |  |  |     |  |     |                 |  |  +--:(rsvp-te:generic)
      |  |  |     |  |     |                 |  |     +--ro rsvp-te:generic?   rt-types:generalized-label
      |  |  |     |  |     |                 |  +--ro rsvp-te:direction?       te-label-direction
-     |  |  |     |  |     |                 +--ro rsvp-te:label-flags?   binary
+     |  |  |     |  |     |                 +--ro rsvp-te:flags*      path-attribute-flags
      |  |  |     |  |     +--ro rsvp-te-mpls:state
      |  |  |     |  |     |  +--ro rsvp-te-mpls:local-protection-desired?       empty
      |  |  |     |  |     |  +--ro rsvp-te-mpls:bandwidth-protection-desired?   empty
@@ -1747,7 +2025,7 @@ module: ietf-te
      |  |  |     |  |           +--ro rsvp-te-mpls:backup-frr-on?              uint8
      |  |  |     |  |           +--ro rsvp-te-mpls:backup-protected-lsp-num?   uint32
      |  |  |     |  +--ro te-mpls:static-lsp-name?     mpls-static:static-lsp-ref
-     |  |  |     +--rw te-mpls:static-lsp-name?    mpls-static:static-lsp-ref
+     |  |  |     +--rw te-mpls:static-lsp-name?         mpls-static:static-lsp-ref
      |  |  +---x tunnel-action
      |  |  |  +---w input
      |  |  |  |  +---w action-type?   identityref
@@ -1793,15 +2071,15 @@ module: ietf-te
      |  |  |  +--rw te-mpls:load-share?      uint32
      |  |  |  +--rw te-mpls:policy-class?    uint8
      |  |  +--rw te-mpls:bandwidth-mpls
-     |  |     +--rw te-mpls:specification-type?   te-mpls-types:te-bandwidth-requested-type
-     |  |     +--rw te-mpls:set-bandwidth?        te-mpls-types:bandwidth-kbps
+     |  |     +--rw te-mpls:specification-type?   te-packet-types:te-bandwidth-requested-type
+     |  |     +--rw te-mpls:set-bandwidth?        te-packet-types:bandwidth-kbps
      |  |     +--rw te-mpls:class-type?           te-types:te-ds-class
      |  |     +--ro te-mpls:state
-     |  |     |  +--ro te-mpls:signaled-bandwidth?   te-mpls-types:bandwidth-kbps
+     |  |     |  +--ro te-mpls:signaled-bandwidth?   te-packet-types:bandwidth-kbps
      |  |     +--rw te-mpls:auto-bandwidth
      |  |        +--rw te-mpls:enabled?            boolean
-     |  |        +--rw te-mpls:min-bw?             te-mpls-types:bandwidth-kbps
-     |  |        +--rw te-mpls:max-bw?             te-mpls-types:bandwidth-kbps
+     |  |        +--rw te-mpls:min-bw?             te-packet-types:bandwidth-kbps
+     |  |        +--rw te-mpls:max-bw?             te-packet-types:bandwidth-kbps
      |  |        +--rw te-mpls:adjust-interval?    uint32
      |  |        +--rw te-mpls:adjust-threshold?   rt-types:percentage
      |  |        +--rw te-mpls:overflow
@@ -1835,16 +2113,23 @@ module: ietf-te
      |     +--ro lsp-protection-state?                       identityref
      |     +--ro protection-group-ingress-node-id?           te-types:te-node-id
      |     +--ro protection-group-egress-node-id?            te-types:te-node-id
-     |     +--ro lsp-record-route-subobjects
-     |     |  +--ro record-route-subobject* [index]
-     |     |     +--ro index               uint32
+     |     +--ro lsp-record-route-information
+     |     |  +--ro lsp-record-route-information* [index]
+     |     |     +--ro index                        uint32
      |     |     +--ro (type)?
-     |     |        +--:(numbered)
-     |     |        |  +--ro address?      te-types:te-tp-id
-     |     |        |  +--ro ip-flags?     binary
-     |     |        +--:(unnumbered)
-     |     |        |  +--ro node-id?      te-types:te-node-id
-     |     |        |  +--ro link-tp-id?   te-types:te-tp-id
+     |     |        +--:(numbered-node-hop)
+     |     |        |  +--ro numbered-node-hop
+     |     |        |     +--ro node-id    te-node-id
+     |     |        |     +--ro flags*     path-attribute-flags
+     |     |        +--:(numbered-link-hop)
+     |     |        |  +--ro numbered-link-hop
+     |     |        |     +--ro link-tp-id    te-tp-id
+     |     |        |     +--ro flags*        path-attribute-flags
+     |     |        +--:(unnumbered-link-hop)
+     |     |        |  +--ro unnumbered-link-hop
+     |     |        |     +--ro link-tp-id    te-tp-id
+     |     |        |     +--ro node-id?      te-node-id
+     |     |        |     +--ro flags*        path-attribute-flags
      |     |        +--:(label)
      |     |           +--ro label-hop
      |     |              +--ro te-label
@@ -1852,7 +2137,7 @@ module: ietf-te
      |     |              |  |  +--:(generic)
      |     |              |  |     +--ro generic?   rt-types:generalized-label
      |     |              |  +--ro direction?       te-label-direction
-     |     |              +--ro label-flags?   binary
+     |     |              +--ro flags*      path-attribute-flags
      |     +--ro te-dev:lsp-timers
      |     |  +--ro te-dev:life-time?         uint32
      |     |  +--ro te-dev:time-to-install?   uint32
@@ -1882,17 +2167,26 @@ module: ietf-te
      |     |  +--ro rsvp-te:incoming-explicit-route-hop* [index]
      |     |  |  +--ro rsvp-te:index    -> ../state/index
      |     |  |  +--ro rsvp-te:state
-     |     |  |     +--ro rsvp-te:index?                 uint32
+     |     |  |     +--ro rsvp-te:index?                       uint32
      |     |  |     +--ro (rsvp-te:type)?
-     |     |  |        +--:(rsvp-te:num-unnum-hop)
-     |     |  |        |  +--ro rsvp-te:num-unnum-hop
-     |     |  |        |     +--ro rsvp-te:node-id?      te-types:te-node-id
-     |     |  |        |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |     |  |        +--:(rsvp-te:numbered-node-hop)
+     |     |  |        |  +--ro rsvp-te:numbered-node-hop
+     |     |  |        |     +--ro rsvp-te:node-id     te-node-id
+     |     |  |        |     +--ro rsvp-te:hop-type?   te-hop-type
+     |     |  |        +--:(rsvp-te:numbered-link-hop)
+     |     |  |        |  +--ro rsvp-te:numbered-link-hop
+     |     |  |        |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |     |  |        |     +--ro rsvp-te:hop-type?     te-hop-type
+     |     |  |        |     +--ro rsvp-te:direction?    te-link-direction
+     |     |  |        +--:(rsvp-te:unnumbered-link-hop)
+     |     |  |        |  +--ro rsvp-te:unnumbered-link-hop
+     |     |  |        |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |     |  |        |     +--ro rsvp-te:node-id       te-node-id
      |     |  |        |     +--ro rsvp-te:hop-type?     te-hop-type
      |     |  |        |     +--ro rsvp-te:direction?    te-link-direction
      |     |  |        +--:(rsvp-te:as-number)
      |     |  |        |  +--ro rsvp-te:as-number-hop
-     |     |  |        |     +--ro rsvp-te:as-number?   binary
+     |     |  |        |     +--ro rsvp-te:as-number    binary
      |     |  |        |     +--ro rsvp-te:hop-type?    te-hop-type
      |     |  |        +--:(rsvp-te:label)
      |     |  |           +--ro rsvp-te:label-hop
@@ -1904,17 +2198,26 @@ module: ietf-te
      |     |  +--ro rsvp-te:outgoing-explicit-route-hop* [index]
      |     |     +--ro rsvp-te:index    -> ../state/index
      |     |     +--ro rsvp-te:state
-     |     |        +--ro rsvp-te:index?                 uint32
+     |     |        +--ro rsvp-te:index?                       uint32
      |     |        +--ro (rsvp-te:type)?
-     |     |           +--:(rsvp-te:num-unnum-hop)
-     |     |           |  +--ro rsvp-te:num-unnum-hop
-     |     |           |     +--ro rsvp-te:node-id?      te-types:te-node-id
-     |     |           |     +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |     |           +--:(rsvp-te:numbered-node-hop)
+     |     |           |  +--ro rsvp-te:numbered-node-hop
+     |     |           |     +--ro rsvp-te:node-id     te-node-id
+     |     |           |     +--ro rsvp-te:hop-type?   te-hop-type
+     |     |           +--:(rsvp-te:numbered-link-hop)
+     |     |           |  +--ro rsvp-te:numbered-link-hop
+     |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |     |           |     +--ro rsvp-te:hop-type?     te-hop-type
+     |     |           |     +--ro rsvp-te:direction?    te-link-direction
+     |     |           +--:(rsvp-te:unnumbered-link-hop)
+     |     |           |  +--ro rsvp-te:unnumbered-link-hop
+     |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |     |           |     +--ro rsvp-te:node-id       te-node-id
      |     |           |     +--ro rsvp-te:hop-type?     te-hop-type
      |     |           |     +--ro rsvp-te:direction?    te-link-direction
      |     |           +--:(rsvp-te:as-number)
      |     |           |  +--ro rsvp-te:as-number-hop
-     |     |           |     +--ro rsvp-te:as-number?   binary
+     |     |           |     +--ro rsvp-te:as-number    binary
      |     |           |     +--ro rsvp-te:hop-type?    te-hop-type
      |     |           +--:(rsvp-te:label)
      |     |              +--ro rsvp-te:label-hop
@@ -1927,14 +2230,21 @@ module: ietf-te
      |     |  +--ro rsvp-te:incoming-record-route-subobject* [index]
      |     |     +--ro rsvp-te:index    -> ../state/index
      |     |     +--ro rsvp-te:state
-     |     |        +--ro rsvp-te:index?              uint32
+     |     |        +--ro rsvp-te:index?                       uint32
      |     |        +--ro (rsvp-te:type)?
-     |     |           +--:(rsvp-te:numbered)
-     |     |           |  +--ro rsvp-te:address?      te-types:te-tp-id
-     |     |           |  +--ro rsvp-te:ip-flags?     binary
-     |     |           +--:(rsvp-te:unnumbered)
-     |     |           |  +--ro rsvp-te:node-id?      te-types:te-node-id
-     |     |           |  +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |     |           +--:(rsvp-te:numbered-node-hop)
+     |     |           |  +--ro rsvp-te:numbered-node-hop
+     |     |           |     +--ro rsvp-te:node-id    te-node-id
+     |     |           |     +--ro rsvp-te:flags*     path-attribute-flags
+     |     |           +--:(rsvp-te:numbered-link-hop)
+     |     |           |  +--ro rsvp-te:numbered-link-hop
+     |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |     |           |     +--ro rsvp-te:flags*        path-attribute-flags
+     |     |           +--:(rsvp-te:unnumbered-link-hop)
+     |     |           |  +--ro rsvp-te:unnumbered-link-hop
+     |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |     |           |     +--ro rsvp-te:node-id?      te-node-id
+     |     |           |     +--ro rsvp-te:flags*        path-attribute-flags
      |     |           +--:(rsvp-te:label)
      |     |              +--ro rsvp-te:label-hop
      |     |                 +--ro rsvp-te:te-label
@@ -1942,19 +2252,26 @@ module: ietf-te
      |     |                 |  |  +--:(rsvp-te:generic)
      |     |                 |  |     +--ro rsvp-te:generic?   rt-types:generalized-label
      |     |                 |  +--ro rsvp-te:direction?       te-label-direction
-     |     |                 +--ro rsvp-te:label-flags?   binary
+     |     |                 +--ro rsvp-te:flags*      path-attribute-flags
      |     +--ro rsvp-te:outgoing-record-route-subobjects
      |     |  +--ro rsvp-te:outgoing-record-route-subobject* [index]
      |     |     +--ro rsvp-te:index    -> ../state/index
      |     |     +--ro rsvp-te:state
-     |     |        +--ro rsvp-te:index?              uint32
+     |     |        +--ro rsvp-te:index?                       uint32
      |     |        +--ro (rsvp-te:type)?
-     |     |           +--:(rsvp-te:numbered)
-     |     |           |  +--ro rsvp-te:address?      te-types:te-tp-id
-     |     |           |  +--ro rsvp-te:ip-flags?     binary
-     |     |           +--:(rsvp-te:unnumbered)
-     |     |           |  +--ro rsvp-te:node-id?      te-types:te-node-id
-     |     |           |  +--ro rsvp-te:link-tp-id?   te-types:te-tp-id
+     |     |           +--:(rsvp-te:numbered-node-hop)
+     |     |           |  +--ro rsvp-te:numbered-node-hop
+     |     |           |     +--ro rsvp-te:node-id    te-node-id
+     |     |           |     +--ro rsvp-te:flags*     path-attribute-flags
+     |     |           +--:(rsvp-te:numbered-link-hop)
+     |     |           |  +--ro rsvp-te:numbered-link-hop
+     |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |     |           |     +--ro rsvp-te:flags*        path-attribute-flags
+     |     |           +--:(rsvp-te:unnumbered-link-hop)
+     |     |           |  +--ro rsvp-te:unnumbered-link-hop
+     |     |           |     +--ro rsvp-te:link-tp-id    te-tp-id
+     |     |           |     +--ro rsvp-te:node-id?      te-node-id
+     |     |           |     +--ro rsvp-te:flags*        path-attribute-flags
      |     |           +--:(rsvp-te:label)
      |     |              +--ro rsvp-te:label-hop
      |     |                 +--ro rsvp-te:te-label
@@ -1962,7 +2279,7 @@ module: ietf-te
      |     |                 |  |  +--:(rsvp-te:generic)
      |     |                 |  |     +--ro rsvp-te:generic?   rt-types:generalized-label
      |     |                 |  +--ro rsvp-te:direction?       te-label-direction
-     |     |                 +--ro rsvp-te:label-flags?   binary
+     |     |                 +--ro rsvp-te:flags*      path-attribute-flags
      |     +--ro rsvp-te-mpls:state
      |     |  +--ro rsvp-te-mpls:local-protection-desired?       empty
      |     |  +--ro rsvp-te-mpls:bandwidth-protection-desired?   empty
@@ -1977,81 +2294,129 @@ module: ietf-te
      |           +--ro rsvp-te-mpls:backup-frr-on?              uint8
      |           +--ro rsvp-te-mpls:backup-protected-lsp-num?   uint32
      +--rw te-dev:interfaces
-        +--rw te-dev:threshold-type?            enumeration
-        +--rw te-dev:delta-percentage?          rt-types:percentage
-        +--rw te-dev:threshold-specification?   enumeration
-        +--rw te-dev:up-thresholds*             rt-types:percentage
-        +--rw te-dev:down-thresholds*           rt-types:percentage
-        +--rw te-dev:up-down-thresholds*        rt-types:percentage
-        +--rw te-dev:interface* [interface]
-           +--rw te-dev:interface                           if:interface-ref
-           +--rw te-dev:te-metric?                          te-types:te-metric
-           +--rw (te-dev:admin-group-type)?
-           |  +--:(te-dev:value-admin-groups)
-           |  |  +--rw (te-dev:value-admin-group-type)?
-           |  |     +--:(te-dev:admin-groups)
-           |  |     |  +--rw te-dev:admin-group?            te-types:admin-group
-           |  |     +--:(te-dev:extended-admin-groups) {te-types:extended-admin-groups}?
-           |  |        +--rw te-dev:extended-admin-group?   te-types:extended-admin-group
-           |  +--:(te-dev:named-admin-groups)
-           |     +--rw te-dev:named-admin-groups* [named-admin-group] {te-types:extended-admin-groups,te-types:named-extended-admin-groups}?
-           |        +--rw te-dev:named-admin-group    -> ../../../../te:globals/named-admin-groups/named-admin-group/name
-           +--rw (te-dev:srlg-type)?
-           |  +--:(te-dev:value-srlgs)
-           |  |  +--rw te-dev:values* [value]
-           |  |     +--rw te-dev:value    uint32
-           |  +--:(te-dev:named-srlgs)
-           |     +--rw te-dev:named-srlgs* [named-srlg] {te-types:named-srlg-groups}?
-           |        +--rw te-dev:named-srlg    -> ../../../../te:globals/named-srlgs/named-srlg/name
-           +--rw te-dev:threshold-type?                     enumeration
-           +--rw te-dev:delta-percentage?                   rt-types:percentage
-           +--rw te-dev:threshold-specification?            enumeration
-           +--rw te-dev:up-thresholds*                      rt-types:percentage
-           +--rw te-dev:down-thresholds*                    rt-types:percentage
-           +--rw te-dev:up-down-thresholds*                 rt-types:percentage
-           +--rw te-dev:switching-capabilities* [switching-capability]
-           |  +--rw te-dev:switching-capability    identityref
-           |  +--rw te-dev:encoding?               identityref
-           +--ro te-dev:state
-           |  +--ro te-dev:te-advertisements_state
-           |     +--ro te-dev:flood-interval?           uint32
-           |     +--ro te-dev:last-flooded-time?        uint32
-           |     +--ro te-dev:next-flooded-time?        uint32
-           |     +--ro te-dev:last-flooded-trigger?     enumeration
-           |     +--ro te-dev:advertized-level-areas* [level-area]
-           |        +--ro te-dev:level-area    uint32
-           +--rw rsvp-te-mpls:bandwidth-mpls-reservable
-           |  +--rw (rsvp-te-mpls:bandwidth-value)?
-           |  |  +--:(rsvp-te-mpls:absolute)
-           |  |  |  +--rw rsvp-te-mpls:absolute-value?   uint32
-           |  |  +--:(rsvp-te-mpls:percentage)
-           |  |     +--rw rsvp-te-mpls:percent-value?    uint32
-           |  +--rw (rsvp-te-mpls:bc-model-type)?
-           |     +--:(rsvp-te-mpls:bc-model-rdm)
-           |     |  +--rw rsvp-te-mpls:bc-model-rdm
-           |     |     +--rw rsvp-te-mpls:bandwidth-mpls-constraints
-           |     |        +--rw rsvp-te-mpls:maximum-reservable?   uint32
-           |     |        +--rw rsvp-te-mpls:bc-value*             uint32
-           |     +--:(rsvp-te-mpls:bc-model-mam)
-           |     |  +--rw rsvp-te-mpls:bc-model-mam
-           |     |     +--rw rsvp-te-mpls:bandwidth-mpls-constraints
-           |     |        +--rw rsvp-te-mpls:maximum-reservable?   uint32
-           |     |        +--rw rsvp-te-mpls:bc-value*             uint32
-           |     +--:(rsvp-te-mpls:bc-model-mar)
-           |        +--rw rsvp-te-mpls:bc-model-mar
-           |           +--rw rsvp-te-mpls:bandwidth-mpls-constraints
-           |              +--rw rsvp-te-mpls:maximum-reservable?   uint32
-           |              +--rw rsvp-te-mpls:bc-value*             uint32
-           +--rw rsvp-te-mpls:rsvp-te-frr-backups
-              +--rw (rsvp-te-mpls:type)?
-                 +--:(rsvp-te-mpls:static-tunnel)
-                 |  +--rw rsvp-te-mpls:static-backups
-                 |     +--rw rsvp-te-mpls:static-backup* [backup-tunnel-name]
-                 |        +--rw rsvp-te-mpls:backup-tunnel-name    -> /te:te/tunnels/tunnel/name
-                 +--:(rsvp-te-mpls:auto-tunnel)
-                    +--rw rsvp-te-mpls:auto-tunnel-backups
-                       +--rw rsvp-te-mpls:auto-backup-protection?         identityref
-                       +--rw rsvp-te-mpls:auto-backup-path-computation?   identityref
+     |  +--rw te-dev:threshold-type?            enumeration
+     |  +--rw te-dev:delta-percentage?          rt-types:percentage
+     |  +--rw te-dev:threshold-specification?   enumeration
+     |  +--rw te-dev:up-thresholds*             rt-types:percentage
+     |  +--rw te-dev:down-thresholds*           rt-types:percentage
+     |  +--rw te-dev:up-down-thresholds*        rt-types:percentage
+     |  +--rw te-dev:interface* [interface]
+     |     +--rw te-dev:interface                           if:interface-ref
+     |     +--rw te-dev:te-metric?                          te-types:te-metric
+     |     +--rw (te-dev:admin-group-type)?
+     |     |  +--:(te-dev:value-admin-groups)
+     |     |  |  +--rw (te-dev:value-admin-group-type)?
+     |     |  |     +--:(te-dev:admin-groups)
+     |     |  |     |  +--rw te-dev:admin-group?            te-types:admin-group
+     |     |  |     +--:(te-dev:extended-admin-groups) {te-types:extended-admin-groups}?
+     |     |  |        +--rw te-dev:extended-admin-group?   te-types:extended-admin-group
+     |     |  +--:(te-dev:named-admin-groups)
+     |     |     +--rw te-dev:named-admin-groups* [named-admin-group] {te-types:extended-admin-groups,te-types:named-extended-admin-groups}?
+     |     |        +--rw te-dev:named-admin-group    -> ../../../../te:globals/named-admin-groups/named-admin-group/name
+     |     +--rw (te-dev:srlg-type)?
+     |     |  +--:(te-dev:value-srlgs)
+     |     |  |  +--rw te-dev:values* [value]
+     |     |  |     +--rw te-dev:value    uint32
+     |     |  +--:(te-dev:named-srlgs)
+     |     |     +--rw te-dev:named-srlgs* [named-srlg] {te-types:named-srlg-groups}?
+     |     |        +--rw te-dev:named-srlg    -> ../../../../te:globals/named-srlgs/named-srlg/name
+     |     +--rw te-dev:threshold-type?                     enumeration
+     |     +--rw te-dev:delta-percentage?                   rt-types:percentage
+     |     +--rw te-dev:threshold-specification?            enumeration
+     |     +--rw te-dev:up-thresholds*                      rt-types:percentage
+     |     +--rw te-dev:down-thresholds*                    rt-types:percentage
+     |     +--rw te-dev:up-down-thresholds*                 rt-types:percentage
+     |     +--rw te-dev:switching-capabilities* [switching-capability]
+     |     |  +--rw te-dev:switching-capability    identityref
+     |     |  +--rw te-dev:encoding?               identityref
+     |     +--ro te-dev:state
+     |     |  +--ro te-dev:te-advertisements_state
+     |     |     +--ro te-dev:flood-interval?           uint32
+     |     |     +--ro te-dev:last-flooded-time?        uint32
+     |     |     +--ro te-dev:next-flooded-time?        uint32
+     |     |     +--ro te-dev:last-flooded-trigger?     enumeration
+     |     |     +--ro te-dev:advertized-level-areas* [level-area]
+     |     |        +--ro te-dev:level-area    uint32
+     |     +--rw rsvp-te-mpls:bandwidth-mpls-reservable
+     |     |  +--rw (rsvp-te-mpls:bandwidth-value)?
+     |     |  |  +--:(rsvp-te-mpls:absolute)
+     |     |  |  |  +--rw rsvp-te-mpls:absolute-value?   uint32
+     |     |  |  +--:(rsvp-te-mpls:percentage)
+     |     |  |     +--rw rsvp-te-mpls:percent-value?    uint32
+     |     |  +--rw (rsvp-te-mpls:bc-model-type)?
+     |     |     +--:(rsvp-te-mpls:bc-model-rdm)
+     |     |     |  +--rw rsvp-te-mpls:bc-model-rdm
+     |     |     |     +--rw rsvp-te-mpls:bandwidth-mpls-constraints
+     |     |     |        +--rw rsvp-te-mpls:maximum-reservable?   uint32
+     |     |     |        +--rw rsvp-te-mpls:bc-value*             uint32
+     |     |     +--:(rsvp-te-mpls:bc-model-mam)
+     |     |     |  +--rw rsvp-te-mpls:bc-model-mam
+     |     |     |     +--rw rsvp-te-mpls:bandwidth-mpls-constraints
+     |     |     |        +--rw rsvp-te-mpls:maximum-reservable?   uint32
+     |     |     |        +--rw rsvp-te-mpls:bc-value*             uint32
+     |     |     +--:(rsvp-te-mpls:bc-model-mar)
+     |     |        +--rw rsvp-te-mpls:bc-model-mar
+     |     |           +--rw rsvp-te-mpls:bandwidth-mpls-constraints
+     |     |              +--rw rsvp-te-mpls:maximum-reservable?   uint32
+     |     |              +--rw rsvp-te-mpls:bc-value*             uint32
+     |     +--rw rsvp-te-mpls:rsvp-te-frr-backups
+     |        +--rw (rsvp-te-mpls:type)?
+     |           +--:(rsvp-te-mpls:static-tunnel)
+     |           |  +--rw rsvp-te-mpls:static-backups
+     |           |     +--rw rsvp-te-mpls:static-backup* [backup-tunnel-name]
+     |           |        +--rw rsvp-te-mpls:backup-tunnel-name    -> /te:te/tunnels/tunnel/name
+     |           +--:(rsvp-te-mpls:auto-tunnel)
+     |              +--rw rsvp-te-mpls:auto-tunnel-backups
+     |                 +--rw rsvp-te-mpls:auto-backup-protection?         identityref
+     |                 +--rw rsvp-te-mpls:auto-backup-path-computation?   identityref
+     +--rw te-dev:performance-thresholds
+        +--rw te-dev:throttle
+           +--rw te-dev:one-way-delay-offset?                  uint32
+           +--rw te-dev:measure-interval?                      uint32
+           +--rw te-dev:advertisement-interval?                uint32
+           +--rw te-dev:suppression-interval?                  uint32
+           +--rw te-dev:threshold-out
+           |  +--rw te-dev:one-way-delay?                 uint32
+           |  +--rw te-dev:one-way-min-delay?             uint32
+           |  +--rw te-dev:one-way-max-delay?             uint32
+           |  +--rw te-dev:one-way-delay-variation?       uint32
+           |  +--rw te-dev:one-way-packet-loss?           decimal64
+           |  +--rw te-dev:one-way-residual-bandwidth?    rt-types:bandwidth-ieee-float32
+           |  +--rw te-dev:one-way-available-bandwidth?   rt-types:bandwidth-ieee-float32
+           |  +--rw te-dev:one-way-utilized-bandwidth?    rt-types:bandwidth-ieee-float32
+           |  +--rw te-dev:two-way-delay?                 uint32
+           |  +--rw te-dev:two-way-min-delay?             uint32
+           |  +--rw te-dev:two-way-max-delay?             uint32
+           |  +--rw te-dev:two-way-delay-variation?       uint32
+           |  +--rw te-dev:two-way-packet-loss?           decimal64
+           +--rw te-dev:threshold-in
+           |  +--rw te-dev:one-way-delay?                 uint32
+           |  +--rw te-dev:one-way-min-delay?             uint32
+           |  +--rw te-dev:one-way-max-delay?             uint32
+           |  +--rw te-dev:one-way-delay-variation?       uint32
+           |  +--rw te-dev:one-way-packet-loss?           decimal64
+           |  +--rw te-dev:one-way-residual-bandwidth?    rt-types:bandwidth-ieee-float32
+           |  +--rw te-dev:one-way-available-bandwidth?   rt-types:bandwidth-ieee-float32
+           |  +--rw te-dev:one-way-utilized-bandwidth?    rt-types:bandwidth-ieee-float32
+           |  +--rw te-dev:two-way-delay?                 uint32
+           |  +--rw te-dev:two-way-min-delay?             uint32
+           |  +--rw te-dev:two-way-max-delay?             uint32
+           |  +--rw te-dev:two-way-delay-variation?       uint32
+           |  +--rw te-dev:two-way-packet-loss?           decimal64
+           +--rw te-dev:threshold-accelerated-advertisement
+              +--rw te-dev:one-way-delay?                 uint32
+              +--rw te-dev:one-way-min-delay?             uint32
+              +--rw te-dev:one-way-max-delay?             uint32
+              +--rw te-dev:one-way-delay-variation?       uint32
+              +--rw te-dev:one-way-packet-loss?           decimal64
+              +--rw te-dev:one-way-residual-bandwidth?    rt-types:bandwidth-ieee-float32
+              +--rw te-dev:one-way-available-bandwidth?   rt-types:bandwidth-ieee-float32
+              +--rw te-dev:one-way-utilized-bandwidth?    rt-types:bandwidth-ieee-float32
+              +--rw te-dev:two-way-delay?                 uint32
+              +--rw te-dev:two-way-min-delay?             uint32
+              +--rw te-dev:two-way-max-delay?             uint32
+              +--rw te-dev:two-way-delay-variation?       uint32
+              +--rw te-dev:two-way-packet-loss?           decimal64
 
   rpcs:
     +---x globals-rpc
