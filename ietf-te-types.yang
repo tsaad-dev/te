@@ -88,17 +88,112 @@ module ietf-te-types {
   /**
    * Typedefs
    */
-   typedef path-attribute-flags {
-     type union {
-       type identityref {
-         base session-attributes-flags;
-       }
-       type identityref {
-         base lsp-attributes-flags;
-       }
-     }
-     description "Path attributes flags type";
-   }
+  typedef admin-group {
+    type yang:hex-string {
+      /* 01:02:03:04 */
+      length "1..11";
+    }
+    description
+      "Administrative group/Resource class/Color representation in
+       hex-string type.";
+    reference "RFC3630 and RFC5305";
+  }
+
+  typedef admin-groups {
+    type union {
+      type admin-group;
+      type extended-admin-group;
+    }
+    description "TE administrative group derived type";
+  }
+
+  typedef extended-admin-group {
+    type yang:hex-string;
+    description
+      "Extended administrative group/Resource class/Color
+       representation in hex-string type";
+    reference "RFC7308";
+  }
+
+  typedef path-attribute-flags {
+    type union {
+      type identityref {
+        base session-attributes-flags;
+      }
+      type identityref {
+        base lsp-attributes-flags;
+      }
+    }
+    description "Path attributes flags type";
+  }
+
+  typedef performance-metrics-normality {
+    type enumeration {
+      enum "unknown" {
+        value 0;
+        description
+          "Unknown.";
+      }
+      enum "normal" {
+        value 1;
+        description
+          "Normal.";
+      }
+      enum "abnormal" {
+        value 2;
+        description
+          "Abnormal. The anomalous bit is set.";
+      }
+    }
+    description
+      "Indicates whether a performance metric is normal, abnormal, or
+       unknown.";
+    reference
+      "RFC7471: OSPF Traffic Engineering (TE) Metric Extensions.
+       RFC7810: IS-IS Traffic Engineering (TE) Metric Extensions.
+       RFC7823: Performance-Based Path Selection for Explicitly
+       Routed Label Switched Paths (LSPs) Using TE Metric
+       Extensions";
+  }
+
+  typedef srlg {
+    type uint32;
+    description "SRLG type";
+    reference "RFC4203 and RFC5307";
+  }
+
+  typedef te-admin-status {
+    type enumeration {
+      enum up {
+        description
+          "Enabled.";
+      }
+      enum down {
+        description
+          "Disabled.";
+      }
+      enum testing {
+        description
+          "In some test mode.";
+      }
+      enum preparing-maintenance {
+        description
+          "Resource is disabled in the control plane to prepare for
+           graceful shutdown for maintenance purposes.";
+        reference
+          "RFC5817: Graceful Shutdown in MPLS and Generalized MPLS
+           Traffic Engineering Networks";
+      }
+      enum maintenance {
+        description
+          "Resource is disabled in the data plane for maintenance
+           purposes.";
+      }
+    }
+    description
+      "Defines a type representing the administrative status of
+       a TE resource.";
+  }
 
   typedef te-bandwidth {
     type string {
@@ -135,35 +230,14 @@ module ietf-te-types {
     reference "RFC4124: section-4.3.1";
   }
 
-  typedef te-link-direction {
-    type enumeration {
-      enum incoming {
-        description
-          "explicit route represents an incoming link on a node";
-      }
-      enum outgoing {
-        description
-          "explicit route represents an outgoing link on a node";
-      }
-    }
+  typedef te-global-id {
+    type uint32;
     description
-     "enumerated type for specifying direction of link on a node";
-  }
-
-  typedef te-label-direction {
-    type enumeration {
-      enum forward {
-        description
-          "Label allocated for the forward LSP direction";
-      }
-      enum reverse {
-        description
-          "Label allocated for the reverse LSP direction";
-      }
-    }
-    description
-     "enumerated type for specifying the forward or reverse
-     label";
+      "An identifier to uniquely identify an operator, which can be
+       either a provider or a client.
+       The definition of this type is taken from RFC6370 and RFC5003.
+       This attribute type is used solely to provide a globally
+       unique context for TE topologies.";
   }
 
   typedef te-hop-type {
@@ -183,78 +257,6 @@ module ietf-te-types {
     reference "RFC3209: section-4.3.2";
   }
 
-  typedef performance-metrics-normality {
-    type enumeration {
-      enum "unknown" {
-        value 0;
-        description
-          "Unknown.";
-      }
-      enum "normal" {
-        value 1;
-        description
-          "Normal.";
-      }
-      enum "abnormal" {
-        value 2;
-        description
-          "Abnormal. The anomalous bit is set.";
-      }
-    }
-    description
-      "Indicates whether a performance metric is normal, abnormal, or
-       unknown.";
-    reference
-      "RFC7471: OSPF Traffic Engineering (TE) Metric Extensions.
-       RFC7810: IS-IS Traffic Engineering (TE) Metric Extensions.
-       RFC7823: Performance-Based Path Selection for Explicitly
-       Routed Label Switched Paths (LSPs) Using TE Metric
-       Extensions";
-  }
-
-  typedef te-admin-status {
-    type enumeration {
-      enum up {
-        description
-          "Enabled.";
-      }
-      enum down {
-        description
-          "Disabled.";
-      }
-      enum testing {
-        description
-          "In some test mode.";
-      }
-      enum preparing-maintenance {
-        description
-          "Resource is disabled in the control plane to prepare for
-           graceful shutdown for maintenance purposes.";
-        reference
-          "RFC5817: Graceful Shutdown in MPLS and Generalized MPLS
-           Traffic Engineering Networks";
-      }
-      enum maintenance {
-        description
-          "Resource is disabled in the data plane for maintenance
-           purposes.";
-      }
-    }
-    description
-      "Defines a type representing the administrative status of
-       a TE resource.";
-  }
-
-  typedef te-global-id {
-    type uint32;
-    description
-      "An identifier to uniquely identify an operator, which can be
-       either a provider or a client.
-       The definition of this type is taken from RFC6370 and RFC5003.
-       This attribute type is used solely to provide a globally
-       unique context for TE topologies.";
-  }
-
   typedef te-link-access-type {
     type enumeration {
       enum point-to-point {
@@ -271,6 +273,43 @@ module ietf-te-types {
     reference
       "RFC3630: Traffic Engineering (TE) Extensions to OSPF
        Version 2.";
+  }
+
+  typedef te-label-direction {
+    type enumeration {
+      enum forward {
+        description
+          "Label allocated for the forward LSP direction";
+      }
+      enum reverse {
+        description
+          "Label allocated for the reverse LSP direction";
+      }
+    }
+    description
+     "enumerated type for specifying the forward or reverse
+     label";
+  }
+
+  typedef te-link-direction {
+    type enumeration {
+      enum incoming {
+        description
+          "explicit route represents an incoming link on a node";
+      }
+      enum outgoing {
+        description
+          "explicit route represents an outgoing link on a node";
+      }
+    }
+    description
+     "enumerated type for specifying direction of link on a node";
+  }
+
+  typedef te-metric {
+    type uint32;
+    description "TE link metric";
+    reference "RFC3785";
   }
 
   typedef te-node-id {
@@ -465,45 +504,6 @@ module ietf-te-types {
       "An identifier for a TE link endpoint on a node.
        This attribute is mapped to local or remote link identifier in
        RFC3630 and RFC5305.";
-  }
-
-  typedef admin-group {
-    type yang:hex-string {
-      /* 01:02:03:04 */
-      length "1..11";
-    }
-    description
-      "Administrative group/Resource class/Color representation in
-       hex-string type.";
-    reference "RFC3630 and RFC5305";
-  }
-
-  typedef extended-admin-group {
-    type yang:hex-string;
-    description
-      "Extended administrative group/Resource class/Color
-       representation in hex-string type";
-    reference "RFC7308";
-  }
-
-  typedef admin-groups {
-    type union {
-      type admin-group;
-      type extended-admin-group;
-    }
-    description "TE administrative group derived type";
-  }
-
-  typedef srlg {
-    type uint32;
-    description "SRLG type";
-    reference "RFC4203 and RFC5307";
-  }
-
-  typedef te-metric {
-    type uint32;
-    description "TE link metric";
-    reference "RFC3785";
   }
 
   /* TE features */
@@ -2352,14 +2352,14 @@ module ietf-te-types {
     container label-start {
       must "(not(../label-end/te-label/direction) and" +
                     " not(te-label/direction))"
-        + " or"
+        + " or "
         +  "(../label-end/te-label/direction = te-label/direction)"
-        + " or"
+        + " or "
         +  "(not(te-label/direction) and" +
                     " (../label-end/te-label/direction = 'forward'))"
-        + " or"
+        + " or "
         +  "(not(../label-end/te-label/direction) and" +
-                    " (te-label/direction = 'forward')" {
+                    " (te-label/direction = 'forward'))" {
         error-message
           "label-start and label-end must have the same direction.";
       }
@@ -2372,14 +2372,14 @@ module ietf-te-types {
     container label-end {
       must "(not(../label-start/te-label/direction) and" +
                     " not(te-label/direction))"
-        + " or"
+        + " or "
         +  "(../label-start/te-label/direction = te-label/direction)"
-        + " or"
+        + " or "
         +  "(not(te-label/direction) and" +
                     " (../label-start/te-label/direction = 'forward'))"
-        + " or"
+        + " or "
         +  "(not(../label-start/te-label/direction) and" +
-                    " (te-label/direction = 'forward')" {
+                    " (te-label/direction = 'forward'))" {
         error-message
           "label-start and label-end must have the same direction.";
       }
@@ -2467,14 +2467,14 @@ module ietf-te-types {
     }
     container explicit-route-exclude-objects {
       when "../metric-type = " +
-           "'path-metric-optimize-excludes'";
+           "'te-types:path-metric-optimize-excludes'";
       description
         "Container for the exclude route object list";
       uses path-route-exclude-objects;
     }
     container explicit-route-include-objects {
       when "../metric-type = " +
-           "'path-metric-optimize-includes'";
+           "'te-types:path-metric-optimize-includes'";
       description
         "Container for the include route object list";
       uses path-route-include-objects;
@@ -2495,7 +2495,7 @@ module ietf-te-types {
       type identityref {
         base link-protection-type;
       }
-      default link-protection-unprotected;
+      default te-types:link-protection-unprotected;
       description
         "Link Protection Type desired for this link.";
       reference
@@ -2525,7 +2525,7 @@ module ietf-te-types {
       type identityref {
         base path-signaling-type;
       }
-      default path-setup-rsvp;
+      default te-types:path-setup-rsvp;
       description "TE tunnel path signaling type";
     }
   }
@@ -2536,16 +2536,6 @@ module ietf-te-types {
        a constraint set or directly on the tunnel";
     uses te-topology-identifier;
     uses common-constraints;
-  }
-
-  grouping path-objective-function {
-    description "Optimization metrics configuration grouping";
-    leaf objective-function-type {
-      type identityref {
-        base objective-function-type;
-      }
-      description "Objective function entry";
-    }
   }
 
   grouping path-constraints-route-objects {
@@ -2580,6 +2570,7 @@ module ietf-te-types {
           type identityref {
             base route-usage-type;
           }
+          default te-types:route-exclude-object;
           description "Include or exclude usage";
         }
         leaf index {
@@ -2736,7 +2727,13 @@ module ietf-te-types {
             description
               "The objective function container that includes
                attributes to impose when computing a TE path";
-            uses path-objective-function;
+            leaf objective-function-type {
+              type identityref {
+                base objective-function-type;
+              }
+              default te-types:of-minimize-cost-path;
+              description "Objective function entry";
+            }
           }
         }
       }
