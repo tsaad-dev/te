@@ -17,7 +17,7 @@ module ietf-te-types {
 
   import ietf-routing-types {
     prefix "rt-types";
-    reference "RFC6991: Common YANG Data Types";
+    reference "RFC8294: Common YANG Data Types";
   }
 
   organization
@@ -453,6 +453,7 @@ module ietf-te-types {
        separated by colons. The prefixes can be the network-types,
        defined in ietf-network.yang, to help user to understand the
        topology better before further inquiry.";
+    reference "RFC8345";
   }
 
   typedef te-tp-id {
@@ -467,18 +468,21 @@ module ietf-te-types {
   }
 
   typedef admin-group {
-    type binary {
-      length 4;
+    type yang:hex-string {
+      /* 01:02:03:04 */
+      length "1..11";
     }
     description
-      "Administrative group/Resource class/Color.";
+      "Administrative group/Resource class/Color representation in
+       hex-string type.";
     reference "RFC3630 and RFC5305";
   }
 
   typedef extended-admin-group {
-    type binary;
+    type yang:hex-string;
     description
-      "Extended administrative group/Resource class/Color.";
+      "Extended administrative group/Resource class/Color
+       representation in hex-string type";
     reference "RFC7308";
   }
 
@@ -2210,9 +2214,7 @@ module ietf-te-types {
       case as-number {
         container as-number-hop {
           leaf as-number {
-            type binary {
-              length 2;
-            }
+            type inet:as-number;
             mandatory true;
             description "The AS number";
           }
@@ -2345,12 +2347,19 @@ module ietf-te-types {
     leaf index {
       type uint32;
       description
-        "Then index of the label restriction list entry.";
+        "The index of the label restriction list entry.";
     }
     container label-start {
-      must "not(../label-end/te-label/direction) or "
-        + "not(te-label/direction) "
-        + "or ../label-end/te-label/direction = te-label/direction" {
+      must "(not(../label-end/te-label/direction) and" +
+                    " not(te-label/direction))"
+        + " or"
+        +  "(../label-end/te-label/direction = te-label/direction)"
+        + " or"
+        +  "(not(te-label/direction) and" +
+                    " (../label-end/te-label/direction = 'forward'))"
+        + " or"
+        +  "(not(../label-end/te-label/direction) and" +
+                    " (te-label/direction = 'forward')" {
         error-message
           "label-start and label-end must have the same direction.";
       }
@@ -2361,6 +2370,19 @@ module ietf-te-types {
       uses te-label;
     }
     container label-end {
+      must "(not(../label-start/te-label/direction) and" +
+                    " not(te-label/direction))"
+        + " or"
+        +  "(../label-start/te-label/direction = te-label/direction)"
+        + " or"
+        +  "(not(te-label/direction) and" +
+                    " (../label-start/te-label/direction = 'forward'))"
+        + " or"
+        +  "(not(../label-start/te-label/direction) and" +
+                    " (te-label/direction = 'forward')" {
+        error-message
+          "label-start and label-end must have the same direction.";
+      }
       description
         "The ending label if a label range is specified;
          This attribute is not set, If a single label is
@@ -2388,12 +2410,22 @@ module ietf-te-types {
       }
     }
     leaf range-bitmap {
-      type binary;
+      type yang:hex-string;
       description
         "When there are gaps between label-start and label-end,
          this attribute is used to specify the positions
-         of the used labels. This is represented in big-endian and
-         in base64 representation as RFC7951, section 6.6 states";
+         of the used labels. This is represented in big-endian as
+         hex-string.
+
+         Each bit-position in the range-bitmap hex-string maps to a
+         label in the range derived from the label-start.
+
+         For example, assuming label-start=16000 and range-bitmap=0x01000001,
+         then:
+          - bit-position(0) is set, and the corresponding mapped label
+            from the range is: 16000 + 0 or 16000.
+          - bit-position(24) is set, and the corresponding mapped label
+            from ihe ranage is: 16000 + 24  or 16024";
     }
   }
 
@@ -2418,7 +2450,7 @@ module ietf-te-types {
     }
   }
 
-  grouping optimizations_config {
+  grouping optimization-metric-entry {
     description "Optimization metrics configuration grouping";
     leaf metric-type {
       type identityref {
@@ -2449,7 +2481,7 @@ module ietf-te-types {
     }
   }
 
-  grouping common-constraints_config {
+  grouping common-constraints {
     description
       "Common constraints grouping that can be set on
        a constraint set or directly on the tunnel";
@@ -2498,19 +2530,15 @@ module ietf-te-types {
     }
   }
 
-  grouping tunnel-constraints_config {
+  grouping tunnel-constraints {
     description
       "Tunnel constraints grouping that can be set on
        a constraint set or directly on the tunnel";
     uses te-topology-identifier;
-    uses common-constraints_config;
+    uses common-constraints;
   }
 
-  grouping path-metrics-bounds_config {
-    description "TE path metric bounds grouping";
-  }
-
-  grouping path-objective-function_config {
+  grouping path-objective-function {
     description "Optimization metrics configuration grouping";
     leaf objective-function-type {
       type identityref {
@@ -2529,6 +2557,7 @@ module ietf-te-types {
         "Container for the exclude route object list";
       list route-object-exclude-always {
         key index;
+        ordered-by user;
         description
           "List of route objects to always exclude
            from path computation";
@@ -2543,6 +2572,7 @@ module ietf-te-types {
       }
       list route-object-include-exclude {
         key index;
+        ordered-by user;
         description
           "List of route objects to include or exclude in path
            computation";
@@ -2586,6 +2616,7 @@ module ietf-te-types {
        the path computation.";
     list route-object-include-object {
       key index;
+      ordered-by user;
       description
         "List of explicit route objects to be included
          in path computation";
@@ -2606,6 +2637,7 @@ module ietf-te-types {
        the path computation.";
     list route-object-exclude-object {
       key index;
+      ordered-by user;
       description
         "List of explicit route objects to be excluded
          in path computation";
@@ -2676,13 +2708,12 @@ module ietf-te-types {
           list optimization-metric {
             key "metric-type";
             description "TE path metric type";
-            uses optimizations_config;
+            uses optimization-metric-entry;
           }
           /* Tiebreakers */
           container tiebreakers {
             description
-              "The list of tiebreaker criterion to apply
-               on an equally favored set of paths to pick best";
+              "Container for the list of tiebreaker(s)";
             list tiebreaker {
               key "tiebreaker-type";
               description
@@ -2705,7 +2736,7 @@ module ietf-te-types {
             description
               "The objective function container that includes
                attributes to impose when computing a TE path";
-            uses path-objective-function_config;
+            uses path-objective-function;
           }
         }
       }
@@ -2824,7 +2855,7 @@ module ietf-te-types {
   grouping common-path-constraints-attributes {
     description
       "Common path constraints configuration grouping";
-    uses common-constraints_config;
+    uses common-constraints;
     uses generic-path-metric-bounds;
     uses generic-path-affinities;
     uses generic-path-srlgs;
@@ -2868,6 +2899,7 @@ module ietf-te-types {
            the computation engine or actually used by an LSP";
         list path-route-object {
           key index;
+          ordered-by user;
           description
             "List of route objects either returned by the computation
              engine or actually used by an LSP";
