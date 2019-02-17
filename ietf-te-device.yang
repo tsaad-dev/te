@@ -1,5 +1,6 @@
 module ietf-te-device {
   yang-version 1.1;
+
   namespace "urn:ietf:params:xml:ns:yang:ietf-te-device";
 
   /* Replace with IANA when assigned */
@@ -21,7 +22,7 @@ module ietf-te-device {
 
   import ietf-interfaces {
     prefix if;
-    reference "RFC7223: A YANG Data Model for Interface Management";
+    reference "RFC8343: A YANG Data Model for Interface Management";
   }
 
   import ietf-inet-types {
@@ -31,7 +32,7 @@ module ietf-te-device {
 
   import ietf-routing-types {
     prefix "rt-types";
-    reference "RFC6991: Common YANG Data Types";
+    reference "RFC8294: Common YANG Data Types for the Routing Area";
   }
 
   organization
@@ -63,29 +64,24 @@ module ietf-te-device {
      Editor:   Xufeng Liu
                <mailto: xufeng.liu.ietf@gmail.com>
 
-     Editor:   Xia Chen
-               <mailto:jescia.chenxia@huawei.com>
-
-     Editor:   Raqib Jones
-               <mailto:raqib@Brocade.com>
-
-     Editor:   Bin Wen
-               <mailto:Bin_Wen@cable.comcast.com>";
+     Editor:   Igor Bryskin
+               <mailto:Igor.Bryskin@huawei.com>";
 
   description
     "YANG data module for TE device configurations,
     state, RPC and notifications.";
 
-  revision "2018-10-10" {
+  revision "2018-02-15" {
     description "Latest update to TE device YANG module.";
-    reference "TBA";
+    reference
+      "RFCXXXX: A YANG Data Model for Traffic Engineering Tunnels
+       and Interfaces";
   }
-
 
   /**
    * TE LSP device state grouping
    */
-  grouping lsps-device_state {
+  grouping lsps-device-state {
     description "TE LSP device state grouping";
     container lsp-timers {
       when "../te:origin-type = 'ingress'" {
@@ -176,7 +172,7 @@ module ietf-te-device {
   /**
    * Device general groupings.
    */
-  grouping tunnel-device_config {
+  grouping tunnel-device-config {
     description "Device TE tunnel configs";
     leaf path-invalidation-action {
       type identityref {
@@ -186,7 +182,7 @@ module ietf-te-device {
     }
   }
 
-  grouping lsp-device-timers_config {
+  grouping lsp-device-timers-config {
     description "Device TE LSP timers configs";
     leaf lsp-install-interval {
       type uint32;
@@ -206,10 +202,6 @@ module ietf-te-device {
       description
         "lsp path invalidation before taking action delay time";
     }
-  }
-  grouping lsp-device-timers {
-    description "TE LSP timers configuration";
-    uses lsp-device-timers_config;
   }
 
   /**
@@ -241,7 +233,7 @@ module ietf-te-device {
   /**
    * TE interface device generic groupings
    */
-  grouping te-admin-groups_config {
+  grouping te-admin-groups-config {
     description
       "TE interface affinities grouping";
     choice admin-group-type {
@@ -296,7 +288,7 @@ module ietf-te-device {
   }
 
   /* TE interface SRLGs */
-  grouping te-srlgs_config {
+  grouping te-srlgs-config {
     description "TE interface SRLG grouping";
     choice srlg-type {
       description "Choice of SRLG configuration";
@@ -333,7 +325,7 @@ module ietf-te-device {
     }
   }
 
-  grouping te-igp-flooding-bandwidth_config {
+  grouping te-igp-flooding-bandwidth-config {
     description
       "Configurable items for igp flooding bandwidth
       threshold configuration.";
@@ -467,7 +459,7 @@ module ietf-te-device {
   }
 
   /* TE interface metric */
-  grouping te-metric_config {
+  grouping te-metric-config {
     description "Interface TE metric grouping";
     leaf te-metric {
       type te-types:te-metric;
@@ -476,7 +468,7 @@ module ietf-te-device {
   }
 
   /* TE interface switching capabilities */
-  grouping te-switching-cap_config {
+  grouping te-switching-cap-config {
     description
       "TE interface switching capabilities";
     list switching-capabilities {
@@ -500,10 +492,10 @@ module ietf-te-device {
     }
   }
 
-  grouping te-advertisements_state {
+  grouping te-advertisements-state {
     description
       "TE interface advertisements state grouping";
-    container te-advertisements_state {
+    container te-advertisements-state {
       description
         "TE interface advertisements state container";
       leaf flood-interval {
@@ -552,6 +544,7 @@ module ietf-te-device {
             description "Periodic timer expired";
           }
         }
+        default 'periodic-timer';
         description "Trigger for the last flood";
       }
       list advertized-level-areas {
@@ -572,16 +565,16 @@ module ietf-te-device {
   /* TE interface attributes grouping */
   grouping te-attributes {
     description "TE attributes configuration grouping";
-    uses te-metric_config;
-    uses te-admin-groups_config;
-    uses te-srlgs_config;
-    uses te-igp-flooding-bandwidth_config;
-    uses te-switching-cap_config;
+    uses te-metric-config;
+    uses te-admin-groups-config;
+    uses te-srlgs-config;
+    uses te-igp-flooding-bandwidth-config;
+    uses te-switching-cap-config;
     container state {
       config false;
       description
         "State parameters for interface TE metric";
-      uses te-advertisements_state;
+      uses te-advertisements-state;
     }
   }
 
@@ -589,7 +582,7 @@ module ietf-te-device {
     description
       "TE attributes configuration grouping for all
        interfaces";
-    uses te-igp-flooding-bandwidth_config;
+    uses te-igp-flooding-bandwidth-config;
   }
   /*** End of TE interfaces device groupings ***/
 
@@ -611,40 +604,35 @@ module ietf-te-device {
   augment "/te:te/te:globals" {
     description
       "Global TE device specific configuration parameters";
-    uses lsp-device-timers;
+    uses lsp-device-timers-config;
   }
 
   /* TE tunnels device configuration augmentation */
   augment "/te:te/te:tunnels/te:tunnel" {
     description
       "Tunnel device dependent augmentation";
-    uses lsp-device-timers_config;
-  }
-  augment "/te:te/te:tunnels/te:tunnel/te:state" {
-    description
-      "Tunnel device dependent augmentation";
-    uses lsp-device-timers_config;
+    uses lsp-device-timers-config;
   }
 
   /* TE LSPs device state augmentation */
   augment "/te:te/te:lsps-state/te:lsp" {
      description
        "LSP device dependent augmentation";
-     uses lsps-device_state;
+     uses lsps-device-state;
   }
 
   augment "/te:te/te:tunnels/te:tunnel/te:p2p-secondary-paths" +
-    "/te:p2p-secondary-path/te:state/te:lsps/te:lsp" {
+    "/te:p2p-secondary-path/te:lsps/te:lsp" {
     description
       "LSP device dependent augmentation";
-    uses lsps-device_state;
+    uses lsps-device-state;
   }
 
   augment "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
-    "/te:p2p-primary-path/te:state/te:lsps/te:lsp" {
+    "/te:p2p-primary-path/te:lsps/te:lsp" {
     description
       "LSP device dependent augmentation";
-    uses lsps-device_state;
+    uses lsps-device-state;
   }
 
   /* TE interfaces RPCs/execution Data */

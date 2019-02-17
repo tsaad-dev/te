@@ -18,6 +18,11 @@ module ietf-te {
     reference "RFC6991: Common YANG Data Types";
   }
 
+  import ietf-yang-types {
+    prefix "yang";
+    reference "RFC6991: Common YANG Data Types";
+  }
+
   organization
     "IETF Traffic Engineering Architecture and Signaling (TEAS)
      Working Group";
@@ -54,10 +59,10 @@ module ietf-te {
     "YANG data module for TE configuration,
     state, RPC and notifications.";
 
-  revision "2018-02-06" {
+  revision "2018-02-15" {
     description "Latest update to TE generic YANG module.";
     reference
-      "RFC XXXX: A YANG Data Model for Traffic Engineering Tunnels
+      "RFCXXXX: A YANG Data Model for Traffic Engineering Tunnels
        and Interfaces";
   }
 
@@ -99,37 +104,12 @@ module ietf-te {
   /**
    * TE tunnel generic groupings
    */
-  grouping p2p-primary-reverse-path-properties {
-    description "TE P2P tunnel primary reverse path properties.";
-    reference "RFC7551";
-    container p2p-primary-reverse-path {
-      description "Tunnel reverse primary path properties";
-      uses p2p-reverse-path-properties;
-      uses path-constraints-common;
-      container state {
-        config false;
-        description
-          "Configuration applied parameters and state";
-        uses p2p-path-properties-state;
-      }
-      container p2p-secondary-reverse-path {
-        description "Tunnel reverse secondary path properties";
-        uses p2p-secondary-reverse-path-properties;
-      }
-    }
-  }
-
   grouping p2p-secondary-path-properties {
     description "tunnel path properties.";
     uses p2p-path-properties;
     uses path-constraints-common;
     uses protection-restoration-properties;
-    container state {
-      config false;
-      description
-        "Configuration applied parameters and state";
-      uses p2p-path-properties-state;
-    }
+    uses p2p-path-properties-state;
   }
 
   grouping p2p-primary-path-properties {
@@ -137,26 +117,7 @@ module ietf-te {
       "TE tunnel primary path properties grouping";
     uses p2p-path-properties;
     uses path-constraints-common;
-    container state {
-      config false;
-      description
-        "Configuration applied parameters and state";
-      uses p2p-path-properties-state;
-    }
-  }
-
-  grouping path-properties-state {
-    description "Computed path properties grouping";
-    leaf metric-type {
-      type identityref {
-        base te-types:path-metric-type;
-      }
-      description "TE path metric type";
-    }
-    leaf accumulative-value {
-      type uint64;
-      description "TE path metric accumulative value";
-    }
+    uses p2p-path-properties-state;
   }
 
   grouping path-properties {
@@ -167,21 +128,20 @@ module ietf-te {
         key metric-type;
         description "TE path metric type";
         leaf metric-type {
-          type leafref {
-            path "../state/metric-type";
+          type identityref {
+            base te-types:path-metric-type;
           }
           description "TE path metric type";
         }
-        container state {
-          config false;
-          description
-            "Configuration applied parameters and state";
-          uses path-properties-state;
+        leaf accumulative-value {
+          type uint64;
+          description "TE path metric accumulative value";
         }
       }
       uses te-types:generic-path-affinities;
       uses te-types:generic-path-srlgs;
       container path-route-objects {
+        config 'false';
         description
           "Container for the list of computed route objects
            as returned by the computation engine";
@@ -192,24 +152,13 @@ module ietf-te {
             "List of computed route objects returned by the
              computation engine";
           leaf index {
-            type leafref {
-              path "../state/index";
-            }
-            description "Index of computed route object";
-          }
-          container state {
-            config false;
+            type uint32;
             description
-              "Configuration applied parameters and state";
-            leaf index {
-              type uint32;
-              description
-                "Route object entry index. The index is used to
-                 identify an entry in the list. The order of entries
-                 is defined by the user without relying on key values";
-            }
-            uses te-types:explicit-route-hop;
+              "Route object entry index. The index is used to
+               identify an entry in the list. The order of entries
+               is defined by the user without relying on key values";
           }
+          uses te-types:explicit-route-hop;
         }
       }
       uses shared-resources-tunnels;
@@ -219,6 +168,7 @@ module ietf-te {
   grouping p2p-path-properties-state {
     description "TE per path state parameters";
     container computed-paths-properties {
+      config 'false';
       description "Computed path properties container";
       list computed-path-properties {
         key k-index;
@@ -236,6 +186,7 @@ module ietf-te {
       }
     }
     container lsps {
+      config 'false';
       description "TE LSPs container";
       list lsp {
         key
@@ -263,6 +214,7 @@ module ietf-te {
       type identityref {
         base te-types:path-signaling-type;
       }
+      default te-types:path-setup-static;
       description
         "Signaling protocol used to set up this tunnel";
     }
@@ -299,6 +251,7 @@ module ietf-te {
       when "../path-computation-method =" +
       " 'te-types:path-locally-computed'";
       type boolean;
+      default 'true';
       description "A CSPF dynamically computed path";
     }
     leaf lockdown {
@@ -312,7 +265,7 @@ module ietf-te {
         base te-types:path-scope-type;
       }
       default te-types:path-scope-end-to-end;
-      config false;
+      config 'false';
       description "Path scope if segment or an end-to-end path";
     }
   }
@@ -336,6 +289,21 @@ module ietf-te {
     }
   }
 
+  grouping p2p-primary-reverse-path-properties {
+    description "TE P2P tunnel primary reverse path properties.";
+    reference "RFC7551";
+    container p2p-primary-reverse-path {
+      description "Tunnel reverse primary path properties";
+      uses p2p-reverse-path-properties;
+      uses path-constraints-common;
+      uses p2p-path-properties-state;
+      container p2p-secondary-reverse-path {
+        description "Tunnel reverse secondary path properties";
+        uses p2p-secondary-reverse-path-properties;
+      }
+    }
+  }
+
   grouping p2p-path-properties {
     description
       "TE tunnel path properties configuration grouping";
@@ -345,12 +313,14 @@ module ietf-te {
       type uint8 {
         range "1..255";
       }
+      default 1;
       description
         "Specifies a preference for this path. The lower the
         number higher the preference";
     }
     leaf k-requested-paths {
       type uint8;
+      default 1;
       description
         "The number of k-shortest-paths  requested from the path
          computation server and returned sorted by its optimization
@@ -379,16 +349,19 @@ module ietf-te {
          that this tunnel is associated with.";
       leaf local-te-node-id {
         type te-types:te-node-id;
+        default "0.0.0.0";
         description
           "Local TE node identifier";
       }
       leaf local-te-link-tp-id {
         type te-types:te-tp-id;
+        default 0;
         description
           "Local TE link termination point identifier";
       }
       leaf remote-te-node-id {
         type te-types:te-node-id;
+        default "0.0.0.0";
         description
           "Remote TE node identifier";
       }
@@ -401,6 +374,7 @@ module ietf-te {
       "Protection parameters grouping";
     leaf lockout-of-normal {
       type boolean;
+      default 'false';
       description
         "
           When set to 'True', it represents a lockout of normal
@@ -409,10 +383,11 @@ module ietf-te {
           command. The lockout of normal traffic command applies
           to this Tunnel.
         ";
-      reference "RFC 4427";
+      reference "RFC4427";
     }
     leaf freeze {
       type boolean;
+      default 'false';
       description
         "
           When set to 'True', it represents a freeze external
@@ -421,7 +396,7 @@ module ietf-te {
           applies to all the Tunnels which are sharing the
           protection resources with this Tunnel.
         ";
-      reference "RFC 4427";
+      reference "RFC4427";
     }
     leaf lsp-protection-role {
       type enumeration {
@@ -439,20 +414,23 @@ module ietf-te {
              has not been committed at the data plane";
         }
       }
+      default working;
       description "LSP role type";
-      reference "rfc4872, section 4.2.1";
+      reference "RFC4872, section 4.2.1";
     }
 
     leaf lsp-protection-state {
       type identityref {
         base te-types:lsp-protection-state;
       }
+      default te-types:normal;
       description
         "The state of the APS state machine controlling which
          tunnels is using the resources of the protecting LSP.";
     }
     leaf protection-group-ingress-node-id {
       type te-types:te-node-id;
+      default "0.0.0.0";
       description
         "Indicates the te-node-id of the protection group
         ingress node when the APS state represents an extenal
@@ -466,6 +444,7 @@ module ietf-te {
     }
     leaf protection-group-egress-node-id {
       type te-types:te-node-id;
+      default "0.0.0.0";
       description
         "Indicates the te-node-id of the protection group egress node
         when the APS state represents an extenal command (LoP, SF,
@@ -488,16 +467,18 @@ module ietf-te {
         default 'false';
         description
           "A flag to specify if LSP protection is enabled";
-        reference "rfc4427";
+        reference "RFC4427";
       }
       leaf protection-type {
         type identityref {
           base te-types:lsp-protection-type;
         }
+        default te-types:lsp-protection-unprotected;
         description "LSP protection type.";
       }
       leaf protection-reversion-disable {
         type boolean;
+        default 'false';
         description "Disable protection reversion to working path";
       }
       leaf hold-off-time {
@@ -508,26 +489,27 @@ module ietf-te {
           "The time between the declaration of an SF or SD condition
            and the initialization of the protection switching
            algorithm.";
-        reference "rfc4427";
+        reference "RFC4427";
       }
       leaf wait-to-revert {
         type uint16;
         units seconds;
         description
          "Time to wait before attempting LSP reversion";
-        reference "rfc4427";
+        reference "RFC4427";
       }
       leaf aps-signal-id {
         type uint8 {
           range "1..255";
         }
+        default 1;
         description
           "The APS signal number used to reference the traffic of this
            tunnel. The default value for normal traffic is 1.
            The default value for extra-traffic is 255. If not specified,
            non-default values can be assigned by the server,
            if and only if, the server controls both endpoints.";
-        reference "RFC 4427";
+        reference "RFC4427";
       }
     }
     container restoration {
@@ -537,22 +519,25 @@ module ietf-te {
         default 'false';
         description
           "A flag to specify if LSP restoration is enabled";
-        reference "rfc4427";
+        reference "RFC4427";
       }
       leaf restoration-type {
         type identityref {
           base te-types:lsp-restoration-type;
         }
+        default te-types:lsp-restoration-restore-any;
         description "LSP restoration type.";
       }
       leaf restoration-scheme {
         type identityref {
           base te-types:restoration-scheme-type;
         }
+        default te-types:restoration-scheme-preconfigured;
         description "LSP restoration scheme.";
       }
       leaf restoration-reversion-disable {
         type boolean;
+        default 'false';
         description "Disable restoration reversion to working path";
       }
       leaf hold-off-time {
@@ -562,21 +547,21 @@ module ietf-te {
           "The time between the declaration of an SF or SD condition
            and the initialization of the protection switching
            algorithm.";
-        reference "rfc4427";
+        reference "RFC4427";
       }
       leaf wait-to-restore {
         type uint16;
         units seconds;
         description
-         "Time to wait before attempting LSP restoration";
-        reference "rfc4427";
+          "Time to wait before attempting LSP restoration";
+        reference "RFC4427";
       }
       leaf wait-to-revert {
         type uint16;
         units seconds;
         description
-         "Time to wait before attempting LSP reversion";
-        reference "rfc4427";
+          "Time to wait before attempting LSP reversion";
+        reference "RFC4427";
       }
     }
   }
@@ -592,7 +577,7 @@ module ietf-te {
         leaf name {
           type leafref {
             path "../../../../../tunnels/tunnel/name";
-            require-instance false;
+            require-instance 'false';
           }
           description "Dependency tunnel name";
         }
@@ -600,6 +585,7 @@ module ietf-te {
           type identityref {
             base te-types:lsp-encoding-types;
           }
+          default te-types:lsp-encoding-packet;
           description "LSP encoding type";
           reference "RFC3945";
         }
@@ -607,6 +593,7 @@ module ietf-te {
           type identityref {
             base te-types:switching-capabilities;
           }
+          default te-types:switching-psc1;
           description "LSP switching type";
           reference "RFC3945";
         }
@@ -629,6 +616,7 @@ module ietf-te {
     }
     leaf description {
       type string;
+      default 'None';
       description
         "Textual description for this TE tunnel";
     }
@@ -636,6 +624,7 @@ module ietf-te {
       type identityref {
         base te-types:lsp-encoding-types;
       }
+      default te-types:lsp-encoding-packet;
       description "LSP encoding type";
       reference "RFC3945";
     }
@@ -643,6 +632,7 @@ module ietf-te {
       type identityref {
         base te-types:switching-capabilities;
       }
+      default te-types:switching-psc1;
       description "LSP switching type";
       reference "RFC3945";
     }
@@ -657,34 +647,34 @@ module ietf-te {
       type uint8 {
         range "1..255";
       }
+      default 100;
       description
         "Specifies a preference for this tunnel.
-        A lower number signifies a better preference";
+         A lower number signifies a better preference";
     }
     leaf reoptimize-timer {
       type uint16;
       units seconds;
       description
-       "frequency of reoptimization of
-        a traffic engineered LSP";
+       "frequency of reoptimization of a traffic engineered LSP";
     }
     leaf source {
       type te-types:te-node-id;
-      description
-        "TE tunnel source node ID.";
+      description "TE tunnel source node ID.";
     }
     leaf destination {
       type te-types:te-node-id;
-      description
-        "TE tunnel destination node ID";
+      description "TE tunnel destination node ID";
     }
     leaf src-tp-id {
-      type binary;
+      type yang:hex-string;
+      default '00:00:00:00';
       description
         "TE tunnel source termination point identifier.";
     }
     leaf dst-tp-id {
-      type binary;
+      type yang:hex-string;
+      default '00:00:00:00';
       description
         "TE tunnel destination termination point identifier.";
     }
@@ -721,12 +711,12 @@ module ietf-te {
           reference "RFC4872";
         }
         leaf source {
-          type inet:ip-address;
+          type te-types:te-node-id;
           description "Association source";
           reference "RFC4872";
         }
         leaf global-source {
-          type inet:ip-address;
+          type te-types:te-node-id;
           description "Association global source";
           reference "RFC4872";
         }
@@ -747,16 +737,16 @@ module ietf-te {
           reference "RFC4872";
         }
         leaf source {
-          type inet:ip-address;
+          type te-types:te-node-id;
           description "Association source";
         }
         leaf global-source {
-          type inet:ip-address;
+          type te-types:te-node-id;
           description "Association global source";
           reference "RFC4872";
         }
         leaf extended-ID {
-          type binary;
+          type yang:hex-string;
           description "Association extended ID";
           reference "RFC4872";
         }
@@ -801,24 +791,21 @@ module ietf-te {
       type uint16;
       description
         "TE tunnel Identifier.";
-      reference "RFC 3209";
+      reference "RFC3209";
     }
     leaf description {
       type string;
+      default 'None';
       description
         "Textual description for this TE tunnel";
     }
-    container state {
-      config false;
-      description
-        "Configuration applied parameters and state";
-      leaf operational-state {
-        type identityref {
-          base te-types:tunnel-state-type;
-        }
-        default te-types:tunnel-state-up;
-        description "TE tunnel administrative state.";
+    leaf operational-state {
+      type identityref {
+        base te-types:tunnel-state-type;
       }
+      default te-types:tunnel-state-up;
+      config 'false';
+      description "TE tunnel administrative state.";
     }
   }
 
@@ -841,6 +828,7 @@ module ietf-te {
       type identityref {
         base te-types:path-signaling-type;
       }
+      default te-types:path-setup-static;
       description
         "Signaling protocol used to set up this tunnel";
     }
@@ -865,40 +853,24 @@ module ietf-te {
       type identityref {
         base te-types:path-signaling-type;
       }
+      default te-types:path-setup-static;
       description
         "Signaling protocol used to set up this tunnel";
-    }
-  }
-
-  grouping p2p-path-candidate-secondary-path-state {
-    description
-      "Operational state parameters relating to a secondary path
-      which is a candidate for a particular primary path";
-
-    leaf active {
-      type boolean;
-      description
-        "Indicates the current active path option that has
-        been selected of the candidate secondary paths";
     }
   }
 
   grouping tunnel-p2p-properties {
     description
       "Top level grouping for tunnel properties.";
-    uses tunnel-p2p-config;
-    container state {
-      config false;
-      description
-        "Configuration applied parameters and state";
-      leaf operational-state {
-        type identityref {
-          base te-types:tunnel-state-type;
-        }
-        default te-types:tunnel-state-up;
-        description "TE tunnel administrative state.";
+    leaf operational-state {
+      type identityref {
+        base te-types:tunnel-state-type;
       }
+      default te-types:tunnel-state-up;
+      config 'false';
+      description "TE tunnel administrative state.";
     }
+    uses tunnel-p2p-config;
     container p2p-primary-paths {
       description "Set of P2P primary aths container";
       list p2p-primary-path {
@@ -925,11 +897,12 @@ module ietf-te {
               "List of secondary paths for this tunnel.";
             uses p2p-path-candidate-secondary-path-config;
 
-            container state {
-              config false;
+            leaf active {
+              type boolean;
+              config 'false';
               description
-                "Configuration applied parameters and state";
-              uses p2p-path-candidate-secondary-path-state;
+                "Indicates the current active path option that has
+                been selected of the candidate secondary paths";
             }
           }
         }
@@ -1052,7 +1025,7 @@ module ietf-te {
             "Indicates whether the manual-switch or forced-switch
              commands applies to the normal traffic, the null traffic
              or the extra-traffic.";
-          reference "RFC 4427";
+          reference "RFC4427";
         }
         leaf extra-traffic-tunnel-ref {
           type tunnel-ref;
@@ -1090,7 +1063,7 @@ module ietf-te {
     description
       "LSPs state operational data grouping";
     container lsps-state {
-      config false;
+      config 'false';
       description "TE LSPs state container";
       list lsp {
         key
@@ -1183,16 +1156,17 @@ module ietf-te {
 
   /* Global named paths constraints configuration data */
   grouping path-constraints-state {
-    description
-      "TE path constraints state";
+    description "TE path constraints state";
     leaf bandwidth {
       type te-types:te-bandwidth;
+      config 'false';
       description
         "A technology agnostic requested bandwidth to use
          for path computation";
     }
     leaf disjointness-type {
       type te-types:te-path-disjointness;
+      config 'false';
       description
         "The type of resource disjointness.";
     }
@@ -1201,7 +1175,7 @@ module ietf-te {
   grouping path-constraints-common {
     description
       "Global named path constraints configuration
-      grouping";
+       grouping";
     uses te-types:common-path-constraints-attributes;
     uses te-types:generic-path-disjointness;
     uses te-types:path-constraints-route-objects;
@@ -1213,17 +1187,6 @@ module ietf-te {
     uses path-access-segment-info {
       description
         "Tunnel constraints induced by other segments.";
-    }
-  }
-
-  grouping path-constraints {
-    description "Per path constraints";
-    uses path-constraints-common;
-    container state {
-      config false;
-      description
-        "Configuration applied parameters and state";
-      uses path-constraints-state;
     }
   }
 
@@ -1242,7 +1205,7 @@ module ietf-te {
             "A string name that uniquely identifies a
             path constraint set";
         }
-        uses path-constraints;
+        uses path-constraints-common;
         description
           "A list of named path constraints";
       }
@@ -1291,14 +1254,14 @@ module ietf-te {
     description
       "LSPs state operational data grouping";
     leaf source {
-      type inet:ip-address;
+      type te-types:te-node-id;
       description
         "Tunnel sender address extracted from
         SENDER_TEMPLATE  object";
       reference "RFC3209";
     }
     leaf destination {
-      type inet:ip-address;
+      type te-types:te-node-id;
       description
         "Tunnel endpoint address extracted from
         SESSION object";
@@ -1322,7 +1285,7 @@ module ietf-te {
       reference "RFC3209";
     }
     leaf extended-tunnel-id {
-      type inet:ip-address;
+      type yang:dotted-quad;
        description
         "Extended Tunnel ID of the LSP.";
       reference "RFC3209";
@@ -1337,6 +1300,7 @@ module ietf-te {
       type identityref {
         base te-types:path-signaling-type;
       }
+      default te-types:path-setup-static;
       description
         "Signaling protocol used to set up this tunnel";
     }
@@ -1355,6 +1319,7 @@ module ietf-te {
             "transit";
         }
       }
+      default 'ingress';
       description
         "Origin type of LSP relative to the location
         of the local switch in the path.";
@@ -1375,8 +1340,9 @@ module ietf-te {
              has not been committed at the data plane";
         }
       }
+      default 'primary';
       description "LSP resource allocation type";
-      reference "rfc4872, section 4.2.1";
+      reference "RFC4872, section 4.2.1";
     }
 
     uses protection-restoration-properties-state;

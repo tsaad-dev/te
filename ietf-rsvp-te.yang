@@ -102,18 +102,7 @@ module ietf-rsvp-te {
         key "index";
         description
           "List of RSVP Path record-route objects";
-        leaf index {
-          type leafref {
-            path "../state/index";
-          }
-          description "RRO subobject index";
-        }
-        container state {
-          config false;
-          description
-            "State parameters for the record route hop";
-          uses te-types:record-route_state;
-        }
+        uses te-types:record-route_state;
       }
     }
     container outgoing-record-route-subobjects {
@@ -125,18 +114,7 @@ module ietf-rsvp-te {
         key "index";
         description
           "List of RSVP Resv record-route objects";
-        leaf index {
-          type leafref {
-            path "../state/index";
-          }
-          description "RRO subobject index";
-        }
-        container state {
-          config false;
-          description
-            "State parameters for the record route hop";
-          uses te-types:record-route_state;
-        }
+        uses te-types:record-route_state;
       }
     }
   }
@@ -153,21 +131,10 @@ module ietf-rsvp-te {
         description
           "List of incoming RSVP Path explicit-route objects";
         leaf index {
-          type leafref {
-            path "../state/index";
-          }
+          type uint32;
           description "ERO subobject index";
         }
-        container state {
-          config false;
-          description
-            "State parameters for the explicit route hop";
-          leaf index {
-            type uint32;
-            description "ERO subobject index";
-          }
-          uses te-types:explicit-route-hop;
-        }
+        uses te-types:explicit-route-hop;
       }
       list outgoing-explicit-route-hop {
         when "../../te:origin-type != 'egress'" {
@@ -177,21 +144,10 @@ module ietf-rsvp-te {
         description
           "List of outgoing RSVP Path explicit-route objects";
         leaf index {
-          type leafref {
-            path "../state/index";
-          }
+          type uint32;
           description "ERO subobject index";
         }
-        container state {
-          config false;
-          description
-            "State parameters for the explicit route hop";
-          leaf index {
-            type uint32;
-            description "ERO subobject index";
-          }
-          uses te-types:explicit-route-hop;
-        }
+        uses te-types:explicit-route-hop;
       }
     }
   }
@@ -479,19 +435,6 @@ module ietf-rsvp-te {
     uses tunnel-properties_config;
   }
 
-  augment "/te:te/te:tunnels/te:tunnel/te:state" {
-    when "/te:te/te:tunnels/te:tunnel" +
-      "/te:p2p-primary-paths/te:p2p-primary-path" +
-      "/te:path-setup-protocol = 'te-types:path-setup-rsvp'" {
-      description
-      "When the path signaling protocol is RSVP-TE ";
-    }
-    description
-      "RSVP-TE generic data augmentation pertaining to TE tunnels";
-    uses lsp-properties_config;
-    uses tunnel-properties_config;
-  }
-
   /* TE LSP augmentation */
   grouping rsvp-te-lsp-properties {
     description "RSVP-TE LSP properties grouping";
@@ -501,6 +444,7 @@ module ietf-rsvp-te {
            + "rt:control-plane-protocol/rsvp:rsvp/rsvp:globals/"
            + "rsvp:sessions/rsvp:session/rsvp:local-index";
       }
+      config false;
       description
         "If the signalling protocol specified for this path is
         RSVP-TE, this leaf provides a reference to the associated
@@ -526,7 +470,7 @@ module ietf-rsvp-te {
   }
 
   augment "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
-          "/te:p2p-primary-path/te:state/te:lsps/te:lsp" {
+          "/te:p2p-primary-path/te:lsps/te:lsp" {
     when "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
           "/te:p2p-primary-path/te:state/te:lsps/te:lsp" +
           "/te:path-setup-protocol = 'te-types:path-setup-rsvp'" {
@@ -540,9 +484,9 @@ module ietf-rsvp-te {
   }
 
   augment "/te:te/te:tunnels/te:tunnel/te:p2p-secondary-paths" +
-    "/te:p2p-secondary-path/te:state/te:lsps/te:lsp" {
+    "/te:p2p-secondary-path/te:lsps/te:lsp" {
     when "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
-          "/te:p2p-primary-path/te:state/te:lsps/te:lsp" +
+          "/te:p2p-primary-path/te:lsps/te:lsp" +
           "/te:path-setup-protocol = 'te-types:path-setup-rsvp'" {
         description
         "When the signaling protocol is RSVP-TE ";
