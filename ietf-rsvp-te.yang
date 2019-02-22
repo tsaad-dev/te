@@ -58,40 +58,53 @@ module ietf-rsvp-te {
                <mailto:vbeeram@juniper.net>
 
      Editor:   Tarek Saad
-               <mailto:tsaad@cisco.com>
+               <mailto:tsaad.net@gmail.com>
 
      Editor:   Rakesh Gandhi
                <mailto:rgandhi@cisco.com>
 
-     Editor:   Himanshu Shah
-               <mailto:hshah@ciena.com>
-
      Editor:   Xufeng Liu
                <mailto: xufeng.liu.ietf@gmail.com>
 
-     Editor:   Xia Chen
-               <mailto:jescia.chenxia@huawei.com>
+     Editor:   Igor Bryskin
+               <mailto:Igor.Bryskin@huawei.com>
 
-     Editor:   Raqib Jones
-               <mailto:raqib@Brocade.com>
-
-     Editor:   Bin Wen
-               <mailto:Bin_Wen@cable.comcast.com>";
+     Editor:   Himanshu Shah
+               <mailto:hshah@ciena.com>";
 
   description
-    "This module contains the RSVP-TE YANG generic data model.";
+    "This module contains the RSVP-TE YANG generic data model.
+     The model fully conforms to the Network Management Datastore
+     Architecture (NMDA).
+
+     Copyright (c) 2018 IETF Trust and the persons
+     identified as authors of the code.  All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject
+     to the license terms contained in, the Simplified BSD License
+     set forth in Section 4.c of the IETF Trust's Legal Provisions
+     Relating to IETF Documents
+     (https://trustee.ietf.org/license-info).
+     This version of this YANG module is part of RFC XXXX; see
+     the RFC itself for full legal notices.";
+
+  // RFC Ed.: replace XXXX with actual RFC number and remove this
+  // note.
+
+  // RFC Ed.: update the date below with the date of RFC publication
+  // and remove this note.
 
   revision "2019-02-18" {
     description "A YANG Data Model for RSVP-TE";
     reference
-      "RFCXXXX: A YANG Data Model for RSVP-TE";
+      "RFCXXXX: A YANG Data Model for RSVP-TE Protocol";
   }
 
 
   /**
    * RSVP-TE LSPs groupings.
    */
-
   grouping lsp-record-route-information-state {
     description "recorded route information grouping";
     container incoming-record-route-subobjects {
@@ -101,6 +114,7 @@ module ietf-rsvp-te {
           description "Applicable on non-ingress LSPs only";
         }
         key "index";
+        ordered-by user;
         description
           "List of RSVP Path record-route objects";
         uses te-types:record-route_state;
@@ -113,6 +127,7 @@ module ietf-rsvp-te {
           description "Applicable on non-egress LSPs only";
         }
         key "index";
+        ordered-by user;
         description
           "List of RSVP Resv record-route objects";
         uses te-types:record-route_state;
@@ -129,11 +144,15 @@ module ietf-rsvp-te {
           description "Applicable on non-ingress LSPs only";
         }
         key "index";
+        ordered-by user;
         description
           "List of incoming RSVP Path explicit-route objects";
         leaf index {
           type uint32;
-          description "ERO subobject index";
+          description
+            "Explicit route hop index. The index is used to
+             identify an entry in the list. The order of entries
+             is defined by the user without relying on key values";
         }
         uses te-types:explicit-route-hop;
       }
@@ -142,11 +161,15 @@ module ietf-rsvp-te {
           description "Applicable on non-egress LSPs only";
         }
         key "index";
+        ordered-by user;
         description
           "List of outgoing RSVP Path explicit-route objects";
         leaf index {
           type uint32;
-          description "ERO subobject index";
+          description
+            "Explicit route hop index. The index is used to
+             identify an entry in the list. The order of entries
+             is defined by the user without relying on key values";
         }
         uses te-types:explicit-route-hop;
       }
@@ -157,51 +180,13 @@ module ietf-rsvp-te {
     description
       "Configuration parameters relating to RSVP-TE LSP
       attribute flags";
-    leaf lsp-rerouting {
-      type enumeration {
-        enum end-to-end-routing {
-          description
-            "End-to-end routing desired";
-          reference "RFC4920, RFC5420";
-        }
-        enum boundary-rerouting {
-          description
-            "Boundary rerouting desired";
-          reference "RFC4920, RFC5420";
-        }
-        enum segment-based-rerouting {
-          description
-            "Segment-based rerouting desired";
-          reference "RFC4920, RFC5420";
-        }
+    leaf-list lsp-attribute {
+      type identityref {
+        base te-types:lsp-attributes-flags;
       }
-      description "LSP rerouting types";
-    }
-    leaf lsp-integrity-required {
-      type boolean;
-      description "LSP integrity desired";
-      reference "RFC4875";
-    }
-    leaf lsp-contiguous {
-      type boolean;
-      description "Contiguous LSP";
-      reference "RFC5151";
-    }
-    leaf lsp-stitching-desired {
-      type boolean;
-      description "Stitched LSP";
-      reference "RFC5150";
-    }
-    leaf lsp-preplanned {
-      type boolean;
-      description "Preplanned LSP";
-      reference "RFC6001";
-    }
-    leaf lsp-oob-mapping {
-      type boolean;
-      description
-        "Mapping is done out-of-band";
-      reference "RFC6511";
+      description "RSVP per LSP attributes flags";
+      reference
+        "RFC4920, RFC5420, RFC7570";
     }
   }
 
@@ -211,25 +196,17 @@ module ietf-rsvp-te {
       session attribute flags";
     reference
       "RFC4859: Registry for RSVP-TE Session Flags";
-    leaf local-recording-desired {
-      type boolean;
-      description "Path recording is desired.";
-      reference "RFC3209";
-    }
-    leaf se-style-desired {
-      type boolean;
-      description "SE Style desired";
-      reference "RFC3209";
-    }
-    leaf path-reevaluation-request {
-      type boolean;
-      description "Path re-evaluation request";
-      reference "RFC4736";
-    }
-    leaf soft-preemption-desired {
-      type boolean;
-      description "Soft-preemption is desired";
-      reference "RFC5712";
+    leaf-list session-attribute {
+      when "../session-attribute !=
+           'te-types:bandwidth-protection-desired' or
+           ../session-attribute !=
+           'te-types:soft-preemption-desired'";
+      type identityref {
+        base te-types:session-attributes-flags;
+      }
+      description "RSVP session attributes flags";
+      reference
+        "RFC4859: Registry for RSVP-TE Session Flags";
     }
   }
 
@@ -265,7 +242,6 @@ module ietf-rsvp-te {
   /**
    * RSVP-TE generic global properties.
    */
-
   grouping global-soft-preemption-config {
     description
       "Configuration for global RSVP-TE soft preemption";
@@ -295,7 +271,6 @@ module ietf-rsvp-te {
   /**
    * RSVP-TE interface generic groupings.
    */
-
   grouping rsvp-te-interface-attributes {
     description
       "Top level grouping for RSVP-TE interface properties.";
@@ -452,7 +427,7 @@ module ietf-rsvp-te {
         session within the RSVP-TE protocol sessions list, such
         that details of the signaling can be retrieved.";
     }
-    
+
     uses lsp-properties-config;
     uses lsp-explicit-route-information-state;
     uses lsp-record-route-information-state;
@@ -473,7 +448,7 @@ module ietf-rsvp-te {
   augment "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
           "/te:p2p-primary-path/te:lsps/te:lsp" {
     when "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
-          "/te:p2p-primary-path/te:state/te:lsps/te:lsp" +
+          "/te:p2p-primary-path/te:lsps/te:lsp" +
           "/te:path-setup-protocol = 'te-types:path-setup-rsvp'" {
         description
         "When the signaling protocol is RSVP-TE ";

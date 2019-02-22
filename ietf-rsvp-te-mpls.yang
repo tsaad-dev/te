@@ -58,130 +58,111 @@ module ietf-rsvp-te-mpls {
                <mailto:vbeeram@juniper.net>
 
      Editor:   Tarek Saad
-               <mailto:tsaad@cisco.com>
+               <mailto:tsaad.net@gmail.com>
 
      Editor:   Rakesh Gandhi
                <mailto:rgandhi@cisco.com>
 
-     Editor:   Himanshu Shah
-               <mailto:hshah@ciena.com>
-
      Editor:   Xufeng Liu
                <mailto: xufeng.liu.ietf@gmail.com>
 
-     Editor:   Xia Chen
-               <mailto:jescia.chenxia@huawei.com>
+     Editor:   Igor Bryskin
+               <mailto:Igor.Bryskin@huawei.com>
 
-     Editor:   Raqib Jones
-               <mailto:raqib@Brocade.com>
-
-     Editor:   Bin Wen
-               <mailto:Bin_Wen@cable.comcast.com>";
+     Editor:   Himanshu Shah
+               <mailto:hshah@ciena.com>";
 
   description
-    "Latest update to MPLS RSVP-TE YANG data model.";
+    "Latest update to MPLS RSVP-TE YANG data model.
+     The model fully conforms to the Network Management Datastore
+     Architecture (NMDA).
 
-  revision "2018-10-20" {
+     Copyright (c) 2018 IETF Trust and the persons
+     identified as authors of the code.  All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject
+     to the license terms contained in, the Simplified BSD License
+     set forth in Section 4.c of the IETF Trust's Legal Provisions
+     Relating to IETF Documents
+     (https://trustee.ietf.org/license-info).
+     This version of this YANG module is part of RFC XXXX; see
+     the RFC itself for full legal notices.";
+
+  // RFC Ed.: replace XXXX with actual RFC number and remove this
+  // note.
+
+  // RFC Ed.: update the date below with the date of RFC publication
+  // and remove this note.
+
+  revision "2019-02-18" {
     description "Update to MPLS RSVP-TE YANG initial revision.";
-    reference "RFC3209, RFC6511, RFC6790, RFC7260, RFC4859, RFC4090";
+    reference
+      "RFCXXXX: A YANG Data Model for RSVP-TE Protocol";
   }
 
   /* RSVP-TE MPLS LSPs groupings */
-  grouping lsp-attributes-flags-mpls_config {
+  grouping lsp-attributes-flags-mpls-config {
     description
       "Configuration parameters relating to RSVP-TE MPLS LSP
       attribute flags";
-    leaf non-php-desired {
-      type empty;
-      description
-        "Non-PHP is desired";
-      reference "RFC6511";
-    }
-    leaf entropy-label-cap {
-      type empty;
-      description "Entropy label capability";
-      reference "RFC6790";
-    }
-    leaf oam-mep-entities-desired {
-      type empty;
-      description "OAM MEP entities desired";
-      reference "RFC7260";
-    }
-    leaf oam-mip-entities-desired {
-      type empty;
-      description "OAM MIP entities desired";
-      reference "RFC7260";
-    }
   }
 
-  grouping lsp-session-attributes-obj-flags-mpls_config {
+  grouping lsp-session-attributes-obj-flags-mpls-config {
     description
       "Configuration parameters relating to RSVP-TE MPLS LSP
        session attribute flags";
     reference
       "RFC4859: Registry for RSVP-TE Session Flags";
-    leaf local-protection-desired {
-      type empty;
-      description "Fastreroute local protection is desired.";
+    leaf-list session-attribute {
+      when "../session-attribute =
+           'te-types:bandwidth-protection-desired' or
+           ../session-attribute =
+           'te-types:soft-preemption-desired'";
+      type identityref {
+        base te-types:session-attributes-flags;
+      }
+      description "RSVP session attributes flags";
       reference
         "RFC4859: Registry for RSVP-TE Session Flags";
     }
-    leaf bandwidth-protection-desired {
-      type empty;
-      description
-        "Request FRR bandwidth protection on LSRs if
-        present.";
-      reference "RFC4090";
-    }
-    leaf node-protection-desired {
-      type empty;
-      description
-        "Request FRR node protection on LSRs if
-        present.";
-      reference "RFC4090";
-    }
   }
 
-  grouping tunnel-properties-mpls_config {
+  grouping tunnel-properties-mpls-config {
     description
       "Top level grouping for LSP properties.";
-    uses lsp-session-attributes-obj-flags-mpls_config;
-    uses lsp-attributes-flags-mpls_config;
+    uses lsp-session-attributes-obj-flags-mpls-config;
+    uses lsp-attributes-flags-mpls-config;
   }
 
   grouping lsp-properties-mpls {
     description
       "Top level grouping for LSP properties.";
-    container state {
-      config false;
-      description
-        "Configuration applied parameters and state";
-      uses lsp-session-attributes-obj-flags-mpls_config;
-      uses lsp-attributes-flags-mpls_config;
-    }
+    uses lsp-session-attributes-obj-flags-mpls-config;
+    uses lsp-attributes-flags-mpls-config;
   }
   /* End of RSVP-TE MPLS LSPs groupings */
 
   /* MPLS RSVP-TE interface groupings */
-  grouping rsvp-te-interface_state {
+  grouping rsvp-te-interface-state {
     description
       "The RSVP-TE interface state grouping";
     leaf over-subscribed-bandwidth {
-      type uint32;
+      type te-packet-types:bandwidth-kbps;
       description
         "The amount of over-subscribed bandwidth on
         the interface";
     }
   }
 
-  grouping rsvp-te-interface-softpreemption_state {
+  grouping rsvp-te-interface-softpreemption-state {
     description
       "The RSVP-TE interface preeemptions state grouping";
     container interface-softpreemption-state {
       description
         "The RSVP-TE interface preeemptions state grouping";
       leaf soft-preempted-bandwidth {
-        type uint32;
+        type te-packet-types:bandwidth-kbps;
         description
           "The amount of soft-preempted bandwidth on
           this interface";
@@ -261,12 +242,10 @@ module ietf-rsvp-te-mpls {
       description
         "Holds the bandwidth constraints properties";
       leaf maximum-reservable {
-        type uint32 {
-          range "0..4294967295";
-        }
+        type te-packet-types:bandwidth-kbps;
         description
           "The maximum reservable bandwidth on the
-          interface";
+          interface in kbps";
       }
       leaf-list bc-value {
         type uint32 {
@@ -302,14 +281,14 @@ module ietf-rsvp-te-mpls {
     }
   }
 
-  grouping bandwidth-mpls-reservable_config {
+  grouping bandwidth-mpls-reservable-config {
     description
       "Interface bandwidth reservable configuration grouping";
     choice bandwidth-value {
       description "Reservable bandwidth configuration choice";
       case absolute {
         leaf absolute-value {
-          type uint32;
+          type te-packet-types:bandwidth-kbps;
           description "Absolute value of the bandwidth";
         }
       }
@@ -361,13 +340,13 @@ module ietf-rsvp-te-mpls {
     container bandwidth-mpls-reservable {
       description 
         "Interface bandwidth reservable container";
-      uses bandwidth-mpls-reservable_config;
+      uses bandwidth-mpls-reservable-config;
     }
   }
   /* End of RSVP-TE interface groupings */
 
   /* RSVP-TE FRR groupings */
-  grouping rsvp-te-frr-auto-tunnel-backup_config {
+  grouping rsvp-te-frr-auto-tunnel-backup-config {
     description
       "Auto-tunnel backup configuration grouping";
     leaf auto-backup-protection {
@@ -390,7 +369,7 @@ module ietf-rsvp-te-mpls {
     }
   }
 
-  grouping rsvp-te-frr-backups_config {
+  grouping rsvp-te-frr-backups-config {
     description
       "Top level container for RSVP-TE FRR backup parameters";
     choice type {
@@ -416,7 +395,7 @@ module ietf-rsvp-te-mpls {
       case auto-tunnel {
         container auto-tunnel-backups {
           description "Auto-tunnel choice";
-          uses rsvp-te-frr-auto-tunnel-backup_config;
+          uses rsvp-te-frr-auto-tunnel-backup-config;
         }
       }
     }
@@ -428,17 +407,17 @@ module ietf-rsvp-te-mpls {
     container rsvp-te-frr-backups {
       description
         "RSVP-TE facility backup properties";
-      uses rsvp-te-frr-backups_config;
+      uses rsvp-te-frr-backups-config;
     }
   }
 
-  grouping lsp-backup-info_state {
+  grouping lsp-backup-info-state {
     description "LSP backup information grouping";
     leaf backup-tunnel-name {
       type string;
       description
-        "If an LSP has an FRR backup LSP that can protect it, 
-        this field identifies the tunnel name of the backup LSP. 
+        "If an LSP has an FRR backup LSP that can protect it,
+        this field identifies the tunnel name of the backup LSP.
         Otherwise, this field is empty.";
     }
     leaf backup-frr-on {
@@ -448,7 +427,7 @@ module ietf-rsvp-te-mpls {
     }
     leaf backup-protected-lsp-num {
       type uint32;
-      description 
+      description
         "Number of LSPs protected by this backup";
     }
   }
@@ -458,16 +437,11 @@ module ietf-rsvp-te-mpls {
     container backup-info {
       description
         "backup information";
-      container state {
-        config false;
-        description
-          "Configuration applied parameters and state";
-        uses lsp-backup-info_state;
-      }
+      uses lsp-backup-info-state;
     }
   }
 
-  grouping fast-reroute-local-revertive_config {
+  grouping fast-reroute-local-revertive-config {
     description "RSVP-TE FRR local revertive grouping";
     leaf rsvp-frr-local-revert-delay {
       type uint32;
@@ -485,7 +459,7 @@ module ietf-rsvp-te-mpls {
       "Top level grouping for globals properties";
     container fast-reroute-local-revertive {
       description "RSVP-TE FRR local revertive container";
-      uses fast-reroute-local-revertive_config;
+      uses fast-reroute-local-revertive-config;
     }
   }
 
@@ -534,9 +508,9 @@ module ietf-rsvp-te-mpls {
    * Augmentation to TE generic module
    */
   augment "/te:te/te:tunnels/te:tunnel" {
-    description 
+    description
       "Augmentations for RSVP-TE MPLS TE tunnel properties";
-    uses tunnel-properties-mpls_config;
+    uses tunnel-properties-mpls-config;
   }
 
   augment "/te:te/te:lsps-state/te:lsp" {
@@ -546,7 +520,7 @@ module ietf-rsvp-te-mpls {
       "When the signaling protocol is RSVP-TE ";
     }
     description
-      "RSVP-TE MPLS LSP state properties";
+      "RSP-TE MPLS LSP state properties";
     uses lsp-properties-mpls;
     uses lsp-backup-info;
   }
