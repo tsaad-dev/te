@@ -2,6 +2,7 @@ module ietf-mpls {
   yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-mpls";
 
+  /* Replace with IANA when assigned */
   prefix "mpls";
 
   import ietf-routing {
@@ -11,7 +12,7 @@ module ietf-mpls {
 
   import ietf-routing-types {
     prefix "rt-types";
-    reference "RFC6991: Common YANG Data Types";
+    reference "RFC8294:Common YANG Data Types for the Routing Area";
   }
 
   import ietf-interfaces {
@@ -70,7 +71,7 @@ module ietf-mpls {
   // RFC Ed.: update the date below with the date of RFC publication
   // and remove this note.
 
-  revision "2018-11-04" {
+  revision "2019-02-24" {
     description
       "Latest revision:
         - Addressed review comments";
@@ -110,7 +111,7 @@ module ietf-mpls {
   typedef mpls-operations-type {
     type enumeration {
       enum impose-and-forward {
-        description 
+        description
           "Operation impose outgoing label(s) and forward to
            next-hop";
       }
@@ -194,6 +195,7 @@ module ietf-mpls {
       type nhlfe-role;
       description "NHLFE role";
     }
+
     uses nhlfe-single-contents;
   }
 
@@ -313,10 +315,16 @@ module ietf-mpls {
   augment "/rt:routing/rt:ribs/rt:rib/rt:routes/rt:route" {
     description
       "This is augmentation for all MPLS routes.";
-    leaf local-label {
-      type rt-types:mpls-label;
+    leaf mpls-enabled {
+      type boolean;
+      default 'false';
       description
-        "MPLS local label.";
+        "Indicates whether MPLS is enabled for this route";
+    }
+    leaf local-label {
+      when "../mpls-enabled = 'true'";
+      type rt-types:mpls-label;
+      description "MPLS local label associated with the route.";
     }
   }
 
@@ -325,7 +333,10 @@ module ietf-mpls {
         + "rt:next-hop/rt:next-hop-options/rt:simple-next-hop" {
     description
       "Augment 'simple-next-hop' case in IP unicast routes.";
-    uses nhlfe-single-contents;
+    uses nhlfe-single-contents {
+      when "/rt:routing/rt:ribs/rt:rib/rt:routes/rt:route" +
+      "/mpls:mpls-enabled = 'true'";
+    }
   }
 
   /* MPLS next-hop-list augmentation */
@@ -335,7 +346,10 @@ module ietf-mpls {
     description
       "This leaf augments the 'next-hop-list' case of IP unicast
        routes.";
-    uses nhlfe-multiple-contents;
+    uses nhlfe-multiple-contents {
+      when "/rt:routing/rt:ribs/rt:rib/rt:routes/rt:route" +
+      "/mpls:mpls-enabled = 'true'";
+    }
   }
 
   /* MPLS RPC input augmentation */
@@ -344,7 +358,6 @@ module ietf-mpls {
     description
       "This augment adds the input parameter of the 'active-route'
        action.";
-    uses nhlfe-multiple-contents;
     leaf local-label {
       type rt-types:mpls-label;
       description
@@ -359,7 +372,7 @@ module ietf-mpls {
     description
       "This augment adds the destination prefix to the reply of the
        'active-route' action.";
-    uses nhlfe-multiple-contents;
+    uses nhlfe-single-contents;
   }
   augment "/rt:routing/rt:ribs/rt:rib/rt:active-route/"
         + "rt:output/rt:route/"
