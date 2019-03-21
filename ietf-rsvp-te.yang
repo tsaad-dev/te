@@ -101,6 +101,60 @@ module ietf-rsvp-te {
       "RFCXXXX: A YANG Data Model for RSVP-TE Protocol";
   }
 
+  identity rsvp-message-type {
+    description "RSVP message types";
+  }
+
+  identity rsvp-message-path {
+    base rsvp-message-type;
+    description "RSVP Path message";
+    reference "RFC2205";
+  }
+  identity rsvp-message-resv {
+    base rsvp-message-type;
+    description "RSVP Resv message";
+    reference "RFC2205";
+  }
+  identity rsvp-message-path-err {
+    base rsvp-message-type;
+    description "RSVP Path-Err message";
+    reference "RFC2205";
+  }
+  identity rsvp-message-resv-err {
+    base rsvp-message-type;
+    description "RSVP Resv-Err message";
+    reference "RFC2205";
+  }
+  identity rsvp-message-path-tear {
+    base rsvp-message-type;
+    description "RSVP Path Tear message";
+    reference "RFC2205";
+  }
+  identity rsvp-message-resv-conf {
+    base rsvp-message-type;
+    description "RSVP Resv Confirm message";
+    reference "RFC2205";
+  }
+  identity rsvp-message-srefresh {
+    base rsvp-message-type;
+    description "RSVP SRefresh message";
+    reference "RFC2961";
+  }
+  identity rsvp-message-hello {
+    base rsvp-message-type;
+    description "RSVP Hello message";
+    reference "RFC3209";
+  }
+  identity rsvp-message-bundle {
+    base rsvp-message-type;
+    description "RSVP Bundle message";
+    reference "RFC2961";
+  }
+  identity rsvp-message-notify {
+    base rsvp-message-type;
+    description "RSVP Notify message";
+    reference "RFC3473";
+  }
 
   /**
    * RSVP-TE LSPs groupings.
@@ -412,6 +466,28 @@ module ietf-rsvp-te {
   }
 
   /* TE LSP augmentation */
+  grouping rsvp-te-lsp-error-info {
+    description
+      "Grouping for RSVP-TE error reporting information";
+    leaf message-type {
+      type identityref {
+        base rsvp-message-type;
+      }
+      description
+        "The RSVP message type that delivered the error";
+    }
+    leaf rsvp-error-code {
+      type uint8;
+      description "RSVP error code";
+      reference "RFC2205";
+    }
+    leaf rsvp-error-subcode {
+      type uint16;
+      description "RSVP Error sub-codes";
+      reference "RFC2205";
+    }
+  }
+
   grouping rsvp-te-lsp-properties {
     description "RSVP-TE LSP properties grouping";
     leaf associated-rsvp-session {
@@ -458,11 +534,31 @@ module ietf-rsvp-te {
        LSP";
     uses rsvp-te-lsp-properties;
   }
+  augment "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
+          "/te:p2p-primary-path" +
+          "/te:lsp-provisioning-error-infos/te:lsp-provisioning-error-info" {
+    description
+      "Augmentation for RSVP-TE per LSP error reason";
+    uses rsvp-te-lsp-error-info;
+  }
+  augment "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
+          "/te:p2p-primary-path/te:lsps/te:lsp" +
+          "/te:lsp-provisioning-error-infos/te:lsp-provisioning-error-info" {
+    when "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
+          "/te:p2p-primary-path/te:lsps/te:lsp" +
+          "/te:path-setup-protocol = 'te-types:path-setup-rsvp'" {
+        description
+        "When the signaling protocol is RSVP-TE ";
+    }
+    description
+      "Augmentation for RSVP-TE per path error reason";
+    uses rsvp-te-lsp-error-info;
+  }
 
   augment "/te:te/te:tunnels/te:tunnel/te:p2p-secondary-paths" +
     "/te:p2p-secondary-path/te:lsps/te:lsp" {
-    when "/te:te/te:tunnels/te:tunnel/te:p2p-primary-paths" +
-          "/te:p2p-primary-path/te:lsps/te:lsp" +
+    when "/te:te/te:tunnels/te:tunnel/te:p2p-secondary-paths" +
+          "/te:p2p-secondary-path/te:lsps/te:lsp" +
           "/te:path-setup-protocol = 'te-types:path-setup-rsvp'" {
         description
         "When the signaling protocol is RSVP-TE ";
@@ -471,6 +567,26 @@ module ietf-rsvp-te {
       "RSVP-TE generic data augmentation pertaining to specific TE
        LSP";
     uses rsvp-te-lsp-properties;
+  }
+  augment "/te:te/te:tunnels/te:tunnel/te:p2p-secondary-paths" +
+          "/te:p2p-secondary-path" +
+          "/te:lsp-provisioning-error-infos/te:lsp-provisioning-error-info" {
+    description
+      "Augmentation for RSVP-TE per path error reason";
+    uses rsvp-te-lsp-error-info;
+  }
+  augment "/te:te/te:tunnels/te:tunnel/te:p2p-secondary-paths" +
+          "/te:p2p-secondary-path/te:lsps/te:lsp" +
+          "/te:lsp-provisioning-error-infos/te:lsp-provisioning-error-info" {
+    when "/te:te/te:tunnels/te:tunnel/te:p2p-secondary-paths" +
+          "/te:p2p-secondary-path/te:lsps/te:lsp" +
+          "/te:path-setup-protocol = 'te-types:path-setup-rsvp'" {
+        description
+        "When the signaling protocol is RSVP-TE ";
+    }
+    description
+      "Augmentation for RSVP-TE per LSP error reason";
+    uses rsvp-te-lsp-error-info;
   }
 
   /* TE interface augmentation */
