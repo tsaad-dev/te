@@ -1,4 +1,1 @@
-te
-==
-
-MPLS TE YANG model
+YANG models for MPLS TEAS TE drafts
