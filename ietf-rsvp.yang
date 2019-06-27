@@ -862,7 +862,22 @@ module ietf-rsvp {
   rpc clear-session {
     description "Clears RSVP sessions RPC";
     input {
-      choice filter-session {
+      leaf routing-protocol-instance-name {
+        type leafref {
+          path "/rt:routing/rt:control-plane-protocols/"
+             + "rt:control-plane-protocol/rt:name";
+        }
+        mandatory "true";
+        description
+          "Name of the RSVP protocol instance whose session
+           is being cleared.
+
+           If the corresponding RSVP instance doesn't exist,
+           then the operation will fail with an error-tag of
+           'data-missing' and an error-app-tag of
+           'routing-protocol-instance-not-found'.";
+      }
+      choice filter-type {
         mandatory true;
         description "Filter choice";
         case match-all {
@@ -887,22 +902,50 @@ module ietf-rsvp {
         }
       }
     }
-    output {
-      leaf result {
-        type enumeration {
-          enum success {
-            description "The operation succeeded.";
-          }
-          enum in-progress {
-            description
-              "The operation is accepted and in-progress.";
-          }
-          enum fail {
-            description "The operation failed.";
+  }
+
+  rpc clear-neighbor {
+    description
+      "RPC to clear the RSVP Hello session to a neighbor";
+    input {
+      leaf routing-protocol-instance-name {
+        type leafref {
+          path "/rt:routing/rt:control-plane-protocols/"
+             + "rt:control-plane-protocol/rt:name";
+        }
+        mandatory "true";
+        description
+          "Name of the RSVP protocol instance whose session
+           is being cleared.
+
+           If the corresponding RSVP instance doesn't exist,
+           then the operation will fail with an error-tag of
+           'data-missing' and an error-app-tag of
+           'routing-protocol-instance-not-found'.";
+      }
+      choice filter-type {
+        mandatory true;
+        description "Filter choice";
+        case match-all {
+          leaf all {
+            type empty;
+            mandatory true;
+            description "Match all RSVP neighbor sessions";
           }
         }
-        description "The result of the RPC operation.";
+        case match-one {
+          leaf neighbor-address {
+            type leafref {
+              path "/rt:routing/rt:control-plane-protocols" +
+                   "/rt:control-plane-protocol/rsvp:rsvp" +
+                   "/rsvp:neighbors/rsvp:neighbor/address";
+            }
+            mandatory true;
+            description "Match specific RSVP neighbor session";
+          }
+        }
       }
     }
   }
+
 }
