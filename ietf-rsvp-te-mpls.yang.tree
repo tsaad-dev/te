@@ -1,0 +1,76 @@
+
+module: ietf-rsvp-te-mpls
+  augment /rt:routing/rt:control-plane-protocols
+            /rt:control-plane-protocol/rsvp:rsvp:
+    +--rw fast-reroute-local-revertive
+       +--rw rsvp-frr-local-revert-delay?   uint32
+  augment /rt:routing/rt:control-plane-protocols
+            /rt:control-plane-protocol/rsvp:rsvp/rsvp:interfaces:
+  augment /rt:routing/rt:control-plane-protocols
+            /rt:control-plane-protocol/rsvp:rsvp/rsvp:interfaces
+            /rsvp:interface:
+  augment /rt:routing/rt:control-plane-protocols
+            /rt:control-plane-protocol/rsvp:rsvp/rsvp:globals
+            /rsvp:sessions/rsvp:session/rsvp:state:
+  augment /rt:routing/rt:control-plane-protocols
+            /rt:control-plane-protocol/rsvp:rsvp/rsvp:neighbors:
+  augment /te:te/te:tunnels/te:tunnel:
+    +--rw session-attribute*   identityref
+  augment /te:te/te:lsps-state/te:lsp:
+    +--ro session-attribute*   identityref
+    +--ro backup-info
+       +--ro backup-tunnel-name?         string
+       +--ro backup-frr-on?              uint8
+       +--ro backup-protected-lsp-num?   uint32
+  augment /te:te/te:tunnels/te:tunnel/te:p2p-primary-paths
+            /te:p2p-primary-path/te:lsps/te:lsp:
+    +--ro session-attribute*   identityref
+    +--ro backup-info
+       +--ro backup-tunnel-name?         string
+       +--ro backup-frr-on?              uint8
+       +--ro backup-protected-lsp-num?   uint32
+  augment /te:te/te:tunnels/te:tunnel/te:p2p-secondary-paths
+            /te:p2p-secondary-path/te:lsps/te:lsp:
+    +--ro session-attribute*   identityref
+    +--ro backup-info
+       +--ro backup-tunnel-name?         string
+       +--ro backup-frr-on?              uint8
+       +--ro backup-protected-lsp-num?   uint32
+  augment /te:te/te-dev:interfaces/te-dev:interface:
+    +--rw bandwidth-mpls-reservable
+       +--rw (bandwidth-value)?
+       |  +--:(absolute)
+       |  |  +--rw absolute-value?   te-packet-types:bandwidth-kbps
+       |  +--:(percentage)
+       |     +--rw percent-value?    uint32
+       +--rw (bc-model-type)?
+          +--:(bc-model-rdm)
+          |  +--rw bc-model-rdm
+          |     +--rw bandwidth-mpls-constraints
+          |        +--rw maximum-reservable?
+          |        |       te-packet-types:bandwidth-kbps
+          |        +--rw bc-value*             uint32
+          +--:(bc-model-mam)
+          |  +--rw bc-model-mam
+          |     +--rw bandwidth-mpls-constraints
+          |        +--rw maximum-reservable?
+          |        |       te-packet-types:bandwidth-kbps
+          |        +--rw bc-value*             uint32
+          +--:(bc-model-mar)
+             +--rw bc-model-mar
+                +--rw bandwidth-mpls-constraints
+                   +--rw maximum-reservable?
+                   |       te-packet-types:bandwidth-kbps
+                   +--rw bc-value*             uint32
+  augment /te:te/te-dev:interfaces/te-dev:interface:
+    +--rw rsvp-te-frr-backups
+       +--rw (type)?
+          +--:(static-tunnel)
+          |  +--rw static-backups
+          |     +--rw static-backup* [backup-tunnel-name]
+          |        +--rw backup-tunnel-name
+          |                -> /te:te/tunnels/tunnel/name
+          +--:(auto-tunnel)
+             +--rw auto-tunnel-backups
+                +--rw auto-backup-protection?         identityref
+                +--rw auto-backup-path-computation?   identityref
