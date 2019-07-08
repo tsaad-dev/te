@@ -40,6 +40,11 @@ module ietf-rsvp-te {
                Common Traffic Engineering Types";
   }
 
+  import ietf-inet-types {
+    prefix inet;
+    reference "RFC6991: Common YANG Data Types";
+  }
+
   organization
     "IETF Traffic Engineering Architecture and Signaling (TEAS)
      Working Group";
@@ -95,7 +100,7 @@ module ietf-rsvp-te {
   // RFC Ed.: update the date below with the date of RFC publication
   // and remove this note.
 
-  revision "2019-04-09" {
+  revision "2019-07-06" {
     description "A YANG Data Model for RSVP-TE";
     reference
       "RFCXXXX: A YANG Data Model for RSVP-TE Protocol";
@@ -372,7 +377,35 @@ module ietf-rsvp-te {
   /* add augmentation for sessions and neighbors */
   augment "/rt:routing/rt:control-plane-protocols/"
   + "rt:control-plane-protocol/rsvp:rsvp/rsvp:globals/"
-  + "rsvp:sessions/rsvp:session/rsvp:state/rsvp:psbs/rsvp:psb" {
+  + "rsvp:sessions" {
+    description
+      "RSVP-TE generic data augmentation pertaining to session";
+    list session-te {
+      key "tunnel-endpoint tunnel-id extended-tunnel-id";
+      config false;
+      description
+        "List of RSVP sessions";
+      leaf tunnel-endpoint {
+        type inet:ip-address;
+        description "XX";
+      }
+      leaf tunnel-id {
+        type uint16;
+        description "XX";
+      }
+      leaf extended-tunnel-id {
+        type inet:ip-address;
+        description "XX";
+      }
+
+      uses rsvp:session-attributes-state;
+    }
+
+  }
+
+  augment "/rt:routing/rt:control-plane-protocols/"
+  + "rt:control-plane-protocol/rsvp:rsvp/rsvp:globals/"
+  + "rsvp:sessions/session-te/psbs/psb" {
     description
       "RSVP-TE generic data augmentation pertaining to session";
     /* To be added */
@@ -405,9 +438,11 @@ module ietf-rsvp-te {
       reference "RFC2210";
     }
   }
+
+
   augment "/rt:routing/rt:control-plane-protocols/"
   + "rt:control-plane-protocol/rsvp:rsvp/rsvp:globals/"
-  + "rsvp:sessions/rsvp:session/rsvp:state/rsvp:rsbs/rsvp:rsb" {
+  + "rsvp:sessions/session-te/rsbs/rsb" {
     description
       "RSVP-TE generic data augmentation pertaining to session";
     leaf fspec-average-rate {
@@ -494,7 +529,7 @@ module ietf-rsvp-te {
       type leafref {
         path "/rt:routing/rt:control-plane-protocols/"
            + "rt:control-plane-protocol/rsvp:rsvp/rsvp:globals/"
-           + "rsvp:sessions/rsvp:session/rsvp:local-index";
+           + "rsvp:sessions/session-te/tunnel-id";
       }
       config false;
       description
