@@ -50,9 +50,9 @@ module ietf-te {
                <mailto:i_bryskin@yahoo.com>";
 
   description
-    "YANG data module for TE configuration, state, RPC and
-     notifications. The model fully conforms to the Network
-     Management Datastore Architecture (NMDA).
+    "YANG data module for TE configuration, state, and RPCs.
+     The model fully conforms to the Network Management
+     Datastore Architecture (NMDA).
 
      Copyright (c) 2019 IETF Trust and the persons
      identified as authors of the code.  All rights reserved.
@@ -72,7 +72,7 @@ module ietf-te {
   // RFC Ed.: update the date below with the date of RFC publication
   // and remove this note.
 
-  revision "2019-11-02" {
+  revision "2020-01-17" {
     description "Latest update to TE generic YANG module.";
     reference
       "RFCXXXX: A YANG Data Model for Traffic Engineering Tunnels
@@ -106,16 +106,6 @@ module ietf-te {
     description
       "This type is used by data models that need to reference
        configured TE tunnel.";
-  }
-
-  typedef tunnel-p2mp-ref {
-    type leafref {
-      path "/te:te/te:tunnels/te:tunnel-p2mp/te:name";
-    }
-    description
-      "This type is used by data models that need to reference
-       configured P2MP TE tunnel.";
-    reference "RFC4875";
   }
 
   typedef path-ref {
@@ -811,7 +801,7 @@ module ietf-te {
     container association-objects {
       description "TE tunnel associations";
       list association-object {
-        key "type ID source global-source";
+        key "type id source";
         description "List of association base objects";
         reference "RFC4872";
         leaf type {
@@ -821,7 +811,7 @@ module ietf-te {
           description "Association type";
           reference "RFC4872";
         }
-        leaf ID {
+        leaf id {
           type uint16;
           description "Association ID";
           reference "RFC4872";
@@ -831,14 +821,9 @@ module ietf-te {
           description "Association source";
           reference "RFC4872";
         }
-        leaf global-source {
-          type te-types:te-node-id;
-          description "Association global source";
-          reference "RFC4872";
-        }
       }
       list association-object-extended {
-        key "type ID source global-source extended-ID";
+        key "type id source global-source extended-id";
         description "List of extended association objects";
         reference "RFC6780";
         leaf type {
@@ -846,25 +831,30 @@ module ietf-te {
             base te-types:association-type;
           }
           description "Association type";
+          reference "RFC6780, RFC4872";
         }
-        leaf ID {
+        leaf id {
           type uint16;
           description "Association ID";
-          reference "RFC4872";
+          reference "RFC6780, RFC4872";
         }
         leaf source {
-          type te-types:te-node-id;
-          description "Association source";
+          type union {
+            type te-types:te-node-id;
+            type inet:ip-address;
+          }
+          description "Association source node identifier";
+          reference "RFC6780, RFC4872";
         }
         leaf global-source {
-          type te-types:te-node-id;
+          type uint32;
           description "Association global source";
-          reference "RFC4872";
+          reference "RFC6780";
         }
-        leaf extended-ID {
+        leaf extended-id {
           type yang:hex-string;
           description "Association extended ID";
-          reference "RFC4872";
+          reference "RFC6780";
         }
       }
     }
@@ -896,34 +886,6 @@ module ietf-te {
   }
 
   /* TE tunnel configuration/state grouping */
-  grouping tunnel-p2mp-properties {
-    description
-      "Top level grouping for P2MP tunnel properties.";
-    leaf name {
-      type string;
-      description "TE tunnel name.";
-    }
-    leaf identifier {
-      type uint16;
-      description
-        "TE tunnel Identifier.";
-      reference "RFC3209";
-    }
-    leaf description {
-      type string;
-      default 'None';
-      description
-        "Textual description for this TE tunnel";
-    }
-    leaf operational-state {
-      type identityref {
-        base te-types:tunnel-state-type;
-      }
-      default te-types:tunnel-state-up;
-      config 'false';
-      description "TE tunnel administrative state.";
-    }
-  }
 
   grouping p2p-path-candidate-secondary-path-config {
     description
@@ -1356,12 +1318,6 @@ module ietf-te {
         uses tunnel-actions;
         uses tunnel-protection-actions;
       }
-      list tunnel-p2mp {
-        key "name";
-        unique "identifier";
-        description "P2MP TE tunnels list.";
-        uses tunnel-p2mp-properties;
-      }
     }
   }
 
@@ -1490,12 +1446,6 @@ module ietf-te {
       "Execution data for TE global.";
   }
 
-  /* TE interfaces RPCs/execution Data */
-  rpc interfaces-rpc {
-    description
-      "Execution data for TE interfaces.";
-  }
-
   /* TE Tunnel RPCs/execution Data */
   rpc tunnels-rpc {
     description "TE tunnels RPC nodes";
@@ -1511,10 +1461,7 @@ module ietf-te {
             }
           }
           case tunnel-p2mp {
-            leaf p2mp-id {
-              type tunnel-p2mp-ref;
-              description "P2MP TE tunnel";
-            }
+            /* Augmented by P2MP TE tunnel module */
           }
         }
       }
@@ -1539,17 +1486,5 @@ module ietf-te {
         }
       }
     }
-  }
-
-  /* TE Global Notification Data */
-  notification globals-notif {
-    description
-      "Notification messages for Global TE.";
-  }
-
-  /* TE Tunnel Notification Data */
-  notification tunnels-notif {
-    description
-      "Notification messages for TE tunnels.";
   }
 }
