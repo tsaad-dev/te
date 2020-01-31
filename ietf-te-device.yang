@@ -25,11 +25,6 @@ module ietf-te-device {
     reference "RFC8343: A YANG Data Model for Interface Management";
   }
 
-  import ietf-inet-types {
-    prefix inet;
-    reference "RFC6991: Common YANG Data Types";
-  }
-
   import ietf-routing-types {
     prefix "rt-types";
     reference "RFC8294: Common YANG Data Types for the Routing Area";
@@ -131,7 +126,7 @@ module ietf-te-device {
         "downstream information";
 
       leaf nhop {
-        type inet:ip-address;
+        type te:te-generic-node-id;
         description
           "downstream nexthop.";
       }
@@ -143,7 +138,7 @@ module ietf-te-device {
       }
 
       leaf neighbor {
-        type inet:ip-address;
+        type te:te-generic-node-id;
         description
           "downstream neighbor.";
       }
@@ -163,13 +158,13 @@ module ietf-te-device {
         "upstream information";
 
       leaf phop {
-        type inet:ip-address;
+        type te:te-generic-node-id;
         description
           "upstream nexthop or previous-hop.";
       }
 
       leaf neighbor {
-        type inet:ip-address;
+        type te:te-generic-node-id;
         description
           "upstream neighbor.";
       }
@@ -649,8 +644,27 @@ module ietf-te-device {
   }
 
   /* TE interfaces RPCs/execution Data */
-  rpc interfaces-rpc {
+  rpc link-state-update {
     description
-      "Execution data for TE interfaces.";
+      "Triggers a link state update for the specific interface";
+    input {
+      choice filter-type {
+        mandatory true;
+        description "Filter choice";
+        case match-all {
+          leaf all {
+            type empty;
+            mandatory true;
+            description "Match all TE interfaces";
+          }
+        }
+        case match-one-interface {
+          leaf interface {
+            type if:interface-ref;
+            description "Match a specific TE interface";
+          }
+        }
+      }
+    }
   }
 }

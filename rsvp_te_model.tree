@@ -303,49 +303,6 @@ module: ietf-rsvp
              |  +---w all                         empty
              +--:(match-one-interface)
                 +---w interface?                  if:interface-ref
-
-module: ietf-rsvp-te
-  augment /te:te/te-dev:interfaces/te-dev:interface:
-
-module: ietf-rsvp-te-mpls
-  augment /te:te/te-dev:interfaces/te-dev:interface:
-    +--rw bandwidth-mpls-reservable
-       +--rw (bandwidth-value)?
-       |  +--:(absolute)
-       |  |  +--rw absolute-value?   te-packet-types:bandwidth-kbps
-       |  +--:(percentage)
-       |     +--rw percent-value?    uint32
-       +--rw (bc-model-type)?
-          +--:(bc-model-rdm)
-          |  +--rw bc-model-rdm
-          |     +--rw bandwidth-mpls-constraints
-          |        +--rw maximum-reservable?
-          |        |       te-packet-types:bandwidth-kbps
-          |        +--rw bc-value*             uint32
-          +--:(bc-model-mam)
-          |  +--rw bc-model-mam
-          |     +--rw bandwidth-mpls-constraints
-          |        +--rw maximum-reservable?
-          |        |       te-packet-types:bandwidth-kbps
-          |        +--rw bc-value*             uint32
-          +--:(bc-model-mar)
-             +--rw bc-model-mar
-                +--rw bandwidth-mpls-constraints
-                   +--rw maximum-reservable?
-                   |       te-packet-types:bandwidth-kbps
-                   +--rw bc-value*             uint32
-  augment /te:te/te-dev:interfaces/te-dev:interface:
-    +--rw rsvp-te-frr-backups
-       +--rw (type)?
-          +--:(static-tunnel)
-          |  +--rw static-backups
-          |     +--rw static-backup* [backup-tunnel-name]
-          |        +--rw backup-tunnel-name
-          |                -> /te:te/tunnels/tunnel/name
-          +--:(auto-tunnel)
-             +--rw auto-tunnel-backups
-                +--rw auto-backup-protection?         identityref
-                +--rw auto-backup-path-computation?   identityref
 module: ietf-te
   +--rw te!
      +--rw globals
@@ -512,18 +469,15 @@ module: ietf-te
      |  |     |        |        +--rw generic?   int32
      |  |     |        +--rw range-bitmap?   yang:hex-string
      |  |     +--rw te-mpls:bandwidth
-     |  |     |  +--rw te-mpls:specification-type?
-     |  |     |  |       te-packet-types:te-bandwidth-requested-type
-     |  |     |  +--rw te-mpls:set-bandwidth?
-     |  |     |  |       te-packet-types:bandwidth-kbps
-     |  |     |  +--rw te-mpls:class-type?
-     |  |     |  |       te-types:te-ds-class
-     |  |     |  +--ro te-mpls:state
-     |  |     |     +--ro te-mpls:signaled-bandwidth?
-     |  |     |             te-packet-types:bandwidth-kbps
-     |  |     +--rw te-sr-mpls:sid-selection-mode?
-     |  |     |       te-sid-selection-mode
-     |  |     +--rw te-sr-mpls:sid-protection?       identityref
+     |  |        +--rw te-mpls:specification-type?
+     |  |        |       te-packet-types:te-bandwidth-requested-type
+     |  |        +--rw te-mpls:set-bandwidth?
+     |  |        |       te-packet-types:bandwidth-kbps
+     |  |        +--rw te-mpls:class-type?
+     |  |        |       te-types:te-ds-class
+     |  |        +--ro te-mpls:state
+     |  |           +--ro te-mpls:signaled-bandwidth?
+     |  |                   te-packet-types:bandwidth-kbps
      |  +--rw te-dev:lsp-install-interval?        uint32
      |  +--rw te-dev:lsp-cleanup-interval?        uint32
      |  +--rw te-dev:lsp-invalidation-interval?   uint32
@@ -552,7 +506,7 @@ module: ietf-te
      |     |          [type id source global-source extended-id]
      |     |     +--rw type             identityref
      |     |     +--rw id               uint16
-     |     |     +--rw source           union
+     |     |     +--rw source           te-generic-node-id
      |     |     +--rw global-source    uint32
      |     |     +--rw extended-id      yang:hex-string
      |     +--rw protection
@@ -601,7 +555,8 @@ module: ietf-te
      |     |     +--rw name                             string
      |     |     +--rw path-setup-protocol?             identityref
      |     |     +--rw path-computation-method?         identityref
-     |     |     +--rw path-computation-server?         inet:ip-address
+     |     |     +--rw path-computation-server?
+     |     |     |       te-generic-node-id
      |     |     +--rw compute-only?                    empty
      |     |     +--rw use-path-computation?            boolean
      |     |     +--rw lockdown?                        empty
@@ -1090,16 +1045,16 @@ module: ietf-te
      |     |     |     |  +--ro te-dev:time-to-destroy?   uint32
      |     |     |     +--ro te-dev:downstream-info
      |     |     |     |  +--ro te-dev:nhop?
-     |     |     |     |  |       inet:ip-address
+     |     |     |     |  |       te:te-generic-node-id
      |     |     |     |  +--ro te-dev:outgoing-interface?
      |     |     |     |  |       if:interface-ref
      |     |     |     |  +--ro te-dev:neighbor?
-     |     |     |     |  |       inet:ip-address
+     |     |     |     |  |       te:te-generic-node-id
      |     |     |     |  +--ro te-dev:label?
      |     |     |     |          rt-types:generalized-label
      |     |     |     +--ro te-dev:upstream-info
-     |     |     |     |  +--ro te-dev:phop?       inet:ip-address
-     |     |     |     |  +--ro te-dev:neighbor?   inet:ip-address
+     |     |     |     |  +--ro te-dev:phop?       te:te-generic-node-id
+     |     |     |     |  +--ro te-dev:neighbor?   te:te-generic-node-id
      |     |     |     |  +--ro te-dev:label?
      |     |     |     |          rt-types:generalized-label
      |     |     |     +--ro rsvp-te:associated-rsvp-session?            leafref
@@ -1340,7 +1295,7 @@ module: ietf-te
      |     |     |  +--rw path-setup-protocol?             identityref
      |     |     |  +--rw path-computation-method?         identityref
      |     |     |  +--rw path-computation-server?
-     |     |     |  |       inet:ip-address
+     |     |     |  |       te-generic-node-id
      |     |     |  +--rw compute-only?                    empty
      |     |     |  +--rw use-path-computation?            boolean
      |     |     |  +--rw lockdown?                        empty
@@ -1456,6 +1411,18 @@ module: ietf-te
      |     |     |  |                   identityref
      |     |     |  +--rw named-path-constraint?           leafref
      |     |     |  |       {te-types:named-path-constraints}?
+     |     |     |  +--rw association-objects
+     |     |     |  |  +--rw association-object* [type id source]
+     |     |     |  |  |  +--rw type      identityref
+     |     |     |  |  |  +--rw id        uint16
+     |     |     |  |  |  +--rw source    te-types:te-node-id
+     |     |     |  |  +--rw association-object-extended*
+     |     |     |  |          [type id source global-source extended-id]
+     |     |     |  |     +--rw type             identityref
+     |     |     |  |     +--rw id               uint16
+     |     |     |  |     +--rw source           te-generic-node-id
+     |     |     |  |     +--rw global-source    uint32
+     |     |     |  |     +--rw extended-id      yang:hex-string
      |     |     |  +--rw te-bandwidth
      |     |     |  |  +--rw (technology)?
      |     |     |  |     +--:(generic)
@@ -1843,7 +1810,8 @@ module: ietf-te
      |     |     +--rw name                             string
      |     |     +--rw path-setup-protocol?             identityref
      |     |     +--rw path-computation-method?         identityref
-     |     |     +--rw path-computation-server?         inet:ip-address
+     |     |     +--rw path-computation-server?
+     |     |     |       te-generic-node-id
      |     |     +--rw compute-only?                    empty
      |     |     +--rw use-path-computation?            boolean
      |     |     +--rw lockdown?                        empty
@@ -2347,16 +2315,16 @@ module: ietf-te
      |     |     |     |  +--ro te-dev:time-to-destroy?   uint32
      |     |     |     +--ro te-dev:downstream-info
      |     |     |     |  +--ro te-dev:nhop?
-     |     |     |     |  |       inet:ip-address
+     |     |     |     |  |       te:te-generic-node-id
      |     |     |     |  +--ro te-dev:outgoing-interface?
      |     |     |     |  |       if:interface-ref
      |     |     |     |  +--ro te-dev:neighbor?
-     |     |     |     |  |       inet:ip-address
+     |     |     |     |  |       te:te-generic-node-id
      |     |     |     |  +--ro te-dev:label?
      |     |     |     |          rt-types:generalized-label
      |     |     |     +--ro te-dev:upstream-info
-     |     |     |     |  +--ro te-dev:phop?       inet:ip-address
-     |     |     |     |  +--ro te-dev:neighbor?   inet:ip-address
+     |     |     |     |  +--ro te-dev:phop?       te:te-generic-node-id
+     |     |     |     |  +--ro te-dev:neighbor?   te:te-generic-node-id
      |     |     |     |  +--ro te-dev:label?
      |     |     |     |          rt-types:generalized-label
      |     |     |     +--ro rsvp-te:associated-rsvp-session?            leafref
@@ -2653,14 +2621,14 @@ module: ietf-te
      |     |  +--ro te-dev:time-to-install?   uint32
      |     |  +--ro te-dev:time-to-destroy?   uint32
      |     +--ro te-dev:downstream-info
-     |     |  +--ro te-dev:nhop?                 inet:ip-address
+     |     |  +--ro te-dev:nhop?                 te:te-generic-node-id
      |     |  +--ro te-dev:outgoing-interface?   if:interface-ref
-     |     |  +--ro te-dev:neighbor?             inet:ip-address
+     |     |  +--ro te-dev:neighbor?             te:te-generic-node-id
      |     |  +--ro te-dev:label?
      |     |          rt-types:generalized-label
      |     +--ro te-dev:upstream-info
-     |     |  +--ro te-dev:phop?       inet:ip-address
-     |     |  +--ro te-dev:neighbor?   inet:ip-address
+     |     |  +--ro te-dev:phop?       te:te-generic-node-id
+     |     |  +--ro te-dev:neighbor?   te:te-generic-node-id
      |     |  +--ro te-dev:label?      rt-types:generalized-label
      |     +--ro rsvp-te:associated-rsvp-session?            leafref
      |     +--ro rsvp-te:lsp-signaled-name?                  string
@@ -2960,62 +2928,13 @@ module: ietf-te
        +--ro output
           +--ro result
              +--ro result?   enumeration
+module: ietf-te-device
 
-module: ietf-te-mpls
-  augment /te:te/te-dev:performance-thresholds:
-    +--rw throttle
-       +--rw one-way-delay-offset?                  uint32
-       +--rw measure-interval?                      uint32
-       +--rw advertisement-interval?                uint32
-       +--rw suppression-interval?                  uint32
-       +--rw threshold-out
-       |  +--rw one-way-delay?                 uint32
-       |  +--rw one-way-residual-bandwidth?
-       |  |       rt-types:bandwidth-ieee-float32
-       |  +--rw one-way-available-bandwidth?
-       |  |       rt-types:bandwidth-ieee-float32
-       |  +--rw one-way-utilized-bandwidth?
-       |  |       rt-types:bandwidth-ieee-float32
-       |  +--rw two-way-delay?                 uint32
-       |  +--rw one-way-min-delay?             uint32
-       |  +--rw one-way-max-delay?             uint32
-       |  +--rw one-way-delay-variation?       uint32
-       |  +--rw one-way-packet-loss?           decimal64
-       |  +--rw two-way-min-delay?             uint32
-       |  +--rw two-way-max-delay?             uint32
-       |  +--rw two-way-delay-variation?       uint32
-       |  +--rw two-way-packet-loss?           decimal64
-       +--rw threshold-in
-       |  +--rw one-way-delay?                 uint32
-       |  +--rw one-way-residual-bandwidth?
-       |  |       rt-types:bandwidth-ieee-float32
-       |  +--rw one-way-available-bandwidth?
-       |  |       rt-types:bandwidth-ieee-float32
-       |  +--rw one-way-utilized-bandwidth?
-       |  |       rt-types:bandwidth-ieee-float32
-       |  +--rw two-way-delay?                 uint32
-       |  +--rw one-way-min-delay?             uint32
-       |  +--rw one-way-max-delay?             uint32
-       |  +--rw one-way-delay-variation?       uint32
-       |  +--rw one-way-packet-loss?           decimal64
-       |  +--rw two-way-min-delay?             uint32
-       |  +--rw two-way-max-delay?             uint32
-       |  +--rw two-way-delay-variation?       uint32
-       |  +--rw two-way-packet-loss?           decimal64
-       +--rw threshold-accelerated-advertisement
-          +--rw one-way-delay?                 uint32
-          +--rw one-way-residual-bandwidth?
-          |       rt-types:bandwidth-ieee-float32
-          +--rw one-way-available-bandwidth?
-          |       rt-types:bandwidth-ieee-float32
-          +--rw one-way-utilized-bandwidth?
-          |       rt-types:bandwidth-ieee-float32
-          +--rw two-way-delay?                 uint32
-          +--rw one-way-min-delay?             uint32
-          +--rw one-way-max-delay?             uint32
-          +--rw one-way-delay-variation?       uint32
-          +--rw one-way-packet-loss?           decimal64
-          +--rw two-way-min-delay?             uint32
-          +--rw two-way-max-delay?             uint32
-          +--rw two-way-delay-variation?       uint32
-          +--rw two-way-packet-loss?           decimal64
+  rpcs:
+    +---x link-state-update
+       +---w input
+          +---w (filter-type)
+             +--:(match-all)
+             |  +---w all          empty
+             +--:(match-one-interface)
+                +---w interface?   if:interface-ref
