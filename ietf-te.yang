@@ -825,6 +825,77 @@ module ietf-te {
 
   /* TE tunnel configuration/state grouping */
 
+  grouping tunnel-p2p-hierarchy-properties {
+    description "A grouping for TE tunnel hierarchy information.";
+    container hierarchy {
+      description
+        "Container for TE hierarchy related information";
+      container dependency-tunnels {
+        description
+          "List of tunnels that this tunnel can be potentially
+           dependent on";
+        list dependency-tunnel {
+          key "name";
+          description
+            "A tunnel entry that this tunnel can potentially depend
+             on.";
+          leaf name {
+            type leafref {
+              path "../../../../../../tunnels/tunnel/name";
+              require-instance 'false';
+            }
+            description
+              "Dependency tunnel name. The tunnel may not have beem
+               instantiated yet.";
+          }
+          leaf encoding {
+            type identityref {
+              base te-types:lsp-encoding-types;
+            }
+            default te-types:lsp-encoding-packet;
+            description
+              "The LSP encoding type for the dependency tunnel.";
+            reference "RFC3945";
+          }
+          leaf switching-type {
+            type identityref {
+              base te-types:switching-capabilities;
+            }
+            default te-types:switching-psc1;
+            description
+              "The LSP switching type for the dependency tunnel.";
+            reference "RFC3945";
+          }
+        }
+      }
+      container hierarchical-link {
+        description
+          "Identifies a hierarchical link (in client layer)
+           that this tunnel is associated with.";
+        reference "RFC4206";
+        leaf local-te-node-id {
+          type te-types:te-node-id;
+          default "0.0.0.0";
+          description
+            "The local TE node identifier.";
+        }
+        leaf local-te-link-tp-id {
+          type te-types:te-tp-id;
+          default 0;
+          description
+            "The local TE link termination point identifier.";
+        }
+        leaf remote-te-node-id {
+          type te-types:te-node-id;
+          default "0.0.0.0";
+          description
+            "Remote TE node identifier.";
+        }
+        uses te-types:te-topology-identifier;
+      }
+    }
+  }
+
   grouping tunnel-p2p-properties {
     description
       "Top level grouping for tunnel properties.";
@@ -909,73 +980,7 @@ module ietf-te {
     uses tunnel-p2p-associations-properties;
     uses protection-restoration-properties;
     uses te-types:tunnel-constraints;
-    container hierarchy {
-      description
-        "Container that describes TE hierarchy related information";
-      container dependency-tunnels {
-        description
-          "List of tunnels that this tunnel can be potentially
-           dependent on";
-        list dependency-tunnel {
-          key "name";
-          description
-            "A tunnel entry that this tunnel can potentially depend
-             on.";
-          leaf name {
-            type leafref {
-              path "../../../../../../tunnels/tunnel/name";
-              require-instance 'false';
-            }
-            description
-              "Dependency tunnel name. The tunnel may not have beem
-               instantiated yet.";
-          }
-          leaf encoding {
-            type identityref {
-              base te-types:lsp-encoding-types;
-            }
-            default te-types:lsp-encoding-packet;
-            description
-              "The LSP encoding type for the dependency tunnel.";
-            reference "RFC3945";
-          }
-          leaf switching-type {
-            type identityref {
-              base te-types:switching-capabilities;
-            }
-            default te-types:switching-psc1;
-            description
-              "The LSP switching type for the dependency tunnel.";
-            reference "RFC3945";
-          }
-        }
-      }
-      container hierarchical-link {
-        description
-          "Identifies a hierarchical link (in client layer)
-           that this tunnel is associated with.";
-        reference "RFC4206";
-        leaf local-te-node-id {
-          type te-types:te-node-id;
-          default "0.0.0.0";
-          description
-            "The local TE node identifier.";
-        }
-        leaf local-te-link-tp-id {
-          type te-types:te-tp-id;
-          default 0;
-          description
-            "The local TE link termination point identifier.";
-        }
-        leaf remote-te-node-id {
-          type te-types:te-node-id;
-          default "0.0.0.0";
-          description
-            "Remote TE node identifier.";
-        }
-        uses te-types:te-topology-identifier;
-      }
-    }
+    uses tunnel-p2p-hierarchy-properties;
 
     container p2p-primary-paths {
       description "Set of P2P primary aths container.";
