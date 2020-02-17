@@ -1,7 +1,7 @@
 
 module: ietf-mpls
   augment /rt:routing:
-    +--rw mpls
+    +--rw mpls {mpls}?
        +--rw ttl-propagate?   boolean
        +--rw label-blocks
        |  +--rw label-block* [index]
@@ -16,19 +16,16 @@ module: ietf-mpls
           +--rw enabled?   boolean
           +--rw mtu?       uint32
   augment /rt:routing/rt:ribs/rt:rib/rt:routes/rt:route:
-    +--ro mpls-enabled?   boolean
-    +--ro local-label?    rt-types:mpls-label
-  augment /rt:routing/rt:ribs/rt:rib/rt:routes/rt:route/rt:next-hop
-            /rt:next-hop-options/rt:simple-next-hop:
+    +--ro mpls-enabled?   boolean {mpls}?
+    +--ro local-label?    rt-types:mpls-label {mpls}?
+  augment /rt:routing/rt:ribs/rt:rib/rt:routes/rt:route/rt:next-hop/rt:next-hop-options/rt:simple-next-hop:
     +--ro mpls-label-stack
        +--ro entry* [id]
           +--ro id               uint8
           +--ro label?           rt-types:mpls-label
           +--ro ttl?             uint8
           +--ro traffic-class?   uint8
-  augment /rt:routing/rt:ribs/rt:rib/rt:routes/rt:route/rt:next-hop
-            /rt:next-hop-options/rt:next-hop-list/rt:next-hop-list
-            /rt:next-hop:
+  augment /rt:routing/rt:ribs/rt:rib/rt:routes/rt:route/rt:next-hop/rt:next-hop-options/rt:next-hop-list/rt:next-hop-list/rt:next-hop:
     +--ro index?              string
     +--ro backup-index?       string
     +--ro loadshare?          uint16
@@ -41,17 +38,14 @@ module: ietf-mpls
           +--ro traffic-class?   uint8
   augment /rt:routing/rt:ribs/rt:rib/rt:active-route/rt:input:
     +---w local-label?   rt-types:mpls-label
-  augment /rt:routing/rt:ribs/rt:rib/rt:active-route/rt:output/rt:route
-            /rt:next-hop/rt:next-hop-options/rt:simple-next-hop:
+  augment /rt:routing/rt:ribs/rt:rib/rt:active-route/rt:output/rt:route/rt:next-hop/rt:next-hop-options/rt:simple-next-hop:
     +-- mpls-label-stack
        +-- entry* [id]
           +-- id               uint8
           +-- label?           rt-types:mpls-label
           +-- ttl?             uint8
           +-- traffic-class?   uint8
-  augment /rt:routing/rt:ribs/rt:rib/rt:active-route/rt:output/rt:route
-            /rt:next-hop/rt:next-hop-options/rt:next-hop-list
-            /rt:next-hop-list/rt:next-hop:
+  augment /rt:routing/rt:ribs/rt:rib/rt:active-route/rt:output/rt:route/rt:next-hop/rt:next-hop-options/rt:next-hop-list/rt:next-hop-list/rt:next-hop:
     +-- index?              string
     +-- backup-index?       string
     +-- loadshare?          uint16
