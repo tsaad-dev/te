@@ -115,7 +115,7 @@ module ietf-te {
   identity path-computation-error-destination-unknown-in-domain {
     base path-computation-error-reason;
     description
-      "Path computation has failed because destination node is
+      "Path computation has failed because the estination node is
        unknown in indicated destination domain.";
     reference "RFC8685";
   }
@@ -129,7 +129,8 @@ module ietf-te {
   identity path-computation-error-child-pce-unresponsive {
     base path-computation-error-reason;
     description
-      "Path computation has failed because child PCE is not responsive";
+      "Path computation has failed because child PCE is not
+       responsive";
     reference "RFC8685";
   }
   identity path-computation-error-destination-domain-unknown {
@@ -213,6 +214,34 @@ module ietf-te {
     description "Reoptimize tunnel action type";
   }
 
+  identity tunnel-admin-type {
+    description "TE tunnel administrative type";
+  }
+  identity tunnel-admin-down {
+    base tunnel-admin-type;
+    description "Tunnel administrative down state."
+  }
+  identity tunnel-admin-up {
+    base tunnel-admin-type;
+    description "Tunnel administrative up state."
+  }
+  identity tunnel-admin-auto {
+    base tunnel-admin-type;
+    description
+      "Tunnel administrative auto state. The administrative status in
+       state datastore transitions to 'tunnel-admin-up' when the tunnel
+       used by the client layer, and to 'tunnel-admin-down' when it is
+       not used by the client layer.";
+  }
+
+  identity association-type-diversity {
+    base te-types:association-type;
+    description
+      "Association Type diversity used to associate LSPs whose paths
+       are to be diverse from each other.";
+    reference "ID.ietf-pce-association-diversity";
+  }
+
   typedef tunnel-ref {
     type leafref {
       path "/te:te/te:tunnels/te:tunnel/te:name";
@@ -226,24 +255,16 @@ module ietf-te {
     type union {
       type leafref {
         path "/te:te/te:tunnels/te:tunnel/" +
-              "te:p2p-primary-paths/te:p2p-primary-path/te:name";
+              "te:primary-paths/te:primary-path/te:name";
       }
       type leafref {
         path "/te:te/te:tunnels/te:tunnel/" +
-             "te:p2p-secondary-paths/te:p2p-secondary-path/te:name";
+             "te:secondary-paths/te:secondary-path/te:name";
       }
     }
     description
       "This type is used by data models that need to reference
        configured primary or secondary path of a TE tunnel.";
-  }
-
-  identity association-type-diversity {
-    base te-types:association-type;
-    description
-      "Association Type diversity used to associate LSPs whose paths
-       are to be diverse from each other.";
-    reference "ID.ietf-pce-association-diversity";
   }
 
   typedef te-generic-node-id {
@@ -259,46 +280,43 @@ module ietf-te {
    * TE tunnel generic groupings
    */
 
-  grouping p2p-primary-path {
-    description
-      "TE tunnel primary path.";
-    uses p2p-path-common-attributes;
+  grouping primary-path {
+    description "The tunnel primary path properties.";
+    uses path-common-properties;
     uses path-preference;
     uses k-requested-paths;
-    uses p2p-path-compute-info;
-    uses p2p-path-state;
+    uses path-compute-info;
+    uses path-state;
   }
 
-  grouping p2p-primary-reverse-path {
-    description "TE P2P tunnel primary reverse path.";
+  grouping primary-reverse-path {
+    description "The tunnel primary reverse path properties.";
     reference "RFC7551";
-    uses p2p-path-common-attributes;
-    uses p2p-path-compute-info;
-    uses p2p-path-state;
+    uses path-common-properties;
+    uses path-compute-info;
+    uses path-state;
   }
 
-  grouping p2p-secondary-path {
-    description
-      "TE tunnel secondary path.";
-    uses p2p-path-common-attributes;
+  grouping secondary-path {
+    description "The tunnel secondary path properties.";
+    uses path-common-properties;
     uses path-preference;
-    uses p2p-path-compute-info;
+    uses path-compute-info;
     uses protection-restoration-properties;
-    uses p2p-path-state;
+    uses path-state;
   }
 
-  grouping p2p-secondary-reverse-path {
-    description "TE tunnel secondary reverse path.";
-    uses p2p-path-common-attributes;
+  grouping secondary-reverse-path {
+    description "The tunnel secondary reverse path properties.";
+    uses path-common-properties;
     uses path-preference;
-    uses p2p-path-compute-info;
+    uses path-compute-info;
     uses protection-restoration-properties;
-    uses p2p-path-state;
+    uses path-state;
   }
 
-  grouping p2p-path-common-attributes {
-    description
-      "Path attributes common to any path.";
+  grouping path-common-properties {
+    description "Common path attributes.";
     leaf name {
       type string;
       description "TE path name.";
@@ -338,13 +356,16 @@ module ietf-te {
       "'te-types:path-locally-computed')";
       type boolean;
       default 'true';
-      description "A CSPF dynamically computed path.";
+      description
+        "When 'true' indicates the path is dyamically computed and/or
+         validated against the Traffic-Engineering Database (TED),
+         and when 'false' indicates no validation against the TED is
+         required";
     }
     leaf lockdown {
       type empty;
       description
-        "Indicates no reoptimization to be attempted for
-         this path.";
+        "Indicates no reoptimization to be attempted for this path.";
     }
     leaf path-scope {
       type identityref {
@@ -357,10 +378,10 @@ module ietf-te {
   }
 
   /* This grouping will be re-used in path-computation rpc */
-  grouping p2p-path-compute-info {
+  grouping path-compute-info {
     description
       "Attributes used for path computation request";
-    uses tunnel-p2p-associations-properties;
+    uses tunnel-associations-properties;
     uses te-types:generic-path-optimization;
     leaf named-path-constraint {
       if-feature te-types:named-path-constraints;
@@ -369,37 +390,35 @@ module ietf-te {
         "named-path-constraint/name";
       }
       description
-        "Reference to a globally defined named path
-        constraint set.";
+        "Reference to a globally defined named path constraint set.";
     }
     uses path-constraints-common;
   }
 
   /* This grouping will be re-used in path-computation rpc */
   grouping path-preference {
-    description
-      "Path preference.";
+    description "The path preference.";
     leaf preference {
-          type uint8 {
-            range "1..255";
-          }
-          default 1;
-          description
-            "Specifies a preference for this path. The lower the number higher the preference.";
+      type uint8 {
+        range "1..255";
+      }
+      default 1;
+      description
+        "Specifies a preference for this path. The lower the number
+         higher the preference.";
     }
   }
 
   /* This grouping will be re-used in path-computation rpc */
   grouping k-requested-paths {
-    description
-      "Path preference.";
+    description "The k-shortest paths requests.";
     leaf k-requested-paths {
-          type uint8;
-          default 1;
-          description
-            "The number of k-shortest-paths  requested from the path
-             computation server and returned sorted by its optimization
-             objective.";
+      type uint8;
+      default 1;
+      description
+        "The number of k-shortest-paths  requested from the path
+         computation server and returned sorted by its optimization
+         objective.";
     }
   }
 
@@ -426,9 +445,9 @@ module ietf-te {
     }
   }
 
-  grouping p2p-path-state {
+  grouping path-state {
     description "TE per path state parameters.";
-    uses p2p-path-computation-response;
+    uses path-computation-response;
     uses lsp-provisioning-error-info {
       augment "lsp-provisioning-error-infos/" +
               "lsp-provisioning-error-info" {
@@ -461,7 +480,7 @@ module ietf-te {
   }
 
   /* This grouping will be re-used in path-computation rpc */
-  grouping p2p-path-computation-response {
+  grouping path-computation-response {
     description "Attributes reported by path computation response";
     container computed-paths-properties {
       config 'false';
@@ -740,7 +759,7 @@ module ietf-te {
     }
   }
 
-  grouping tunnel-p2p-associations-properties {
+  grouping tunnel-associations-properties {
     description "TE tunnel association grouping.";
     container association-objects {
       description "TE tunnel associations.";
@@ -804,7 +823,7 @@ module ietf-te {
   /* TE tunnel configuration/state grouping */
 
   /* This grouping will be re-used in path-computation rpc */
-  grouping tunnel-p2p-hierarchy-properties {
+  grouping tunnel-hierarchy-properties {
     description "A grouping for TE tunnel hierarchy information.";
     container hierarchy {
       description
@@ -875,7 +894,7 @@ module ietf-te {
     }
   }
 
-  grouping  tunnel-p2p-properties {
+  grouping  tunnel-properties {
     description
       "Top level grouping for tunnel properties.";
     leaf operational-state {
@@ -918,11 +937,11 @@ module ietf-te {
       description "LSP switching type.";
       reference "RFC3945";
     }
-    leaf provisioning-state {
+    leaf admin-state {
       type identityref {
-        base te-types:tunnel-state-type;
+        base tunnel-admin-type;
       }
-      default te-types:tunnel-state-up;
+      default tunnel-admin-up;
       description "TE tunnel administrative state.";
     }
     leaf reoptimize-timer {
@@ -956,33 +975,33 @@ module ietf-te {
       default 'false';
       description "Indicates a bidirectional co-routed LSP.";
     }
-    uses tunnel-p2p-associations-properties;
+    uses tunnel-associations-properties;
     uses protection-restoration-properties;
     uses te-types:tunnel-constraints;
-    uses tunnel-p2p-hierarchy-properties;
+    uses tunnel-hierarchy-properties;
 
-    container p2p-primary-paths {
-      description "Set of P2P primary aths container.";
-      list p2p-primary-path {
+    container primary-paths {
+      description "The set of primary paths.";
+      list primary-path {
         key "name";
         description
           "List of primary paths for this tunnel.";
-        uses p2p-primary-path;
-        container p2p-primary-reverse-path {
-          description "Tunnel reverse primary path properties.";
-          uses p2p-primary-reverse-path;
-          container candidate-p2p-secondary-reverse-paths {
+        uses primary-path;
+        container primary-reverse-path {
+          description "The set of reverse primary paths.";
+          uses primary-reverse-path;
+          container candidate-secondary-reverse-paths {
             description
               "The set of referenced candidate reverse secondary paths
                from the full set of seondary reverse paths which may be
                used for this primary path.";
-            list candidate-p2p-secondary-reverse-path {
+            list candidate-secondary-reverse-path {
               key secondary-path;
               description "List of candidate secondary reverse path(s)";
               leaf secondary-path {
                 type leafref {
-                  path "../../../../../../p2p-secondary-reverse-paths/" +
-                       "p2p-secondary-reverse-path/name";
+                  path "../../../../../../secondary-reverse-paths/" +
+                       "secondary-reverse-path/name";
                 }
                 description
                   "A reference to the secondary reverse path that
@@ -992,7 +1011,7 @@ module ietf-te {
             }
           }
         }
-        container candidate-p2p-secondary-paths {
+        container candidate-secondary-paths {
           description
             "The set of candidate secondary paths which may be used
              for this primary path. When secondary paths are specified
@@ -1004,14 +1023,14 @@ module ietf-te {
              path. In the case that the list is empty, any secondary
              path option may be utilised when the current primary path
              is in use.";
-          list candidate-p2p-secondary-path {
+          list candidate-secondary-path {
             key "secondary-path";
             description
               "List of candidate secondary paths for this tunnel.";
             leaf secondary-path {
               type leafref {
-                path "../../../../../p2p-secondary-paths/" +
-                     "p2p-secondary-path/name";
+                path "../../../../../secondary-paths/" +
+                     "secondary-path/name";
               }
               description
                 "A reference to the secondary path that should be utilised
@@ -1029,22 +1048,22 @@ module ietf-te {
       }
     }
 
-    container p2p-secondary-paths {
+    container secondary-paths {
       description "The set of secondary paths.";
-      list p2p-secondary-path {
+      list secondary-path {
         key "name";
         description
           "List of secondary paths for this tunnel.";
-        uses p2p-secondary-path;
+        uses secondary-path;
       }
     }
-    container p2p-secondary-reverse-paths {
+    container secondary-reverse-paths {
       description "The set of secondary reverse paths.";
-      list p2p-secondary-reverse-path {
+      list secondary-reverse-path {
         key "name";
         description
           "List of secondary paths for this tunnel.";
-        uses p2p-secondary-reverse-path;
+        uses secondary-reverse-path;
       }
     }
   }
@@ -1367,8 +1386,8 @@ module ietf-te {
 
       list tunnel {
         key "name";
-        description "P2P TE tunnels list.";
-        uses tunnel-p2p-properties;
+        description "The list of TE tunnels.";
+        uses tunnel-properties;
         uses tunnel-actions;
         uses tunnel-protection-actions;
       }
