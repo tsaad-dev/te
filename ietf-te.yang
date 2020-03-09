@@ -287,6 +287,15 @@ module ietf-te {
     uses p2p-path-state;
   }
 
+  grouping p2p-secondary-reverse-path {
+    description "TE tunnel secondary reverse path.";
+    uses p2p-path-common-attributes;
+    uses path-preference;
+    uses p2p-path-compute-info;
+    uses protection-restoration-properties;
+    uses p2p-path-state;
+  }
+
   grouping p2p-path-common-attributes {
     description
       "Path attributes common to any path.";
@@ -752,7 +761,7 @@ module ietf-te {
           reference "RFC4872";
         }
         leaf source {
-          type te-types:te-node-id;
+          type te-generic-node-id;
           description "Association source.";
           reference "RFC4872";
         }
@@ -766,17 +775,17 @@ module ietf-te {
             base te-types:association-type;
           }
           description "Association type.";
-          reference "RFC6780, RFC4872";
+          reference "RFC4872, RFC6780";
         }
         leaf id {
           type uint16;
           description "Association identifier.";
-          reference "RFC6780, RFC4872";
+          reference "RFC4872, RFC6780";
         }
         leaf source {
           type te-generic-node-id;
           description "Association source node identifier.";
-          reference "RFC6780, RFC4872";
+          reference "RFC4872, RFC6780";
         }
         leaf global-source {
           type uint32;
@@ -962,17 +971,24 @@ module ietf-te {
         container p2p-primary-reverse-path {
           description "Tunnel reverse primary path properties.";
           uses p2p-primary-reverse-path;
-          container p2p-secondary-reverse-path {
-            description "Tunnel reverse secondary path properties.";
-            leaf secondary-path {
-              type leafref {
-                path "../../../../../p2p-secondary-paths/" +
-                     "p2p-secondary-path/name";
+          container candidate-p2p-secondary-reverse-paths {
+            description
+              "The set of referenced candidate reverse secondary paths
+               from the full set of seondary reverse paths which may be
+               used for this primary path.";
+            list candidate-p2p-secondary-reverse-path {
+              key secondary-path;
+              description "List of candidate secondary reverse path(s)";
+              leaf secondary-path {
+                type leafref {
+                  path "../../../../../../p2p-secondary-reverse-paths/" +
+                       "p2p-secondary-reverse-path/name";
+                }
+                description
+                  "A reference to the secondary reverse path that
+                   should be utilised when the containing primary
+                   reverse path option is in use.";
               }
-              description
-                "A reference to the secondary path that should be
-                 utilised when the containing primary path option
-                 is in use.";
             }
           }
         }
@@ -991,7 +1007,7 @@ module ietf-te {
           list candidate-p2p-secondary-path {
             key "secondary-path";
             description
-              "List of secondary paths for this tunnel.";
+              "List of candidate secondary paths for this tunnel.";
             leaf secondary-path {
               type leafref {
                 path "../../../../../p2p-secondary-paths/" +
@@ -1014,12 +1030,21 @@ module ietf-te {
     }
 
     container p2p-secondary-paths {
-      description "Set of P2P secondary paths container.";
+      description "The set of secondary paths.";
       list p2p-secondary-path {
         key "name";
         description
           "List of secondary paths for this tunnel.";
         uses p2p-secondary-path;
+      }
+    }
+    container p2p-secondary-reverse-paths {
+      description "The set of secondary reverse paths.";
+      list p2p-secondary-reverse-path {
+        key "name";
+        description
+          "List of secondary paths for this tunnel.";
+        uses p2p-secondary-reverse-path;
       }
     }
   }
