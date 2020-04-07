@@ -95,19 +95,104 @@ module ietf-te-mpls {
   // RFC Ed.: update the date below with the date of RFC publication
   // and remove this note.
 
-  revision "2020-03-09" {
+  revision "2020-04-07" {
     description "Latest update to MPLS TE YANG module.";
     reference
       "RFCXXXX: A YANG Data Model for MPLS-TE Tunnels and LSP(s)";
   }
 
+
   /* MPLS TE Identities */
   identity tunnel-action-resetup {
     base te:tunnel-actions-type;
     description "Resetup tunnel action type";
+
+  /*
+   * Type Definitions
+   */
+
+  typedef lsp-ecmp-mode {
+    description
+      "The ECMP behavior requested for an MPLS-TE LSP";
+    type enumeration {
+      enum allowed {
+        description
+          "ECMP is allowed for this MPLS-TE LSP.
+           Path computation can select any MPLS-TE Link
+           irrespectively of the ECMP modes
+           supported by their LTPs
+          ";
+      }
+      enum disabled {
+        description
+          "ECMP is not allowed for this MPLS-TE LSP.
+           Path computation can select only MPLS-TE Links
+           whose LTPs has either ECMP disabled or allows ECMP
+           to be disabled on LSP basis. In the latter case,
+           ECMP shall be disabled for this MPLS-TE LPS.
+          ";
+      }
+    }
+  }
+
+   typedef lsp-php-mode {
+    description
+      "The PHP behavior requested for an MPLS-TE LSP";
+    type enumeration {
+      enum allowed {
+        description
+          "PHP is allowed for this MPLS-TE LSP.
+           Path computation can select any MPLS-TE Link
+           irrespectively of the PHP modes
+           supported by their LTPs
+          ";
+      }
+      enum disabled {
+        description
+          "PHP is not allowed for this MPLS-TE LSP.
+           Path computation can select only MPLS-TE Links
+           whose LTPs has either PHP disabled or allows PHP
+           to be disabled on LSP basis. In the latter case,
+           PHP shall be disabled for this MPLS-TE LSP.
+          ";
+      }
+    }
+  }
+
+   typedef lsp-gal-mode {
+    description
+      "The GAL capabilities requested for an MPLS-TE LSP";
+    type enumeration {
+      enum not-required {
+        description
+          "GAL processing is not required for this MPLS-TE LSP.
+           Path computation can select any MPLS-TE Link
+           irrespectively of the GAL capabilities
+           supported by their LTPs.
+          ";
+      }
+      enum required {
+        description
+          "GAL processing is required for this MPLS-TE LSP.
+           Path computation can select only MPLS-TE Links
+           whose LTPs are capable to process GAL either
+           in 'receive-only' or in 'bidirectional' mode.
+          ";
+      }
+      enum bidirectional {
+        description
+          "Bidirectional GAL processing is required
+           for this MPLS-TE LSP.
+           Path computation can select only MPLS-TE Links
+           whose LTPs are capable to process GAL
+           in 'bidirectional' mode.
+          ";
+      }
+    }
   }
 
   /* MPLS TE tunnel properties*/
+
   grouping tunnel-igp-shortcut-config {
     description "TE tunnel IGP shortcut configs";
     leaf shortcut-eligible {
@@ -190,6 +275,7 @@ module ietf-te-mpls {
   }
 
   /*** End of MPLS TE tunnel configuration/state */
+
   grouping te-lsp-auto-bandwidth-config {
     description
       "Configuration parameters related to autobandwidth";
@@ -290,6 +376,7 @@ module ietf-te-mpls {
         events needed to trigger an underflow adjustment";
     }
   }
+
   grouping te-tunnel-bandwidth-config {
     description
       "Configuration parameters related to bandwidth for a tunnel";
@@ -403,11 +490,134 @@ module ietf-te-mpls {
     }
   }
 
+  grouping mpls-te-lsp-attributes {
+    description
+      "MPLS-TE LSP attributes";
 
+    leaf ecmp-mode {
+      type lsp-ecmp-mode;
+      description
+        "Represents whether ECMP is allowed or
+         should be disabled for the MPLS-TE LSPs.";
+    }
+    leaf php-mode {
+      type lsp-php-mode;
+      description
+        "Represents whether PHP is allowed or
+         should be disabled for the MPLS-TE LSPs.";
+    }
+    leaf gal-mode {
+      type lsp-gal-mode;
+      description
+        "Represents which GAL modes should be supported
+         by the MPLS-TE LSP hops.";
+    }
+  }
+
+  grouping mpls-te-path-constraints {
+    description
+      "Path constraints for MPLS-TE LSP attributes";
+
+    choice mpls-te-profile {
+      description
+        "Type of MPLS-TE profile requested for the MPLS-TE LSP";
+
+      case mpls-tp {
+        container mpls-tp-attributes {
+          presence
+            "Indicates the request for an MPLS-TP LSP with:
+             - the ecmp-mode must be 'disabled';
+             - the php-mode must be 'disabled';
+             - the gal-mode must be either 'receive-only'
+               or 'bidirectional' (by default).
+            ";
+          uses mpls-te-lsp-attributes {
+            refine ecmp-mode {
+              description "ECMP must be disabled on MPLS-TP LTPs";
+              default "disabled";
+              must
+                'ecmp-mode = "disabled"';
+            }
+            refine php-mode {
+              description "PHP must be disabled on MPLS-TP LTPs";
+              default "disabled";
+              must
+                'php-mode = "disabled"';
+            }
+            refine gal-mode {
+              default "bidirectional";
+              must
+                'gal-mode = "bidirectional" or '+
+                'gal-mode = "required"';
+              description
+                "GAL processing must be supported on MPLS-TP LTPs.";
+            }
+          }
+        }
+      }
+
+      case generic {
+        container mpls-te-lsp-attributes {
+          description
+            "Requests for an MPLS-TE LSP technology-specific
+             path constraints/optimizations:
+             - ecmp-mode: 'allowed' by default;
+             - php-mode: 'allowed' by default;
+             - gal-mode: 'not-required' by default.
+            ";
+          uses mpls-te-ltp-attributes {
+            refine ecmp-mode {
+              description
+                "ECMP is allowed by default on MPLS-TE LTPs";
+              default "allowed";
+            }
+            refine php-mode {
+              description
+                "ECMP is allowed by default on MPLS-TE LTPs";
+              default "unconstrained";
+            }
+            refine gal-mode {
+              description
+                "GAL processing is not required by default
+                 on MPLS-TE LTPs";
+              default "not-required";
+            }
+          }
+        }
+      }
+    }
+  }
+
+  grouping mpls-te-path-label {
+    description
+      "Path Label for MPLS-TE. ";
+
+    choice mpls-hop-type {
+      description
+        "Whether the label-hop is a normal MPLS-TE
+         label-hop or a PHP hop";
+
+      case php {
+         leaf mpls-php {
+           type empty;
+           description
+            "MPLS-TE PHP Label Hop.";
+         }
+      }
+      case label-hop {
+        leaf mpls-label {
+          type rt-types:mpls-label-general-use;
+          description
+            "MPLS-TE Label Hop.";
+        }
+      }
+    }
+  }
 
   /**
    * MPLS TE augmentations
    */
+
   augment "/te:te/te-dev:performance-thresholds" {
     uses te-packet-types:performance-metrics-throttle-container-packet;
     description
@@ -425,12 +635,19 @@ module ietf-te-mpls {
     uses tunnel-bandwidth_top;
   }
 
+  /* MPLS TE path augmentations */
+  augment "/te:te/te:tunnels/te:tunnel/" +
+          "te:primary-paths/te:primary-path" {
+    description "MPLS TE path constraints";
+    uses mpls-te-path-constraints;
+  }
+
   /* MPLS TE LSPs augmentations */
   augment "/te:te/te:tunnels/te:tunnel/" +
           "te:primary-paths/te:primary-path" {
     when "/te:te/te:tunnels/te:tunnel" +
       "/te:primary-paths/te:primary-path" +
-      "/te:signaling-type = 'te-types:path-setup-static'" {
+      "/te:path-setup-protocol = 'te-types:path-setup-static'" {
       description
       "When the path is statically provisioned";
     }
@@ -445,7 +662,7 @@ module ietf-te-mpls {
           "te:secondary-paths/te:secondary-path" {
     when "/te:te/te:tunnels/te:tunnel" +
       "/te:secondary-paths/te:secondary-path/" +
-      "te:signaling-type = 'te-types:path-setup-static'" {
+      "te:path-setup-protocol = 'te-types:path-setup-static'" {
       description
       "When the path is statically provisioned";
     }
@@ -469,4 +686,59 @@ module ietf-te-mpls {
        LSP";
     uses te-packet-types:performance-metrics-attributes-packet;
   }
+
+  /*
+   * Augment TE label.
+   */
+
+  augment "/te:te/te:tunnels/te:tunnel/"
+        + "te:primary-paths/te:primary-path/"
+        + "te:computed-paths-properties/"
+        + "te:computed-path-properties/"
+        + "te:path-properties/te:path-route-objects/"
+        + "te:path-computed-route-object/te:type/te:label/"
+        + "te:label-hop/te:te-label/te:technology" {
+    description "MPLS-TE label.";
+    case mpls {
+      uses mpls-te-path-label;
+    }
+  }
+  
+  augment "/te:te/te:tunnels/te:tunnel/"
+        + "te:`primary-paths/te:primary-path/"
+        + "te:lsps/te:lsp/"
+        + "te:path-properties/te:path-route-objects/"
+        + "te:path-computed-route-object/te:type/te:label/"
+        + "te:label-hop/te:te-label/te:technology" {
+    description "MPLS-TE label.";
+    case mpls {
+      uses mpls-te-path-label;
+    }
+  }
+  
+  augment "/te:te/te:tunnels/te:tunnel/"
+        + "te:secondary-paths/te:secondary-path/"
+        + "te:computed-paths-properties/"
+        + "te:computed-path-properties/"
+        + "te:path-properties/te:path-route-objects/"
+        + "te:path-computed-route-object/te:type/te:label/"
+        + "te:label-hop/te:te-label/te:technology" {
+    description "MPLS-TE label.";
+    case mpls {
+      uses mpls-te-path-label;
+    }
+  }
+  
+  augment "/te:te/te:tunnels/te:tunnel/"
+        + "te:secondary-paths/te:secondary-path/"
+        + "te:lsps/te:lsp/"
+        + "te:path-properties/te:path-route-objects/"
+        + "te:path-computed-route-object/te:type/te:label/"
+        + "te:label-hop/te:te-label/te:technology" {
+    description "MPLS-TE label.";
+    case mpls {
+      uses mpls-te-path-label;
+    }
+  }
 }
+

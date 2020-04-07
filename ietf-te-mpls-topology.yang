@@ -1,0 +1,415 @@
+module ietf-te-mpls-topology {
+  //yang-version 1.1;
+
+  namespace "urn:ietf:params:xml:ns:yang:ietf-mpls-te-topology";
+  prefix "tet-mpls";
+
+  import ietf-network {
+    prefix "nw";
+  }
+
+  import ietf-network-topology {
+    prefix "nt";
+  }
+
+  import ietf-te-topology {
+    prefix "tet";
+  }
+
+  import ietf-te-topology {
+    prefix "tet-pkt";
+  }
+
+  import ietf-te-topology-packet {
+    prefix "tet-pkt";
+  }
+
+  /*
+   * To be added when Identities and/or Type Definitions
+   * are moved to te-packet-types
+   *
+  import ietf-te-packet-types {
+    prefix "te-pkt-types";
+  }
+   *
+   */
+
+  organization
+    "Internet Engineering Task Force (IETF) TEAS WG";
+  contact
+    "
+      WG List: <mailto:teas@ietf.org>
+
+      ID-draft editor:
+        Italo Busi (italo.busi@huawei.com);
+        Haomian Zheng (zhenghaomian@huawei.com);
+    ";
+
+  description
+    "This module defines technology-specific MPLS-TE topology
+     data model.";
+
+  revision 2019-10-11 {
+    description
+      "version -00 as an I-D";
+    reference
+      "New draft to be submitted";
+  }
+
+  /*
+   * Identities (to be moved to te-packet-types?)
+   */
+
+  identity bandwidth-profile-type {
+    description
+      "Bandwidth Profile Types";
+  }
+
+  identity mef-10-bwp {
+    base bandwidth-profile-type;
+    description
+      "MEF 10 Bandwidth Profile";
+  }
+
+  identity rfc-2697-bwp {
+    base bandwidth-profile-type;
+    description
+      "RFC 2697 Bandwidth Profile";
+  }
+
+  identity rfc-2698-bwp {
+    base bandwidth-profile-type;
+    description
+      "RFC 2698 Bandwidth Profile";
+  }
+
+  identity rfc-4115-bwp {
+    base bandwidth-profile-type;
+    description
+      "RFC 4115 Bandwidth Profile";
+  }
+
+  /*
+   * Type Definitions (to be moved to te-packet-types?)
+   */
+
+  typedef ecmp-mode {
+    description
+      "The ECMP behavior supported by an MPLS-TE LTP";
+    type enumeration {
+      enum unconstrained {
+        description
+          "The ECMP behavior is fully controlled by the LTP.";
+      }
+      enum disabled {
+        description
+          "ECMP is disabled on every LSPs transmitted
+           over the LTP Outgoing Link.";
+      }
+      enum disabled-per-lsp {
+        description
+          "ECMP can be disabled on each LSPs transmitted
+           over the LTP Outgoing Link.";
+      }
+    }
+  }
+
+  typedef php-mode {
+    description
+      "The PHP behavior supported by an MPLS-TE LTP";
+    type enumeration {
+      enum unconstrained {
+        description
+          "The PHP behavior is fully controlled by the LTP.";
+      }
+      enum disabled {
+        description
+          "PHP is disabled for every LSPs received
+           over the LTP Incoming Link.";
+      }
+      enum disabled-per-lsp {
+        description
+          "ECMP can be disabled on each LSPs received
+           over the LTP Incoming Link.";
+      }
+    }
+  }
+
+  typedef gal-mode {
+    description
+      "The GAL behavior supported by an MPLS-TE LTP";
+    type enumeration {
+      enum disabled {
+        description
+          "The LTP does not process GAL.";
+      }
+      enum receive-only {
+        description
+          "The LTP can only process GAL for the packets received
+           from the LTP Incoming Link.";
+      }
+      enum bidirectional {
+        description
+          "The LTP can only process GAL for both the packets received
+           from the LTP Incoming Link and transmitted
+           over the LTP Outgoing Link.";
+      }
+    }
+  }
+
+  grouping te-packet-path-bandwidth {
+    description
+      "Path bandwidth for MPLS-TP. ";
+    leaf bandwidth-profile-name{
+      type string;
+      description "Name of Bandwidth Profile.";
+    }
+    leaf bandwidth-profile-type {
+      type identityref {
+        base bandwidth-profile-type;
+      }
+      description "Type of Bandwidth Profile.";
+    }
+
+    leaf CIR {
+      type uint64;
+        description
+          "Committed Information Rate in Kbps";
+    }
+
+    leaf EIR {
+      type uint64;
+      /*
+        Need to indicate that EIR is not supported by RFC 2697
+
+        must
+            '../bw-profile-type = "etht-types:mef-10-bwp" or ' +
+            '../bw-profile-type = "etht-types:rfc-2698-bwp" or ' +
+            '../bw-profile-type = "etht-types:rfc-4115-bwp"'
+
+        must
+            '../bw-profile-type != "etht-types:rfc-2697-bwp"'
+      */
+      description
+        "Excess Information Rate in Kbps
+        In case of RFC 2698, PIR = CIR + EIR";
+    }
+
+    leaf CBS {
+      type uint64;
+      description
+        "Committed Burst Size in in KBytes";
+    }
+
+    leaf EBS {
+      type uint64;
+      description
+        "Excess Burst Size in KBytes.
+          In case of RFC 2698, PBS = CBS + EBS";
+    }
+  }
+
+  grouping te-packet-link-bandwidth {
+    description
+      "Bandwidth for MPLS-TP. ";
+    leaf mpls-tp-bandwidth {
+      type uint64{
+        range "0..10000000000";
+      }
+      units "Kbps";
+      description
+        "Available bandwith value expressed in kilobits per
+         second";
+    }
+  }
+
+  /*
+   * Groupings
+   */
+
+  grouping mpls-te-ltp-attributes {
+    description
+      "MPLS-TE LTP attributes";
+
+    leaf ecmp-mode {
+      type link-ecmp-mode;
+      description
+        "The ECMP mode supported by the MPLS-TE LTP.";
+    }
+    leaf php-mode {
+      type link-php-mode;
+      description
+        "The PHP mode supported by the MPLS-TE LTP.";
+    }
+    leaf gal-mode {
+      type link-gal-mode;
+      description
+        "The GAL mode supported by the MPLS-TE LTP.";
+    }
+  }
+
+  /*
+   * Augmentations (to be moved to te-topology-packet)
+   */
+
+  augment "/nw:networks/nw:network/nt:link/tet:te/"
+        + "tet:te-link-attributes/"
+        + "tet:interface-switching-capability/tet:max-lsp-bandwidth/"
+        + "tet:te-bandwidth/tet:technology" {
+    when "../../../../../../../nw:network-types/tet:te-topology/"
+       + "tet-pkt:packet-topology" {
+      description "Augment Packet TE bandwidth.";
+    }
+    description "TE Packet bandwidth.";
+    case packet {
+      uses te-packet-path-bandwidth;
+    }
+  }
+
+  augment "/nw:networks/nw:network/nw:node/nt:termination-point/tet:te/"
+        + "tet:interface-switching-capability/tet:max-lsp-bandwidth/"
+        + "tet:te-bandwidth/tet:technology" {
+    when "../../../../../../../nw:network-types/tet:te-topology/"
+       + "tet-pkt:packet-topology" {
+      description "Augment Packet TE bandwidth.";
+    }
+    description "TE Packet bandwidth.";
+    case packet {
+      uses te-packet-path-bandwidth;
+    }
+  }
+
+  augment "/nw:networks/nw:network/nt:link/tet:te/"
+        + "tet:te-link-attributes/tet:max-link-bandwidth/"
+        + "tet:te-bandwidth/tet:technology" {
+    when "../../../../../../nw:network-types/tet:te-topology/"
+       + "tet-pkt:packet-topology" {
+      description "Augment Packet TE bandwidth.";
+    }
+    description "TE Packet bandwidth.";
+    case packet {
+      uses te-packet-link-bandwidth;
+    }
+  }
+
+  augment "/nw:networks/nw:network/nt:link/tet:te/"
+        + "tet:te-link-attributes/tet:max-resv-link-bandwidth/"
+        + "tet:te-bandwidth/tet:technology" {
+    when "../../../../../../nw:network-types/tet:te-topology/"
+       + "tet-pkt:packet-topology" {
+      description "Augment Packet TE bandwidth.";
+    }
+    description "TE Packet bandwidth.";
+    case packet {
+      uses te-packet-link-bandwidth;
+    }
+  }
+
+  augment "/nw:networks/nw:network/nt:link/tet:te/"
+        + "tet:te-link-attributes/tet:unreserved-bandwidth/"
+        + "tet:te-bandwidth/tet:technology" {
+    when "../../../../../../nw:network-types/tet:te-topology/"
+       + "tet-pkt:packet-topology" {
+      description "Augment Packet TE bandwidth.";
+    }
+    description "TE Packet bandwidth.";
+    case packet {
+      uses te-packet-link-bandwidth;
+    }
+  }
+
+  /*
+   * Augmentations
+   */
+
+  augment "/nw:networks/nw:network/nw:network-types/"
+        + "tet:te-topology/tet-pkt:packet-topology" {
+    description
+      "Augment network types to include MPLS-TE Topology Type";
+    container mpls-topology {
+      presence
+        "Indicates an MPLS-TE Topology Type.";
+      description
+        "Its presence indicates an MPLS-TE Topology";
+    }
+  }
+
+  augment "/nw:networks/nw:network/nw:node/nt:termination-point/"
+        + "tet:te" {
+    when "../../../nw:network-types/tet:te-topology/"
+       + "tet-pkt:packet-topology/tet-mpls:mpls-topology" {
+      description "Augment MPLS-TE Topology.";
+    }
+    description "Augment Link with MPLS-TE specific attributes";
+
+    choice mpls-te-profile {
+      description
+        "Type of MPLS-TE profile supported by the MPLS-TE Link";
+
+      case mpls-tp {
+        container mpls-tp-attributes {
+          presence
+            "Indicates an MPLS-TE Link which supports only
+             the MPLS-TP profile where:
+             - the ecmp-mode must be 'disabled';
+             - the php-mode must be 'disabled';
+             - the gal-mode must be either 'receive-only'
+               or 'bidirectional' (by default).
+            ";
+          uses mpls-te-ltp-attributes {
+            refine ecmp-mode {
+              description "ECMP must be disabled on MPLS-TP LTPs";
+              default "disabled";
+              must
+                'ecmp-mode = "disabled"';
+            }
+            refine php-mode {
+              description "PHP must be disabled on MPLS-TP LTPs";
+              default "disabled";
+              must
+                'php-mode = "disabled"';
+            }
+            refine gal-mode {
+              default "bidirectional";
+              must
+                'gal-mode = "bidirectional" or '+
+                'gal-mode = "receive-only"';
+              description
+                "GAL processing must be supported on MPLS-TP LTPs.";
+            }
+          }
+        }
+      }
+
+      case generic {
+        container mpls-te-attributes {
+          description
+            "It contains the set of attributes to report
+             the behavior of a generic MPLS-TE LTP about:
+             - ecmp-mode: 'unconstrained' by default;
+             - php-mode: 'unconstrained' by default;
+             - gal-mode: 'disabled' by default.
+            ";
+          uses mpls-te-ltp-attributes {
+            refine ecmp-mode {
+              description
+                "ECMP is unconstrained by default on MPLS-TE LTPs";
+              default "unconstrained";
+            }
+            refine php-mode {
+              description
+                "PHP is unconstrained by default on MPLS-TE LTPs";
+              default "unconstrained";
+            }
+            refine gal-mode {
+              description
+                "GAL processing is disabled by default
+                 on MPLS-TE LTPs";
+              default "disabled";
+            }
+          }
+        }
+      }
+    }
+  }
+}
