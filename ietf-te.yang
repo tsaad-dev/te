@@ -311,12 +311,39 @@ module ietf-te {
       type inet:ip-address;
     }
     description
-      "Uniquely identifies a node or link in a TE topology.";
+      "Generic type that identifies a node or link in a TE
+       topology.";
   }
 
   /**
    * TE tunnel generic groupings
    */
+
+  grouping te-generic-node-id {
+    description
+      "A reusable grouping for a TE generic node identifier.";
+    leaf id {
+      type te-generic-node-id;
+      description
+        "The identifier of the node. Can be represented as IP
+         address or dotted quad address.";
+    }
+    leaf type {
+      type enumeration {
+        enum ip {
+          description
+            "IP address representation of the node identifier.";
+        }
+        enum dotted-quad {
+          description
+            "Dotted quad address representation of the node
+             identifier.";
+        }
+      }
+      description
+        "Type of node identifier represenation.";
+    }
+  }
 
   grouping primary-path {
     description
@@ -376,14 +403,14 @@ module ietf-te {
          locally computed, queried from a server or not
          computed at all (explicitly configured).";
     }
-    leaf path-computation-server {
+    container path-computation-server {
       when "derived-from-or-self(../path-computation-method, "
          + "'te-types:path-externally-queried')" {
         description
           "The path-computation server when the path is
            externally queried.";
       }
-      type te-generic-node-id;
+      uses te-generic-node-id;
       description
         "Address of the external path computation
          server.";
@@ -842,11 +869,18 @@ module ietf-te {
       description
         "TE tunnel associations.";
       list association-object {
-        key "type id source";
+        key "association-key";
+        unique "type id source/id source/type";
         description
           "List of association base objects.";
         reference
           "RFC4872";
+        leaf association-key {
+          type string;
+          description
+            "Association key used to identify a specific
+             association in the list";
+        }
         leaf type {
           type identityref {
             base te-types:association-type;
@@ -863,8 +897,8 @@ module ietf-te {
           reference
             "RFC4872";
         }
-        leaf source {
-          type te-generic-node-id;
+        container source {
+          uses te-generic-node-id;
           description
             "Association source.";
           reference
@@ -872,11 +906,19 @@ module ietf-te {
         }
       }
       list association-object-extended {
-        key "type id source global-source extended-id";
+        key "association-key";
+        unique
+          "type id source/id source/type global-source extended-id";
         description
           "List of extended association objects.";
         reference
           "RFC6780";
+        leaf association-key {
+          type string;
+          description
+            "Association key used to identify a specific
+             association in the list";
+        }
         leaf type {
           type identityref {
             base te-types:association-type;
@@ -893,10 +935,10 @@ module ietf-te {
           reference
             "RFC4872, RFC6780";
         }
-        leaf source {
-          type te-generic-node-id;
+        container source {
+          uses te-generic-node-id;
           description
-            "Association source node identifier.";
+            "Association source.";
           reference
             "RFC4872, RFC6780";
         }
