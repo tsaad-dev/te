@@ -418,8 +418,6 @@ module: ietf-te
      |  |     |        +--:(srlg)
      |  |     |           +--rw srlg
      |  |     |              +--rw srlg?   uint32
-     |  |     +--rw shared-resources-tunnels
-     |  |     |  +--rw lsp-shared-resources-tunnel*   tunnel-ref
      |  |     +--rw path-in-segment!
      |  |     |  +--rw label-restrictions
      |  |     |     +--rw label-restriction* [index]
@@ -493,21 +491,26 @@ module: ietf-te
      |     +--rw reoptimize-timer?                   uint16
      |     +--rw source?                             te-types:te-node-id
      |     +--rw destination?                        te-types:te-node-id
-     |     +--rw src-tp-id?                          yang:hex-string
-     |     +--rw dst-tp-id?                          yang:hex-string
+     |     +--rw src-tunnel-tp-id?                   binary
+     |     +--rw dst-tunnel-tp-id?                   binary
      |     +--rw bidirectional?                      boolean
      |     +--rw association-objects
-     |     |  +--rw association-object* [type id source]
-     |     |  |  +--rw type      identityref
-     |     |  |  +--rw id        uint16
-     |     |  |  +--rw source    te-generic-node-id
-     |     |  +--rw association-object-extended*
-     |     |          [type id source global-source extended-id]
-     |     |     +--rw type             identityref
-     |     |     +--rw id               uint16
-     |     |     +--rw source           te-generic-node-id
-     |     |     +--rw global-source    uint32
-     |     |     +--rw extended-id      yang:hex-string
+     |     |  +--rw association-object* [association-key]
+     |     |  |  +--rw association-key    string
+     |     |  |  +--rw type?              identityref
+     |     |  |  +--rw id?                uint16
+     |     |  |  +--rw source
+     |     |  |     +--rw id?     te-generic-node-id
+     |     |  |     +--rw type?   enumeration
+     |     |  +--rw association-object-extended* [association-key]
+     |     |     +--rw association-key    string
+     |     |     +--rw type?              identityref
+     |     |     +--rw id?                uint16
+     |     |     +--rw source
+     |     |     |  +--rw id?     te-generic-node-id
+     |     |     |  +--rw type?   enumeration
+     |     |     +--rw global-source?     uint32
+     |     |     +--rw extended-id?       yang:hex-string
      |     +--rw protection
      |     |  +--rw enable?                         boolean
      |     |  +--rw protection-type?                identityref
@@ -554,8 +557,9 @@ module: ietf-te
      |     |  +--rw primary-path* [name]
      |     |     +--rw name                             string
      |     |     +--rw path-computation-method?         identityref
-     |     |     +--rw path-computation-server?
-     |     |     |       te-generic-node-id
+     |     |     +--rw path-computation-server
+     |     |     |  +--rw id?     te-generic-node-id
+     |     |     |  +--rw type?   enumeration
      |     |     +--rw compute-only?                    empty
      |     |     +--rw use-path-computation?            boolean
      |     |     +--rw lockdown?                        empty
@@ -563,17 +567,22 @@ module: ietf-te
      |     |     +--rw preference?                      uint8
      |     |     +--rw k-requested-paths?               uint8
      |     |     +--rw association-objects
-     |     |     |  +--rw association-object* [type id source]
-     |     |     |  |  +--rw type      identityref
-     |     |     |  |  +--rw id        uint16
-     |     |     |  |  +--rw source    te-generic-node-id
-     |     |     |  +--rw association-object-extended*
-     |     |     |          [type id source global-source extended-id]
-     |     |     |     +--rw type             identityref
-     |     |     |     +--rw id               uint16
-     |     |     |     +--rw source           te-generic-node-id
-     |     |     |     +--rw global-source    uint32
-     |     |     |     +--rw extended-id      yang:hex-string
+     |     |     |  +--rw association-object* [association-key]
+     |     |     |  |  +--rw association-key    string
+     |     |     |  |  +--rw type?              identityref
+     |     |     |  |  +--rw id?                uint16
+     |     |     |  |  +--rw source
+     |     |     |  |     +--rw id?     te-generic-node-id
+     |     |     |  |     +--rw type?   enumeration
+     |     |     |  +--rw association-object-extended* [association-key]
+     |     |     |     +--rw association-key    string
+     |     |     |     +--rw type?              identityref
+     |     |     |     +--rw id?                uint16
+     |     |     |     +--rw source
+     |     |     |     |  +--rw id?     te-generic-node-id
+     |     |     |     |  +--rw type?   enumeration
+     |     |     |     +--rw global-source?     uint32
+     |     |     |     +--rw extended-id?       yang:hex-string
      |     |     +--rw optimizations
      |     |     |  +--rw (algorithm)?
      |     |     |     +--:(metric) {path-optimization-metric}?
@@ -777,8 +786,6 @@ module: ietf-te
      |     |     |        +--:(srlg)
      |     |     |           +--rw srlg
      |     |     |              +--rw srlg?   uint32
-     |     |     +--rw shared-resources-tunnels
-     |     |     |  +--rw lsp-shared-resources-tunnel*   tunnel-ref
      |     |     +--rw path-in-segment!
      |     |     |  +--rw label-restrictions
      |     |     |     +--rw label-restriction* [index]
@@ -896,10 +903,7 @@ module: ietf-te
      |     |     |        |     +--:(generic)
      |     |     |        |        +--ro generic?   te-bandwidth
      |     |     |        +--ro disjointness-type?
-     |     |     |        |       te-types:te-path-disjointness
-     |     |     |        +--ro shared-resources-tunnels
-     |     |     |           +--ro lsp-shared-resources-tunnel*
-     |     |     |                   tunnel-ref
+     |     |     |                te-types:te-path-disjointness
      |     |     +--ro computed-path-error-infos
      |     |     |  +--ro computed-path-error-info* []
      |     |     |     +--ro error-description?   string
@@ -963,8 +967,6 @@ module: ietf-te
      |     |     |     |       te-types:te-node-id
      |     |     |     +--ro protection-group-egress-node-id?
      |     |     |     |       te-types:te-node-id
-     |     |     |     +--ro lsp-shared-resources-tunnel?
-     |     |     |     |       tunnel-ref
      |     |     |     +--ro lsp-record-route-information
      |     |     |     |  +--ro lsp-record-route-information* [index]
      |     |     |     |     +--ro index                        uint32
@@ -1058,26 +1060,26 @@ module: ietf-te
      |     |     |     |  |     +--:(generic)
      |     |     |     |  |        +--ro generic?   te-bandwidth
      |     |     |     |  +--ro disjointness-type?
-     |     |     |     |  |       te-types:te-path-disjointness
-     |     |     |     |  +--ro shared-resources-tunnels
-     |     |     |     |     +--ro lsp-shared-resources-tunnel*
-     |     |     |     |             tunnel-ref
+     |     |     |     |          te-types:te-path-disjointness
      |     |     |     +--ro te-dev:lsp-timers
      |     |     |     |  +--ro te-dev:life-time?         uint32
      |     |     |     |  +--ro te-dev:time-to-install?   uint32
      |     |     |     |  +--ro te-dev:time-to-destroy?   uint32
      |     |     |     +--ro te-dev:downstream-info
      |     |     |     |  +--ro te-dev:nhop?
-     |     |     |     |  |       te:te-generic-node-id
+     |     |     |     |  |       te-types:te-tp-id
      |     |     |     |  +--ro te-dev:outgoing-interface?
      |     |     |     |  |       if:interface-ref
-     |     |     |     |  +--ro te-dev:neighbor?
-     |     |     |     |  |       te:te-generic-node-id
+     |     |     |     |  +--ro te-dev:neighbor
+     |     |     |     |  |  +--ro te-dev:id?     te-generic-node-id
+     |     |     |     |  |  +--ro te-dev:type?   enumeration
      |     |     |     |  +--ro te-dev:label?
      |     |     |     |          rt-types:generalized-label
      |     |     |     +--ro te-dev:upstream-info
-     |     |     |     |  +--ro te-dev:phop?       te:te-generic-node-id
-     |     |     |     |  +--ro te-dev:neighbor?   te:te-generic-node-id
+     |     |     |     |  +--ro te-dev:phop?       te-types:te-tp-id
+     |     |     |     |  +--ro te-dev:neighbor
+     |     |     |     |  |  +--ro te-dev:id?     te-generic-node-id
+     |     |     |     |  |  +--ro te-dev:type?   enumeration
      |     |     |     |  +--ro te-dev:label?
      |     |     |     |          rt-types:generalized-label
      |     |     |     +--ro rsvp-te:associated-rsvp-session?            leafref
@@ -1317,25 +1319,32 @@ module: ietf-te
      |     |     |  +--rw name?                                string
      |     |     |  +--rw path-computation-method?
      |     |     |  |       identityref
-     |     |     |  +--rw path-computation-server?
-     |     |     |  |       te-generic-node-id
+     |     |     |  +--rw path-computation-server
+     |     |     |  |  +--rw id?     te-generic-node-id
+     |     |     |  |  +--rw type?   enumeration
      |     |     |  +--rw compute-only?                        empty
      |     |     |  +--rw use-path-computation?                boolean
      |     |     |  +--rw lockdown?                            empty
      |     |     |  +--ro path-scope?
      |     |     |  |       identityref
      |     |     |  +--rw association-objects
-     |     |     |  |  +--rw association-object* [type id source]
-     |     |     |  |  |  +--rw type      identityref
-     |     |     |  |  |  +--rw id        uint16
-     |     |     |  |  |  +--rw source    te-generic-node-id
+     |     |     |  |  +--rw association-object* [association-key]
+     |     |     |  |  |  +--rw association-key    string
+     |     |     |  |  |  +--rw type?              identityref
+     |     |     |  |  |  +--rw id?                uint16
+     |     |     |  |  |  +--rw source
+     |     |     |  |  |     +--rw id?     te-generic-node-id
+     |     |     |  |  |     +--rw type?   enumeration
      |     |     |  |  +--rw association-object-extended*
-     |     |     |  |          [type id source global-source extended-id]
-     |     |     |  |     +--rw type             identityref
-     |     |     |  |     +--rw id               uint16
-     |     |     |  |     +--rw source           te-generic-node-id
-     |     |     |  |     +--rw global-source    uint32
-     |     |     |  |     +--rw extended-id      yang:hex-string
+     |     |     |  |          [association-key]
+     |     |     |  |     +--rw association-key    string
+     |     |     |  |     +--rw type?              identityref
+     |     |     |  |     +--rw id?                uint16
+     |     |     |  |     +--rw source
+     |     |     |  |     |  +--rw id?     te-generic-node-id
+     |     |     |  |     |  +--rw type?   enumeration
+     |     |     |  |     +--rw global-source?     uint32
+     |     |     |  |     +--rw extended-id?       yang:hex-string
      |     |     |  +--rw optimizations
      |     |     |  |  +--rw (algorithm)?
      |     |     |  |     +--:(metric) {path-optimization-metric}?
@@ -1547,8 +1556,6 @@ module: ietf-te
      |     |     |  |        +--:(srlg)
      |     |     |  |           +--rw srlg
      |     |     |  |              +--rw srlg?   uint32
-     |     |     |  +--rw shared-resources-tunnels
-     |     |     |  |  +--rw lsp-shared-resources-tunnel*   tunnel-ref
      |     |     |  +--rw path-in-segment!
      |     |     |  |  +--rw label-restrictions
      |     |     |  |     +--rw label-restriction* [index]
@@ -1671,10 +1678,7 @@ module: ietf-te
      |     |     |  |        |     +--:(generic)
      |     |     |  |        |        +--ro generic?   te-bandwidth
      |     |     |  |        +--ro disjointness-type?
-     |     |     |  |        |       te-types:te-path-disjointness
-     |     |     |  |        +--ro shared-resources-tunnels
-     |     |     |  |           +--ro lsp-shared-resources-tunnel*
-     |     |     |  |                   tunnel-ref
+     |     |     |  |                te-types:te-path-disjointness
      |     |     |  +--ro computed-path-error-infos
      |     |     |  |  +--ro computed-path-error-info* []
      |     |     |  |     +--ro error-description?   string
@@ -1728,8 +1732,6 @@ module: ietf-te
      |     |     |  |     |       te-types:te-node-id
      |     |     |  |     +--ro protection-group-egress-node-id?
      |     |     |  |     |       te-types:te-node-id
-     |     |     |  |     +--ro lsp-shared-resources-tunnel?
-     |     |     |  |     |       tunnel-ref
      |     |     |  |     +--ro lsp-record-route-information
      |     |     |  |     |  +--ro lsp-record-route-information* [index]
      |     |     |  |     |     +--ro index
@@ -1829,10 +1831,7 @@ module: ietf-te
      |     |     |  |        |     +--:(generic)
      |     |     |  |        |        +--ro generic?   te-bandwidth
      |     |     |  |        +--ro disjointness-type?
-     |     |     |  |        |       te-types:te-path-disjointness
-     |     |     |  |        +--ro shared-resources-tunnels
-     |     |     |  |           +--ro lsp-shared-resources-tunnel*
-     |     |     |  |                   tunnel-ref
+     |     |     |  |                te-types:te-path-disjointness
      |     |     |  +--rw candidate-secondary-reverse-paths
      |     |     |     +--rw candidate-secondary-reverse-path*
      |     |     |             [secondary-path]
@@ -1847,25 +1846,31 @@ module: ietf-te
      |     |  +--rw secondary-path* [name]
      |     |     +--rw name                             string
      |     |     +--rw path-computation-method?         identityref
-     |     |     +--rw path-computation-server?
-     |     |     |       te-generic-node-id
+     |     |     +--rw path-computation-server
+     |     |     |  +--rw id?     te-generic-node-id
+     |     |     |  +--rw type?   enumeration
      |     |     +--rw compute-only?                    empty
      |     |     +--rw use-path-computation?            boolean
      |     |     +--rw lockdown?                        empty
      |     |     +--ro path-scope?                      identityref
      |     |     +--rw preference?                      uint8
      |     |     +--rw association-objects
-     |     |     |  +--rw association-object* [type id source]
-     |     |     |  |  +--rw type      identityref
-     |     |     |  |  +--rw id        uint16
-     |     |     |  |  +--rw source    te-generic-node-id
-     |     |     |  +--rw association-object-extended*
-     |     |     |          [type id source global-source extended-id]
-     |     |     |     +--rw type             identityref
-     |     |     |     +--rw id               uint16
-     |     |     |     +--rw source           te-generic-node-id
-     |     |     |     +--rw global-source    uint32
-     |     |     |     +--rw extended-id      yang:hex-string
+     |     |     |  +--rw association-object* [association-key]
+     |     |     |  |  +--rw association-key    string
+     |     |     |  |  +--rw type?              identityref
+     |     |     |  |  +--rw id?                uint16
+     |     |     |  |  +--rw source
+     |     |     |  |     +--rw id?     te-generic-node-id
+     |     |     |  |     +--rw type?   enumeration
+     |     |     |  +--rw association-object-extended* [association-key]
+     |     |     |     +--rw association-key    string
+     |     |     |     +--rw type?              identityref
+     |     |     |     +--rw id?                uint16
+     |     |     |     +--rw source
+     |     |     |     |  +--rw id?     te-generic-node-id
+     |     |     |     |  +--rw type?   enumeration
+     |     |     |     +--rw global-source?     uint32
+     |     |     |     +--rw extended-id?       yang:hex-string
      |     |     +--rw optimizations
      |     |     |  +--rw (algorithm)?
      |     |     |     +--:(metric) {path-optimization-metric}?
@@ -2069,8 +2074,6 @@ module: ietf-te
      |     |     |        +--:(srlg)
      |     |     |           +--rw srlg
      |     |     |              +--rw srlg?   uint32
-     |     |     +--rw shared-resources-tunnels
-     |     |     |  +--rw lsp-shared-resources-tunnel*   tunnel-ref
      |     |     +--rw path-in-segment!
      |     |     |  +--rw label-restrictions
      |     |     |     +--rw label-restriction* [index]
@@ -2203,10 +2206,7 @@ module: ietf-te
      |     |     |        |     +--:(generic)
      |     |     |        |        +--ro generic?   te-bandwidth
      |     |     |        +--ro disjointness-type?
-     |     |     |        |       te-types:te-path-disjointness
-     |     |     |        +--ro shared-resources-tunnels
-     |     |     |           +--ro lsp-shared-resources-tunnel*
-     |     |     |                   tunnel-ref
+     |     |     |                te-types:te-path-disjointness
      |     |     +--ro computed-path-error-infos
      |     |     |  +--ro computed-path-error-info* []
      |     |     |     +--ro error-description?   string
@@ -2270,8 +2270,6 @@ module: ietf-te
      |     |     |     |       te-types:te-node-id
      |     |     |     +--ro protection-group-egress-node-id?
      |     |     |     |       te-types:te-node-id
-     |     |     |     +--ro lsp-shared-resources-tunnel?
-     |     |     |     |       tunnel-ref
      |     |     |     +--ro lsp-record-route-information
      |     |     |     |  +--ro lsp-record-route-information* [index]
      |     |     |     |     +--ro index                        uint32
@@ -2365,26 +2363,26 @@ module: ietf-te
      |     |     |     |  |     +--:(generic)
      |     |     |     |  |        +--ro generic?   te-bandwidth
      |     |     |     |  +--ro disjointness-type?
-     |     |     |     |  |       te-types:te-path-disjointness
-     |     |     |     |  +--ro shared-resources-tunnels
-     |     |     |     |     +--ro lsp-shared-resources-tunnel*
-     |     |     |     |             tunnel-ref
+     |     |     |     |          te-types:te-path-disjointness
      |     |     |     +--ro te-dev:lsp-timers
      |     |     |     |  +--ro te-dev:life-time?         uint32
      |     |     |     |  +--ro te-dev:time-to-install?   uint32
      |     |     |     |  +--ro te-dev:time-to-destroy?   uint32
      |     |     |     +--ro te-dev:downstream-info
      |     |     |     |  +--ro te-dev:nhop?
-     |     |     |     |  |       te:te-generic-node-id
+     |     |     |     |  |       te-types:te-tp-id
      |     |     |     |  +--ro te-dev:outgoing-interface?
      |     |     |     |  |       if:interface-ref
-     |     |     |     |  +--ro te-dev:neighbor?
-     |     |     |     |  |       te:te-generic-node-id
+     |     |     |     |  +--ro te-dev:neighbor
+     |     |     |     |  |  +--ro te-dev:id?     te-generic-node-id
+     |     |     |     |  |  +--ro te-dev:type?   enumeration
      |     |     |     |  +--ro te-dev:label?
      |     |     |     |          rt-types:generalized-label
      |     |     |     +--ro te-dev:upstream-info
-     |     |     |     |  +--ro te-dev:phop?       te:te-generic-node-id
-     |     |     |     |  +--ro te-dev:neighbor?   te:te-generic-node-id
+     |     |     |     |  +--ro te-dev:phop?       te-types:te-tp-id
+     |     |     |     |  +--ro te-dev:neighbor
+     |     |     |     |  |  +--ro te-dev:id?     te-generic-node-id
+     |     |     |     |  |  +--ro te-dev:type?   enumeration
      |     |     |     |  +--ro te-dev:label?
      |     |     |     |          rt-types:generalized-label
      |     |     |     +--ro rsvp-te:associated-rsvp-session?            leafref
@@ -2572,25 +2570,31 @@ module: ietf-te
      |     |  +--rw secondary-reverse-path* [name]
      |     |     +--rw name                             string
      |     |     +--rw path-computation-method?         identityref
-     |     |     +--rw path-computation-server?
-     |     |     |       te-generic-node-id
+     |     |     +--rw path-computation-server
+     |     |     |  +--rw id?     te-generic-node-id
+     |     |     |  +--rw type?   enumeration
      |     |     +--rw compute-only?                    empty
      |     |     +--rw use-path-computation?            boolean
      |     |     +--rw lockdown?                        empty
      |     |     +--ro path-scope?                      identityref
      |     |     +--rw preference?                      uint8
      |     |     +--rw association-objects
-     |     |     |  +--rw association-object* [type id source]
-     |     |     |  |  +--rw type      identityref
-     |     |     |  |  +--rw id        uint16
-     |     |     |  |  +--rw source    te-generic-node-id
-     |     |     |  +--rw association-object-extended*
-     |     |     |          [type id source global-source extended-id]
-     |     |     |     +--rw type             identityref
-     |     |     |     +--rw id               uint16
-     |     |     |     +--rw source           te-generic-node-id
-     |     |     |     +--rw global-source    uint32
-     |     |     |     +--rw extended-id      yang:hex-string
+     |     |     |  +--rw association-object* [association-key]
+     |     |     |  |  +--rw association-key    string
+     |     |     |  |  +--rw type?              identityref
+     |     |     |  |  +--rw id?                uint16
+     |     |     |  |  +--rw source
+     |     |     |  |     +--rw id?     te-generic-node-id
+     |     |     |  |     +--rw type?   enumeration
+     |     |     |  +--rw association-object-extended* [association-key]
+     |     |     |     +--rw association-key    string
+     |     |     |     +--rw type?              identityref
+     |     |     |     +--rw id?                uint16
+     |     |     |     +--rw source
+     |     |     |     |  +--rw id?     te-generic-node-id
+     |     |     |     |  +--rw type?   enumeration
+     |     |     |     +--rw global-source?     uint32
+     |     |     |     +--rw extended-id?       yang:hex-string
      |     |     +--rw optimizations
      |     |     |  +--rw (algorithm)?
      |     |     |     +--:(metric) {path-optimization-metric}?
@@ -2794,8 +2798,6 @@ module: ietf-te
      |     |     |        +--:(srlg)
      |     |     |           +--rw srlg
      |     |     |              +--rw srlg?   uint32
-     |     |     +--rw shared-resources-tunnels
-     |     |     |  +--rw lsp-shared-resources-tunnel*   tunnel-ref
      |     |     +--rw path-in-segment!
      |     |     |  +--rw label-restrictions
      |     |     |     +--rw label-restriction* [index]
@@ -2928,10 +2930,7 @@ module: ietf-te
      |     |     |        |     +--:(generic)
      |     |     |        |        +--ro generic?   te-bandwidth
      |     |     |        +--ro disjointness-type?
-     |     |     |        |       te-types:te-path-disjointness
-     |     |     |        +--ro shared-resources-tunnels
-     |     |     |           +--ro lsp-shared-resources-tunnel*
-     |     |     |                   tunnel-ref
+     |     |     |                te-types:te-path-disjointness
      |     |     +--ro computed-path-error-infos
      |     |     |  +--ro computed-path-error-info* []
      |     |     |     +--ro error-description?   string
@@ -2981,8 +2980,6 @@ module: ietf-te
      |     |           |       te-types:te-node-id
      |     |           +--ro protection-group-egress-node-id?
      |     |           |       te-types:te-node-id
-     |     |           +--ro lsp-shared-resources-tunnel?
-     |     |           |       tunnel-ref
      |     |           +--ro lsp-record-route-information
      |     |           |  +--ro lsp-record-route-information* [index]
      |     |           |     +--ro index                        uint32
@@ -3076,10 +3073,7 @@ module: ietf-te
      |     |              |     +--:(generic)
      |     |              |        +--ro generic?   te-bandwidth
      |     |              +--ro disjointness-type?
-     |     |              |       te-types:te-path-disjointness
-     |     |              +--ro shared-resources-tunnels
-     |     |                 +--ro lsp-shared-resources-tunnel*
-     |     |                         tunnel-ref
+     |     |                      te-types:te-path-disjointness
      |     +---x tunnel-action
      |     |  +---w input
      |     |  |  +---w action-type?   identityref
@@ -3095,6 +3089,7 @@ module: ietf-te
      |     |     +---w path-ref?                           path-ref
      |     |     +---w traffic-type?                       enumeration
      |     |     +---w extra-traffic-tunnel-ref?           tunnel-ref
+     |     +--rw te-dev:path-invalidation-action?    identityref
      |     +--rw te-dev:lsp-install-interval?        uint32
      |     +--rw te-dev:lsp-cleanup-interval?        uint32
      |     +--rw te-dev:lsp-invalidation-interval?   uint32
@@ -3193,14 +3188,18 @@ module: ietf-te
      |     |  +--ro te-dev:time-to-install?   uint32
      |     |  +--ro te-dev:time-to-destroy?   uint32
      |     +--ro te-dev:downstream-info
-     |     |  +--ro te-dev:nhop?                 te:te-generic-node-id
+     |     |  +--ro te-dev:nhop?                 te-types:te-tp-id
      |     |  +--ro te-dev:outgoing-interface?   if:interface-ref
-     |     |  +--ro te-dev:neighbor?             te:te-generic-node-id
+     |     |  +--ro te-dev:neighbor
+     |     |  |  +--ro te-dev:id?     te-generic-node-id
+     |     |  |  +--ro te-dev:type?   enumeration
      |     |  +--ro te-dev:label?
      |     |          rt-types:generalized-label
      |     +--ro te-dev:upstream-info
-     |     |  +--ro te-dev:phop?       te:te-generic-node-id
-     |     |  +--ro te-dev:neighbor?   te:te-generic-node-id
+     |     |  +--ro te-dev:phop?       te-types:te-tp-id
+     |     |  +--ro te-dev:neighbor
+     |     |  |  +--ro te-dev:id?     te-generic-node-id
+     |     |  |  +--ro te-dev:type?   enumeration
      |     |  +--ro te-dev:label?      rt-types:generalized-label
      |     +--ro rsvp-te:associated-rsvp-session?            leafref
      |     +--ro rsvp-te:lsp-signaled-name?                  string
