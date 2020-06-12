@@ -526,16 +526,33 @@ module ietf-te {
       description
         "The TE LSPs container.";
       list lsp {
-        key "lsp-id";
+        key "node lsp-id";
         description
           "List of LSPs associated with the tunnel.";
+        leaf tunnel-name {
+          type leafref {
+            path "../../../name";
+          }
+          description "TE tunnel name";
+        }
+        leaf node {
+          type leafref {
+            path "/te/lsps-state/lsp/te:node";
+          }
+          description "The node where the LSP state resides on";
+        }
+        leaf lsp-id {
+          type leafref {
+            path "/te/lsps-state/lsp/lsp-id";
+          }
+          description "The TE LSP identifier";
+        }
         uses lsp-provisioning-error-info;
-        uses lsp-properties-state;
-        uses lsp-record-route-information-state;
         uses path-properties {
           description
             "The TE path actual properties.";
         }
+        uses lsp-record-route-information-state;
       }
     }
   }
@@ -1336,8 +1353,27 @@ module ietf-te {
       description
         "TE LSPs state container.";
       list lsp {
-        key "source destination tunnel-id lsp-id "
+        key "tunnel-name lsp-id node";
+        unique "source destination tunnel-id lsp-id "
           + "extended-tunnel-id";
+        leaf tunnel-name {
+          type string;
+          description "The TE tunnel name";
+        }
+        leaf lsp-id {
+          type uint16;
+          description
+            "Identifier used in the SENDER_TEMPLATE and the FILTER_SPEC
+             that can be changed to allow a sender to share resources
+             with itself.";
+          reference
+            "RFC3209";
+        }
+        leaf node {
+          type te-types:te-node-id;
+          description
+            "The node where the TE LSP state resides on.";
+        }
         description
           "List of LSPs associated with the tunnel.";
         uses lsp-properties-state;
@@ -1538,15 +1574,6 @@ module ietf-te {
       description
         "The tunnel identifier used in the SESSION that remains constant
          over the life of the tunnel.";
-      reference
-        "RFC3209";
-    }
-    leaf lsp-id {
-      type uint16;
-      description
-        "Identifier used in the SENDER_TEMPLATE and the FILTER_SPEC
-         that can be changed to allow a sender to share resources
-         with itself.";
       reference
         "RFC3209";
     }
