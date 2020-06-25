@@ -1,0 +1,207 @@
+module ietf-mpls-te-types {
+  yang-version 1.1;
+  namespace "urn:ietf:params:xml:ns:yang:ietf-mpls-te-types";
+
+  prefix "mte-types";
+
+  import ietf-routing-types {
+    prefix "rt-types";
+    
+  }
+
+  organization
+    "Internet Engineering Task Force (IETF) TEAS WG";
+  contact
+    "
+      WG List: <mailto:teas@ietf.org>
+
+      ID-draft editor:
+        Italo Busi (italo.busi@huawei.com);
+        Haomian Zheng (zhenghaomian@huawei.com);
+    ";
+
+  description
+    "This module defines technology-specific MPLS-TP types
+     data model.";
+
+  revision 2020-06-25 {
+    description
+      "version -00 as an I-D";
+    reference
+      "draft-busizheng-teas-mpls-tp-yang";
+  }
+  
+/*
+ * Identities (to be moved to te-packet-types?)
+ */
+
+  identity bandwidth-profile-type {
+    description
+      "Bandwidth Profile Types";
+  }
+
+  identity mef-10-bwp {
+    base bandwidth-profile-type;
+    description
+      "MEF 10 Bandwidth Profile";
+  }
+
+  identity rfc-2697-bwp {
+    base bandwidth-profile-type;
+    description
+      "RFC 2697 Bandwidth Profile";
+  }
+
+  identity rfc-2698-bwp {
+    base bandwidth-profile-type;
+    description
+      "RFC 2698 Bandwidth Profile";
+  }
+
+  identity rfc-4115-bwp {
+    base bandwidth-profile-type;
+    description
+      "RFC 4115 Bandwidth Profile";
+  }
+
+/*
+ * Type Definitions (MPLS-TE)
+ */
+
+  typedef load-balancing-type {
+    description
+      "The type of load balancing used on bundled links.";
+    type enumeration {
+      enum per-flow {
+        description
+          "The load-balancing algorithm ensures that packets for
+           the same flow are forwarded on the same component link,
+           while packets for different flows can be forwarded on
+           different component links.
+
+           Packets for different flows within the same LSP can be
+           forwarded on different component links.";
+      }
+      enum per-lsps {
+        description
+          "The load-balancing algorithm ensures that packets for
+           the same LSP are forwarded on the same component link,
+           while packets for different LSPs can be forwarded on
+           different component links.
+
+           Packets for different flows within the same LSP are
+           forwarded on the same component link.";
+      }
+    }
+  }  // typedef load-balancing-type
+
+/*
+ * Groupings (to be moved to te-packet-types?)
+ */
+
+  grouping te-packet-path-bandwidth {
+    description
+      "Path bandwidth for MPLS-TP. ";
+    leaf bandwidth-profile-name{
+      type string;
+      description "Name of Bandwidth Profile.";
+    }
+    leaf bandwidth-profile-type {
+      type identityref {
+        base bandwidth-profile-type;
+      }
+      description "Type of Bandwidth Profile.";
+    }
+
+    leaf CIR {
+      type uint64;
+        description
+          "Committed Information Rate in Kbps";
+    }
+
+    leaf EIR {
+      type uint64;
+      /*
+        Need to indicate that EIR is not supported by RFC 2697
+
+        must
+            '../bw-profile-type = "etht-types:mef-10-bwp" or ' +
+            '../bw-profile-type = "etht-types:rfc-2698-bwp" or ' +
+            '../bw-profile-type = "etht-types:rfc-4115-bwp"'
+
+        must
+            '../bw-profile-type != "etht-types:rfc-2697-bwp"'
+      */
+      description
+        "Excess Information Rate in Kbps
+        In case of RFC 2698, PIR = CIR + EIR";
+    }
+
+    leaf CBS {
+      type uint64;
+      description
+        "Committed Burst Size in in KBytes";
+    }
+
+    leaf EBS {
+      type uint64;
+      description
+        "Excess Burst Size in KBytes.
+          In case of RFC 2698, PBS = CBS + EBS";
+    }
+  }
+
+  grouping te-packet-link-bandwidth {
+    description
+      "Bandwidth for MPLS-TP. ";
+    leaf mpls-tp-bandwidth {
+      type uint64{
+        range "0..10000000000";
+      }
+      units "Kbps";
+      description
+        "Available bandwith value expressed in kilobits per
+         second";
+    }
+  }
+
+/*
+ * Groupings (MPLS-TE)
+ */
+
+  grouping te-mpls-label {
+    description
+      "MPLS-TE label. ";
+    leaf mpls-label {
+      type rt-types:mpls-label;
+      description
+        "MPLS-TE Label.";
+    }
+  }
+
+  grouping mpls-te-path-label {
+    description
+      "Path Label for MPLS-TE. ";
+
+    choice mpls-hop-type {
+      description
+        "Whether the label-hop is a normal MPLS-TE
+         label-hop or a PHP hop";
+
+      case php {
+         leaf mpls-php {
+           type empty;
+           description
+            "MPLS-TE PHP Label Hop.";
+         }
+      }
+      case label-hop {
+        leaf mpls-label {
+          type rt-types:mpls-label-general-use;
+          description
+            "MPLS-TE Label Hop.";
+        }
+      }
+    }
+  }  // grouping mpls-te-path-label
+}
