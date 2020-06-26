@@ -1,0 +1,197 @@
+
+module: ietf-te-mpls
+  augment /te:te/te-dev:performance-thresholds:
+    +--rw throttle
+       +--rw one-way-delay-offset?                  uint32
+       +--rw measure-interval?                      uint32
+       +--rw advertisement-interval?                uint32
+       +--rw suppression-interval?                  uint32
+       +--rw threshold-out
+       |  +--rw one-way-delay?                 uint32
+       |  +--rw one-way-residual-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--rw one-way-available-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--rw one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--rw two-way-delay?                 uint32
+       |  +--rw one-way-min-delay?             uint32
+       |  +--rw one-way-max-delay?             uint32
+       |  +--rw one-way-delay-variation?       uint32
+       |  +--rw one-way-packet-loss?           decimal64
+       |  +--rw two-way-min-delay?             uint32
+       |  +--rw two-way-max-delay?             uint32
+       |  +--rw two-way-delay-variation?       uint32
+       |  +--rw two-way-packet-loss?           decimal64
+       +--rw threshold-in
+       |  +--rw one-way-delay?                 uint32
+       |  +--rw one-way-residual-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--rw one-way-available-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--rw one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--rw two-way-delay?                 uint32
+       |  +--rw one-way-min-delay?             uint32
+       |  +--rw one-way-max-delay?             uint32
+       |  +--rw one-way-delay-variation?       uint32
+       |  +--rw one-way-packet-loss?           decimal64
+       |  +--rw two-way-min-delay?             uint32
+       |  +--rw two-way-max-delay?             uint32
+       |  +--rw two-way-delay-variation?       uint32
+       |  +--rw two-way-packet-loss?           decimal64
+       +--rw threshold-accelerated-advertisement
+          +--rw one-way-delay?                 uint32
+          +--rw one-way-residual-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--rw one-way-available-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--rw one-way-utilized-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--rw two-way-delay?                 uint32
+          +--rw one-way-min-delay?             uint32
+          +--rw one-way-max-delay?             uint32
+          +--rw one-way-delay-variation?       uint32
+          +--rw one-way-packet-loss?           decimal64
+          +--rw two-way-min-delay?             uint32
+          +--rw two-way-max-delay?             uint32
+          +--rw two-way-delay-variation?       uint32
+          +--rw two-way-packet-loss?           decimal64
+  augment /te:te/te:tunnels/te:tunnel:
+    +--rw tunnel-igp-shortcut
+    |  +--rw shortcut-eligible?   boolean
+    |  +--rw metric-type?         identityref
+    |  +--rw metric?              int32
+    |  +--rw routing-afs*         inet:ip-version
+    +--rw forwarding
+    |  +--rw binding-label?   rt-types:mpls-label
+    |  +--rw load-share?      uint32
+    |  +--rw policy-class?    uint8
+    +--rw bandwidth-mpls
+       +--rw specification-type?
+       |       te-packet-types:te-bandwidth-requested-type
+       +--rw set-bandwidth?        te-packet-types:bandwidth-kbps
+       +--rw class-type?           te-types:te-ds-class
+       +--ro state
+       |  +--ro signaled-bandwidth?   te-packet-types:bandwidth-kbps
+       +--rw auto-bandwidth
+          +--rw enabled?            boolean
+          +--rw min-bw?             te-packet-types:bandwidth-kbps
+          +--rw max-bw?             te-packet-types:bandwidth-kbps
+          +--rw adjust-interval?    uint32
+          +--rw adjust-threshold?   rt-types:percentage
+          +--rw overflow
+          |  +--rw enabled?               boolean
+          |  +--rw overflow-threshold?    rt-types:percentage
+          |  +--rw trigger-event-count?   uint16
+          +--rw underflow
+             +--rw enabled?               boolean
+             +--rw underflow-threshold?   rt-types:percentage
+             +--rw trigger-event-count?   uint16
+  augment /te:te/te:tunnels/te:tunnel/te:primary-paths
+            /te:primary-path:
+    +--rw load-balancing-type?   mte-types:load-balancing-type
+    +--rw uhp-required?          empty
+  augment /te:te/te:tunnels/te:tunnel/te:primary-paths
+            /te:primary-path:
+    +--rw static-lsp-name?   mpls-static:static-lsp-ref
+  augment /te:te/te:tunnels/te:tunnel/te:secondary-paths
+            /te:secondary-path:
+    +--rw static-lsp-name?   mpls-static:static-lsp-ref
+  augment /te:te/te:globals/te:named-path-constraints
+            /te:named-path-constraint:
+    +--rw bandwidth
+       +--rw specification-type?
+       |       te-packet-types:te-bandwidth-requested-type
+       +--rw set-bandwidth?        te-packet-types:bandwidth-kbps
+       +--rw class-type?           te-types:te-ds-class
+       +--ro state
+          +--ro signaled-bandwidth?   te-packet-types:bandwidth-kbps
+  augment /te:te/te:tunnels/te:tunnel/te:primary-paths
+            /te:primary-path/te:lsps/te:lsp:
+    +--ro performance-metrics-one-way
+    |  +--ro one-way-delay?                           uint32
+    |  +--ro one-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-residual-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-residual-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-available-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-available-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-utilized-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-utilized-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-min-delay?                       uint32
+    |  +--ro one-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-max-delay?                       uint32
+    |  +--ro one-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-delay-variation?                 uint32
+    |  +--ro one-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-packet-loss?                     decimal64
+    |  +--ro one-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro performance-metrics-two-way
+       +--ro two-way-delay?                       uint32
+       +--ro two-way-delay-normality?
+       |       te-types:performance-metrics-normality
+       +--ro two-way-min-delay?                   uint32
+       +--ro two-way-min-delay-normality?
+       |       te-types:performance-metrics-normality
+       +--ro two-way-max-delay?                   uint32
+       +--ro two-way-max-delay-normality?
+       |       te-types:performance-metrics-normality
+       +--ro two-way-delay-variation?             uint32
+       +--ro two-way-delay-variation-normality?
+       |       te-types:performance-metrics-normality
+       +--ro two-way-packet-loss?                 decimal64
+       +--ro two-way-packet-loss-normality?
+               te-types:performance-metrics-normality
+  augment /te:te/te:tunnels/te:tunnel/te:primary-paths
+            /te:primary-path/te:computed-paths-properties
+            /te:computed-path-properties/te:path-properties
+            /te:path-route-objects/te:path-route-object/te:type
+            /te:label/te:label-hop/te:te-label/te:technology:
+    +--:(mpls)
+       +--ro (mpls-hop-type)?
+          +--:(php)
+          |  +--ro mpls-php?     empty
+          +--:(label-hop)
+             +--ro mpls-label?   rt-types:mpls-label-general-use
+  augment /te:te/te:tunnels/te:tunnel/te:primary-paths
+            /te:primary-path/te:lsps/te:lsp/te:path-properties
+            /te:path-route-objects/te:path-route-object/te:type
+            /te:label/te:label-hop/te:te-label/te:technology:
+    +--:(mpls)
+       +--ro (mpls-hop-type)?
+          +--:(php)
+          |  +--ro mpls-php?     empty
+          +--:(label-hop)
+             +--ro mpls-label?   rt-types:mpls-label-general-use
+  augment /te:te/te:tunnels/te:tunnel/te:secondary-paths
+            /te:secondary-path/te:computed-paths-properties
+            /te:computed-path-properties/te:path-properties
+            /te:path-route-objects/te:path-route-object/te:type
+            /te:label/te:label-hop/te:te-label/te:technology:
+    +--:(mpls)
+       +--ro (mpls-hop-type)?
+          +--:(php)
+          |  +--ro mpls-php?     empty
+          +--:(label-hop)
+             +--ro mpls-label?   rt-types:mpls-label-general-use
+  augment /te:te/te:tunnels/te:tunnel/te:secondary-paths
+            /te:secondary-path/te:lsps/te:lsp/te:path-properties
+            /te:path-route-objects/te:path-route-object/te:type
+            /te:label/te:label-hop/te:te-label/te:technology:
+    +--:(mpls)
+       +--ro (mpls-hop-type)?
+          +--:(php)
+          |  +--ro mpls-php?     empty
+          +--:(label-hop)
+             +--ro mpls-label?   rt-types:mpls-label-general-use
