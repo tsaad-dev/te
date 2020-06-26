@@ -25,6 +25,10 @@ module ietf-te-mpls {
                Common Traffic Engineering Types";
   }
 
+  import ietf-mpls-te-types {
+    prefix "mte-types";
+  }
+
   /* Import TE generic types */
   import ietf-te-types {
     prefix te-types;
@@ -101,11 +105,11 @@ module ietf-te-mpls {
       "RFCXXXX: A YANG Data Model for MPLS-TE Tunnels and LSP(s)";
   }
 
-
   /* MPLS TE Identities */
   identity tunnel-action-resetup {
     base te:tunnel-actions-type;
     description "Resetup tunnel action type";
+  }
 
   /* MPLS TE tunnel properties*/
 
@@ -326,16 +330,17 @@ module ietf-te-mpls {
 
   grouping te-tunnel-bandwidth-state {
     description
-      "Operational state parameters relating to bandwidth for a tunnel";
+      "Operational state parameters relating to bandwidth
+       for a tunnel";
 
     leaf signaled-bandwidth {
       type te-packet-types:bandwidth-kbps;
       description
-        "The currently signaled bandwidth of the LSP. In the case where
-        the bandwidth is specified explicitly, then this will match the
-        value of the set-bandwidth leaf; in cases where the bandwidth is
-        dynamically computed by the system, the current value of the
-        bandwidth should be reflected.";
+        "The currently signaled bandwidth of the LSP. In the case
+        where the bandwidth is specified explicitly, then this will
+        match the value of the set-bandwidth leaf; in cases where
+        the bandwidth is dynamically computed by the system, the
+        current value of the bandwidth should be reflected.";
     }
   }
 
@@ -431,7 +436,8 @@ module ietf-te-mpls {
    */
 
   augment "/te:te/te-dev:performance-thresholds" {
-    uses te-packet-types:performance-metrics-throttle-container-packet;
+    uses "te-packet-types:performance-metrics-throttle-" +
+         "container-packet";
     description
       "Performance parameters configurable thresholds";
   }
@@ -450,7 +456,7 @@ module ietf-te-mpls {
   /* MPLS TE path augmentations */
   augment "/te:te/te:tunnels/te:tunnel/" +
           "te:primary-paths/te:primary-path" {
-    description "MPLS TE path constraints";
+    description "Augment primary path constraints.";
     uses te-mpls-path-constraints;
   }
 
@@ -459,7 +465,7 @@ module ietf-te-mpls {
           "te:primary-paths/te:primary-path" {
     when "/te:te/te:tunnels/te:tunnel" +
       "/te:primary-paths/te:primary-path" +
-      "/te:path-setup-protocol = 'te-types:path-setup-static'" {
+      "/te:signaling-type = 'te-types:path-setup-static'" {
       description
       "When the path is statically provisioned";
     }
@@ -474,7 +480,7 @@ module ietf-te-mpls {
           "te:secondary-paths/te:secondary-path" {
     when "/te:te/te:tunnels/te:tunnel" +
       "/te:secondary-paths/te:secondary-path/" +
-      "te:path-setup-protocol = 'te-types:path-setup-static'" {
+      "te:signaling-type = 'te-types:path-setup-static'" {
       description
       "When the path is statically provisioned";
     }
@@ -508,23 +514,23 @@ module ietf-te-mpls {
         + "te:computed-paths-properties/"
         + "te:computed-path-properties/"
         + "te:path-properties/te:path-route-objects/"
-        + "te:path-computed-route-object/te:type/te:label/"
+        + "te:path-route-object/te:type/te:label/"
         + "te:label-hop/te:te-label/te:technology" {
     description "MPLS-TE label.";
     case mpls {
-      uses mte-types:te-mpls-label;
+      uses mte-types:te-mpls-label-hop;
     }
   }
   
   augment "/te:te/te:tunnels/te:tunnel/"
-        + "te:`primary-paths/te:primary-path/"
+        + "te:primary-paths/te:primary-path/"
         + "te:lsps/te:lsp/"
         + "te:path-properties/te:path-route-objects/"
-        + "te:path-computed-route-object/te:type/te:label/"
+        + "te:path-route-object/te:type/te:label/"
         + "te:label-hop/te:te-label/te:technology" {
     description "MPLS-TE label.";
     case mpls {
-      uses mte-types:te-mpls-label;
+      uses mte-types:te-mpls-label-hop;
     }
   }
   
@@ -533,11 +539,11 @@ module ietf-te-mpls {
         + "te:computed-paths-properties/"
         + "te:computed-path-properties/"
         + "te:path-properties/te:path-route-objects/"
-        + "te:path-computed-route-object/te:type/te:label/"
+        + "te:path-route-object/te:type/te:label/"
         + "te:label-hop/te:te-label/te:technology" {
     description "MPLS-TE label.";
     case mpls {
-      uses mte-types:te-mpls-label;
+      uses mte-types:te-mpls-label-hop;
     }
   }
   
@@ -545,12 +551,11 @@ module ietf-te-mpls {
         + "te:secondary-paths/te:secondary-path/"
         + "te:lsps/te:lsp/"
         + "te:path-properties/te:path-route-objects/"
-        + "te:path-computed-route-object/te:type/te:label/"
+        + "te:path-route-object/te:type/te:label/"
         + "te:label-hop/te:te-label/te:technology" {
     description "MPLS-TE label.";
     case mpls {
-      uses mte-types:te-mpls-label;
+      uses mte-types:te-mpls-label-hop;
     }
   }
 }
-
