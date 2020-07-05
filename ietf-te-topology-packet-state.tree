@@ -1,668 +1,950 @@
 
 module: ietf-te-topology-packet-state
+  augment /nw-s:networks/nw-s:network/nw-s:network-types
+            /tet-s:te-topology:
+    +--ro packet!
   augment /nw-s:networks/nw-s:network/nw-s:node/tet-s:te
             /tet-s:te-node-attributes/tet-s:connectivity-matrices:
-    +--ro performance-metric
-       +--ro measurement
-       |  +--ro unidirectional-delay?                 uint32
-       |  +--ro unidirectional-min-delay?             uint32
-       |  +--ro unidirectional-max-delay?             uint32
-       |  +--ro unidirectional-delay-variation?       uint32
-       |  +--ro unidirectional-packet-loss?           decimal64
-       |  +--ro unidirectional-residual-bandwidth?
+    +--ro performance-metrics-one-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro one-way-delay?                           uint32
+    |  +--ro one-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-residual-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-residual-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-available-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-available-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-utilized-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-utilized-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-min-delay?                       uint32
+    |  +--ro one-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-max-delay?                       uint32
+    |  +--ro one-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-delay-variation?                 uint32
+    |  +--ro one-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-packet-loss?                     decimal64
+    |  +--ro one-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro performance-metrics-two-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro two-way-delay?                       uint32
+    |  +--ro two-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-min-delay?                   uint32
+    |  +--ro two-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-max-delay?                   uint32
+    |  +--ro two-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-delay-variation?             uint32
+    |  +--ro two-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-packet-loss?                 decimal64
+    |  +--ro two-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro throttle {tet-pkt:te-performance-metric}?
+       +--ro one-way-delay-offset?                  uint32
+       +--ro measure-interval?                      uint32
+       +--ro advertisement-interval?                uint32
+       +--ro suppression-interval?                  uint32
+       +--ro threshold-out
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-available-bandwidth?
+       |  +--ro one-way-available-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          rt-types:bandwidth-ieee-float32
-       +--ro normality
-       |  +--ro unidirectional-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-min-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-max-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-delay-variation?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-packet-loss?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-residual-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-available-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          te-types:performance-metric-normality
-       +--ro throttle
-          +--ro unidirectional-delay-offset?           uint32
-          +--ro measure-interval?                      uint32
-          +--ro advertisement-interval?                uint32
-          +--ro suppression-interval?                  uint32
-          +--ro threshold-out
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-in
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-accelerated-advertisement
-             +--ro unidirectional-delay?                 uint32
-             +--ro unidirectional-min-delay?             uint32
-             +--ro unidirectional-max-delay?             uint32
-             +--ro unidirectional-delay-variation?       uint32
-             +--ro unidirectional-packet-loss?           decimal64
-             +--ro unidirectional-residual-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-available-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-utilized-bandwidth?
-                     rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-in
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-available-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-accelerated-advertisement
+          +--ro one-way-delay?                 uint32
+          +--ro one-way-residual-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-available-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-utilized-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro two-way-delay?                 uint32
+          +--ro one-way-min-delay?             uint32
+          +--ro one-way-max-delay?             uint32
+          +--ro one-way-delay-variation?       uint32
+          +--ro one-way-packet-loss?           decimal64
+          +--ro two-way-min-delay?             uint32
+          +--ro two-way-max-delay?             uint32
+          +--ro two-way-delay-variation?       uint32
+          +--ro two-way-packet-loss?           decimal64
   augment /nw-s:networks/nw-s:network/nw-s:node/tet-s:te
             /tet-s:te-node-attributes/tet-s:connectivity-matrices
             /tet-s:connectivity-matrix:
-    +--ro performance-metric
-       +--ro measurement
-       |  +--ro unidirectional-delay?                 uint32
-       |  +--ro unidirectional-min-delay?             uint32
-       |  +--ro unidirectional-max-delay?             uint32
-       |  +--ro unidirectional-delay-variation?       uint32
-       |  +--ro unidirectional-packet-loss?           decimal64
-       |  +--ro unidirectional-residual-bandwidth?
+    +--ro performance-metrics-one-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro one-way-delay?                           uint32
+    |  +--ro one-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-residual-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-residual-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-available-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-available-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-utilized-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-utilized-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-min-delay?                       uint32
+    |  +--ro one-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-max-delay?                       uint32
+    |  +--ro one-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-delay-variation?                 uint32
+    |  +--ro one-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-packet-loss?                     decimal64
+    |  +--ro one-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro performance-metrics-two-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro two-way-delay?                       uint32
+    |  +--ro two-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-min-delay?                   uint32
+    |  +--ro two-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-max-delay?                   uint32
+    |  +--ro two-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-delay-variation?             uint32
+    |  +--ro two-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-packet-loss?                 decimal64
+    |  +--ro two-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro throttle {tet-pkt:te-performance-metric}?
+       +--ro one-way-delay-offset?                  uint32
+       +--ro measure-interval?                      uint32
+       +--ro advertisement-interval?                uint32
+       +--ro suppression-interval?                  uint32
+       +--ro threshold-out
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-available-bandwidth?
+       |  +--ro one-way-available-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          rt-types:bandwidth-ieee-float32
-       +--ro normality
-       |  +--ro unidirectional-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-min-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-max-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-delay-variation?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-packet-loss?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-residual-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-available-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          te-types:performance-metric-normality
-       +--ro throttle
-          +--ro unidirectional-delay-offset?           uint32
-          +--ro measure-interval?                      uint32
-          +--ro advertisement-interval?                uint32
-          +--ro suppression-interval?                  uint32
-          +--ro threshold-out
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-in
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-accelerated-advertisement
-             +--ro unidirectional-delay?                 uint32
-             +--ro unidirectional-min-delay?             uint32
-             +--ro unidirectional-max-delay?             uint32
-             +--ro unidirectional-delay-variation?       uint32
-             +--ro unidirectional-packet-loss?           decimal64
-             +--ro unidirectional-residual-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-available-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-utilized-bandwidth?
-                     rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-in
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-available-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-accelerated-advertisement
+          +--ro one-way-delay?                 uint32
+          +--ro one-way-residual-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-available-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-utilized-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro two-way-delay?                 uint32
+          +--ro one-way-min-delay?             uint32
+          +--ro one-way-max-delay?             uint32
+          +--ro one-way-delay-variation?       uint32
+          +--ro one-way-packet-loss?           decimal64
+          +--ro two-way-min-delay?             uint32
+          +--ro two-way-max-delay?             uint32
+          +--ro two-way-delay-variation?       uint32
+          +--ro two-way-packet-loss?           decimal64
   augment /nw-s:networks/nw-s:network/nw-s:node/tet-s:te
             /tet-s:information-source-entry
             /tet-s:connectivity-matrices:
-    +--ro performance-metric
-       +--ro measurement
-       |  +--ro unidirectional-delay?                 uint32
-       |  +--ro unidirectional-min-delay?             uint32
-       |  +--ro unidirectional-max-delay?             uint32
-       |  +--ro unidirectional-delay-variation?       uint32
-       |  +--ro unidirectional-packet-loss?           decimal64
-       |  +--ro unidirectional-residual-bandwidth?
+    +--ro performance-metrics-one-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro one-way-delay?                           uint32
+    |  +--ro one-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-residual-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-residual-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-available-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-available-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-utilized-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-utilized-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-min-delay?                       uint32
+    |  +--ro one-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-max-delay?                       uint32
+    |  +--ro one-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-delay-variation?                 uint32
+    |  +--ro one-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-packet-loss?                     decimal64
+    |  +--ro one-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro performance-metrics-two-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro two-way-delay?                       uint32
+    |  +--ro two-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-min-delay?                   uint32
+    |  +--ro two-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-max-delay?                   uint32
+    |  +--ro two-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-delay-variation?             uint32
+    |  +--ro two-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-packet-loss?                 decimal64
+    |  +--ro two-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro throttle {tet-pkt:te-performance-metric}?
+       +--ro one-way-delay-offset?                  uint32
+       +--ro measure-interval?                      uint32
+       +--ro advertisement-interval?                uint32
+       +--ro suppression-interval?                  uint32
+       +--ro threshold-out
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-available-bandwidth?
+       |  +--ro one-way-available-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          rt-types:bandwidth-ieee-float32
-       +--ro normality
-       |  +--ro unidirectional-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-min-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-max-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-delay-variation?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-packet-loss?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-residual-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-available-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          te-types:performance-metric-normality
-       +--ro throttle
-          +--ro unidirectional-delay-offset?           uint32
-          +--ro measure-interval?                      uint32
-          +--ro advertisement-interval?                uint32
-          +--ro suppression-interval?                  uint32
-          +--ro threshold-out
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-in
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-accelerated-advertisement
-             +--ro unidirectional-delay?                 uint32
-             +--ro unidirectional-min-delay?             uint32
-             +--ro unidirectional-max-delay?             uint32
-             +--ro unidirectional-delay-variation?       uint32
-             +--ro unidirectional-packet-loss?           decimal64
-             +--ro unidirectional-residual-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-available-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-utilized-bandwidth?
-                     rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-in
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-available-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-accelerated-advertisement
+          +--ro one-way-delay?                 uint32
+          +--ro one-way-residual-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-available-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-utilized-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro two-way-delay?                 uint32
+          +--ro one-way-min-delay?             uint32
+          +--ro one-way-max-delay?             uint32
+          +--ro one-way-delay-variation?       uint32
+          +--ro one-way-packet-loss?           decimal64
+          +--ro two-way-min-delay?             uint32
+          +--ro two-way-max-delay?             uint32
+          +--ro two-way-delay-variation?       uint32
+          +--ro two-way-packet-loss?           decimal64
   augment /nw-s:networks/nw-s:network/nw-s:node/tet-s:te
             /tet-s:information-source-entry
             /tet-s:connectivity-matrices/tet-s:connectivity-matrix:
-    +--ro performance-metric
-       +--ro measurement
-       |  +--ro unidirectional-delay?                 uint32
-       |  +--ro unidirectional-min-delay?             uint32
-       |  +--ro unidirectional-max-delay?             uint32
-       |  +--ro unidirectional-delay-variation?       uint32
-       |  +--ro unidirectional-packet-loss?           decimal64
-       |  +--ro unidirectional-residual-bandwidth?
+    +--ro performance-metrics-one-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro one-way-delay?                           uint32
+    |  +--ro one-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-residual-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-residual-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-available-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-available-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-utilized-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-utilized-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-min-delay?                       uint32
+    |  +--ro one-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-max-delay?                       uint32
+    |  +--ro one-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-delay-variation?                 uint32
+    |  +--ro one-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-packet-loss?                     decimal64
+    |  +--ro one-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro performance-metrics-two-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro two-way-delay?                       uint32
+    |  +--ro two-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-min-delay?                   uint32
+    |  +--ro two-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-max-delay?                   uint32
+    |  +--ro two-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-delay-variation?             uint32
+    |  +--ro two-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-packet-loss?                 decimal64
+    |  +--ro two-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro throttle {tet-pkt:te-performance-metric}?
+       +--ro one-way-delay-offset?                  uint32
+       +--ro measure-interval?                      uint32
+       +--ro advertisement-interval?                uint32
+       +--ro suppression-interval?                  uint32
+       +--ro threshold-out
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-available-bandwidth?
+       |  +--ro one-way-available-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          rt-types:bandwidth-ieee-float32
-       +--ro normality
-       |  +--ro unidirectional-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-min-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-max-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-delay-variation?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-packet-loss?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-residual-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-available-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          te-types:performance-metric-normality
-       +--ro throttle
-          +--ro unidirectional-delay-offset?           uint32
-          +--ro measure-interval?                      uint32
-          +--ro advertisement-interval?                uint32
-          +--ro suppression-interval?                  uint32
-          +--ro threshold-out
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-in
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-accelerated-advertisement
-             +--ro unidirectional-delay?                 uint32
-             +--ro unidirectional-min-delay?             uint32
-             +--ro unidirectional-max-delay?             uint32
-             +--ro unidirectional-delay-variation?       uint32
-             +--ro unidirectional-packet-loss?           decimal64
-             +--ro unidirectional-residual-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-available-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-utilized-bandwidth?
-                     rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-in
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-available-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-accelerated-advertisement
+          +--ro one-way-delay?                 uint32
+          +--ro one-way-residual-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-available-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-utilized-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro two-way-delay?                 uint32
+          +--ro one-way-min-delay?             uint32
+          +--ro one-way-max-delay?             uint32
+          +--ro one-way-delay-variation?       uint32
+          +--ro one-way-packet-loss?           decimal64
+          +--ro two-way-min-delay?             uint32
+          +--ro two-way-max-delay?             uint32
+          +--ro two-way-delay-variation?       uint32
+          +--ro two-way-packet-loss?           decimal64
   augment /nw-s:networks/nw-s:network/nw-s:node/tet-s:te
             /tet-s:tunnel-termination-point
             /tet-s:local-link-connectivities:
-    +--ro performance-metric
-       +--ro measurement
-       |  +--ro unidirectional-delay?                 uint32
-       |  +--ro unidirectional-min-delay?             uint32
-       |  +--ro unidirectional-max-delay?             uint32
-       |  +--ro unidirectional-delay-variation?       uint32
-       |  +--ro unidirectional-packet-loss?           decimal64
-       |  +--ro unidirectional-residual-bandwidth?
+    +--ro performance-metrics-one-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro one-way-delay?                           uint32
+    |  +--ro one-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-residual-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-residual-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-available-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-available-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-utilized-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-utilized-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-min-delay?                       uint32
+    |  +--ro one-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-max-delay?                       uint32
+    |  +--ro one-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-delay-variation?                 uint32
+    |  +--ro one-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-packet-loss?                     decimal64
+    |  +--ro one-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro performance-metrics-two-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro two-way-delay?                       uint32
+    |  +--ro two-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-min-delay?                   uint32
+    |  +--ro two-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-max-delay?                   uint32
+    |  +--ro two-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-delay-variation?             uint32
+    |  +--ro two-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-packet-loss?                 decimal64
+    |  +--ro two-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro throttle {tet-pkt:te-performance-metric}?
+       +--ro one-way-delay-offset?                  uint32
+       +--ro measure-interval?                      uint32
+       +--ro advertisement-interval?                uint32
+       +--ro suppression-interval?                  uint32
+       +--ro threshold-out
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-available-bandwidth?
+       |  +--ro one-way-available-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          rt-types:bandwidth-ieee-float32
-       +--ro normality
-       |  +--ro unidirectional-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-min-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-max-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-delay-variation?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-packet-loss?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-residual-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-available-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          te-types:performance-metric-normality
-       +--ro throttle
-          +--ro unidirectional-delay-offset?           uint32
-          +--ro measure-interval?                      uint32
-          +--ro advertisement-interval?                uint32
-          +--ro suppression-interval?                  uint32
-          +--ro threshold-out
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-in
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-accelerated-advertisement
-             +--ro unidirectional-delay?                 uint32
-             +--ro unidirectional-min-delay?             uint32
-             +--ro unidirectional-max-delay?             uint32
-             +--ro unidirectional-delay-variation?       uint32
-             +--ro unidirectional-packet-loss?           decimal64
-             +--ro unidirectional-residual-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-available-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-utilized-bandwidth?
-                     rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-in
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-available-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-accelerated-advertisement
+          +--ro one-way-delay?                 uint32
+          +--ro one-way-residual-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-available-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-utilized-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro two-way-delay?                 uint32
+          +--ro one-way-min-delay?             uint32
+          +--ro one-way-max-delay?             uint32
+          +--ro one-way-delay-variation?       uint32
+          +--ro one-way-packet-loss?           decimal64
+          +--ro two-way-min-delay?             uint32
+          +--ro two-way-max-delay?             uint32
+          +--ro two-way-delay-variation?       uint32
+          +--ro two-way-packet-loss?           decimal64
   augment /nw-s:networks/nw-s:network/nw-s:node/tet-s:te
             /tet-s:tunnel-termination-point
             /tet-s:local-link-connectivities
             /tet-s:local-link-connectivity:
-    +--ro performance-metric
-       +--ro measurement
-       |  +--ro unidirectional-delay?                 uint32
-       |  +--ro unidirectional-min-delay?             uint32
-       |  +--ro unidirectional-max-delay?             uint32
-       |  +--ro unidirectional-delay-variation?       uint32
-       |  +--ro unidirectional-packet-loss?           decimal64
-       |  +--ro unidirectional-residual-bandwidth?
+    +--ro performance-metrics-one-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro one-way-delay?                           uint32
+    |  +--ro one-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-residual-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-residual-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-available-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-available-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-utilized-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-utilized-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-min-delay?                       uint32
+    |  +--ro one-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-max-delay?                       uint32
+    |  +--ro one-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-delay-variation?                 uint32
+    |  +--ro one-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-packet-loss?                     decimal64
+    |  +--ro one-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro performance-metrics-two-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro two-way-delay?                       uint32
+    |  +--ro two-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-min-delay?                   uint32
+    |  +--ro two-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-max-delay?                   uint32
+    |  +--ro two-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-delay-variation?             uint32
+    |  +--ro two-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-packet-loss?                 decimal64
+    |  +--ro two-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro throttle {tet-pkt:te-performance-metric}?
+       +--ro one-way-delay-offset?                  uint32
+       +--ro measure-interval?                      uint32
+       +--ro advertisement-interval?                uint32
+       +--ro suppression-interval?                  uint32
+       +--ro threshold-out
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-available-bandwidth?
+       |  +--ro one-way-available-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          rt-types:bandwidth-ieee-float32
-       +--ro normality
-       |  +--ro unidirectional-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-min-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-max-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-delay-variation?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-packet-loss?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-residual-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-available-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          te-types:performance-metric-normality
-       +--ro throttle
-          +--ro unidirectional-delay-offset?           uint32
-          +--ro measure-interval?                      uint32
-          +--ro advertisement-interval?                uint32
-          +--ro suppression-interval?                  uint32
-          +--ro threshold-out
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-in
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-accelerated-advertisement
-             +--ro unidirectional-delay?                 uint32
-             +--ro unidirectional-min-delay?             uint32
-             +--ro unidirectional-max-delay?             uint32
-             +--ro unidirectional-delay-variation?       uint32
-             +--ro unidirectional-packet-loss?           decimal64
-             +--ro unidirectional-residual-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-available-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-utilized-bandwidth?
-                     rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-in
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-available-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-accelerated-advertisement
+          +--ro one-way-delay?                 uint32
+          +--ro one-way-residual-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-available-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-utilized-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro two-way-delay?                 uint32
+          +--ro one-way-min-delay?             uint32
+          +--ro one-way-max-delay?             uint32
+          +--ro one-way-delay-variation?       uint32
+          +--ro one-way-packet-loss?           decimal64
+          +--ro two-way-min-delay?             uint32
+          +--ro two-way-max-delay?             uint32
+          +--ro two-way-delay-variation?       uint32
+          +--ro two-way-packet-loss?           decimal64
   augment /nw-s:networks/tet-s:te/tet-s:templates/tet-s:link-template
             /tet-s:te-link-attributes:
-    +--ro performance-metric
-       +--ro measurement
-       |  +--ro unidirectional-delay?                 uint32
-       |  +--ro unidirectional-min-delay?             uint32
-       |  +--ro unidirectional-max-delay?             uint32
-       |  +--ro unidirectional-delay-variation?       uint32
-       |  +--ro unidirectional-packet-loss?           decimal64
-       |  +--ro unidirectional-residual-bandwidth?
+    +--ro performance-metrics-one-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro one-way-delay?                           uint32
+    |  +--ro one-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-residual-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-residual-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-available-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-available-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-utilized-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-utilized-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-min-delay?                       uint32
+    |  +--ro one-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-max-delay?                       uint32
+    |  +--ro one-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-delay-variation?                 uint32
+    |  +--ro one-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-packet-loss?                     decimal64
+    |  +--ro one-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro performance-metrics-two-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro two-way-delay?                       uint32
+    |  +--ro two-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-min-delay?                   uint32
+    |  +--ro two-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-max-delay?                   uint32
+    |  +--ro two-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-delay-variation?             uint32
+    |  +--ro two-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-packet-loss?                 decimal64
+    |  +--ro two-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro throttle {tet-pkt:te-performance-metric}?
+       +--ro one-way-delay-offset?                  uint32
+       +--ro measure-interval?                      uint32
+       +--ro advertisement-interval?                uint32
+       +--ro suppression-interval?                  uint32
+       +--ro threshold-out
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-available-bandwidth?
+       |  +--ro one-way-available-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          rt-types:bandwidth-ieee-float32
-       +--ro normality
-       |  +--ro unidirectional-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-min-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-max-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-delay-variation?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-packet-loss?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-residual-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-available-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          te-types:performance-metric-normality
-       +--ro throttle
-          +--ro unidirectional-delay-offset?           uint32
-          +--ro measure-interval?                      uint32
-          +--ro advertisement-interval?                uint32
-          +--ro suppression-interval?                  uint32
-          +--ro threshold-out
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-in
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-accelerated-advertisement
-             +--ro unidirectional-delay?                 uint32
-             +--ro unidirectional-min-delay?             uint32
-             +--ro unidirectional-max-delay?             uint32
-             +--ro unidirectional-delay-variation?       uint32
-             +--ro unidirectional-packet-loss?           decimal64
-             +--ro unidirectional-residual-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-available-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-utilized-bandwidth?
-                     rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-in
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-available-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-accelerated-advertisement
+          +--ro one-way-delay?                 uint32
+          +--ro one-way-residual-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-available-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-utilized-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro two-way-delay?                 uint32
+          +--ro one-way-min-delay?             uint32
+          +--ro one-way-max-delay?             uint32
+          +--ro one-way-delay-variation?       uint32
+          +--ro one-way-packet-loss?           decimal64
+          +--ro two-way-min-delay?             uint32
+          +--ro two-way-max-delay?             uint32
+          +--ro two-way-delay-variation?       uint32
+          +--ro two-way-packet-loss?           decimal64
   augment /nw-s:networks/nw-s:network/nt-s:link/tet-s:te
             /tet-s:te-link-attributes:
-    +--ro performance-metric
-       +--ro measurement
-       |  +--ro unidirectional-delay?                 uint32
-       |  +--ro unidirectional-min-delay?             uint32
-       |  +--ro unidirectional-max-delay?             uint32
-       |  +--ro unidirectional-delay-variation?       uint32
-       |  +--ro unidirectional-packet-loss?           decimal64
-       |  +--ro unidirectional-residual-bandwidth?
+    +--ro performance-metrics-one-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro one-way-delay?                           uint32
+    |  +--ro one-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-residual-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-residual-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-available-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-available-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-utilized-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-utilized-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-min-delay?                       uint32
+    |  +--ro one-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-max-delay?                       uint32
+    |  +--ro one-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-delay-variation?                 uint32
+    |  +--ro one-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-packet-loss?                     decimal64
+    |  +--ro one-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro performance-metrics-two-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro two-way-delay?                       uint32
+    |  +--ro two-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-min-delay?                   uint32
+    |  +--ro two-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-max-delay?                   uint32
+    |  +--ro two-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-delay-variation?             uint32
+    |  +--ro two-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-packet-loss?                 decimal64
+    |  +--ro two-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro throttle {tet-pkt:te-performance-metric}?
+       +--ro one-way-delay-offset?                  uint32
+       +--ro measure-interval?                      uint32
+       +--ro advertisement-interval?                uint32
+       +--ro suppression-interval?                  uint32
+       +--ro threshold-out
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-available-bandwidth?
+       |  +--ro one-way-available-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          rt-types:bandwidth-ieee-float32
-       +--ro normality
-       |  +--ro unidirectional-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-min-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-max-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-delay-variation?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-packet-loss?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-residual-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-available-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          te-types:performance-metric-normality
-       +--ro throttle
-          +--ro unidirectional-delay-offset?           uint32
-          +--ro measure-interval?                      uint32
-          +--ro advertisement-interval?                uint32
-          +--ro suppression-interval?                  uint32
-          +--ro threshold-out
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-in
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-accelerated-advertisement
-             +--ro unidirectional-delay?                 uint32
-             +--ro unidirectional-min-delay?             uint32
-             +--ro unidirectional-max-delay?             uint32
-             +--ro unidirectional-delay-variation?       uint32
-             +--ro unidirectional-packet-loss?           decimal64
-             +--ro unidirectional-residual-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-available-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-utilized-bandwidth?
-                     rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-in
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-available-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-accelerated-advertisement
+          +--ro one-way-delay?                 uint32
+          +--ro one-way-residual-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-available-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-utilized-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro two-way-delay?                 uint32
+          +--ro one-way-min-delay?             uint32
+          +--ro one-way-max-delay?             uint32
+          +--ro one-way-delay-variation?       uint32
+          +--ro one-way-packet-loss?           decimal64
+          +--ro two-way-min-delay?             uint32
+          +--ro two-way-max-delay?             uint32
+          +--ro two-way-delay-variation?       uint32
+          +--ro two-way-packet-loss?           decimal64
   augment /nw-s:networks/nw-s:network/nt-s:link/tet-s:te
             /tet-s:information-source-entry:
-    +--ro performance-metric
-       +--ro measurement
-       |  +--ro unidirectional-delay?                 uint32
-       |  +--ro unidirectional-min-delay?             uint32
-       |  +--ro unidirectional-max-delay?             uint32
-       |  +--ro unidirectional-delay-variation?       uint32
-       |  +--ro unidirectional-packet-loss?           decimal64
-       |  +--ro unidirectional-residual-bandwidth?
+    +--ro performance-metrics-one-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro one-way-delay?                           uint32
+    |  +--ro one-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-residual-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-residual-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-available-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-available-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-utilized-bandwidth?
+    |  |       rt-types:bandwidth-ieee-float32
+    |  +--ro one-way-utilized-bandwidth-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-min-delay?                       uint32
+    |  +--ro one-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-max-delay?                       uint32
+    |  +--ro one-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-delay-variation?                 uint32
+    |  +--ro one-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro one-way-packet-loss?                     decimal64
+    |  +--ro one-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro performance-metrics-two-way
+    |       {tet-pkt:te-performance-metric}?
+    |  +--ro two-way-delay?                       uint32
+    |  +--ro two-way-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-min-delay?                   uint32
+    |  +--ro two-way-min-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-max-delay?                   uint32
+    |  +--ro two-way-max-delay-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-delay-variation?             uint32
+    |  +--ro two-way-delay-variation-normality?
+    |  |       te-types:performance-metrics-normality
+    |  +--ro two-way-packet-loss?                 decimal64
+    |  +--ro two-way-packet-loss-normality?
+    |          te-types:performance-metrics-normality
+    +--ro throttle {tet-pkt:te-performance-metric}?
+       +--ro one-way-delay-offset?                  uint32
+       +--ro measure-interval?                      uint32
+       +--ro advertisement-interval?                uint32
+       +--ro suppression-interval?                  uint32
+       +--ro threshold-out
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-available-bandwidth?
+       |  +--ro one-way-available-bandwidth?
        |  |       rt-types:bandwidth-ieee-float32
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          rt-types:bandwidth-ieee-float32
-       +--ro normality
-       |  +--ro unidirectional-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-min-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-max-delay?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-delay-variation?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-packet-loss?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-residual-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-available-bandwidth?
-       |  |       te-types:performance-metric-normality
-       |  +--ro unidirectional-utilized-bandwidth?
-       |          te-types:performance-metric-normality
-       +--ro throttle
-          +--ro unidirectional-delay-offset?           uint32
-          +--ro measure-interval?                      uint32
-          +--ro advertisement-interval?                uint32
-          +--ro suppression-interval?                  uint32
-          +--ro threshold-out
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-in
-          |  +--ro unidirectional-delay?                 uint32
-          |  +--ro unidirectional-min-delay?             uint32
-          |  +--ro unidirectional-max-delay?             uint32
-          |  +--ro unidirectional-delay-variation?       uint32
-          |  +--ro unidirectional-packet-loss?           decimal64
-          |  +--ro unidirectional-residual-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-available-bandwidth?
-          |  |       rt-types:bandwidth-ieee-float32
-          |  +--ro unidirectional-utilized-bandwidth?
-          |          rt-types:bandwidth-ieee-float32
-          +--ro threshold-accelerated-advertisement
-             +--ro unidirectional-delay?                 uint32
-             +--ro unidirectional-min-delay?             uint32
-             +--ro unidirectional-max-delay?             uint32
-             +--ro unidirectional-delay-variation?       uint32
-             +--ro unidirectional-packet-loss?           decimal64
-             +--ro unidirectional-residual-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-available-bandwidth?
-             |       rt-types:bandwidth-ieee-float32
-             +--ro unidirectional-utilized-bandwidth?
-                     rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-in
+       |  +--ro one-way-delay?                 uint32
+       |  +--ro one-way-residual-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-available-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro one-way-utilized-bandwidth?
+       |  |       rt-types:bandwidth-ieee-float32
+       |  +--ro two-way-delay?                 uint32
+       |  +--ro one-way-min-delay?             uint32
+       |  +--ro one-way-max-delay?             uint32
+       |  +--ro one-way-delay-variation?       uint32
+       |  +--ro one-way-packet-loss?           decimal64
+       |  +--ro two-way-min-delay?             uint32
+       |  +--ro two-way-max-delay?             uint32
+       |  +--ro two-way-delay-variation?       uint32
+       |  +--ro two-way-packet-loss?           decimal64
+       +--ro threshold-accelerated-advertisement
+          +--ro one-way-delay?                 uint32
+          +--ro one-way-residual-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-available-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro one-way-utilized-bandwidth?
+          |       rt-types:bandwidth-ieee-float32
+          +--ro two-way-delay?                 uint32
+          +--ro one-way-min-delay?             uint32
+          +--ro one-way-max-delay?             uint32
+          +--ro one-way-delay-variation?       uint32
+          +--ro one-way-packet-loss?           decimal64
+          +--ro two-way-min-delay?             uint32
+          +--ro two-way-max-delay?             uint32
+          +--ro two-way-delay-variation?       uint32
+          +--ro two-way-packet-loss?           decimal64
   augment /nw-s:networks/tet-s:te/tet-s:templates/tet-s:link-template
             /tet-s:te-link-attributes
             /tet-s:interface-switching-capability:
