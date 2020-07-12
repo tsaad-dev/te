@@ -11,8 +11,7 @@ module ietf-te {
   import ietf-te-types {
     prefix te-types;
     reference
-      "draft-ietf-teas-yang-te-types: A YANG Data Model for
-       Common Traffic Engineering Types.";
+      "RFC8776: Common YANG Data Types for Traffic Engineering.";
   }
   import ietf-inet-types {
     prefix inet;
@@ -71,7 +70,7 @@ module ietf-te {
   // RFC Ed.: update the date below with the date of RFC publication
   // and remove this note.
 
-  revision 2020-03-09 {
+  revision 2020-07-12 {
     description
       "Latest update to TE generic YANG module.";
     reference
@@ -526,12 +525,28 @@ module ietf-te {
       description
         "The TE LSPs container.";
       list lsp {
-        key "lsp-id";
+        key "node lsp-id";
         description
           "List of LSPs associated with the tunnel.";
+        leaf tunnel-name {
+          type leafref {
+            path "/te/lsps/lsp/te:tunnel-name";
+          }
+          description "TE tunnel name.";
+        }
+        leaf node {
+          type leafref {
+            path "/te/lsps/lsp/te:node";
+          }
+          description "The node where the LSP state resides on.";
+        }
+        leaf lsp-id {
+          type leafref {
+            path "/te/lsps/lsp/lsp-id";
+          }
+          description "The TE LSP identifier.";
+        }
         uses lsp-provisioning-error-info;
-        uses lsp-properties-state;
-        uses lsp-record-route-information-state;
         uses path-properties {
           description
             "The TE path actual properties.";
@@ -1037,7 +1052,7 @@ module ietf-te {
         "TE tunnel name.";
     }
     leaf identifier {
-      type uint16;
+      type uint32;
       description
         "TE tunnel Identifier.";
       reference
@@ -1123,7 +1138,7 @@ module ietf-te {
         uses primary-path;
         container primary-reverse-path {
           description
-            "The set of reverse primary paths.";
+            "The reverse primary path properties.";
           uses primary-reverse-path;
           container candidate-secondary-reverse-paths {
             description
@@ -1328,18 +1343,37 @@ module ietf-te {
     }
   }
 
-  grouping lsps-state-grouping {
+  grouping lsps-grouping {
     description
       "LSPs state operational data grouping.";
-    container lsps-state {
+    container lsps {
       config false;
       description
         "TE LSPs state container.";
       list lsp {
-        key "source destination tunnel-id lsp-id "
+        key "tunnel-name lsp-id node";
+        unique "source destination tunnel-id lsp-id "
           + "extended-tunnel-id";
         description
           "List of LSPs associated with the tunnel.";
+        leaf tunnel-name {
+          type string;
+          description "The TE tunnel name.";
+        }
+        leaf lsp-id {
+          type uint16;
+          description
+            "Identifier used in the SENDER_TEMPLATE and the FILTER_SPEC
+             that can be changed to allow a sender to share resources
+             with itself.";
+          reference
+            "RFC3209";
+        }
+        leaf node {
+          type te-types:te-node-id;
+          description
+            "The node where the TE LSP state resides on.";
+        }
         uses lsp-properties-state;
         uses lsp-record-route-information-state;
       }
@@ -1541,15 +1575,6 @@ module ietf-te {
       reference
         "RFC3209";
     }
-    leaf lsp-id {
-      type uint16;
-      description
-        "Identifier used in the SENDER_TEMPLATE and the FILTER_SPEC
-         that can be changed to allow a sender to share resources
-         with itself.";
-      reference
-        "RFC3209";
-    }
     leaf extended-tunnel-id {
       type yang:dotted-quad;
       description
@@ -1617,19 +1642,21 @@ module ietf-te {
 
   /*** End of TE global groupings ***/
   /**
-   * TE configurations container
+   * TE container
    */
 
   container te {
     presence "Enable TE feature.";
     description
       "TE global container.";
-    /* TE Global Configuration Data */
+    /* TE Global Data */
     uses globals-grouping;
-    /* TE Tunnel Configuration Data */
+
+    /* TE Tunnel Data */
     uses tunnels-grouping;
-    /* TE LSPs State Data */
-    uses lsps-state-grouping;
+
+    /* TE LSPs Data */
+    uses lsps-grouping;
   }
 
   /* TE Tunnel RPCs/execution Data */

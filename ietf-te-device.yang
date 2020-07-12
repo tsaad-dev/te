@@ -22,8 +22,7 @@ module ietf-te-device {
   import ietf-te-types {
     prefix te-types;
     reference
-      "draft-ietf-teas-yang-te-types: A YANG Data Model for
-       Common Traffic Engineering Types";
+      "RFC8776: Common YANG Data Types for Traffic Engineering.";
   }
   import ietf-interfaces {
     prefix if;
@@ -82,7 +81,7 @@ module ietf-te-device {
   // RFC Ed.: update the date below with the date of RFC publication
   // and remove this note.
 
-  revision 2020-03-09 {
+  revision 2020-07-12 {
     description
       "Latest update to TE device YANG module.";
     reference
@@ -338,14 +337,14 @@ module ietf-te-device {
        threshold configuration.";
     leaf threshold-type {
       type enumeration {
-        enum DELTA {
+        enum delta {
           description
-            "DELTA indicates that the local
+            "'delta' indicates that the local
              system should flood IGP updates when a
              change in reserved bandwidth >= the specified
              delta occurs on the interface.";
         }
-        enum THRESHOLD_CROSSED {
+        enum threshold-crossed {
           description
             "THRESHOLD-CROSSED indicates that
              the local system should trigger an update (and
@@ -356,17 +355,17 @@ module ietf-te-device {
       }
       description
         "The type of threshold that should be used to specify the
-         values at which bandwidth is flooded. DELTA indicates that
+         values at which bandwidth is flooded. 'delta' indicates that
          the local system should flood IGP updates when a change in
          reserved bandwidth >= the specified delta occurs on the
-         interface. Where THRESHOLD_CROSSED is specified, the local
+         interface. Where 'threshold-crossed' is specified, the local
          system should trigger an update (and hence flood) the
          reserved bandwidth when the reserved bandwidth changes such
          that it crosses, or becomes equal to one of the threshold
          values.";
     }
     leaf delta-percentage {
-      when "../threshold-type = 'DELTA'" {
+      when "../threshold-type = 'delta'" {
         description
           "The percentage delta can only be specified when the
            threshold type is specified to be a percentage delta of
@@ -379,24 +378,24 @@ module ietf-te-device {
          being flooded.";
     }
     leaf threshold-specification {
-      when "../threshold-type = 'THRESHOLD_CROSSED'" {
+      when "../threshold-type = 'threshold-crossed'" {
         description
           "The selection of whether mirrored or separate threshold
            values are to be used requires user specified thresholds to
            be set.";
       }
       type enumeration {
-        enum MIRRORED_UP_DOWN {
+        enum mirrored-up-down {
           description
-            "MIRRORED_UP_DOWN indicates that a single set of
+            "mirrored-up-down indicates that a single set of
              threshold values should be used for both increasing
              and decreasing bandwidth when determining whether
              to trigger updated bandwidth values to be flooded
              in the IGP TE extensions.";
         }
-        enum SEPARATE_UP_DOWN {
+        enum separate-up-down {
           description
-            "SEPARATE_UP_DOWN indicates that a separate
+            "separate-up-down indicates that a separate
              threshold values should be used for the increasing
              and decreasing bandwidth when determining whether
              to trigger updated bandwidth values to be flooded
@@ -408,14 +407,14 @@ module ietf-te-device {
          values should be used for both increasing and decreasing
          bandwidth when determining whether to trigger updated
          bandwidth values to be flooded in the IGP TE extensions.
-         MIRRORED-UP-DOWN indicates that a single value (or set of
+         'mirrored-up-down' indicates that a single value (or set of
          values) should be used for both increasing and decreasing
-         values, where SEPARATE-UP-DOWN specifies that the increasing
+         values, where 'separate-up-down' specifies that the increasing
          and decreasing values will be separately specified.";
     }
     leaf-list up-thresholds {
-      when "../threshold-type = 'THRESHOLD_CROSSED'"
-         + "and ../threshold-specification = 'SEPARATE_UP_DOWN'" {
+      when "../threshold-type = 'threshold-crossed'"
+         + "and ../threshold-specification = 'separate-up-down'" {
         description
           "A list of up-thresholds can only be specified when the
            bandwidth update is triggered based on crossing a
@@ -429,8 +428,8 @@ module ietf-te-device {
          triggered when the bandwidth is increasing.";
     }
     leaf-list down-thresholds {
-      when "../threshold-type = 'THRESHOLD_CROSSED'"
-         + "and ../threshold-specification = 'SEPARATE_UP_DOWN'" {
+      when "../threshold-type = 'threshold-crossed'"
+         + "and ../threshold-specification = 'separate-up-down'" {
         description
           "A list of down-thresholds can only be specified when the
            bandwidth update is triggered based on crossing a
@@ -444,8 +443,8 @@ module ietf-te-device {
          triggered when the bandwidth is decreasing.";
     }
     leaf-list up-down-thresholds {
-      when "../threshold-type = 'THRESHOLD_CROSSED'"
-         + "and ../threshold-specification = 'MIRRORED_UP_DOWN'" {
+      when "../threshold-type = 'threshold-crossed'"
+         + "and ../threshold-specification = 'mirrored-up-down'" {
         description
           "A list of thresholds corresponding to both increasing
            and decreasing bandwidths can be specified only when an
@@ -642,7 +641,7 @@ module ietf-te-device {
 
   /* TE LSPs device state augmentation */
 
-  augment "/te:te/te:lsps-state/te:lsp" {
+  augment "/te:te/te:lsps/te:lsp" {
     description
       "TE LSP device dependent augmentation.";
     uses lsps-device-info;
