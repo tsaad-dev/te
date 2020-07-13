@@ -1,0 +1,133 @@
+
+module: ietf-te-device
+  augment /te:te:
+    +--rw interfaces
+    |  +--rw threshold-type?            enumeration
+    |  +--rw delta-percentage?          rt-types:percentage
+    |  +--rw threshold-specification?   enumeration
+    |  +--rw up-thresholds*             rt-types:percentage
+    |  +--rw down-thresholds*           rt-types:percentage
+    |  +--rw up-down-thresholds*        rt-types:percentage
+    |  +--rw interface* [interface]
+    |     +--rw interface                           if:interface-ref
+    |     +--rw te-metric?
+    |     |       te-types:te-metric
+    |     +--rw (admin-group-type)?
+    |     |  +--:(value-admin-groups)
+    |     |  |  +--rw (value-admin-group-type)?
+    |     |  |     +--:(admin-groups)
+    |     |  |     |  +--rw admin-group?
+    |     |  |     |          te-types:admin-group
+    |     |  |     +--:(extended-admin-groups)
+    |     |  |              {te-types:extended-admin-groups}?
+    |     |  |        +--rw extended-admin-group?
+    |     |  |                te-types:extended-admin-group
+    |     |  +--:(named-admin-groups)
+    |     |     +--rw named-admin-groups* [named-admin-group]
+    |     |             {te-types:extended-admin-groups,
+                         te-types:named-extended-admin-groups}?
+    |     |        +--rw named-admin-group    leafref
+    |     +--rw (srlg-type)?
+    |     |  +--:(value-srlgs)
+    |     |  |  +--rw values* [value]
+    |     |  |     +--rw value    uint32
+    |     |  +--:(named-srlgs)
+    |     |     +--rw named-srlgs* [named-srlg]
+    |     |             {te-types:named-srlg-groups}?
+    |     |        +--rw named-srlg    leafref
+    |     +--rw threshold-type?                     enumeration
+    |     +--rw delta-percentage?
+    |     |       rt-types:percentage
+    |     +--rw threshold-specification?            enumeration
+    |     +--rw up-thresholds*
+    |     |       rt-types:percentage
+    |     +--rw down-thresholds*
+    |     |       rt-types:percentage
+    |     +--rw up-down-thresholds*
+    |     |       rt-types:percentage
+    |     +--rw switching-capabilities* [switching-capability]
+    |     |  +--rw switching-capability    identityref
+    |     |  +--rw encoding?               identityref
+    |     +--ro state
+    |        +--ro te-advertisements-state
+    |           +--ro flood-interval?           uint32
+    |           +--ro last-flooded-time?        uint32
+    |           +--ro next-flooded-time?        uint32
+    |           +--ro last-flooded-trigger?     enumeration
+    |           +--ro advertised-level-areas* [level-area]
+    |              +--ro level-area    uint32
+    +--rw performance-thresholds
+  augment /te:te/te:globals:
+    +--rw lsp-install-interval?        uint32
+    +--rw lsp-cleanup-interval?        uint32
+    +--rw lsp-invalidation-interval?   uint32
+  augment /te:te/te:tunnels/te:tunnel:
+    +--rw path-invalidation-action?    identityref
+    +--rw lsp-install-interval?        uint32
+    +--rw lsp-cleanup-interval?        uint32
+    +--rw lsp-invalidation-interval?   uint32
+  augment /te:te/te:lsps/te:lsp:
+    +--ro lsp-timers
+    |  +--ro life-time?         uint32
+    |  +--ro time-to-install?   uint32
+    |  +--ro time-to-destroy?   uint32
+    +--ro downstream-info
+    |  +--ro nhop?                 te-types:te-tp-id
+    |  +--ro outgoing-interface?   if:interface-ref
+    |  +--ro neighbor
+    |  |  +--ro id?     te-generic-node-id
+    |  |  +--ro type?   enumeration
+    |  +--ro label?                rt-types:generalized-label
+    +--ro upstream-info
+       +--ro phop?       te-types:te-tp-id
+       +--ro neighbor
+       |  +--ro id?     te-generic-node-id
+       |  +--ro type?   enumeration
+       +--ro label?      rt-types:generalized-label
+  augment /te:te/te:tunnels/te:tunnel/te:secondary-paths
+            /te:secondary-path/te:lsps/te:lsp:
+    +--ro lsp-timers
+    |  +--ro life-time?         uint32
+    |  +--ro time-to-install?   uint32
+    |  +--ro time-to-destroy?   uint32
+    +--ro downstream-info
+    |  +--ro nhop?                 te-types:te-tp-id
+    |  +--ro outgoing-interface?   if:interface-ref
+    |  +--ro neighbor
+    |  |  +--ro id?     te-generic-node-id
+    |  |  +--ro type?   enumeration
+    |  +--ro label?                rt-types:generalized-label
+    +--ro upstream-info
+       +--ro phop?       te-types:te-tp-id
+       +--ro neighbor
+       |  +--ro id?     te-generic-node-id
+       |  +--ro type?   enumeration
+       +--ro label?      rt-types:generalized-label
+  augment /te:te/te:tunnels/te:tunnel/te:primary-paths
+            /te:primary-path/te:lsps/te:lsp:
+    +--ro lsp-timers
+    |  +--ro life-time?         uint32
+    |  +--ro time-to-install?   uint32
+    |  +--ro time-to-destroy?   uint32
+    +--ro downstream-info
+    |  +--ro nhop?                 te-types:te-tp-id
+    |  +--ro outgoing-interface?   if:interface-ref
+    |  +--ro neighbor
+    |  |  +--ro id?     te-generic-node-id
+    |  |  +--ro type?   enumeration
+    |  +--ro label?                rt-types:generalized-label
+    +--ro upstream-info
+       +--ro phop?       te-types:te-tp-id
+       +--ro neighbor
+       |  +--ro id?     te-generic-node-id
+       |  +--ro type?   enumeration
+       +--ro label?      rt-types:generalized-label
+
+  rpcs:
+    +---x link-state-update
+       +---w input
+          +---w (filter-type)
+             +--:(match-all)
+             |  +---w all          empty
+             +--:(match-one-interface)
+                +---w interface?   if:interface-ref
