@@ -271,6 +271,26 @@ module ietf-te {
     reference "RFC8233";
   }
 
+  identity protocol-origin-type {
+    description
+      "Base identity for protocol origin type.";
+  }
+  identity protocol-origin-config {
+    base protocol-origin-type;
+    description
+      "Protocol origin is configuration";
+  }
+  identity protocol-origin-pcep {
+    base protocol-origin-type;
+    description
+      "Protocol origin is Path Computation Engine Protocol (PCEP).";
+  }
+  identity protocol-origin-bgp {
+    base protocol-origin-type;
+    description
+      "Protocol origin is BGP";
+  }
+
   typedef tunnel-ref {
     type leafref {
       path "/te:te/te:tunnels/te:tunnel/te:name";
@@ -1116,6 +1136,20 @@ module ietf-te {
       type te-types:te-node-id;
       description
         "TE tunnel destination node identifier.";
+    }
+    container controller {
+      description
+        "Contains tunnel data relevant to external controller(s).
+         This target node may be augmented by external module(s),
+         for example, to add data for PCEP initiated and/or
+         delegated tunnels.";
+      leaf protocol-origin {
+        type identityref {
+          base protocol-origin-type;
+        }
+        description
+          "The protocol origin for instantiating the tunnel."; 
+      }
     }
     leaf src-tunnel-tp-id {
       type binary;
