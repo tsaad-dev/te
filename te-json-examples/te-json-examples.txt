@@ -1,0 +1,140 @@
+
+
+Appendix A Examples
+
+A.1 This section contains examples of use use of the model with Restconf and JSON encoding. 
+
+For the example we will use a 4 nodes MPLS network were RSVP-TE tunnels can be setup. The
+loopbacks of each router are shown. The router network in 
+figure X will be used across the section
+
+
+ 10.0.0.1         10.0.0.2      10.0.0.4
+ +-----+         +------+      +------+
+ |     |         |      |      |      |
+ |  A  +---------+  B   +------+  D   |
+ +--+--+         +------+      +--+---+
+    |                             |
+    |            +-------+        |
+    |            |       |        |
+    +------------+   C   +--------+
+                 |       |
+                 +-------+
+                 10.0.0.3
+
+
+A.2 Basic TE-Tunnel Creation
+
+
+In the following example a RSVP-TE signaled Tunnel with no restrictions and with no protection/restoration is requested.
+A tunnel is requested from router A to router D. In the example, there is no need to provide information about
+primary paths
+
+POST /restconf/data/ietf-te:te/tunnels HTTP/1.1
+    Host: example.com
+    Accept: application/yang-data+json
+ 
+{
+  "ietf-te:tunnel": [
+    {
+      "name": "Example_LSP_Tunnel",
+      "encoding": "te-types:lsp-encoding-packet",
+      "admin-state": "te-types:tunnel-state-up",
+      "source": "10.0.0.1",
+      "destination": "10.0.0.2",
+      "bidirectional": "false",
+      "signaling-type": "te-types:path-setup-rsvp"
+    }
+  ]
+}
+
+A.3 Create Global Constraint Policy: Path constraint 
+
+In the following example a the creation of a Named Path Constratint policy is requested. This
+NPC can be used later in furhter requests. In the example an NCP with 3 maximum hops is 
+created.
+
+
+POST /restconf/data/ietf-te:te/globals/named-path-constraints HTTP/1.1
+    Host: example.com
+    Accept: application/yang-data+json
+
+{
+  "ietf-te:named-path-constraint": {
+          "name": "max-hop-3",
+          "path-metric-bounds": {
+            "path-metric-bound": {
+              "metric-type": "te-types:path-metric-hop",
+              "upper-bound": "3"
+    }
+   }
+  }
+}
+
+A.4 Create tunnel with a constraint
+
+A.4.1 Create tunnel with a constraint using a NCP
+
+In the following example a RSVP-TE signaled Tunnel using a named path-constraint.
+We will reuse the NPC defined in the previous step.
+
+
+
+POST /restconf/data/ietf-te:te/tunnels HTTP/1.1
+    Host: example.com
+    Accept: application/yang-data+json
+
+{
+  "ietf-te:ietf-tunnel": [
+    {
+      "name": "Simple_LSP",
+      "encoding": "te-types:lsp-encoding-packet",
+      "description": "Simple_LSP_with_named_path",
+      "admin-state": "te-types:tunnel-state-up",
+      "source": "10.0.0.1",
+      "destination": "10.0.0.2",
+      "signaling-type": "path-setup-rsvp",
+      "bidirectional": "false",
+      "p2p-primary-paths": [
+        {
+          "p2p-primary-path": {
+            "name": "Simple_LSP_1",
+            "use-path-computation": "True",
+            "named-path-constraint": "path-metric-delay-minimum"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+A.4.1 Create tunnel with indicating the constraint
+In the following example a RSVP-TE signaled Tunnel in which the 
+constraint is explicetly indicated. 
+{
+  "ietf-te:tunnel": [
+    {
+      "name": "Simple_LSP",
+      "encoding": "te-types:lsp-encoding-packet",
+      "provisioning-state": "te-types:tunnel-state-up",
+      "source": "10.0.0.1",
+      "destination": "10.0.0.2",
+      "bidirectional": "false",
+      "signaling-type": "te-types:path-setup-rsvp",
+      "p2p-primary-paths": {
+        "p2p-primary-path": [
+          {
+            "name": "path1",
+            "path-metric-bounds": {
+              "path-metric-bound": {
+                "metric-type": "te-types:path-metric-delay-average",
+                "upper-bound": "3"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+
