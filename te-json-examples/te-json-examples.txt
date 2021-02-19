@@ -33,15 +33,16 @@ primary paths
 POST /restconf/data/ietf-te:te/tunnels HTTP/1.1
     Host: example.com
     Accept: application/yang-data+json
+    Content-Type: application/yang-data+json
  
 {
   "ietf-te:tunnel": [
     {
-      "name": "Example_LSP_Tunnel",
+      "name": "Example_LSP_Tunnel_A_2",
       "encoding": "te-types:lsp-encoding-packet",
       "admin-state": "te-types:tunnel-state-up",
       "source": "10.0.0.1",
-      "destination": "10.0.0.2",
+      "destination": "10.0.0.4",
       "bidirectional": "false",
       "signaling-type": "te-types:path-setup-rsvp"
     }
@@ -58,6 +59,7 @@ created.
 POST /restconf/data/ietf-te:te/globals/named-path-constraints HTTP/1.1
     Host: example.com
     Accept: application/yang-data+json
+    Content-Type: application/yang-data+json
 
 {
   "ietf-te:named-path-constraint": {
@@ -83,16 +85,17 @@ We will reuse the NPC defined in the previous step.
 POST /restconf/data/ietf-te:te/tunnels HTTP/1.1
     Host: example.com
     Accept: application/yang-data+json
+    Content-Type: application/yang-data+json
 
 {
   "ietf-te:ietf-tunnel": [
     {
-      "name": "Simple_LSP",
+      "name": "Example_LSP_Tunnel_A_4_1",
       "encoding": "te-types:lsp-encoding-packet",
       "description": "Simple_LSP_with_named_path",
       "admin-state": "te-types:tunnel-state-up",
       "source": "10.0.0.1",
-      "destination": "10.0.0.2",
+      "destination": "10.0.0.4",
       "signaling-type": "path-setup-rsvp",
       "bidirectional": "false",
       "p2p-primary-paths": [
@@ -111,14 +114,20 @@ POST /restconf/data/ietf-te:te/tunnels HTTP/1.1
 A.4.1 Create tunnel with indicating the constraint
 In the following example a RSVP-TE signaled Tunnel in which the 
 constraint is explicetly indicated. 
+
+POST /restconf/data/ietf-te:te/tunnels HTTP/1.1
+    Host: example.com
+    Accept: application/yang-data+json
+    Content-Type: application/yang-data+json
+
 {
   "ietf-te:tunnel": [
     {
-      "name": "Simple_LSP",
+      "name": "Example_LSP_Tunnel_A_4_2",
       "encoding": "te-types:lsp-encoding-packet",
-      "provisioning-state": "te-types:tunnel-state-up",
+      "admin-state": "te-types:tunnel-state-up",
       "source": "10.0.0.1",
-      "destination": "10.0.0.2",
+      "destination": "10.0.0.4",
       "bidirectional": "false",
       "signaling-type": "te-types:path-setup-rsvp",
       "p2p-primary-paths": {
@@ -136,5 +145,51 @@ constraint is explicetly indicated.
       }
     }
   ]
+}
+
+A.5 Retrieve the information of a created tunnel
+The following example queries the information of the tunnel created in the previous step 
+GET  /restconf/data/ietf-te:te/tunnels/tunnel="Example_LSP_Tunnel_A_4_1"/p2p-primary-paths/ HTTP/1.1
+    Host: example.com
+    Accept: application/yang-data+json
+
+The request, with status code 200 would include, for example, the following json:
+
+{
+  "ietf-te:p2p-primary-paths": {
+    "p2p-primary-path": [
+      {
+        "name": "path1",
+        "path-computation-method": "te-types:path-locally-computed",
+        "lsps": {
+          "lsp": [
+            {
+              "tunnel-name": "Primary_LSP_for_Example_LSP_Tunnel_A_4_1",
+              "node": "10.0.0.1 ",
+              "lsp-id": "3442344",
+              "path-properties": {
+                "path-route-objects": {
+                  "path-route-object": [
+                    {
+                      "index": "1",
+                      "numbered-node-hop": {
+                        "node-id": "10.0.0.2"
+                      }
+                    },
+                    {
+                      "index": "2",
+                      "numbered-node-hop": {
+                        "node-id": "10.0.0.4"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
 }
 
