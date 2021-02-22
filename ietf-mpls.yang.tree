@@ -1,25 +1,25 @@
 
 module: ietf-mpls
   augment /rt:routing:
-    +--rw mpls {mpls}?
-       +--rw ttl-propagate?   boolean
-       +--rw label-blocks
-       |  +--rw label-block* [index]
+    +--rw mpls
+       +--rw ttl-propagate?       boolean
+       +--rw mpls-label-blocks
+       |  +--rw mpls-label-block* [index]
        |     +--rw index                    string
        |     +--rw start-label?             rt-types:mpls-label
        |     +--rw end-label?               rt-types:mpls-label
        |     +--rw block-allocation-mode?   identityref
-       |     +--ro free-labels-count?       yang:counter32
-       |     +--ro inuse-labels-count?      yang:counter32
-       +--rw interface* [name]
-          +--rw name                      if:interface-ref
-          +--rw enabled?                  boolean
-          +--rw maximum-labeled-packet?   uint32
+       |     +--ro inuse-labels-count?      yang:gauge32
+       +--rw interfaces
+          +--rw interface* [name]
+             +--rw name                      if:interface-ref
+             +--rw mpls-enabled?             boolean
+             +--rw maximum-labeled-packet?   uint32
   augment /rt:routing/rt:ribs/rt:rib/rt:routes/rt:route:
-    +--ro mpls-enabled?         boolean {mpls}?
-    +--ro local-label?          rt-types:mpls-label {mpls}?
-    +--ro destination-prefix?   -> ../local-label {mpls}?
-    +--ro route-context?        string {mpls}?
+    +--ro mpls-enabled?         boolean
+    +--ro mpls-local-label?     rt-types:mpls-label
+    +--ro destination-prefix?   -> ../mpls-local-label
+    +--ro route-context?        string
   augment /rt:routing/rt:ribs/rt:rib/rt:routes/rt:route/rt:next-hop
             /rt:next-hop-options/rt:simple-next-hop:
     +--ro mpls-label-stack
@@ -42,8 +42,8 @@ module: ietf-mpls
           +--ro ttl?             uint8
           +--ro traffic-class?   uint8
   augment /rt:routing/rt:ribs/rt:rib/rt:active-route/rt:input:
-    +---w destination-address?   -> ../local-label
-    +---w local-label?           rt-types:mpls-label
+    +---w destination-address?   -> ../mpls-local-label
+    +---w mpls-local-label?      rt-types:mpls-label
   augment /rt:routing/rt:ribs/rt:rib/rt:active-route/rt:output
             /rt:route/rt:next-hop/rt:next-hop-options
             /rt:simple-next-hop:
