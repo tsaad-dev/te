@@ -91,7 +91,7 @@ module ietf-rsvp-te {
   // RFC Ed.: update the date below with the date of RFC publication
   // and remove this note.
 
-  revision 2020-03-09 {
+  revision 2021-02-21 {
     description
       "A YANG Data Model for RSVP-TE";
     reference
@@ -343,26 +343,20 @@ module ietf-rsvp-te {
   grouping global-soft-preemption {
     description
       "Configuration for global RSVP-TE soft preemption";
-    leaf soft-preemption-timeout {
-      type uint16 {
-        range "0..300";
-      }
-      default "0";
-      units "seconds";
-      description
-        "Timeout value for soft preemption to revert
-         to hard preemption";
-    }
-  }
-
-  grouping global-soft-preemption {
-    description
-      "Top level group for RSVP-TE soft-preemption";
     container global-soft-preemption {
       presence "Enables soft preemption on a node.";
       description
         "Top level container for RSVP-TE soft-preemption";
-      uses global-soft-preemption;
+      leaf soft-preemption-timeout {
+        type uint16 {
+          range "0..300";
+        }
+        units "seconds";
+        default "0";
+        description
+          "Timeout value for soft preemption to revert
+           to hard preemption";
+      }
     }
   }
 
@@ -385,7 +379,7 @@ module ietf-rsvp-te {
   /* RSVP-TE global properties */
 
   augment "/rt:routing/rt:control-plane-protocols/"
-        + "rt:control-plane-protocol/rsvp:rsvp/rsvp:globals" {
+        + "rt:control-plane-protocol/rsvp:rsvp" {
     description
       "RSVP-TE augmentation to RSVP globals";
     uses global-soft-preemption;
@@ -414,7 +408,7 @@ module ietf-rsvp-te {
   /* add augmentation for sessions and neighbors */
 
   augment "/rt:routing/rt:control-plane-protocols/"
-        + "rt:control-plane-protocol/rsvp:rsvp/rsvp:globals/"
+        + "rt:control-plane-protocol/rsvp:rsvp/"
         + "rsvp:sessions" {
     description
       "RSVP-TE generic data augmentation pertaining to session";
@@ -438,12 +432,12 @@ module ietf-rsvp-te {
         description
           "XX";
       }
-      uses rsvp:session-attributes-state;
+      uses rsvp:session-attributes;
     }
   }
 
   augment "/rt:routing/rt:control-plane-protocols/"
-        + "rt:control-plane-protocol/rsvp:rsvp/rsvp:globals/"
+        + "rt:control-plane-protocol/rsvp:rsvp/"
         + "rsvp:sessions/session-te/psbs/psb" {
     description
       "RSVP-TE generic data augmentation pertaining to session";
@@ -489,7 +483,7 @@ module ietf-rsvp-te {
   }
 
   augment "/rt:routing/rt:control-plane-protocols/"
-        + "rt:control-plane-protocol/rsvp:rsvp/rsvp:globals/"
+        + "rt:control-plane-protocol/rsvp:rsvp/"
         + "rsvp:sessions/session-te/rsbs/rsb" {
     description
       "RSVP-TE generic data augmentation pertaining to session";
@@ -586,13 +580,19 @@ module ietf-rsvp-te {
     }
   }
 
-  grouping rsvp-te-lsp-properties {
+  augment "/te:te/te:lsps/te:lsp" {
+    when "/te:te/te:lsps/te:lsp"
+       + "/te:signaling-type = 'te-types:path-setup-rsvp'" {
+      description
+        "When the signaling protocol is RSVP-TE ";
+    }
     description
-      "RSVP-TE LSP properties grouping";
+      "RSVP-TE generic data augmentation pertaining to specific TE
+       LSP";
     leaf associated-rsvp-session {
       type leafref {
         path "/rt:routing/rt:control-plane-protocols/"
-           + "rt:control-plane-protocol/rsvp:rsvp/rsvp:globals/"
+           + "rt:control-plane-protocol/rsvp:rsvp/"
            + "rsvp:sessions/session-te/tunnel-id";
       }
       config false;
@@ -603,96 +603,9 @@ module ietf-rsvp-te {
          that details of the signaling can be retrieved.";
     }
     uses lsp-properties;
+    uses rsvp-te-lsp-error-info;
     uses lsp-explicit-route-information-state;
     uses lsp-record-route-information-state;
-  }
-
-  augment "/te:te/te:lsps/te:lsp" {
-    when "/te:te/te:lsps/te:lsp"
-       + "/te:signaling-type = 'te-types:path-setup-rsvp'" {
-      description
-        "When the signaling protocol is RSVP-TE ";
-    }
-    description
-      "RSVP-TE generic data augmentation pertaining to specific TE
-       LSP";
-    uses rsvp-te-lsp-properties;
-  }
-
-  augment "/te:te/te:tunnels/te:tunnel/te:primary-paths"
-        + "/te:primary-path/te:lsps/te:lsp" {
-    when "/te:te/te:tunnels/te:tunnel/te:primary-paths"
-       + "/te:primary-path/te:lsps/te:lsp"
-       + "/te:signaling-type = 'te-types:path-setup-rsvp'" {
-      description
-        "When the signaling protocol is RSVP-TE ";
-    }
-    description
-      "RSVP-TE generic data augmentation pertaining to specific TE
-       LSP";
-    uses rsvp-te-lsp-properties;
-  }
-
-  augment "/te:te/te:tunnels/te:tunnel/te:primary-paths"
-        + "/te:primary-path"
-        + "/te:lsp-provisioning-error-infos"
-        + "/te:lsp-provisioning-error-info" {
-    description
-      "Augmentation for RSVP-TE per LSP error reason";
-    uses rsvp-te-lsp-error-info;
-  }
-
-  augment "/te:te/te:tunnels/te:tunnel/te:primary-paths"
-        + "/te:primary-path/te:lsps/te:lsp"
-        + "/te:lsp-provisioning-error-infos"
-        + "/te:lsp-provisioning-error-info" {
-    when "/te:te/te:tunnels/te:tunnel/te:primary-paths"
-       + "/te:primary-path/te:lsps/te:lsp"
-       + "/te:signaling-type = 'te-types:path-setup-rsvp'" {
-      description
-        "When the signaling protocol is RSVP-TE ";
-    }
-    description
-      "Augmentation for RSVP-TE per path error reason";
-    uses rsvp-te-lsp-error-info;
-  }
-
-  augment "/te:te/te:tunnels/te:tunnel/te:secondary-paths"
-        + "/te:secondary-path/te:lsps/te:lsp" {
-    when "/te:te/te:tunnels/te:tunnel/te:secondary-paths"
-       + "/te:secondary-path/te:lsps/te:lsp"
-       + "/te:signaling-type = 'te-types:path-setup-rsvp'" {
-      description
-        "When the signaling protocol is RSVP-TE ";
-    }
-    description
-      "RSVP-TE generic data augmentation pertaining to specific TE
-       LSP";
-    uses rsvp-te-lsp-properties;
-  }
-
-  augment "/te:te/te:tunnels/te:tunnel/te:secondary-paths"
-        + "/te:secondary-path"
-        + "/te:lsp-provisioning-error-infos"
-        + "/te:lsp-provisioning-error-info" {
-    description
-      "Augmentation for RSVP-TE per path error reason";
-    uses rsvp-te-lsp-error-info;
-  }
-
-  augment "/te:te/te:tunnels/te:tunnel/te:secondary-paths"
-        + "/te:secondary-path/te:lsps/te:lsp"
-        + "/te:lsp-provisioning-error-infos"
-        + "/te:lsp-provisioning-error-info" {
-    when "/te:te/te:tunnels/te:tunnel/te:secondary-paths"
-       + "/te:secondary-path/te:lsps/te:lsp"
-       + "/te:signaling-type = 'te-types:path-setup-rsvp'" {
-      description
-        "When the signaling protocol is RSVP-TE ";
-    }
-    description
-      "Augmentation for RSVP-TE per LSP error reason";
-    uses rsvp-te-lsp-error-info;
   }
 
   /* TE interface augmentation */
