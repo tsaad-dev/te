@@ -18,7 +18,7 @@ author:
     org: Huawei
     email: italo.busi@huawei.com
   -
-    ins: Xufeng Liu
+    name: Xufeng Liu
     org: Volta Networks
     email: xufeng.liu.ietf@gmail.com
   -
@@ -27,6 +27,7 @@ author:
     email: i_bryskin@yahoo.com
   -
     name: Vishnu Pavan Beeram
+    ins: V. Beeram
     org: Juniper Networks
     email: vbeeram@juniper.net
   -
@@ -35,6 +36,7 @@ author:
     email: tsaad@juniper.net
   -
     name: Oscar Gonzalez de Dios
+    ins: O. Gonzalez de Dios
     org: Telefonica
     email: oscar.gonzalezdedios@telefonica.com
 
