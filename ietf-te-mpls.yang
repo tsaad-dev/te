@@ -25,6 +25,10 @@ module ietf-te-mpls {
                Common Traffic Engineering Types";
   }
 
+  import ietf-mpls-te-types {
+    prefix "mte-types";
+  }
+
   /* Import TE generic types */
   import ietf-te-types {
     prefix te-types;
@@ -95,7 +99,7 @@ module ietf-te-mpls {
   // RFC Ed.: update the date below with the date of RFC publication
   // and remove this note.
 
-  revision "2020-03-09" {
+  revision "2020-07-03" {
     description "Latest update to MPLS TE YANG module.";
     reference
       "RFCXXXX: A YANG Data Model for MPLS-TE Tunnels and LSP(s)";
@@ -119,6 +123,7 @@ module ietf-te-mpls {
   }
 
   /* MPLS TE tunnel properties*/
+
   grouping tunnel-igp-shortcut-config {
     description "TE tunnel IGP shortcut configs";
     leaf shortcut-eligible {
@@ -201,6 +206,7 @@ module ietf-te-mpls {
   }
 
   /*** End of MPLS TE tunnel configuration/state */
+
   grouping te-lsp-auto-bandwidth-config {
     description
       "Configuration parameters related to autobandwidth";
@@ -301,6 +307,7 @@ module ietf-te-mpls {
         events needed to trigger an underflow adjustment";
     }
   }
+
   grouping te-tunnel-bandwidth-config {
     description
       "Configuration parameters related to bandwidth for a tunnel";
@@ -334,16 +341,17 @@ module ietf-te-mpls {
 
   grouping te-tunnel-bandwidth-state {
     description
-      "Operational state parameters relating to bandwidth for a tunnel";
+      "Operational state parameters relating to bandwidth
+       for a tunnel";
 
     leaf signaled-bandwidth {
       type te-packet-types:bandwidth-kbps;
       description
-        "The currently signaled bandwidth of the LSP. In the case where
-        the bandwidth is specified explicitly, then this will match the
-        value of the set-bandwidth leaf; in cases where the bandwidth is
-        dynamically computed by the system, the current value of the
-        bandwidth should be reflected.";
+        "The currently signaled bandwidth of the LSP. In the case
+        where the bandwidth is specified explicitly, then this will
+        match the value of the set-bandwidth leaf; in cases where
+        the bandwidth is dynamically computed by the system, the
+        current value of the bandwidth should be reflected.";
     }
   }
 
@@ -414,13 +422,33 @@ module ietf-te-mpls {
     }
   }
 
-
+  grouping te-mpls-tunnel-attributes {
+    description
+      "MPLS-TE Tunnel attributes.";
+    
+    leaf load-balancing-type {
+      type mte-types:load-balancing-type;
+      default 'per-flow';
+      description
+        "Indicates the type of load-balancing (per-flow or per-LSP)
+         that could be performed by the bundled TE Links along the
+         path.";
+    }
+    leaf uhp-required {
+      type empty;
+      description
+        "Indicates whether Ultimate Hop Popping (UHP) is required
+         for the MPLS-TE LSP.";
+    }
+  }  // grouping te-mpls-path-constraints
 
   /**
    * MPLS TE augmentations
    */
+
   augment "/te:te/te-dev:performance-thresholds" {
-    uses te-packet-types:performance-metrics-throttle-container-packet;
+    uses "te-packet-types:performance-metrics-throttle-" +
+         "container-packet";
     description
       "Performance parameters configurable thresholds";
   }
@@ -434,7 +462,11 @@ module ietf-te-mpls {
     uses tunnel-igp-shortcuts;
     uses tunnel-forwarding-adjacency;
     uses tunnel-bandwidth_top;
+    uses te-mpls-tunnel-attributes;
   }
+
+  /* MPLS TE path augmentations */
+
 
   /* MPLS TE LSPs augmentations */
   augment "/te:te/te:tunnels/te:tunnel/" +
@@ -479,5 +511,59 @@ module ietf-te-mpls {
       "MPLS TE generic data augmentation pertaining to specific TE
        LSP";
     uses te-packet-types:performance-metrics-attributes-packet;
+  }
+
+  /*
+   * Augment TE label.
+   */
+
+  augment "/te:te/te:tunnels/te:tunnel/"
+        + "te:primary-paths/te:primary-path/"
+        + "te:computed-paths-properties/"
+        + "te:computed-path-properties/"
+        + "te:path-properties/te:path-route-objects/"
+        + "te:path-route-object/te:type/te:label/"
+        + "te:label-hop/te:te-label/te:technology" {
+    description "MPLS-TE label.";
+    case mpls {
+      uses mte-types:te-mpls-label-hop;
+    }
+  }
+  
+  augment "/te:te/te:tunnels/te:tunnel/"
+        + "te:primary-paths/te:primary-path/"
+        + "te:lsps/te:lsp/"
+        + "te:path-properties/te:path-route-objects/"
+        + "te:path-route-object/te:type/te:label/"
+        + "te:label-hop/te:te-label/te:technology" {
+    description "MPLS-TE label.";
+    case mpls {
+      uses mte-types:te-mpls-label-hop;
+    }
+  }
+  
+  augment "/te:te/te:tunnels/te:tunnel/"
+        + "te:secondary-paths/te:secondary-path/"
+        + "te:computed-paths-properties/"
+        + "te:computed-path-properties/"
+        + "te:path-properties/te:path-route-objects/"
+        + "te:path-route-object/te:type/te:label/"
+        + "te:label-hop/te:te-label/te:technology" {
+    description "MPLS-TE label.";
+    case mpls {
+      uses mte-types:te-mpls-label-hop;
+    }
+  }
+  
+  augment "/te:te/te:tunnels/te:tunnel/"
+        + "te:secondary-paths/te:secondary-path/"
+        + "te:lsps/te:lsp/"
+        + "te:path-properties/te:path-route-objects/"
+        + "te:path-route-object/te:type/te:label/"
+        + "te:label-hop/te:te-label/te:technology" {
+    description "MPLS-TE label.";
+    case mpls {
+      uses mte-types:te-mpls-label-hop;
+    }
   }
 }
