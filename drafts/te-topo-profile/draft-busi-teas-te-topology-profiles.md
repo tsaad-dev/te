@@ -153,24 +153,24 @@ contributor:
    The {{?I-D.ietf-ccamp-otn-topo-yang}} provides another example, where:
 
 -  the client-svc container is defined to represent the capabilities
-      of the TP to be configured as an transparent client UNI (e.g.,
-      STM-N, Fiber Channel or transparent Ethernet);
+   of the TP to be configured as an transparent client UNI (e.g.,
+   STM-N, Fiber Channel or transparent Ethernet);
 
 -  the OTN technology-specific Link Termination Point (LTP)
-      augmentations are defined to represent the capabilities of the TP
-      to be configured as an OTN UNI, together with the information
-      about OTN label and bandwidth availability at the OTN UNI.
+   augmentations are defined to represent the capabilities of the TP
+   to be configured as an OTN UNI, together with the information
+   about OTN label and bandwidth availability at the OTN UNI.
 
    For example, the UNI TE Topology profile can be used to model
    features defined in {{?I-D.ogondio-opsawg-uni-topology}}:
 
 -  The inter-domain-plug-id attribute would provide the same
-      information as the attachment-id attribute defined in
-      {{?I-D.ogondio-opsawg-uni-topology}};
+   information as the attachment-id attribute defined in
+   {{?I-D.ogondio-opsawg-uni-topology}};
 
 -  The admin-status and oper-status that exists in this TE topology
-      profile can provide the same information as the admin-status and
-      oper-status attributes defined in {{?I-D.ogondio-opsawg-uni-topology}}.
+   profile can provide the same information as the admin-status and
+   oper-status attributes defined in {{?I-D.ogondio-opsawg-uni-topology}}.
 
    Following the same approach in {{?I-D.ietf-ccamp-eth-client-te-topo-yang}}
    and {{?I-D.ietf-ccamp-otn-topo-yang}}, the type
@@ -182,12 +182,12 @@ contributor:
    solutions for:
 
 -  discovering UNIs as well as inter-domain NNI links, which is
-      applicable to any technology (TE or non TE) used at the UNI or
-      within the network;
+   applicable to any technology (TE or non TE) used at the UNI or
+   within the network;
 
 -  modelling non TE UNIs such as Ethernet, and TE UNIs such as OTN,
-      as well as UNIs which can configured as TE or non-TE (e.g., being
-      configured as either Ethernet or OTN UNI).
+   as well as UNIs which can configured as TE or non-TE (e.g., being
+   configured as either Ethernet or OTN UNI).
 
 {: #admin-oper-state}
 
@@ -501,7 +501,7 @@ contributor:
 {: #double-augment-fig title="Augmenting both the Network and TE Topology Models"}
 
    This option does not provide any technical advantage with respect to
-   the first option, shown in Figure 6, but could be useful to add
+   the first option, shown in {{te-augment-fig}}, but could be useful to add
    augmentations to the TE Topology constructs and to re-use an already
    existing technology-specific Network Topology Model.
 
@@ -509,6 +509,53 @@ contributor:
    reference constructs defined by the technology-specific Network
    Topology model but it could not augment constructs defined by the
    technology-specific Network Topology model.
+
+{: #multi-inheritance}
+
+## Multi-inheritance
+
+As described in section 4.1 of {{RFC8345}}, the network types should be defined
+using presence containers to allow the representation of network subtypes.
+
+The hierachy of netwok subtypes can be single hierarchy, as shown in {{te-augment-fig}}.
+In this case, each presence container contains at most one child presence container,
+as shows in the JSON code below:
+
+~~~~
+{
+  "ietf-network:ietf-network": {
+    "ietf-te-topology:te-topology": {
+      "example-te-topology": {}
+    }
+  }
+}
+~~~~
+
+The hierachy of netwok subtypes can also be multi-hierarchy, as shown in {{multi-inheritance-fig}} and {{double-augment-fig}}.
+In this case, one presence container can contain more than one child presence containers, as show in the JSON codes below:
+
+~~~~
+{
+  "ietf-network:ietf-network": {
+    "ietf-te-topology:te-topology": {}
+    "example-network-topology": {}
+  }
+}
+~~~~
+
+~~~~
+{
+  "ietf-network:ietf-network": {
+    "ietf-te-topology:te-topology": {
+      "example-te-topology": {}
+    }
+    "example-network-topology": {}
+  }
+}
+~~~~
+
+Other examples of multi-hierarchy topologies are described in
+{{?I-D.ietf-teas-yang-sr-te-topo}}.
 
 {: #example-link}
 
@@ -558,6 +605,22 @@ contributor:
    max-link-bandwidth can only be defined in the technology-specific TE
    Topology Model (Option 1 or Option 3). These attributes can be TE or
    non-TE and require the implementation of the te container.
+
+{: #implement}
+
+# Implemented profiles
+
+When a server implements a profile of the TE topology model, it is not clear how the server
+can report to the client the subset of the model being implemented.
+
+It is also worth noting that the supported profile may also depend on other attributes
+(for example the network type).
+
+In case the TE topology profile is reported by the server to the client, the server will report
+in the operational datastore only the leaves which have been implemented, as described
+in section 5.3 of {{!RFC8342}}.
+
+More investigation is required in case the TE topology profile is configured by the client.
 
 {: #security}
 
