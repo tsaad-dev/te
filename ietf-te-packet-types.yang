@@ -51,6 +51,18 @@ module ietf-te-packet-types {
      This version of this YANG module is part of RFC 8776; see the
      RFC itself for full legal notices.";
 
+  revision 2021-07-11 {
+    description
+      "Added common TE packet identities:
+      - bandwidth-profile-type.
+
+      Added common TE packet groupings:
+      - te-packet-path-bandwidth;
+      - te-packet-link-bandwidth.";
+    reference
+      "draft-busizheng-teas-yang-te-mpls-topology";
+  }
+
   revision 2020-06-10 {
     description
       "Latest revision of TE MPLS types.";
@@ -58,7 +70,40 @@ module ietf-te-packet-types {
       "RFC 8776: Common YANG Data Types for Traffic Engineering";
   }
 
-  /**
+  /*
+   * Identities
+   */
+
+  identity bandwidth-profile-type {
+    description
+      "Bandwidth Profile Types";
+  }
+
+  identity mef-10-bwp {
+    base bandwidth-profile-type;
+    description
+      "MEF 10 Bandwidth Profile";
+  }
+
+  identity rfc-2697-bwp {
+    base bandwidth-profile-type;
+    description
+      "RFC 2697 Bandwidth Profile";
+  }
+
+  identity rfc-2698-bwp {
+    base bandwidth-profile-type;
+    description
+      "RFC 2698 Bandwidth Profile";
+  }
+
+  identity rfc-4115-bwp {
+    base bandwidth-profile-type;
+    description
+      "RFC 4115 Bandwidth Profile";
+  }
+
+  /*
    * Typedefs
    */
 
@@ -177,6 +222,10 @@ module ietf-te-packet-types {
        Constraints Model for Diffserv-aware MPLS Traffic Engineering
        & Performance Comparisons";
   }
+
+  /*
+   * Groupings
+   */
 
   grouping performance-metrics-attributes-packet {
     description
@@ -470,6 +519,69 @@ module ietf-te-packet-types {
           "PM accelerated advertisement packet augmentation for a
            generic grouping.";
       }
+    }
+  }
+
+  grouping te-packet-path-bandwidth {
+    description
+      "Path bandwidth for Packet. ";
+    leaf bandwidth-profile-name{
+      type string;
+      description "Name of Bandwidth Profile.";
+    }
+    leaf bandwidth-profile-type {
+      type identityref {
+        base bandwidth-profile-type;
+      }
+      description "Type of Bandwidth Profile.";
+    }
+
+    leaf CIR {
+      type uint64;
+        description
+          "Committed Information Rate in Kbps";
+    }
+
+    leaf EIR {
+      type uint64;
+      /*
+        Need to indicate that EIR is not supported by RFC 2697
+
+        must
+            '../bw-profile-type = "etht-types:mef-10-bwp" or ' +
+            '../bw-profile-type = "etht-types:rfc-2698-bwp" or ' +
+            '../bw-profile-type = "etht-types:rfc-4115-bwp"'
+
+        must
+            '../bw-profile-type != "etht-types:rfc-2697-bwp"'
+      */
+      description
+        "Excess Information Rate in Kbps
+        In case of RFC 2698, PIR = CIR + EIR";
+    }
+
+    leaf CBS {
+      type uint64;
+      description
+        "Committed Burst Size in in KBytes";
+    }
+
+    leaf EBS {
+      type uint64;
+      description
+        "Excess Burst Size in KBytes.
+          In case of RFC 2698, PBS = CBS + EBS";
+    }
+  }
+
+  grouping te-packet-link-bandwidth {
+    description
+      "Link Bandwidth for Packet. ";
+    leaf packet-bandwidth {
+      type te-packet-types:bandwidth-kbps;
+      description
+        "Available bandwith value expressed in kilobits per
+         second";
     }
   }
 }
