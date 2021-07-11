@@ -16,11 +16,11 @@ pi: [toc, sortrefs, symrefs, comments]
 author:
   -
     name: Italo Busi
-    org: Huawei
+    org: Huawei Technologies
     email: italo.busi@huawei.com
   -
     name: Haomian Zheng
-    org: Huawei
+    org: Huawei Technologies
     email: zhenghaomian@huawei.com
   -
     name: Aihua Guo
@@ -261,6 +261,7 @@ Note: TE Bandwidth Augmentations for paths, LSPs and links are provided by the i
 
   In order to allow reporting that ECMP is not affecting forwarding the
   packets of a given LSP, the load-balancing-type attribute reports
+  whether a LAG or TE Bundled Link performs load-balancing on a
   per-flow or per-top-label:
 
 ~~~~
