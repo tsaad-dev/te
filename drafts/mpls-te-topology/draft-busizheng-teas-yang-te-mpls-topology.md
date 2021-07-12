@@ -227,7 +227,7 @@ Note: TE Bandwidth Augmentations for paths, LSPs and links are provided by the i
 # YANG model for common MPLS-TE Types
 
 ~~~~
-<CODE BEGINS>file "ietf-mpls-te-types@2021-07-11.yang"
+<CODE BEGINS>file "ietf-mpls-te-types@2021-07-12.yang"
 {::include ../../ietf-mpls-te-types.yang}
 <CODE ENDS>
 ~~~~
@@ -254,7 +254,7 @@ Note: TE Bandwidth Augmentations for paths, LSPs and links are provided by the i
 ## YANG Code
 
 ~~~~
-<CODE BEGINS>file "ietf-te-mpls-topology@2021-07-11.yang"
+<CODE BEGINS>file "ietf-te-mpls-topology@2021-07-12.yang"
 {::include ../../ietf-te-mpls-topology.yang}
 <CODE ENDS>
 ~~~~
