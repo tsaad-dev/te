@@ -8,7 +8,6 @@ docname: draft-busizheng-teas-yang-te-mpls-topology-01
 workgroup: TEAS Working Group
 category: std
 ipr: trust200902
-updates: 8776
 
 stand_alone: yes
 pi: [toc, sortrefs, symrefs, comments]
@@ -81,74 +80,10 @@ author:
 | rt-types      | ietf-routing-types      | {{!RFC8294}}
 | tet           | ietf-te-topology        | {{!RFC8795}}
 | tet-pkt       | ietf-te-topology-packet | {{!I-D.ietf-teas-yang-l3-te-topo}}
-| te-packet-types | ietf-te-packet-types  | This document
+| te-packet-types | ietf-te-packet-types  | {{!I-D.ietf-teas-yang-l3-te-topo}}
 | mte-types     | ietf-mpls-te-types      | This document
 | tet-mpls      | ietf-te-mpls-topology   | This document
 {: #tab-prefixes title="Prefixes and corresponding YANG modules"}
-
-{: #pkt-te-types}
-
-# Packet TE Types Overview
-
-  This document updates {{!RFC8776}} with a new revision of
-  the module ietf-te-packet-types.
-
-  The module ietf-te-packet-types has been updated to add the following YANG identies,
-  types and groupings which can be
-  reused by MPLS-TE and other packet technologies YANG models:
-
-  bandwidth-profile-type
-
-  : This identity defines various bandwidth profiles specified by IETF
-  and other organizations that may be used to limit bandwidth
-  utilization of MPLS-TE LSPs.
-
-  bandwidth-scientific-notation
-
-  : This types represents the bandwidth in bit-per-second, using the
-  scientific notation (e.g., 10e3).
-
-  te-packet-path-bandwidth
-
-  : This grouping defines the path bandwidth information and could be
-  used in any Packet TE topology model (e.g., MPLS-TE)
-  for the path bandwidth representation (e.g., the bandwidth of an MPLS-TE LSP).
-  All the path and LSP bandwidth related sections in generic
-  module, {{!RFC8776}}, need to be augmented with this grouping for the
-  usage of Packet TE technologies.
-  This grouping is also applicable to set up the MPLS-TE tunnel.
-
-  : The Packet TE path bandwidth can be represented by a bandwidth profile as follow:
-
-~~~~
-      +--:(packet)
-        +--rw bandwidth-profile-name?   string
-        +--rw bandwidth-profile-type?   identityref
-        +--rw CIR?                      uint64
-        +--rw EIR?                      uint64
-        +--rw CBS?                      uint64
-        +--rw EBS?                      uint64
-~~~~
-
-  Other formats for the MPLS-TE path bandwidth are defined in
-  {{?I-D.ietf-teas-yang-te-mpls}} and they could be added in a future update
-  of this document.
-
-  te-packet-link-bandwidth
-
-  : This grouping defines the link bandwidth information and could be
-  used in any Packet TE topology model (e.g., MPLS-TE)
-  for link bandwidth representation.
-  All the link bandwidth related sections in generic module, {{!RFC8776}},
-  need to be augmented with this grouping for the usage of Packet TE technologies.
-
-  : The Packet TE link bandwidth can be represented by a bandwidth expressed in
-  scientific notation as follow:
-
-~~~~
-      +--:(packet)
-        +--rw packet-bandwidth?   bandwidth-scientific-notation
-~~~~
 
 {: #mpls-te-types-overview}
 
@@ -288,17 +223,6 @@ Note: TE Bandwidth Augmentations for paths, LSPs and links are provided by the i
   destination node are selected by path computation.
 
 {: #pck-te-types-yang}
-
-# YANG model for common Packet TE Types
-
-~~~~
-<CODE BEGINS>file "ietf-te-packet-types@2021-07-11.yang"
-{::include ../../ietf-te-packet-types.yang}
-<CODE ENDS>
-~~~~
-{: #fig-pck-te-types-yang title="Packet TE Types YANG model"}
-
-{: #mpls-te-types-yang}
 
 # YANG model for common MPLS-TE Types
 

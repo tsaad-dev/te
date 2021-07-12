@@ -10,7 +10,7 @@
 <?rfc symrefs="yes"?>
 <?rfc comments="yes"?>
 
-<rfc ipr="trust200902" docName="draft-busizheng-teas-yang-te-mpls-topology-01" category="std" updates="8776">
+<rfc ipr="trust200902" docName="draft-busizheng-teas-yang-te-mpls-topology-01" category="std">
 
   <front>
     <title abbrev="MPLS-TE Topology YANG Model">A YANG Data Model for MPLS-TE Topology</title>
@@ -40,7 +40,7 @@
       </address>
     </author>
 
-    <date year="2021" month="July" day="11"/>
+    <date year="2021" month="July" day="12"/>
 
     
     <workgroup>TEAS Working Group</workgroup>
@@ -107,7 +107,7 @@
       <c><xref target="I-D.ietf-teas-yang-l3-te-topo"/></c>
       <c>te-packet-types</c>
       <c>ietf-te-packet-types</c>
-      <c>This document</c>
+      <c><xref target="I-D.ietf-teas-yang-l3-te-topo"/></c>
       <c>mte-types</c>
       <c>ietf-mpls-te-types</c>
       <c>This document</c>
@@ -117,65 +117,6 @@
 </texttable>
 
 </section>
-</section>
-<section anchor="pkt-te-types" title="Packet TE Types Overview">
-
-<t>This document updates <xref target="RFC8776"/> with a new revision of
-  the module ietf-te-packet-types.</t>
-
-<t>The module ietf-te-packet-types has been updated to add the following YANG identies,
-  types and groupings which can be
-  reused by MPLS-TE and other packet technologies YANG models:</t>
-
-<t><list style="hanging">
-  <t hangText="bandwidth-profile-type">
-  This identity defines various bandwidth profiles specified by IETF
-  and other organizations that may be used to limit bandwidth
-  utilization of MPLS-TE LSPs.</t>
-  <t hangText="bandwidth-scientific-notation">
-  This types represents the bandwidth in bit-per-second, using the
-  scientific notation (e.g., 10e3).</t>
-  <t hangText="te-packet-path-bandwidth">
-  This grouping defines the path bandwidth information and could be
-  used in any Packet TE topology model (e.g., MPLS-TE)
-  for the path bandwidth representation (e.g., the bandwidth of an MPLS-TE LSP).
-  All the path and LSP bandwidth related sections in generic
-  module, <xref target="RFC8776"/>, need to be augmented with this grouping for the
-  usage of Packet TE technologies.
-  This grouping is also applicable to set up the MPLS-TE tunnel.</t>
-  <t>The Packet TE path bandwidth can be represented by a bandwidth profile as follow:</t>
-</list></t>
-
-<figure><artwork><![CDATA[
-      +--:(packet)
-        +--rw bandwidth-profile-name?   string
-        +--rw bandwidth-profile-type?   identityref
-        +--rw CIR?                      uint64
-        +--rw EIR?                      uint64
-        +--rw CBS?                      uint64
-        +--rw EBS?                      uint64
-]]></artwork></figure>
-
-<t>Other formats for the MPLS-TE path bandwidth are defined in
-  <xref target="I-D.ietf-teas-yang-te-mpls"/> and they could be added in a future update
-  of this document.</t>
-
-<t><list style="hanging">
-  <t hangText="te-packet-link-bandwidth">
-  This grouping defines the link bandwidth information and could be
-  used in any Packet TE topology model (e.g., MPLS-TE)
-  for link bandwidth representation.
-  All the link bandwidth related sections in generic module, <xref target="RFC8776"/>,
-  need to be augmented with this grouping for the usage of Packet TE technologies.</t>
-  <t>The Packet TE link bandwidth can be represented by a bandwidth expressed in
-  scientific notation as follow:</t>
-</list></t>
-
-<figure><artwork><![CDATA[
-      +--:(packet)
-        +--rw packet-bandwidth?   bandwidth-scientific-notation
-]]></artwork></figure>
-
 </section>
 <section anchor="mpls-te-types-overview" title="MPLS-TE Types Overview">
 
@@ -312,613 +253,7 @@ Topology, as follow:</t>
 
 </section>
 </section>
-<section anchor="pck-te-types-yang" title="YANG model for common Packet TE Types">
-
-<figure title="Packet TE Types YANG model" anchor="fig-pck-te-types-yang"><artwork><![CDATA[
-<CODE BEGINS>file "ietf-te-packet-types@2021-07-11.yang"
-module ietf-te-packet-types {
-  yang-version 1.1;
-  namespace "urn:ietf:params:xml:ns:yang:ietf-te-packet-types";
-  prefix te-packet-types;
-
-  /* Import TE generic types */
-
-  import ietf-te-types {
-    prefix te-types;
-    reference
-      "RFC 8776: Common YANG Data Types for Traffic Engineering";
-  }
-
-  organization
-    "IETF Traffic Engineering Architecture and Signaling (TEAS)
-     Working Group";
-  contact
-    "WG Web:   <https://datatracker.ietf.org/wg/teas/>
-     WG List:  <mailto:teas@ietf.org>
-
-     Editor:   Tarek Saad
-               <mailto:tsaad@juniper.net>
-
-     Editor:   Rakesh Gandhi
-               <mailto:rgandhi@cisco.com>
-
-     Editor:   Vishnu Pavan Beeram
-               <mailto:vbeeram@juniper.net>
-
-     Editor:   Xufeng Liu
-               <mailto:xufeng.liu.ietf@gmail.com>
-
-     Editor:   Igor Bryskin
-               <mailto:i_bryskin@yahoo.com>";
-  description
-    "This YANG module contains a collection of generally useful YANG
-     data type definitions specific to MPLS TE.  The model fully
-     conforms to the Network Management Datastore Architecture
-     (NMDA).
-
-     Copyright (c) 2020 IETF Trust and the persons identified as
-     authors of the code.  All rights reserved.
-
-     Redistribution and use in source and binary forms, with or
-     without modification, is permitted pursuant to, and subject to
-     the license terms contained in, the Simplified BSD License set
-     forth in Section 4.c of the IETF Trust's Legal Provisions
-     Relating to IETF Documents
-     (https://trustee.ietf.org/license-info).
-
-     This version of this YANG module is part of RFC 8776; see the
-     RFC itself for full legal notices.";
-
-  revision 2021-07-11 {
-    description
-      "Added common TE packet identities:
-      - bandwidth-profile-type.
-
-      Added common TE packet types:
-      - bandwidth-scientific-notation.
-
-      Added common TE packet groupings:
-      - te-packet-path-bandwidth;
-      - te-packet-link-bandwidth.";
-    reference
-      "draft-busizheng-teas-yang-te-mpls-topology";
-  }
-
-  revision 2020-06-10 {
-    description
-      "Latest revision of TE MPLS types.";
-    reference
-      "RFC 8776: Common YANG Data Types for Traffic Engineering";
-  }
-
-  /*
-   * Identities
-   */
-
-  identity bandwidth-profile-type {
-    description
-      "Bandwidth Profile Types";
-  }
-
-  identity mef-10-bwp {
-    base bandwidth-profile-type;
-    description
-      "MEF 10 Bandwidth Profile";
-  }
-
-  identity rfc-2697-bwp {
-    base bandwidth-profile-type;
-    description
-      "RFC 2697 Bandwidth Profile";
-  }
-
-  identity rfc-2698-bwp {
-    base bandwidth-profile-type;
-    description
-      "RFC 2698 Bandwidth Profile";
-  }
-
-  identity rfc-4115-bwp {
-    base bandwidth-profile-type;
-    description
-      "RFC 4115 Bandwidth Profile";
-  }
-
-  /*
-   * Typedefs
-   */
-
-  typedef te-bandwidth-requested-type {
-    type enumeration {
-      enum specified {
-        description
-          "Bandwidth is explicitly specified.";
-      }
-      enum auto {
-        description
-          "Bandwidth is automatically computed.";
-      }
-    }
-    description
-      "Enumerated type for specifying whether bandwidth is
-       explicitly specified or automatically computed.";
-  }
-
-  typedef te-class-type {
-    type uint8;
-    description
-      "Diffserv-TE Class-Type.  Defines a set of Traffic Trunks
-       crossing a link that is governed by a specific set of
-       bandwidth constraints.  Class-Type is used for the purposes
-       of link bandwidth allocation, constraint-based routing, and
-       admission control.";
-    reference
-      "RFC 4124: Protocol Extensions for Support of Diffserv-aware
-       MPLS Traffic Engineering";
-  }
-
-  typedef bc-type {
-    type uint8 {
-      range "0..7";
-    }
-    description
-      "Diffserv-TE bandwidth constraints as defined in RFC 4124.";
-    reference
-      "RFC 4124: Protocol Extensions for Support of Diffserv-aware
-       MPLS Traffic Engineering";
-  }
-
-  typedef bandwidth-kbps {
-    type uint64;
-    units "Kbps";
-    description
-      "Bandwidth values, expressed in kilobits per second.";
-  }
-
-  typedef bandwidth-mbps {
-    type uint64;
-    units "Mbps";
-    description
-      "Bandwidth values, expressed in megabits per second.";
-  }
-
-  typedef bandwidth-gbps {
-    type uint64;
-    units "Gbps";
-    description
-      "Bandwidth values, expressed in gigabits per second.";
-  }
-
-  typedef bandwidth-scientific-notation {
-    type string;
-    units "bps";
-    description
-      "Bandwidth values, expressed using the scientific notation
-      (e.g., 10e3) in bits per second.";
-  }
-
-  identity backup-protection-type {
-    description
-      "Base identity for the backup protection type.";
-  }
-
-  identity backup-protection-link {
-    base backup-protection-type;
-    description
-      "Backup provides link protection only.";
-  }
-
-  identity backup-protection-node-link {
-    base backup-protection-type;
-    description
-      "Backup offers node (preferred) or link protection.";
-  }
-
-  identity bc-model-type {
-    description
-      "Base identity for the Diffserv-TE Bandwidth Constraints
-       Model type.";
-    reference
-      "RFC 4124: Protocol Extensions for Support of Diffserv-aware
-       MPLS Traffic Engineering";
-  }
-
-  identity bc-model-rdm {
-    base bc-model-type;
-    description
-      "Russian Dolls Bandwidth Constraints Model type.";
-    reference
-      "RFC 4127: Russian Dolls Bandwidth Constraints Model for
-                 Diffserv-aware MPLS Traffic Engineering";
-  }
-
-  identity bc-model-mam {
-    base bc-model-type;
-    description
-      "Maximum Allocation Bandwidth Constraints Model type.";
-    reference
-      "RFC 4125: Maximum Allocation Bandwidth Constraints Model for
-                 Diffserv-aware MPLS Traffic Engineering";
-  }
-
-  identity bc-model-mar {
-    base bc-model-type;
-    description
-      "Maximum Allocation with Reservation Bandwidth Constraints
-       Model type.";
-    reference
-      "RFC 4126: Max Allocation with Reservation Bandwidth
-       Constraints Model for Diffserv-aware MPLS Traffic Engineering
-       & Performance Comparisons";
-  }
-
-  /*
-   * Groupings
-   */
-
-  grouping performance-metrics-attributes-packet {
-    description
-      "Contains PM attributes.";
-    uses te-types:performance-metrics-attributes {
-      augment "performance-metrics-one-way" {
-        leaf one-way-min-delay {
-          type uint32 {
-            range "0..16777215";
-          }
-          description
-            "One-way minimum delay or latency in microseconds.";
-        }
-        leaf one-way-min-delay-normality {
-          type te-types:performance-metrics-normality;
-          default "normal";
-          description
-            "One-way minimum delay or latency normality.";
-        }
-        leaf one-way-max-delay {
-          type uint32 {
-            range "0..16777215";
-          }
-          description
-            "One-way maximum delay or latency in microseconds.";
-        }
-        leaf one-way-max-delay-normality {
-          type te-types:performance-metrics-normality;
-          default "normal";
-          description
-            "One-way maximum delay or latency normality.";
-        }
-        leaf one-way-delay-variation {
-          type uint32 {
-            range "0..16777215";
-          }
-          description
-            "One-way delay variation in microseconds.";
-          reference
-            "RFC 5481: Packet Delay Variation Applicability
-             Statement, Section 4.2";
-        }
-        leaf one-way-delay-variation-normality {
-          type te-types:performance-metrics-normality;
-          default "normal";
-          description
-            "One-way delay variation normality.";
-          reference
-            "RFC 7471: OSPF Traffic Engineering (TE) Metric
-             Extensions
-             RFC 7823: Performance-Based Path Selection for
-             Explicitly Routed Label Switched Paths (LSPs) Using
-             TE Metric Extensions
-             RFC 8570: IS-IS Traffic Engineering (TE) Metric
-             Extensions";
-        }
-        leaf one-way-packet-loss {
-          type decimal64 {
-            fraction-digits 6;
-            range "0..50.331642";
-          }
-          description
-            "One-way packet loss as a percentage of the total traffic
-             sent over a configurable interval.  The finest precision
-             is 0.000003%, where the maximum is 50.331642%.";
-          reference
-            "RFC 8570: IS-IS Traffic Engineering (TE) Metric
-             Extensions, Section 4.4";
-        }
-        leaf one-way-packet-loss-normality {
-          type te-types:performance-metrics-normality;
-          default "normal";
-          description
-            "Packet loss normality.";
-          reference
-            "RFC 7471: OSPF Traffic Engineering (TE) Metric
-             Extensions
-             RFC 7823: Performance-Based Path Selection for
-             Explicitly Routed Label Switched Paths (LSPs) Using
-             TE Metric Extensions
-             RFC 8570: IS-IS Traffic Engineering (TE) Metric
-             Extensions";
-        }
-        description
-          "PM one-way packet-specific augmentation for a generic PM
-           grouping.";
-      }
-      augment "performance-metrics-two-way" {
-        leaf two-way-min-delay {
-          type uint32 {
-            range "0..16777215";
-          }
-          default "0";
-          description
-            "Two-way minimum delay or latency in microseconds.";
-        }
-        leaf two-way-min-delay-normality {
-          type te-types:performance-metrics-normality;
-          default "normal";
-          description
-            "Two-way minimum delay or latency normality.";
-          reference
-            "RFC 7471: OSPF Traffic Engineering (TE) Metric
-             Extensions
-             RFC 7823: Performance-Based Path Selection for
-             Explicitly Routed Label Switched Paths (LSPs) Using
-             TE Metric Extensions
-             RFC 8570: IS-IS Traffic Engineering (TE) Metric
-             Extensions";
-        }
-        leaf two-way-max-delay {
-          type uint32 {
-            range "0..16777215";
-          }
-          default "0";
-          description
-            "Two-way maximum delay or latency in microseconds.";
-        }
-        leaf two-way-max-delay-normality {
-          type te-types:performance-metrics-normality;
-          default "normal";
-          description
-            "Two-way maximum delay or latency normality.";
-          reference
-            "RFC 7471: OSPF Traffic Engineering (TE) Metric
-             Extensions
-             RFC 7823: Performance-Based Path Selection for
-             Explicitly Routed Label Switched Paths (LSPs) Using
-             TE Metric Extensions
-             RFC 8570: IS-IS Traffic Engineering (TE) Metric
-             Extensions";
-        }
-        leaf two-way-delay-variation {
-          type uint32 {
-            range "0..16777215";
-          }
-          default "0";
-          description
-            "Two-way delay variation in microseconds.";
-          reference
-            "RFC 5481: Packet Delay Variation Applicability
-             Statement, Section 4.2";
-        }
-        leaf two-way-delay-variation-normality {
-          type te-types:performance-metrics-normality;
-          default "normal";
-          description
-            "Two-way delay variation normality.";
-          reference
-            "RFC 7471: OSPF Traffic Engineering (TE) Metric
-             Extensions
-             RFC 7823: Performance-Based Path Selection for
-             Explicitly Routed Label Switched Paths (LSPs) Using
-             TE Metric Extensions
-             RFC 8570: IS-IS Traffic Engineering (TE) Metric
-             Extensions";
-        }
-        leaf two-way-packet-loss {
-          type decimal64 {
-            fraction-digits 6;
-            range "0..50.331642";
-          }
-          default "0";
-          description
-            "Two-way packet loss as a percentage of the total traffic
-             sent over a configurable interval.  The finest precision
-             is 0.000003%.";
-        }
-        leaf two-way-packet-loss-normality {
-          type te-types:performance-metrics-normality;
-          default "normal";
-          description
-            "Two-way packet loss normality.";
-        }
-        description
-          "PM two-way packet-specific augmentation for a generic PM
-           grouping.";
-        reference
-          "RFC 7471: OSPF Traffic Engineering (TE) Metric Extensions
-           RFC 7823: Performance-Based Path Selection for
-           Explicitly Routed Label Switched Paths (LSPs) Using
-           TE Metric Extensions
-           RFC 8570: IS-IS Traffic Engineering (TE) Metric
-           Extensions";
-      }
-    }
-  }
-
-  grouping one-way-performance-metrics-packet {
-    description
-      "One-way packet PM throttle grouping.";
-    leaf one-way-min-delay {
-      type uint32 {
-        range "0..16777215";
-      }
-      default "0";
-      description
-        "One-way minimum delay or latency in microseconds.";
-    }
-    leaf one-way-max-delay {
-      type uint32 {
-        range "0..16777215";
-      }
-      default "0";
-      description
-        "One-way maximum delay or latency in microseconds.";
-    }
-    leaf one-way-delay-variation {
-      type uint32 {
-        range "0..16777215";
-      }
-      default "0";
-      description
-        "One-way delay variation in microseconds.";
-    }
-    leaf one-way-packet-loss {
-      type decimal64 {
-        fraction-digits 6;
-        range "0..50.331642";
-      }
-      default "0";
-      description
-        "One-way packet loss as a percentage of the total traffic
-         sent over a configurable interval.  The finest precision is
-         0.000003%.";
-    }
-  }
-
-  grouping two-way-performance-metrics-packet {
-    description
-      "Two-way packet PM throttle grouping.";
-    leaf two-way-min-delay {
-      type uint32 {
-        range "0..16777215";
-      }
-      default "0";
-      description
-        "Two-way minimum delay or latency in microseconds.";
-    }
-    leaf two-way-max-delay {
-      type uint32 {
-        range "0..16777215";
-      }
-      default "0";
-      description
-        "Two-way maximum delay or latency in microseconds.";
-    }
-    leaf two-way-delay-variation {
-      type uint32 {
-        range "0..16777215";
-      }
-      default "0";
-      description
-        "Two-way delay variation in microseconds.";
-    }
-    leaf two-way-packet-loss {
-      type decimal64 {
-        fraction-digits 6;
-        range "0..50.331642";
-      }
-      default "0";
-      description
-        "Two-way packet loss as a percentage of the total traffic
-         sent over a configurable interval.  The finest precision is
-         0.000003%.";
-    }
-  }
-
-  grouping performance-metrics-throttle-container-packet {
-    description
-      "Packet PM threshold grouping.";
-    uses te-types:performance-metrics-throttle-container {
-      augment "throttle/threshold-out" {
-        uses one-way-performance-metrics-packet;
-        uses two-way-performance-metrics-packet;
-        description
-          "PM threshold-out packet augmentation for a
-           generic grouping.";
-      }
-      augment "throttle/threshold-in" {
-        uses one-way-performance-metrics-packet;
-        uses two-way-performance-metrics-packet;
-        description
-          "PM threshold-in packet augmentation for a
-           generic grouping.";
-      }
-      augment "throttle/threshold-accelerated-advertisement" {
-        uses one-way-performance-metrics-packet;
-        uses two-way-performance-metrics-packet;
-        description
-          "PM accelerated advertisement packet augmentation for a
-           generic grouping.";
-      }
-    }
-  }
-
-  grouping te-packet-path-bandwidth {
-    description
-      "Path bandwidth for Packet. ";
-    leaf bandwidth-profile-name{
-      type string;
-      description "Name of Bandwidth Profile.";
-    }
-    leaf bandwidth-profile-type {
-      type identityref {
-        base bandwidth-profile-type;
-      }
-      description "Type of Bandwidth Profile.";
-    }
-
-    leaf CIR {
-      type uint64;
-        description
-          "Committed Information Rate in Kbps";
-    }
-
-    leaf EIR {
-      type uint64;
-      /*
-        Need to indicate that EIR is not supported by RFC 2697
-
-        must
-            '../bw-profile-type = "etht-types:mef-10-bwp" or ' +
-            '../bw-profile-type = "etht-types:rfc-2698-bwp" or ' +
-            '../bw-profile-type = "etht-types:rfc-4115-bwp"'
-
-        must
-            '../bw-profile-type != "etht-types:rfc-2697-bwp"'
-      */
-      description
-        "Excess Information Rate in Kbps
-        In case of RFC 2698, PIR = CIR + EIR";
-    }
-
-    leaf CBS {
-      type uint64;
-      description
-        "Committed Burst Size in in KBytes";
-    }
-
-    leaf EBS {
-      type uint64;
-      description
-        "Excess Burst Size in KBytes.
-          In case of RFC 2698, PBS = CBS + EBS";
-    }
-  }
-
-  grouping te-packet-link-bandwidth {
-    description
-      "Link Bandwidth for Packet. ";
-    leaf packet-bandwidth {
-      type bandwidth-scientific-notation;
-      description
-        "Available bandwith value expressed in kilobits per
-         second";
-    }
-  }
-}
-<CODE ENDS>
-]]></artwork></figure>
-
-</section>
-<section anchor="mpls-te-types-yang" title="YANG model for common MPLS-TE Types">
+<section anchor="pck-te-types-yang" title="YANG model for common MPLS-TE Types">
 
 <figure title="MPLS-TE Types YANG model" anchor="fig-mpls-te-types-yang"><artwork><![CDATA[
 <CODE BEGINS>file "ietf-mpls-te-types@2021-07-11.yang"
@@ -1420,23 +755,6 @@ module ietf-te-mpls-topology {
 
 
 
-<reference anchor='RFC8776' target='https://www.rfc-editor.org/info/rfc8776'>
-<front>
-<title>Common YANG Data Types for Traffic Engineering</title>
-<author fullname='T. Saad' initials='T.' surname='Saad'><organization/></author>
-<author fullname='R. Gandhi' initials='R.' surname='Gandhi'><organization/></author>
-<author fullname='X. Liu' initials='X.' surname='Liu'><organization/></author>
-<author fullname='V. Beeram' initials='V.' surname='Beeram'><organization/></author>
-<author fullname='I. Bryskin' initials='I.' surname='Bryskin'><organization/></author>
-<date month='June' year='2020'/>
-<abstract><t>This document defines a collection of common data types and groupings in YANG data modeling language. These derived common types and groupings are intended to be imported by modules that model Traffic Engineering (TE) configuration and state capabilities.</t></abstract>
-</front>
-<seriesInfo name='RFC' value='8776'/>
-<seriesInfo name='DOI' value='10.17487/RFC8776'/>
-</reference>
-
-
-
 
     </references>
 
@@ -1524,177 +842,113 @@ module ietf-te-mpls-topology {
   </back>
 
 <!-- ##markdown-source:
-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
+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
+CtEk0sDAfwAq+TaKPVQAAA==
 
 -->
 
