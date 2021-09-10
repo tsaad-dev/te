@@ -28,11 +28,6 @@ author:
     org: Individual
     email: i_bryskin@yahoo.com
   -
-    name: Vishnu Pavan Beeram
-    ins: V. Beeram
-    org: Juniper Networks
-    email: vbeeram@juniper.net
-  -
     name: Tarek Saad
     org: Juniper Networks
     email: tsaad@juniper.net
@@ -43,15 +38,20 @@ author:
     email: oscar.gonzalezdedios@telefonica.com
 
 contributor:
--
+  -
     name: Aihua Guo
     org: Futurewei Inc.
     email: aihuaguo.ietf@gmail.com
--
+  -
     name: Haomian Zheng
     org: Huawei
     email: zhenghaomian@huawei.com
--
+  -
+    name: Vishnu Pavan Beeram
+    ins: V. Beeram
+    org: Juniper Networks
+    email: vbeeram@juniper.net
+  -
     name: Sergio Belotti
     org: Nokia
     email: sergio.belotti@nokia.com
