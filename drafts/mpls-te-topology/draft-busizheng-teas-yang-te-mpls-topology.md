@@ -18,10 +18,6 @@ author:
     org: Huawei Technologies
     email: italo.busi@huawei.com
   -
-    name: Haomian Zheng
-    org: Huawei Technologies
-    email: zhenghaomian@huawei.com
-  -
     name: Aihua Guo
     org: Futurewei Inc.
     email: aihuaguo.ietf@gmail.com
@@ -30,11 +26,6 @@ author:
     org: Volta Networks
     email: xufeng.liu.ietf@gmail.com
   -
-    name: Vishnu Pavan Beeram
-    ins: V. Beeram
-    org: Juniper Networks
-    email: vbeeram@juniper.net
-  -
     name: Tarek Saad
     org: Juniper Networks
     email: tsaad@juniper.net
@@ -42,6 +33,17 @@ author:
     name: Rakesh Gandhi
     org: Cisco Systems, Inc.
     email: rgandhi@cisco.com
+
+contributor:
+  -
+    name: Haomian Zheng
+    org: Huawei Technologies
+    email: zhenghaomian@huawei.com
+  -
+    name: Vishnu Pavan Beeram
+    ins: V. Beeram
+    org: Juniper Networks
+    email: vbeeram@juniper.net
   -
     name: Igor Bryskin
     org: Individual
@@ -50,12 +52,6 @@ author:
     name: Yanlei Zheng
     org: China Unicom
     email: zhengyanlei@chinaunicom.cn
-
-#contributor:
-#  -
-#    name: Italo Busi
-#    org: Huawei
-#    email: italo.busi@huawei.com
 
 --- abstract
 
@@ -248,7 +244,7 @@ Note: TE Bandwidth Augmentations for paths, LSPs and links are provided by the i
 # YANG model for common MPLS-TE Types
 
 ~~~~
-<CODE BEGINS>file "ietf-mpls-te-types@2021-07-12.yang"
+<CODE BEGINS> file "ietf-mpls-te-types@2021-10-12.yang"
 {::include ../../ietf-mpls-te-types.yang}
 <CODE ENDS>
 ~~~~
@@ -275,7 +271,7 @@ Note: TE Bandwidth Augmentations for paths, LSPs and links are provided by the i
 ## YANG Code
 
 ~~~~
-<CODE BEGINS>file "ietf-te-mpls-topology@2021-07-12.yang"
+<CODE BEGINS> file "ietf-te-mpls-topology@2021-07-12.yang"
 {::include ../../ietf-te-mpls-topology.yang}
 <CODE ENDS>
 ~~~~
