@@ -4,7 +4,7 @@ coding: utf-8
 title: A YANG Data Model for MPLS-TE Topology
 
 abbrev: MPLS-TE Topology YANG Model
-docname: draft-busizheng-teas-yang-te-mpls-topology-01
+docname: draft-busizheng-teas-yang-te-mpls-topology-02
 workgroup: TEAS Working Group
 category: std
 ipr: trust200902
@@ -29,6 +29,27 @@ author:
     name: Xufeng Liu
     org: Volta Networks
     email: xufeng.liu.ietf@gmail.com
+  -
+    name: Vishnu Pavan Beeram
+    ins: V. Beeram
+    org: Juniper Networks
+    email: vbeeram@juniper.net
+  -
+    name: Tarek Saad
+    org: Juniper Networks
+    email: tsaad@juniper.net
+  -
+    name: Rakesh Gandhi
+    org: Cisco Systems, Inc.
+    email: rgandhi@cisco.com
+  -
+    name: Igor Bryskin
+    org: Individual
+    email: i_bryskin@yahoo.com
+  -
+    name: Yanlei Zheng
+    org: China Unicom
+    email: zhengyanlei@chinaunicom.cn
 
 #contributor:
 #  -
@@ -278,13 +299,7 @@ Note: TE Bandwidth Augmentations for paths, LSPs and links are provided by the i
 
 # Acknowledgments
 
-  The authors would also like to thank Tarek Saad, Vishnu Pavan Beeram,
-  Rakesh Gandhi, Xufeng Liu, Igor Bryskin for their input on how to
-  support MPLS-TP features (bidirectional LSPs, no ECMP, no PHP) using
-  a common MPLS-TE topology model.
-
-  We thank Loa Andersson and Igor Bryskin for providing useful
-  suggestions for this draft.
+  We thank Loa Andersson for providing useful suggestions for this draft.
 
   This document was prepared using kramdown.
 
