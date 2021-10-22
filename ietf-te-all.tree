@@ -9,7 +9,7 @@ module: ietf-te
      |  +--rw named-srlgs
      |  |  +--rw named-srlg* [name] {te-types:named-srlg-groups}?
      |  |     +--rw name     string
-     |  |     +--rw group?   te-types:srlg
+     |  |     +--rw value?   te-types:srlg
      |  |     +--rw cost?    uint32
      |  +--rw named-path-constraints
      |  |  +--rw named-path-constraint* [name]
@@ -170,23 +170,26 @@ module: ietf-te
      |  +--rw te-dev:lsp-invalidation-interval?   uint32
      +--rw tunnels
      |  +--rw tunnel* [name]
-     |     +--ro operational-state?                  identityref
      |     +--rw name                                string
+     |     +--rw alias?                              string
      |     +--rw identifier?                         uint32
+     |     +--rw color?                              uint32
      |     +--rw description?                        string
+     |     +--rw admin-state?                        identityref
+     |     +--ro operational-state?                  identityref
      |     +--rw encoding?                           identityref
      |     +--rw switching-type?                     identityref
-     |     +--rw admin-state?                        identityref
-     |     +--rw reoptimize-timer?                   uint16
      |     +--rw source?
      |     |       te-types:te-node-id
      |     +--rw destination?
      |     |       te-types:te-node-id
-     |     +--rw controller
-     |     |  +--rw protocol-origin?   identityref
      |     +--rw src-tunnel-tp-id?                   binary
      |     +--rw dst-tunnel-tp-id?                   binary
      |     +--rw bidirectional?                      boolean
+     |     +--rw controller
+     |     |  +--rw protocol-origin?        identityref
+     |     |  +--rw controller-entity-id?   string
+     |     +--rw reoptimize-timer?                   uint16
      |     +--rw association-objects
      |     |  +--rw association-object* [association-key]
      |     |  |  +--rw association-key    string
@@ -625,87 +628,8 @@ module: ietf-te
      |     |     |  +--ro lsp* [node lsp-id]
      |     |     |     +--ro tunnel-name?
      |     |     |     |       -> /te/lsps/lsp/tunnel-name
-     |     |     |     +--ro node
-     |     |     |     |       -> /te/lsps/lsp/node
-     |     |     |     +--ro lsp-id
-     |     |     |     |       -> /te/lsps/lsp/lsp-id
-     |     |     |     +--ro lsp-provisioning-error-infos
-     |     |     |     |  +--ro lsp-provisioning-error-info* []
-     |     |     |     |     +--ro error-description?   string
-     |     |     |     |     +--ro error-timestamp?
-     |     |     |     |     |       yang:date-and-time
-     |     |     |     |     +--ro error-node-id?
-     |     |     |     |     |       te-types:te-node-id
-     |     |     |     |     +--ro error-link-id?
-     |     |     |     |             te-types:te-tp-id
-     |     |     |     +--ro path-properties
-     |     |     |        +--ro path-metric* [metric-type]
-     |     |     |        |  +--ro metric-type           identityref
-     |     |     |        |  +--ro accumulative-value?   uint64
-     |     |     |        +--ro path-affinities-values
-     |     |     |        |  +--ro path-affinities-value* [usage]
-     |     |     |        |     +--ro usage    identityref
-     |     |     |        |     +--ro value?   admin-groups
-     |     |     |        +--ro path-affinity-names
-     |     |     |        |  +--ro path-affinity-name* [usage]
-     |     |     |        |     +--ro usage            identityref
-     |     |     |        |     +--ro affinity-name* [name]
-     |     |     |        |        +--ro name    string
-     |     |     |        +--ro path-srlgs-lists
-     |     |     |        |  +--ro path-srlgs-list* [usage]
-     |     |     |        |     +--ro usage     identityref
-     |     |     |        |     +--ro values*   srlg
-     |     |     |        +--ro path-srlgs-names
-     |     |     |        |  +--ro path-srlgs-name* [usage]
-     |     |     |        |     +--ro usage    identityref
-     |     |     |        |     +--ro names*   string
-     |     |     |        +--ro path-route-objects
-     |     |     |        |  +--ro path-route-object* [index]
-     |     |     |        |     +--ro index
-     |     |     |        |     |       uint32
-     |     |     |        |     +--ro (type)?
-     |     |     |        |        +--:(numbered-node-hop)
-     |     |     |        |        |  +--ro numbered-node-hop
-     |     |     |        |        |     +--ro node-id     te-node-id
-     |     |     |        |        |     +--ro hop-type?
-     |     |     |        |        |             te-hop-type
-     |     |     |        |        +--:(numbered-link-hop)
-     |     |     |        |        |  +--ro numbered-link-hop
-     |     |     |        |        |     +--ro link-tp-id    te-tp-id
-     |     |     |        |        |     +--ro hop-type?
-     |     |     |        |        |     |       te-hop-type
-     |     |     |        |        |     +--ro direction?
-     |     |     |        |        |             te-link-direction
-     |     |     |        |        +--:(unnumbered-link-hop)
-     |     |     |        |        |  +--ro unnumbered-link-hop
-     |     |     |        |        |     +--ro link-tp-id    te-tp-id
-     |     |     |        |        |     +--ro node-id
-     |     |     |        |        |     |       te-node-id
-     |     |     |        |        |     +--ro hop-type?
-     |     |     |        |        |     |       te-hop-type
-     |     |     |        |        |     +--ro direction?
-     |     |     |        |        |             te-link-direction
-     |     |     |        |        +--:(as-number)
-     |     |     |        |        |  +--ro as-number-hop
-     |     |     |        |        |     +--ro as-number
-     |     |     |        |        |     |       inet:as-number
-     |     |     |        |        |     +--ro hop-type?
-     |     |     |        |        |             te-hop-type
-     |     |     |        |        +--:(label)
-     |     |     |        |           +--ro label-hop
-     |     |     |        |              +--ro te-label
-     |     |     |        |                 +--ro (technology)?
-     |     |     |        |                 |  +--:(generic)
-     |     |     |        |                 |     +--ro generic?
-     |     |     |        |                 |             rt-types:generalized-label
-     |     |     |        |                 +--ro direction?
-     |     |     |        |                         te-label-direction
-     |     |     |        +--ro te-bandwidth
-     |     |     |        |  +--ro (technology)?
-     |     |     |        |     +--:(generic)
-     |     |     |        |        +--ro generic?   te-bandwidth
-     |     |     |        +--ro disjointness-type?
-     |     |     |                te-types:te-path-disjointness
+     |     |     |     +--ro node           -> /te/lsps/lsp/node
+     |     |     |     +--ro lsp-id         -> /te/lsps/lsp/lsp-id
      |     |     +--rw primary-reverse-path
      |     |     |  +--rw name?                                string
      |     |     |  +--rw path-computation-method?
@@ -1101,91 +1025,8 @@ module: ietf-te
      |     |     |  |  +--ro lsp* [node lsp-id]
      |     |     |  |     +--ro tunnel-name?
      |     |     |  |     |       -> /te/lsps/lsp/tunnel-name
-     |     |     |  |     +--ro node
-     |     |     |  |     |       -> /te/lsps/lsp/node
-     |     |     |  |     +--ro lsp-id
-     |     |     |  |     |       -> /te/lsps/lsp/lsp-id
-     |     |     |  |     +--ro lsp-provisioning-error-infos
-     |     |     |  |     |  +--ro lsp-provisioning-error-info* []
-     |     |     |  |     |     +--ro error-description?   string
-     |     |     |  |     |     +--ro error-timestamp?
-     |     |     |  |     |     |       yang:date-and-time
-     |     |     |  |     |     +--ro error-node-id?
-     |     |     |  |     |     |       te-types:te-node-id
-     |     |     |  |     |     +--ro error-link-id?
-     |     |     |  |     |             te-types:te-tp-id
-     |     |     |  |     +--ro path-properties
-     |     |     |  |        +--ro path-metric* [metric-type]
-     |     |     |  |        |  +--ro metric-type
-     |     |     |  |        |  |       identityref
-     |     |     |  |        |  +--ro accumulative-value?   uint64
-     |     |     |  |        +--ro path-affinities-values
-     |     |     |  |        |  +--ro path-affinities-value* [usage]
-     |     |     |  |        |     +--ro usage    identityref
-     |     |     |  |        |     +--ro value?   admin-groups
-     |     |     |  |        +--ro path-affinity-names
-     |     |     |  |        |  +--ro path-affinity-name* [usage]
-     |     |     |  |        |     +--ro usage            identityref
-     |     |     |  |        |     +--ro affinity-name* [name]
-     |     |     |  |        |        +--ro name    string
-     |     |     |  |        +--ro path-srlgs-lists
-     |     |     |  |        |  +--ro path-srlgs-list* [usage]
-     |     |     |  |        |     +--ro usage     identityref
-     |     |     |  |        |     +--ro values*   srlg
-     |     |     |  |        +--ro path-srlgs-names
-     |     |     |  |        |  +--ro path-srlgs-name* [usage]
-     |     |     |  |        |     +--ro usage    identityref
-     |     |     |  |        |     +--ro names*   string
-     |     |     |  |        +--ro path-route-objects
-     |     |     |  |        |  +--ro path-route-object* [index]
-     |     |     |  |        |     +--ro index
-     |     |     |  |        |     |       uint32
-     |     |     |  |        |     +--ro (type)?
-     |     |     |  |        |        +--:(numbered-node-hop)
-     |     |     |  |        |        |  +--ro numbered-node-hop
-     |     |     |  |        |        |     +--ro node-id
-     |     |     |  |        |        |     |       te-node-id
-     |     |     |  |        |        |     +--ro hop-type?
-     |     |     |  |        |        |             te-hop-type
-     |     |     |  |        |        +--:(numbered-link-hop)
-     |     |     |  |        |        |  +--ro numbered-link-hop
-     |     |     |  |        |        |     +--ro link-tp-id
-     |     |     |  |        |        |     |       te-tp-id
-     |     |     |  |        |        |     +--ro hop-type?
-     |     |     |  |        |        |     |       te-hop-type
-     |     |     |  |        |        |     +--ro direction?
-     |     |     |  |        |        |             te-link-direction
-     |     |     |  |        |        +--:(unnumbered-link-hop)
-     |     |     |  |        |        |  +--ro unnumbered-link-hop
-     |     |     |  |        |        |     +--ro link-tp-id
-     |     |     |  |        |        |     |       te-tp-id
-     |     |     |  |        |        |     +--ro node-id
-     |     |     |  |        |        |     |       te-node-id
-     |     |     |  |        |        |     +--ro hop-type?
-     |     |     |  |        |        |     |       te-hop-type
-     |     |     |  |        |        |     +--ro direction?
-     |     |     |  |        |        |             te-link-direction
-     |     |     |  |        |        +--:(as-number)
-     |     |     |  |        |        |  +--ro as-number-hop
-     |     |     |  |        |        |     +--ro as-number
-     |     |     |  |        |        |     |       inet:as-number
-     |     |     |  |        |        |     +--ro hop-type?
-     |     |     |  |        |        |             te-hop-type
-     |     |     |  |        |        +--:(label)
-     |     |     |  |        |           +--ro label-hop
-     |     |     |  |        |              +--ro te-label
-     |     |     |  |        |                 +--ro (technology)?
-     |     |     |  |        |                 |  +--:(generic)
-     |     |     |  |        |                 |     +--ro generic?
-     |     |     |  |        |                 |             rt-types:generalized-label
-     |     |     |  |        |                 +--ro direction?
-     |     |     |  |        |                         te-label-direction
-     |     |     |  |        +--ro te-bandwidth
-     |     |     |  |        |  +--ro (technology)?
-     |     |     |  |        |     +--:(generic)
-     |     |     |  |        |        +--ro generic?   te-bandwidth
-     |     |     |  |        +--ro disjointness-type?
-     |     |     |  |                te-types:te-path-disjointness
+     |     |     |  |     +--ro node           -> /te/lsps/lsp/node
+     |     |     |  |     +--ro lsp-id         -> /te/lsps/lsp/lsp-id
      |     |     |  +--rw candidate-secondary-reverse-paths
      |     |     |     +--rw candidate-secondary-reverse-path*
      |     |     |             [secondary-path]
@@ -1589,87 +1430,8 @@ module: ietf-te
      |     |        +--ro lsp* [node lsp-id]
      |     |           +--ro tunnel-name?
      |     |           |       -> /te/lsps/lsp/tunnel-name
-     |     |           +--ro node
-     |     |           |       -> /te/lsps/lsp/node
-     |     |           +--ro lsp-id
-     |     |           |       -> /te/lsps/lsp/lsp-id
-     |     |           +--ro lsp-provisioning-error-infos
-     |     |           |  +--ro lsp-provisioning-error-info* []
-     |     |           |     +--ro error-description?   string
-     |     |           |     +--ro error-timestamp?
-     |     |           |     |       yang:date-and-time
-     |     |           |     +--ro error-node-id?
-     |     |           |     |       te-types:te-node-id
-     |     |           |     +--ro error-link-id?
-     |     |           |             te-types:te-tp-id
-     |     |           +--ro path-properties
-     |     |              +--ro path-metric* [metric-type]
-     |     |              |  +--ro metric-type           identityref
-     |     |              |  +--ro accumulative-value?   uint64
-     |     |              +--ro path-affinities-values
-     |     |              |  +--ro path-affinities-value* [usage]
-     |     |              |     +--ro usage    identityref
-     |     |              |     +--ro value?   admin-groups
-     |     |              +--ro path-affinity-names
-     |     |              |  +--ro path-affinity-name* [usage]
-     |     |              |     +--ro usage            identityref
-     |     |              |     +--ro affinity-name* [name]
-     |     |              |        +--ro name    string
-     |     |              +--ro path-srlgs-lists
-     |     |              |  +--ro path-srlgs-list* [usage]
-     |     |              |     +--ro usage     identityref
-     |     |              |     +--ro values*   srlg
-     |     |              +--ro path-srlgs-names
-     |     |              |  +--ro path-srlgs-name* [usage]
-     |     |              |     +--ro usage    identityref
-     |     |              |     +--ro names*   string
-     |     |              +--ro path-route-objects
-     |     |              |  +--ro path-route-object* [index]
-     |     |              |     +--ro index
-     |     |              |     |       uint32
-     |     |              |     +--ro (type)?
-     |     |              |        +--:(numbered-node-hop)
-     |     |              |        |  +--ro numbered-node-hop
-     |     |              |        |     +--ro node-id     te-node-id
-     |     |              |        |     +--ro hop-type?
-     |     |              |        |             te-hop-type
-     |     |              |        +--:(numbered-link-hop)
-     |     |              |        |  +--ro numbered-link-hop
-     |     |              |        |     +--ro link-tp-id    te-tp-id
-     |     |              |        |     +--ro hop-type?
-     |     |              |        |     |       te-hop-type
-     |     |              |        |     +--ro direction?
-     |     |              |        |             te-link-direction
-     |     |              |        +--:(unnumbered-link-hop)
-     |     |              |        |  +--ro unnumbered-link-hop
-     |     |              |        |     +--ro link-tp-id    te-tp-id
-     |     |              |        |     +--ro node-id
-     |     |              |        |     |       te-node-id
-     |     |              |        |     +--ro hop-type?
-     |     |              |        |     |       te-hop-type
-     |     |              |        |     +--ro direction?
-     |     |              |        |             te-link-direction
-     |     |              |        +--:(as-number)
-     |     |              |        |  +--ro as-number-hop
-     |     |              |        |     +--ro as-number
-     |     |              |        |     |       inet:as-number
-     |     |              |        |     +--ro hop-type?
-     |     |              |        |             te-hop-type
-     |     |              |        +--:(label)
-     |     |              |           +--ro label-hop
-     |     |              |              +--ro te-label
-     |     |              |                 +--ro (technology)?
-     |     |              |                 |  +--:(generic)
-     |     |              |                 |     +--ro generic?
-     |     |              |                 |             rt-types:generalized-label
-     |     |              |                 +--ro direction?
-     |     |              |                         te-label-direction
-     |     |              +--ro te-bandwidth
-     |     |              |  +--ro (technology)?
-     |     |              |     +--:(generic)
-     |     |              |        +--ro generic?   te-bandwidth
-     |     |              +--ro disjointness-type?
-     |     |                      te-types:te-path-disjointness
+     |     |           +--ro node           -> /te/lsps/lsp/node
+     |     |           +--ro lsp-id         -> /te/lsps/lsp/lsp-id
      |     +--rw secondary-reverse-paths
      |     |  +--rw secondary-reverse-path* [name]
      |     |     +--rw name                             string
@@ -2065,87 +1827,8 @@ module: ietf-te
      |     |        +--ro lsp* [node lsp-id]
      |     |           +--ro tunnel-name?
      |     |           |       -> /te/lsps/lsp/tunnel-name
-     |     |           +--ro node
-     |     |           |       -> /te/lsps/lsp/node
-     |     |           +--ro lsp-id
-     |     |           |       -> /te/lsps/lsp/lsp-id
-     |     |           +--ro lsp-provisioning-error-infos
-     |     |           |  +--ro lsp-provisioning-error-info* []
-     |     |           |     +--ro error-description?   string
-     |     |           |     +--ro error-timestamp?
-     |     |           |     |       yang:date-and-time
-     |     |           |     +--ro error-node-id?
-     |     |           |     |       te-types:te-node-id
-     |     |           |     +--ro error-link-id?
-     |     |           |             te-types:te-tp-id
-     |     |           +--ro path-properties
-     |     |              +--ro path-metric* [metric-type]
-     |     |              |  +--ro metric-type           identityref
-     |     |              |  +--ro accumulative-value?   uint64
-     |     |              +--ro path-affinities-values
-     |     |              |  +--ro path-affinities-value* [usage]
-     |     |              |     +--ro usage    identityref
-     |     |              |     +--ro value?   admin-groups
-     |     |              +--ro path-affinity-names
-     |     |              |  +--ro path-affinity-name* [usage]
-     |     |              |     +--ro usage            identityref
-     |     |              |     +--ro affinity-name* [name]
-     |     |              |        +--ro name    string
-     |     |              +--ro path-srlgs-lists
-     |     |              |  +--ro path-srlgs-list* [usage]
-     |     |              |     +--ro usage     identityref
-     |     |              |     +--ro values*   srlg
-     |     |              +--ro path-srlgs-names
-     |     |              |  +--ro path-srlgs-name* [usage]
-     |     |              |     +--ro usage    identityref
-     |     |              |     +--ro names*   string
-     |     |              +--ro path-route-objects
-     |     |              |  +--ro path-route-object* [index]
-     |     |              |     +--ro index
-     |     |              |     |       uint32
-     |     |              |     +--ro (type)?
-     |     |              |        +--:(numbered-node-hop)
-     |     |              |        |  +--ro numbered-node-hop
-     |     |              |        |     +--ro node-id     te-node-id
-     |     |              |        |     +--ro hop-type?
-     |     |              |        |             te-hop-type
-     |     |              |        +--:(numbered-link-hop)
-     |     |              |        |  +--ro numbered-link-hop
-     |     |              |        |     +--ro link-tp-id    te-tp-id
-     |     |              |        |     +--ro hop-type?
-     |     |              |        |     |       te-hop-type
-     |     |              |        |     +--ro direction?
-     |     |              |        |             te-link-direction
-     |     |              |        +--:(unnumbered-link-hop)
-     |     |              |        |  +--ro unnumbered-link-hop
-     |     |              |        |     +--ro link-tp-id    te-tp-id
-     |     |              |        |     +--ro node-id
-     |     |              |        |     |       te-node-id
-     |     |              |        |     +--ro hop-type?
-     |     |              |        |     |       te-hop-type
-     |     |              |        |     +--ro direction?
-     |     |              |        |             te-link-direction
-     |     |              |        +--:(as-number)
-     |     |              |        |  +--ro as-number-hop
-     |     |              |        |     +--ro as-number
-     |     |              |        |     |       inet:as-number
-     |     |              |        |     +--ro hop-type?
-     |     |              |        |             te-hop-type
-     |     |              |        +--:(label)
-     |     |              |           +--ro label-hop
-     |     |              |              +--ro te-label
-     |     |              |                 +--ro (technology)?
-     |     |              |                 |  +--:(generic)
-     |     |              |                 |     +--ro generic?
-     |     |              |                 |             rt-types:generalized-label
-     |     |              |                 +--ro direction?
-     |     |              |                         te-label-direction
-     |     |              +--ro te-bandwidth
-     |     |              |  +--ro (technology)?
-     |     |              |     +--:(generic)
-     |     |              |        +--ro generic?   te-bandwidth
-     |     |              +--ro disjointness-type?
-     |     |                      te-types:te-path-disjointness
+     |     |           +--ro node           -> /te/lsps/lsp/node
+     |     |           +--ro lsp-id         -> /te/lsps/lsp/lsp-id
      |     +---x tunnel-action
      |     |  +---w input
      |     |  |  +---w action-type?   identityref
@@ -2315,6 +1998,7 @@ module: ietf-te
        |     +---w disruptive?   empty
        +--ro output
           +--ro action-result?   identityref
+
 module: ietf-te-device
 
   rpcs:
@@ -2325,3 +2009,4 @@ module: ietf-te-device
              |  +---w all          empty
              +--:(match-one-interface)
                 +---w interface?   if:interface-ref
+

@@ -976,7 +976,62 @@ module ietf-te {
   }
 
   /* TE tunnel configuration/state grouping */
-  /* This grouping will be re-used in path-computation rpc */
+  /* These grouping will be re-used in path-computation rpc */
+
+  grouping encoding-and-switching-type {
+    description
+      "Common grouping to define the LSP encoding and
+      switching types";
+    leaf encoding {
+      type identityref {
+        base te-types:lsp-encoding-types;
+      }
+      description
+        "LSP encoding type.";
+      reference
+        "RFC3945";
+    }
+    leaf switching-type {
+      type identityref {
+        base te-types:switching-capabilities;
+      }
+      description
+        "LSP switching type.";
+      reference
+        "RFC3945";
+    }
+  }
+
+  grouping tunnel-common-attributes {
+    description
+      "Common grouping to define the TE tunnel parameters";
+    leaf source {
+      type te-types:te-node-id;
+      description
+        "TE tunnel source node ID.";
+    }
+    leaf destination {
+      type te-types:te-node-id;
+      description
+        "TE tunnel destination node identifier.";
+    }
+    leaf src-tunnel-tp-id {
+      type binary;
+      description
+        "TE tunnel source termination point identifier.";
+    }
+    leaf dst-tunnel-tp-id {
+      type binary;
+      description
+        "TE tunnel destination termination point identifier.";
+    }
+    leaf bidirectional {
+      type boolean;
+      default "false";
+      description
+        "Indicates a bidirectional co-routed LSP.";
+    }
+  }
 
   grouping tunnel-hierarchy-properties {
     description
@@ -1002,26 +1057,7 @@ module ietf-te {
               "Dependency tunnel name. The tunnel may not have been
                instantiated yet.";
           }
-          leaf encoding {
-            type identityref {
-              base te-types:lsp-encoding-types;
-            }
-            default "te-types:lsp-encoding-packet";
-            description
-              "The LSP encoding type for the dependency tunnel.";
-            reference
-              "RFC3945";
-          }
-          leaf switching-type {
-            type identityref {
-              base te-types:switching-capabilities;
-            }
-            default "te-types:switching-psc1";
-            description
-              "The LSP switching type for the dependency tunnel.";
-            reference
-              "RFC3945";
-          }
+          uses encoding-and-switching-type;
         }
       }
       container hierarchical-link {
@@ -1105,42 +1141,8 @@ module ietf-te {
       description
         "TE tunnel operational state.";
     }
-    leaf encoding {
-      type identityref {
-        base te-types:lsp-encoding-types;
-      }
-      default "te-types:lsp-encoding-packet";
-      description
-        "LSP encoding type.";
-      reference
-        "RFC3945";
-    }
-    leaf switching-type {
-      type identityref {
-        base te-types:switching-capabilities;
-      }
-      default "te-types:switching-psc1";
-      description
-        "LSP switching type.";
-      reference
-        "RFC3945";
-    }
-    leaf reoptimize-timer {
-      type uint16;
-      units "seconds";
-      description
-        "Frequency of reoptimization of a traffic engineered LSP.";
-    }
-    leaf source {
-      type te-types:te-node-id;
-      description
-        "TE tunnel source node ID.";
-    }
-    leaf destination {
-      type te-types:te-node-id;
-      description
-        "TE tunnel destination node identifier.";
-    }
+    uses encoding-and-switching-type;
+    uses tunnel-common-attributes;
     container controller {
       description
         "Contains tunnel data relevant to external controller(s).
@@ -1162,21 +1164,11 @@ module ietf-te {
         reference "RFC8232";
       }
     }
-    leaf src-tunnel-tp-id {
-      type binary;
+    leaf reoptimize-timer {
+      type uint16;
+      units "seconds";
       description
-        "TE tunnel source termination point identifier.";
-    }
-    leaf dst-tunnel-tp-id {
-      type binary;
-      description
-        "TE tunnel destination termination point identifier.";
-    }
-    leaf bidirectional {
-      type boolean;
-      default "false";
-      description
-        "Indicates a bidirectional co-routed LSP.";
+        "Frequency of reoptimization of a traffic engineered LSP.";
     }
     uses tunnel-associations-properties;
     uses protection-restoration-properties;
