@@ -4,7 +4,7 @@ coding: utf-8
 title: A YANG Data Model for MPLS-TE Topology
 
 abbrev: MPLS-TE Topology YANG Model
-docname: draft-busizheng-teas-yang-te-mpls-topology-02
+docname: draft-busizheng-teas-yang-te-mpls-topology-03
 workgroup: TEAS Working Group
 category: std
 ipr: trust200902
