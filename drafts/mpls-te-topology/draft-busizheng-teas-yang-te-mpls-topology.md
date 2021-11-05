@@ -110,14 +110,14 @@ contributor:
   types and groupings which can be
   reused by MPLS-TE YANG models:
 
-  load-balancing-type
+  load-balancing-type:
 
-  : This identify defines the types of load-balancing algorithms used on
+  > This identify defines the types of load-balancing algorithms used on
   bundled MPLS-TE link.
 
-  te-mpls-label-hop
+  te-mpls-label-hop:
 
-  : This grouping is used for the augmentation of TE label for MPLS-TE
+  > This grouping is used for the augmentation of TE label for MPLS-TE
   path.
 
 {: #mpls-te-topo-overview}
