@@ -4,7 +4,7 @@ coding: utf-8
 title: Updated Common YANG Data Types for Traffic Engineering
 
 abbrev: Yang updates for TE Types
-docname: draft-xyz-teas-te-types-update-00
+docname: draft-busi-teas-te-types-update-00
 updates: RFC8776
 workgroup: TEAS Working Group
 category: std
@@ -15,6 +15,18 @@ pi: [toc, sortrefs, symrefs, comments]
 
 author:
   -
+    name: Italo Busi
+    org: Huawei
+    email: italo.busi@huawei.com
+  -
+    name: Aihua Guo
+    org: Futurewei Technologies
+    email: aihuaguo.ietf@gmail.com
+  -
+    name: Xufeng Liu
+    org: IBM Corporation
+    email: xufeng.liu.ietf@gmail.com
+  -
     name: Tarek Saad
     org: Juniper Networks
     email: tsaad@juniper.net
@@ -23,10 +35,6 @@ author:
     org: Cisco Systems, Inc.
     email: rgandhi@cisco.com
   -
-    name: Xufeng Liu
-    org: IBM Corporation
-    email: xufeng.liu.ietf@gmail.com
-  -
     name: Vishnu Pavan Beeram
     org: Juniper Networks
     email: vbeeram@juniper.net
@@ -34,14 +42,6 @@ author:
     name: Igor Bryskin
     org: Individual
     email: i_bryskin@yahoo.com
-  -
-    name: Italo Busi
-    org: Huawei
-    email: italo.busi@huawei.com
-  -
-    name: Aihua Guo
-    org: Futurewei Technologies
-    email: aihuaguo.ietf@gmail.com
 
 #contributor:
 
@@ -60,7 +60,11 @@ author:
 
 After the pubblication of {{!RFC8776}}, the need to add a new typedef and a new grouping to ietf-te-types YANG module has arisen.
 
-These definitions have been developed in {{?I-D.ietf-teas-yang-te}} and {{?I-D.ietf-teas-yang-l3-te-topo}} and are quite mature: {{?I-D.ietf-teas-yang-te}} in particular is ready from WG Last Call. However, these defintions have broader applicability than the I-D where they have originated, so it makes sense to move them within the ietf-te-types YANG module.
+These definitions have been developed in {{?I-D.ietf-teas-yang-te}} and {{?I-D.ietf-teas-yang-l3-te-topo}} and are quite mature: {{?I-D.ietf-teas-yang-te}} in particular is ready from WG Last Call.
+
+However, these defintions have broader applicability than the I-D where they have originated, so it makes sense to move them within the ietf-te-types YANG module.
+
+## Options considered
 
 The concern is how to be able to update the ietf-te-types YANG module published in {{!RFC8776}} without delaying too much the progress of the mature WG documents.
 
@@ -82,27 +86,15 @@ In order to allow all the YANG toolchain to keep working by extracting the revis
 
 ## Terminology
 
-   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
-   "OPTIONAL" in this document are to be interpreted as described in
-   BCP 14 {{!RFC2119}} {{!RFC8174}} when, and only when, they appear in all
-   capitals, as shown here.
-
    The terminology for describing YANG data models is found in
    {{!RFC7950}}.
 
 ## Prefixes in Data Node Names
 
-   In this document, names of data nodes and other data model objects
-   are prefixed using the standard prefix associated with the
-   corresponding YANG imported modules, as shown in {{tab-prefixes}}.
+In this document, names of data nodes and other data model objects,
+added to the ietf-te-types YANG module do not need to be prefixed.
 
-| Prefix          | YANG Module          | Reference     |
-| yang            | ietf-yang-types      | {{!RFC6991}}     |
-| inet            | ietf-inet-types      | {{!RFC6991}}     |
-| rt-types        | ietf-routing-types   | {{!RFC8294}}     |
-| te-types        | ietf-te-types        | This document |
-{: #tab-prefixes title="Prefixes and corresponding YANG modules"}
+The revision of the ietf-te-types YANG module uses the prefixes defined in section 1.2 of {{!RFC8776}}.
 
 {: #overview}
 
@@ -138,11 +130,17 @@ The output (model-updates.txt) is reported here:
 
 # IANA Considerations
 
-To be added
+This document updates the ietf-te-types YANG module registered by {{!RFC8776}}.
+
+Therefore this document does not require any IANA actions.
 
 # Security Considerations
 
-To be added
+The security considerations defined in section 7 of {{!RFC8776}} applies to the
+revision of the ietf-te-types YANG module.
+
+This document just adds new typedefs and groupings to the YANG modules defined in
+{{!RFC8776}} and therefore it does not introduce additional considerations.
 
 --- back
 
