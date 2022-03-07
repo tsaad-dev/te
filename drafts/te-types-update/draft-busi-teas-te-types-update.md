@@ -5,7 +5,7 @@ title: Updated Common YANG Data Types for Traffic Engineering
 
 abbrev: Yang updates for TE Types
 docname: draft-busi-teas-te-types-update-00
-updates: RFC8776
+updates: 8776
 workgroup: TEAS Working Group
 category: std
 ipr: trust200902
@@ -83,6 +83,14 @@ In order to focus the review process of this document only to the changes propos
 - {{yang-update}} defines only the diff between the revision of the ietf-te-types YANG module proposed in this document and the revision of the ietf-te-types YANG module published in {{!RFC8776}}.
 
 In order to allow all the YANG toolchain to keep working by extracting the revision of the ietf-te-types YANG module proposed in this document, this revision is provided by {{yang-code}}. This text is intended not to be subject to the review of this document.
+
+## Requirements Notation
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 {{!RFC2119}} {{!RFC8174}} when, and only when, they appear in all
+   capitals, as shown here.
 
 ## Terminology
 
