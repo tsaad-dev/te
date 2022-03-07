@@ -4,7 +4,7 @@ coding: utf-8
 title: Updated Common YANG Data Types for Traffic Engineering
 
 abbrev: Yang updates for TE Types
-docname: draft-busi-teas-te-types-update-00
+docname: draft-busi-teas-te-types-update-01
 updates: 8776
 workgroup: TEAS Working Group
 category: std
@@ -157,7 +157,7 @@ This document just adds new typedefs and groupings to the YANG modules defined i
 # TE Types YANG Module
 
 ~~~~
-<CODE BEGINS> file "ietf-te-types@2022-02-17.yang"
+<CODE BEGINS> file "ietf-te-types@2022-03-07.yang"
 {::include ./ietf-te-types.yang}
 <CODE ENDS>
 ~~~~
