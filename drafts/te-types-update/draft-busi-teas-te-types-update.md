@@ -4,7 +4,7 @@ coding: utf-8
 title: Updated Common YANG Data Types for Traffic Engineering
 
 abbrev: Yang updates for TE Types
-docname: draft-busi-teas-te-types-update-01
+docname: draft-busi-teas-te-types-update-02
 updates: 8776
 workgroup: TEAS Working Group
 category: std
@@ -72,9 +72,9 @@ Three possible options have been identified to address this concern.
 
 One option is to keep these definitions in the YANG modules where they have initially been defined: other YANG modules can still import them. The drawback of this approach is that it defeating the value of common YANG modules like ietf-te-types since common definitions will be spread around multiple specific YANG modules.
 
-A second option is to define them in a new common YANG module (e.g., ietf-te-types-ext). The drawback of this approach is that it will increase the number of YANG modules providing thiny updates to the ietf-te-types YANG module.
+A second option is to define them in a new common YANG module (e.g., ietf-te-types-ext). The drawback of this approach is that it will increase the number of YANG modules providing tiny updates to the ietf-te-types YANG module.
 
-A third option is to develop a revision of the ietf-te-types YANG module within an RFC8776-bis. The drawback of this approach is that the process for developing a big RFC8776-bis just for a thiny update is too high. Moreover, it is not clear what could be done with the ietf-te-packet-types YANG module which is also defined in {{!RFC8776}} but it does not need to be revised.
+A third option is to develop a revision of the ietf-te-types YANG module within an RFC8776-bis. The drawback of this approach is that the process for developing a big RFC8776-bis just for a tiny update is too high. Moreover, it is not clear what could be done with the ietf-te-packet-types YANG module which is also defined in {{!RFC8776}} but it does not need to be revised.
 
 This document explores an alternative option to just update {{!RFC8776}} with a new revision of the module ietf-te-types.
 
