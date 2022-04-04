@@ -138,4 +138,9 @@ This document just adds new typedefs and groupings to the YANG modules defined i
 
 # Acknowledgements
 
+The authors would like to thank 
+Robert Wilton, Lou Berger, Mahesh Jethanandani and Jeff Haas
+for their valuable input to the discussion
+about the process to follow to provide tiny updates to a YANG module already published as an RFC.
+
    This document was prepared using kramdown.
