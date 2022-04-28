@@ -4,7 +4,7 @@ coding: utf-8
 title: A YANG Data Model for MPLS-TE Topology
 
 abbrev: MPLS-TE Topology YANG Model
-docname: draft-busizheng-teas-yang-te-mpls-topology-03
+docname: draft-busizheng-teas-yang-te-mpls-topology-04
 workgroup: TEAS Working Group
 category: std
 ipr: trust200902
@@ -23,7 +23,7 @@ author:
     email: aihuaguo.ietf@gmail.com
   -
     name: Xufeng Liu
-    org: Volta Networks
+    org: IBM Corporation
     email: xufeng.liu.ietf@gmail.com
   -
     name: Tarek Saad
