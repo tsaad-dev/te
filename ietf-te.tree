@@ -3,8 +3,6 @@ module: ietf-te
      +--rw globals
      |  +--rw named-admin-groups
      |  |  +--rw named-admin-group* [name]
-     |  |          {te-types:extended-admin-groups,te-types:named-extend
-ed-admin-groups}?
      |  |     +--rw name            string
      |  |     +--rw bit-position?   uint32
      |  +--rw named-srlgs
@@ -168,22 +166,24 @@ ed-admin-groups}?
      |                 +--rw range-bitmap?   yang:hex-string
      +--rw tunnels
      |  +--rw tunnel* [name]
-     |     +--ro operational-state?              identityref
      |     +--rw name                            string
+     |     +--rw alias?                          string
      |     +--rw identifier?                     uint32
+     |     +--rw color?                          uint32
      |     +--rw description?                    string
+     |     +--rw admin-state?                    identityref
+     |     +--ro operational-state?              identityref
      |     +--rw encoding?                       identityref
      |     +--rw switching-type?                 identityref
-     |     +--rw admin-state?                    identityref
-     |     +--rw reoptimize-timer?               uint16
      |     +--rw source?                         te-types:te-node-id
      |     +--rw destination?                    te-types:te-node-id
-     |     +--rw controller
-     |     |  +--rw protocol-origin?        identityref
-     |     |  +--rw controller-entity-id?   string
      |     +--rw src-tunnel-tp-id?               binary
      |     +--rw dst-tunnel-tp-id?               binary
      |     +--rw bidirectional?                  boolean
+     |     +--rw controller
+     |     |  +--rw protocol-origin?        identityref
+     |     |  +--rw controller-entity-id?   string
+     |     +--rw reoptimize-timer?               uint16
      |     +--rw association-objects
      |     |  +--rw association-object* [association-key]
      |     |  |  +--rw association-key    string
@@ -324,11 +324,9 @@ ed-admin-groups}?
      |     |     |     |  |  |        |        +--rw (technology)?
      |     |     |     |  |  |        |        |  +--:(generic)
      |     |     |     |  |  |        |        |     +--rw generic?
-     |     |     |     |  |  |        |        |             rt-types:ge
-neralized-label
+     |     |     |     |  |  |        |        |             rt-types:generalized-label
      |     |     |     |  |  |        |        +--rw direction?
-     |     |     |     |  |  |        |                te-label-directio
-n
+     |     |     |     |  |  |        |                te-label-direction
      |     |     |     |  |  |        +--:(srlg)
      |     |     |     |  |  |           +--rw srlg
      |     |     |     |  |  |              +--rw srlg?   uint32
@@ -374,11 +372,9 @@ n
      |     |     |     |  |                    +--rw (technology)?
      |     |     |     |  |                    |  +--:(generic)
      |     |     |     |  |                    |     +--rw generic?
-     |     |     |     |  |                    |             rt-types:ge
-neralized-label
+     |     |     |     |  |                    |             rt-types:generalized-label
      |     |     |     |  |                    +--rw direction?
-     |     |     |     |  |                            te-label-directio
-n
+     |     |     |     |  |                            te-label-direction
      |     |     |     |  +--rw tiebreakers
      |     |     |     |     +--rw tiebreaker* [tiebreaker-type]
      |     |     |     |        +--rw tiebreaker-type    identityref
@@ -449,8 +445,7 @@ n
      |     |     |  |              +--rw (technology)?
      |     |     |  |              |  +--:(generic)
      |     |     |  |              |     +--rw generic?
-     |     |     |  |              |             rt-types:generalized-la
-bel
+     |     |     |  |              |             rt-types:generalized-label
      |     |     |  |              +--rw direction?
      |     |     |  |                      te-label-direction
      |     |     |  +--rw route-object-include-exclude* [index]
@@ -482,8 +477,7 @@ bel
      |     |     |        |        +--rw (technology)?
      |     |     |        |        |  +--:(generic)
      |     |     |        |        |     +--rw generic?
-     |     |     |        |        |             rt-types:generalized-la
-bel
+     |     |     |        |        |             rt-types:generalized-label
      |     |     |        |        +--rw direction?
      |     |     |        |                te-label-direction
      |     |     |        +--:(srlg)
@@ -603,8 +597,7 @@ bel
      |     |     |        |                 +--ro (technology)?
      |     |     |        |                 |  +--:(generic)
      |     |     |        |                 |     +--ro generic?
-     |     |     |        |                 |             rt-types:gener
-alized-label
+     |     |     |        |                 |             rt-types:generalized-label
      |     |     |        |                 +--ro direction?
      |     |     |        |                         te-label-direction
      |     |     |        +--ro te-bandwidth
@@ -712,11 +705,9 @@ alized-label
      |     |     |  |     |  |  |        |        +--rw (technology)?
      |     |     |  |     |  |  |        |        |  +--:(generic)
      |     |     |  |     |  |  |        |        |     +--rw generic?
-     |     |     |  |     |  |  |        |        |             rt-types
-:generalized-label
+     |     |     |  |     |  |  |        |        |             rt-types:generalized-label
      |     |     |  |     |  |  |        |        +--rw direction?
-     |     |     |  |     |  |  |        |                te-label-direc
-tion
+     |     |     |  |     |  |  |        |                te-label-direction
      |     |     |  |     |  |  |        +--:(srlg)
      |     |     |  |     |  |  |           +--rw srlg
      |     |     |  |     |  |  |              +--rw srlg?   uint32
@@ -762,18 +753,15 @@ tion
      |     |     |  |     |  |                    +--rw (technology)?
      |     |     |  |     |  |                    |  +--:(generic)
      |     |     |  |     |  |                    |     +--rw generic?
-     |     |     |  |     |  |                    |             rt-types
-:generalized-label
+     |     |     |  |     |  |                    |             rt-types:generalized-label
      |     |     |  |     |  |                    +--rw direction?
-     |     |     |  |     |  |                            te-label-direc
-tion
+     |     |     |  |     |  |                            te-label-direction
      |     |     |  |     |  +--rw tiebreakers
      |     |     |  |     |     +--rw tiebreaker* [tiebreaker-type]
      |     |     |  |     |        +--rw tiebreaker-type
      |     |     |  |     |                identityref
      |     |     |  |     +--:(objective-function)
-     |     |     |  |              {path-optimization-objective-function
-}?
+     |     |     |  |              {path-optimization-objective-function}?
      |     |     |  |        +--rw objective-function
      |     |     |  |           +--rw objective-function-type?
      |     |     |  |                   identityref
@@ -843,8 +831,7 @@ tion
      |     |     |  |  |              +--rw (technology)?
      |     |     |  |  |              |  +--:(generic)
      |     |     |  |  |              |     +--rw generic?
-     |     |     |  |  |              |             rt-types:generalized
--label
+     |     |     |  |  |              |             rt-types:generalized-label
      |     |     |  |  |              +--rw direction?
      |     |     |  |  |                      te-label-direction
      |     |     |  |  +--rw route-object-include-exclude* [index]
@@ -879,8 +866,7 @@ tion
      |     |     |  |        |        +--rw (technology)?
      |     |     |  |        |        |  +--:(generic)
      |     |     |  |        |        |     +--rw generic?
-     |     |     |  |        |        |             rt-types:generalized
--label
+     |     |     |  |        |        |             rt-types:generalized-label
      |     |     |  |        |        +--rw direction?
      |     |     |  |        |                te-label-direction
      |     |     |  |        +--:(srlg)
@@ -896,8 +882,7 @@ tion
      |     |     |  |        |     +--rw (technology)?
      |     |     |  |        |     |  +--:(generic)
      |     |     |  |        |     |     +--rw generic?
-     |     |     |  |        |     |             rt-types:generalized-la
-bel
+     |     |     |  |        |     |             rt-types:generalized-label
      |     |     |  |        |     +--rw direction?
      |     |     |  |        |             te-label-direction
      |     |     |  |        +--rw label-end
@@ -905,8 +890,7 @@ bel
      |     |     |  |        |     +--rw (technology)?
      |     |     |  |        |     |  +--:(generic)
      |     |     |  |        |     |     +--rw generic?
-     |     |     |  |        |     |             rt-types:generalized-la
-bel
+     |     |     |  |        |     |             rt-types:generalized-label
      |     |     |  |        |     +--rw direction?
      |     |     |  |        |             te-label-direction
      |     |     |  |        +--rw label-step
@@ -924,8 +908,7 @@ bel
      |     |     |  |        |     +--rw (technology)?
      |     |     |  |        |     |  +--:(generic)
      |     |     |  |        |     |     +--rw generic?
-     |     |     |  |        |     |             rt-types:generalized-la
-bel
+     |     |     |  |        |     |             rt-types:generalized-label
      |     |     |  |        |     +--rw direction?
      |     |     |  |        |             te-label-direction
      |     |     |  |        +--rw label-end
@@ -933,8 +916,7 @@ bel
      |     |     |  |        |     +--rw (technology)?
      |     |     |  |        |     |  +--:(generic)
      |     |     |  |        |     |     +--rw generic?
-     |     |     |  |        |     |             rt-types:generalized-la
-bel
+     |     |     |  |        |     |             rt-types:generalized-label
      |     |     |  |        |     +--rw direction?
      |     |     |  |        |             te-label-direction
      |     |     |  |        +--rw label-step
@@ -1008,11 +990,9 @@ bel
      |     |     |  |        |                 +--ro (technology)?
      |     |     |  |        |                 |  +--:(generic)
      |     |     |  |        |                 |     +--ro generic?
-     |     |     |  |        |                 |             rt-types:ge
-neralized-label
+     |     |     |  |        |                 |             rt-types:generalized-label
      |     |     |  |        |                 +--ro direction?
-     |     |     |  |        |                         te-label-directio
-n
+     |     |     |  |        |                         te-label-direction
      |     |     |  |        +--ro te-bandwidth
      |     |     |  |        |  +--ro (technology)?
      |     |     |  |        |     +--:(generic)
@@ -1129,11 +1109,9 @@ n
      |     |     |     |  |  |        |        +--rw (technology)?
      |     |     |     |  |  |        |        |  +--:(generic)
      |     |     |     |  |  |        |        |     +--rw generic?
-     |     |     |     |  |  |        |        |             rt-types:ge
-neralized-label
+     |     |     |     |  |  |        |        |             rt-types:generalized-label
      |     |     |     |  |  |        |        +--rw direction?
-     |     |     |     |  |  |        |                te-label-directio
-n
+     |     |     |     |  |  |        |                te-label-direction
      |     |     |     |  |  |        +--:(srlg)
      |     |     |     |  |  |           +--rw srlg
      |     |     |     |  |  |              +--rw srlg?   uint32
@@ -1179,11 +1157,9 @@ n
      |     |     |     |  |                    +--rw (technology)?
      |     |     |     |  |                    |  +--:(generic)
      |     |     |     |  |                    |     +--rw generic?
-     |     |     |     |  |                    |             rt-types:ge
-neralized-label
+     |     |     |     |  |                    |             rt-types:generalized-label
      |     |     |     |  |                    +--rw direction?
-     |     |     |     |  |                            te-label-directio
-n
+     |     |     |     |  |                            te-label-direction
      |     |     |     |  +--rw tiebreakers
      |     |     |     |     +--rw tiebreaker* [tiebreaker-type]
      |     |     |     |        +--rw tiebreaker-type    identityref
@@ -1254,8 +1230,7 @@ n
      |     |     |  |              +--rw (technology)?
      |     |     |  |              |  +--:(generic)
      |     |     |  |              |     +--rw generic?
-     |     |     |  |              |             rt-types:generalized-la
-bel
+     |     |     |  |              |             rt-types:generalized-label
      |     |     |  |              +--rw direction?
      |     |     |  |                      te-label-direction
      |     |     |  +--rw route-object-include-exclude* [index]
@@ -1287,8 +1262,7 @@ bel
      |     |     |        |        +--rw (technology)?
      |     |     |        |        |  +--:(generic)
      |     |     |        |        |     +--rw generic?
-     |     |     |        |        |             rt-types:generalized-la
-bel
+     |     |     |        |        |             rt-types:generalized-label
      |     |     |        |        +--rw direction?
      |     |     |        |                te-label-direction
      |     |     |        +--:(srlg)
@@ -1425,8 +1399,7 @@ bel
      |     |     |        |                 +--ro (technology)?
      |     |     |        |                 |  +--:(generic)
      |     |     |        |                 |     +--ro generic?
-     |     |     |        |                 |             rt-types:gener
-alized-label
+     |     |     |        |                 |             rt-types:generalized-label
      |     |     |        |                 +--ro direction?
      |     |     |        |                         te-label-direction
      |     |     |        +--ro te-bandwidth
@@ -1533,11 +1506,9 @@ alized-label
      |     |     |     |  |  |        |        +--rw (technology)?
      |     |     |     |  |  |        |        |  +--:(generic)
      |     |     |     |  |  |        |        |     +--rw generic?
-     |     |     |     |  |  |        |        |             rt-types:ge
-neralized-label
+     |     |     |     |  |  |        |        |             rt-types:generalized-label
      |     |     |     |  |  |        |        +--rw direction?
-     |     |     |     |  |  |        |                te-label-directio
-n
+     |     |     |     |  |  |        |                te-label-direction
      |     |     |     |  |  |        +--:(srlg)
      |     |     |     |  |  |           +--rw srlg
      |     |     |     |  |  |              +--rw srlg?   uint32
@@ -1583,11 +1554,9 @@ n
      |     |     |     |  |                    +--rw (technology)?
      |     |     |     |  |                    |  +--:(generic)
      |     |     |     |  |                    |     +--rw generic?
-     |     |     |     |  |                    |             rt-types:ge
-neralized-label
+     |     |     |     |  |                    |             rt-types:generalized-label
      |     |     |     |  |                    +--rw direction?
-     |     |     |     |  |                            te-label-directio
-n
+     |     |     |     |  |                            te-label-direction
      |     |     |     |  +--rw tiebreakers
      |     |     |     |     +--rw tiebreaker* [tiebreaker-type]
      |     |     |     |        +--rw tiebreaker-type    identityref
@@ -1658,8 +1627,7 @@ n
      |     |     |  |              +--rw (technology)?
      |     |     |  |              |  +--:(generic)
      |     |     |  |              |     +--rw generic?
-     |     |     |  |              |             rt-types:generalized-la
-bel
+     |     |     |  |              |             rt-types:generalized-label
      |     |     |  |              +--rw direction?
      |     |     |  |                      te-label-direction
      |     |     |  +--rw route-object-include-exclude* [index]
@@ -1691,8 +1659,7 @@ bel
      |     |     |        |        +--rw (technology)?
      |     |     |        |        |  +--:(generic)
      |     |     |        |        |     +--rw generic?
-     |     |     |        |        |             rt-types:generalized-la
-bel
+     |     |     |        |        |             rt-types:generalized-label
      |     |     |        |        +--rw direction?
      |     |     |        |                te-label-direction
      |     |     |        +--:(srlg)
@@ -1829,8 +1796,7 @@ bel
      |     |     |        |                 +--ro (technology)?
      |     |     |        |                 |  +--:(generic)
      |     |     |        |                 |     +--ro generic?
-     |     |     |        |                 |             rt-types:gener
-alized-label
+     |     |     |        |                 |             rt-types:generalized-label
      |     |     |        |                 +--ro direction?
      |     |     |        |                         te-label-direction
      |     |     |        +--ro te-bandwidth
@@ -1945,3 +1911,4 @@ alized-label
        |     +---w disruptive?   empty
        +--ro output
           +--ro action-result?   identityref
+
