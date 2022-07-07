@@ -53,17 +53,19 @@ module ietf-te {
      The model fully conforms to the Network Management
      Datastore Architecture (NMDA).
 
-     Copyright (c) 2022 IETF Trust and the persons
-     identified as authors of the code.  All rights reserved.
+     Copyright (c) 2022 IETF Trust and the persons identified as
+     authors of the code.  All rights reserved.
 
      Redistribution and use in source and binary forms, with or
-     without modification, is permitted pursuant to, and subject
-     to the license terms contained in, the Simplified BSD License
-     set forth in Section 4.c of the IETF Trust's Legal Provisions
+     without modification, is permitted pursuant to, and subject to
+     the license terms contained in, the Revised BSD License set
+     forth in Section 4.c of the IETF Trust's Legal Provisions
      Relating to IETF Documents
      (https://trustee.ietf.org/license-info).
-     This version of this YANG module is part of RFC XXXX; see
-     the RFC itself for full legal notices.";
+
+     This version of this YANG module is part of RFC XXXX
+     (https://www.rfc-editor.org/info/rfcXXXX); see the RFC itself
+     for full legal notices.";
 
   // RFC Ed.: replace XXXX with actual RFC number and remove this
   // note.
@@ -283,7 +285,7 @@ module ietf-te {
     base protocol-origin-type;
     description
       "Protocol origin is Border Gateway Protocol (BGP).";
-    reference "RFC5512";
+    reference "RFC9012";
   }
 
   typedef tunnel-ref {
@@ -383,7 +385,7 @@ module ietf-te {
     leaf compute-only {
       type empty;
       description
-        "When set, the path is computed and updated whenever
+        "When present, the path is computed and updated whenever
          the topology is updated. No resources are committed
          or reserved in the network.";
     }
@@ -395,13 +397,14 @@ module ietf-te {
       description
         "When 'true' indicates the path is dynamically computed
          and/or validated against the Traffic-Engineering Database
-         (TED), and when 'false' indicates no validation against
-         the TED is required.";
+         (TED), and when 'false' indicates no path expansion or
+         validation against the TED is required.";
     }
     leaf lockdown {
       type empty;
       description
-        "Indicates no reoptimization to be attempted for this path.";
+        "When present, indicates no reoptimization to be attempted
+         for this path.";
     }
     leaf path-scope {
       type identityref {
@@ -410,11 +413,13 @@ module ietf-te {
       default "te-types:path-scope-end-to-end";
       config false;
       description
-        "Path scope if segment or an end-to-end path.";
+        "Indicates whether the path is a segment or portion of
+         of the full path., or is the an end-to-end path for
+         the TE Tunnel.";
     }
   }
 
-  /* This grouping will be re-used in path-computation rpc */
+  /* This grouping is re-used in path-computation rpc */
   grouping path-compute-info {
     description
       "Attributes used for path computation request.";
@@ -432,8 +437,8 @@ module ietf-te {
     uses path-constraints-common;
   }
 
-  /* This grouping will be re-used in path-computation rpc */
-  grouping path-preference {
+  /* This grouping is re-used in path-computation rpc */
+  grouping path-forward-properties {
     description
       "The path preference.";
     leaf preference {
@@ -445,9 +450,19 @@ module ietf-te {
         "Specifies a preference for this path. The lower the number
          higher the preference.";
     }
+    leaf co-routed {
+      when "/te:te/te:tunnels/te:tunnel/te:bidirectional = 'true'" {
+        description
+          "Applicable to bidirectional tunnels only.";
+      }
+      type empty;
+      description
+        "Indicates whether the reverse path must to be co-routed
+         with the primary.";
+    }
   }
 
-  /* This grouping will be re-used in path-computation rpc */
+  /* This grouping is re-used in path-computation rpc */
   grouping k-requested-paths {
     description
       "The k-shortest paths requests.";
@@ -475,7 +490,7 @@ module ietf-te {
         leaf error-description {
           type string;
           description
-            "Textual representation of the error occurred during
+            "FIXME: Textual representation of the error occurred during
              path computation.";
         }
         leaf error-timestamp {
@@ -532,7 +547,7 @@ module ietf-te {
     }
   }
 
-  /* This grouping will be re-used in path-computation rpc */
+  /* This grouping is re-used in path-computation rpc */
   grouping path-computation-response {
     description
       "Attributes reported by path computation response.";
@@ -823,7 +838,7 @@ module ietf-te {
     }
   }
 
-  /* This grouping will be re-used in path-computation rpc */
+  /* This grouping is re-used in path-computation rpc */
   grouping encoding-and-switching-type {
     description
       "Common grouping to define the LSP encoding and
@@ -848,7 +863,7 @@ module ietf-te {
     }
   }
 
-  /* This grouping will be re-used in path-computation rpc */
+  /* This grouping is re-used in path-computation rpc */
   grouping tunnel-common-attributes {
     description
       "Common grouping to define the TE tunnel parameters";
@@ -880,7 +895,7 @@ module ietf-te {
     }
   }
 
-  /* This grouping will be re-used in path-computation rpc */
+  /* This grouping is re-used in path-computation rpc */
   grouping tunnel-hierarchy-properties {
     description
       "A grouping for TE tunnel hierarchy information.";
@@ -1163,22 +1178,25 @@ module ietf-te {
         container primary-paths {
           description
             "The set of primary paths.";
+          reference "RFC4872";
           list primary-path {
             key "name";
             description
               "List of primary paths for this tunnel.";
             uses path-common-properties;
-            uses path-preference;
+            uses path-forward-properties;
             uses k-requested-paths;
             uses path-compute-info;
             uses path-state;
             container primary-reverse-path {
+              when "../../../te:bidirectional = 'false'";
               description
                 "The reverse primary path properties.";
               uses path-common-properties;
               uses path-compute-info;
               uses path-state;
               container candidate-secondary-reverse-paths {
+                when "../../../../te:bidirectional = 'false'";
                 description
                   "The set of referenced candidate reverse secondary
                    paths from the full set of secondary reverse paths
@@ -1247,12 +1265,13 @@ module ietf-te {
         container secondary-paths {
           description
             "The set of secondary paths.";
+          reference "RFC4872";
           list secondary-path {
             key "name";
             description
               "List of secondary paths for this tunnel.";
             uses path-common-properties;
-            uses path-preference;
+            uses path-forward-properties;
             uses path-compute-info;
             uses protection-restoration-properties;
             uses path-state;
@@ -1266,7 +1285,6 @@ module ietf-te {
             description
               "List of secondary paths for this tunnel.";
             uses path-common-properties;
-            uses path-preference;
             uses path-compute-info;
             uses protection-restoration-properties;
             uses path-state;
@@ -1303,21 +1321,23 @@ module ietf-te {
               description
                 "Protection external command.";
             }
-            leaf protection-group-ingress-node-id {
-              type te-types:te-node-id;
+            leaf protection-group-ingress-node {
+              type boolean;
+              default "true";
               description
-                "When specified, indicates whether the action is
+                "When 'true', indicates that the action is
                  applied on ingress node.
-                 By default, if neither ingress nor egress node-id
-                 is set, the action applies to ingress node only.";
+                 By default, the action applies to the ingress node
+                 only.";
             }
-            leaf protection-group-egress-node-id {
-              type te-types:te-node-id;
+            leaf protection-group-egress-node {
+              type boolean;
+              default "false";
               description
-                "When specified, indicates whether the action is
+                "When set to 'true', indicates that the action is
                  applied on egress node.
-                 By default, if neither ingress nor egress node-id
-                 is set, the action applies to ingress node only.";
+                 By default, the action applies to the ingress node
+                 only.";
             }
             leaf path-ref {
               type path-ref;
@@ -1406,15 +1426,14 @@ module ietf-te {
         leaf destination {
           type te-types:te-node-id;
           description
-            "The tunnel endpoint address extracted from SESSION
-             object.";
+            "The tunnel endpoint address.";
           reference
             "RFC3209";
         }
         leaf tunnel-id {
           type uint16;
           description
-            "The tunnel identifier used in the SESSION that remains
+            "The tunnel identifier that remains
              constant over the life of the tunnel.";
           reference
             "RFC3209";
@@ -1485,8 +1504,8 @@ module ietf-te {
           type boolean;
           default "false";
           description
-            "When set to 'True', it represents a lockout of normal
-             traffic external command. When set to 'False', it
+            "When set to 'true', it represents a lockout of normal
+             traffic external command. When set to 'false', it
              represents a clear lockout of normal traffic external
              command. The lockout of normal traffic command applies
              to this Tunnel.";
@@ -1497,8 +1516,8 @@ module ietf-te {
           type boolean;
           default "false";
           description
-            "When set to 'True', it represents a freeze external
-             command.  When set to 'False', it represents a clear
+            "When set to 'true', it represents a freeze external
+             command.  When set to 'false', it represents a clear
              freeze external command. The freeze command applies to
              all the Tunnels which are sharing the protection
              resources with this Tunnel.";
@@ -1534,7 +1553,9 @@ module ietf-te {
           default "te-types:normal";
           description
             "The state of the APS state machine controlling which
-             tunnels is using the resources of the protecting LSP.";
+             tunnels are using the resources of the protecting LSP.";
+          reference
+            "RFC7271 and RFC8234";
         }
         leaf protection-group-ingress-node-id {
           type te-types:te-node-id;
@@ -1625,7 +1646,8 @@ module ietf-te {
               type empty;
               mandatory true;
               description
-                "Apply action on all TE tunnels.";
+                "When present, applies the action on all TE
+                 tunnels.";
             }
           }
           case one-tunnel {
@@ -1652,8 +1674,9 @@ module ietf-te {
              + "'te:tunnel-action-reoptimize')";
           type empty;
           description
-            "Specifies whether or not the reoptimization action
-             is allowed to be disruptive.";
+            "When present, specifies whether or not the
+             reoptimization
+             action is allowed to be disruptive.";
         }
       }
     }
