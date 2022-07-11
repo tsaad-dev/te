@@ -4,8 +4,9 @@ coding: utf-8
 title: Updated Common YANG Data Types for Traffic Engineering
 
 abbrev: Yang updates for TE Types
-docname: draft-busi-teas-te-types-update-02
+docname: draft-ietf-teas-rfc8776-update-00
 updates: 8776
+submissiontype: IETF
 workgroup: TEAS Working Group
 category: std
 ipr: trust200902
