@@ -7,6 +7,7 @@ title: >
 
 abbrev: TE Topology Profiles
 docname: draft-busi-teas-te-topology-profiles-04
+submissiontype: IETF
 workgroup: TEAS Working Group
 category: info
 ipr: trust200902
@@ -125,7 +126,7 @@ contributor:
    The following profile of the TE Topology model can be used for the
    UNI Topology Discovery:
 
-~~~~
+~~~~ ascii-art
    module: ietf-te-topology
      augment /nw:networks/nw:network/nw:network-types:
        +--rw te-topology!
