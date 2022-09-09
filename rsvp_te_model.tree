@@ -7,11 +7,12 @@ module: ietf-rsvp
        |  +--rw refresh-reduction
        |  |  +--rw enabled?                                  boolean
        |  |  +--rw rsvp-extended:bundle-message-max-size?    uint32
-       |  |  +--rw rsvp-extended:reliable-ack-hold-time?     uint32
-       |  |  +--rw rsvp-extended:reliable-ack-max-size?      uint32
-       |  |  +--rw rsvp-extended:reliable-retransmit-time?   uint32
-       |  |  +--rw rsvp-extended:reliable-srefresh?          empty
-       |  |  +--rw rsvp-extended:summary-max-size?           uint32
+       |  |  +--rw rsvp-extended:ack-hold-time?              uint32
+       |  |  +--rw rsvp-extended:ack-max-size?               uint32
+       |  |  +--rw rsvp-extended:ack-retransmit-time?        uint32
+       |  |  +--rw rsvp-extended:srefresh-ack-desired?       empty
+       |  |  +--rw rsvp-extended:srefresh-max-size?          uint32
+       |  |  +--rw rsvp-extended:srefresh-relative-period?   uint8
        |  +--rw hellos
        |  |  +--rw enabled?                         boolean
        |  |  +--rw rsvp-extended:interface-based?   empty
@@ -55,8 +56,8 @@ module: ietf-rsvp
        |  |  |  +--ro resv-err-received?              yang:counter64
        |  |  |  +--ro resv-tear-sent?                 yang:counter64
        |  |  |  +--ro resv-tear-received?             yang:counter64
-       |  |  |  +--ro summary-refresh-sent?           yang:counter64
-       |  |  |  +--ro summary-refresh-received?       yang:counter64
+       |  |  |  +--ro srefresh-sent?                  yang:counter64
+       |  |  |  +--ro srefresh-received?              yang:counter64
        |  |  |  +--ro unknown-messages-received?      yang:counter64
        |  |  +--ro packets
        |  |  |  +--ro sent?
@@ -77,23 +78,24 @@ module: ietf-rsvp
        |  |     +--ro authenticate?    yang:counter64
        |  |     +--ro checksum?        yang:counter64
        |  |     +--ro packet-length?   yang:counter64
-       |  +--rw interface* [interface]
-       |  |  +--rw interface
+       |  +--rw interface* [name]
+       |  |  +--rw name
        |  |  |       if:interface-ref
        |  |  +--rw refresh-reduction
        |  |  |  +--rw enabled?
        |  |  |  |       boolean
        |  |  |  +--rw rsvp-extended:bundle-message-max-size?
        |  |  |  |       uint32
-       |  |  |  +--rw rsvp-extended:reliable-ack-hold-time?
+       |  |  |  +--rw rsvp-extended:ack-hold-time?
        |  |  |  |       uint32
-       |  |  |  +--rw rsvp-extended:reliable-ack-max-size?
+       |  |  |  +--rw rsvp-extended:ack-max-size?
        |  |  |  |       uint32
-       |  |  |  +--rw rsvp-extended:reliable-retransmit-time?
+       |  |  |  +--rw rsvp-extended:ack-retransmit-time?
        |  |  |  |       uint32
-       |  |  |  +--rw rsvp-extended:reliable-srefresh?          empty
-       |  |  |  +--rw rsvp-extended:summary-max-size?
-       |  |  |          uint32
+       |  |  |  +--rw rsvp-extended:srefresh-ack-desired?       empty
+       |  |  |  +--rw rsvp-extended:srefresh-max-size?
+       |  |  |  |       uint32
+       |  |  |  +--rw rsvp-extended:srefresh-relative-period?   uint8
        |  |  +--rw hellos
        |  |  |  +--rw enabled?                         boolean
        |  |  |  +--rw rsvp-extended:interface-based?   empty
@@ -163,9 +165,9 @@ module: ietf-rsvp
        |  |  |  |  |       yang:counter64
        |  |  |  |  +--ro resv-tear-received?
        |  |  |  |  |       yang:counter64
-       |  |  |  |  +--ro summary-refresh-sent?
+       |  |  |  |  +--ro srefresh-sent?
        |  |  |  |  |       yang:counter64
-       |  |  |  |  +--ro summary-refresh-received?
+       |  |  |  |  +--ro srefresh-received?
        |  |  |  |  |       yang:counter64
        |  |  |  |  +--ro unknown-messages-received?
        |  |  |  |          yang:counter64
@@ -191,17 +193,17 @@ module: ietf-rsvp
        |  |  +--rw rsvp-te:rsvp-te-interface-attributes
        |  |  +--rw rsvp-extended:refresh-interval?         uint32
        |  |  +--rw rsvp-extended:refresh-misses?           uint32
-       |  |  +--rw rsvp-extended:checksum_enabled?         boolean
+       |  |  +--rw rsvp-extended:checksum-enable?          empty
        |  |  +--rw rsvp-extended:patherr-state-removal?    empty
        |  +--rw rsvp-te:rsvp-te-interface-attributes
        |  +--rw rsvp-extended:refresh-interval?         uint32
        |  +--rw rsvp-extended:refresh-misses?           uint32
-       |  +--rw rsvp-extended:checksum_enabled?         boolean
+       |  +--rw rsvp-extended:checksum-enable?          empty
        |  +--rw rsvp-extended:patherr-state-removal?    empty
        +--rw sessions
        |  +--ro session-ip*
        |  |       [destination protocol-id destination-port]
-       |  |  +--ro destination-port    inet:port-number
+       |  |  +--ro destination-port    uint16
        |  |  +--ro protocol-id         uint8
        |  |  +--ro source?             inet:ip-address
        |  |  +--ro destination         inet:ip-address
@@ -222,7 +224,7 @@ module: ietf-rsvp
        |     +--ro rsvp-te:tunnel-endpoint       inet:ip-address
        |     +--ro rsvp-te:tunnel-id             uint16
        |     +--ro rsvp-te:extended-tunnel-id    inet:ip-address
-       |     +--ro rsvp-te:destination-port?     inet:port-number
+       |     +--ro rsvp-te:destination-port?     uint16
        |     +--ro rsvp-te:protocol-id?          uint8
        |     +--ro rsvp-te:source?               inet:ip-address
        |     +--ro rsvp-te:destination?          inet:ip-address
@@ -262,15 +264,9 @@ module: ietf-rsvp
        |     +--rw epoch?                       uint32
        |     +--rw expiry-time?                 uint32
        |     +--rw graceful-restart
-       |     |  +--rw enabled?                  boolean
-       |     |  +--rw local-restart-time?       uint32
-       |     |  +--rw local-recovery-time?      uint32
        |     |  +--ro neighbor-restart-time?    uint32
        |     |  +--ro neighbor-recovery-time?   uint32
        |     |  +--rw helper-mode
-       |     |     +--rw enabled?                            boolean
-       |     |     +--rw max-helper-restart-time?            uint32
-       |     |     +--rw max-helper-recovery-time?           uint32
        |     |     +--ro neighbor-restart-time-remaining?    uint32
        |     |     +--ro neighbor-recovery-time-remaining?   uint32
        |     +--ro hello-status?                enumeration
@@ -280,19 +276,13 @@ module: ietf-rsvp
        |     +--ro restart-count?               yang:counter32
        |     +--ro restart-time?                yang:date-and-time
        +--rw graceful-restart
-       |  +--rw enabled?                       boolean
-       |  +--rw local-restart-time?            uint32
-       |  +--rw local-recovery-time?           uint32
-       |  +--ro neighbor-restart-time?         uint32
-       |  +--ro neighbor-recovery-time?        uint32
+       |  +--rw enabled?               boolean
+       |  +--rw local-restart-time?    uint32
+       |  +--rw local-recovery-time?   uint32
        |  +--rw helper-mode
-       |  |  +--rw enabled?                            boolean
-       |  |  +--rw max-helper-restart-time?            uint32
-       |  |  +--rw max-helper-recovery-time?           uint32
-       |  |  +--ro neighbor-restart-time-remaining?    uint32
-       |  |  +--ro neighbor-recovery-time-remaining?   uint32
-       |  +--rw rsvp-extended:restart-time?    uint32
-       |  +--rw rsvp-extended:recovery-time?   uint32
+       |     +--rw enabled?                    boolean
+       |     +--rw max-helper-restart-time?    uint32
+       |     +--rw max-helper-recovery-time?   uint32
        +--rw rsvp-te:global-soft-preemption!
        |  +--rw rsvp-te:soft-preemption-timeout?   uint16
        +--rw rsvp-te-mpls:rsvp-frr-local-revert-delay?   uint32
@@ -959,11 +949,11 @@ module: ietf-te
      |     |     |     +--ro error-reason?        identityref
      |     |     +--ro lsp-provisioning-error-infos
      |     |     |  +--ro lsp-provisioning-error-info* []
-     |     |     |     +--ro error-description?   string
-     |     |     |     +--ro error-timestamp?     yang:date-and-time
-     |     |     |     +--ro error-node-id?       te-types:te-node-id
-     |     |     |     +--ro error-link-id?       te-types:te-tp-id
-     |     |     |     +--ro lsp-id?              uint16
+     |     |     |  |  +--ro error-description?   string
+     |     |     |  |  +--ro error-timestamp?     yang:date-and-time
+     |     |     |  |  +--ro error-node-id?       te-types:te-node-id
+     |     |     |  |  +--ro error-link-id?       te-types:te-tp-id
+     |     |     |  +--ro lsp-id?                        uint16
      |     |     +--ro lsps
      |     |     |  +--ro lsp* [node lsp-id]
      |     |     |     +--ro tunnel-name?
@@ -1418,14 +1408,14 @@ module: ietf-te
      |     |     |  |     +--ro error-reason?        identityref
      |     |     |  +--ro lsp-provisioning-error-infos
      |     |     |  |  +--ro lsp-provisioning-error-info* []
-     |     |     |  |     +--ro error-description?   string
-     |     |     |  |     +--ro error-timestamp?
-     |     |     |  |     |       yang:date-and-time
-     |     |     |  |     +--ro error-node-id?
-     |     |     |  |     |       te-types:te-node-id
-     |     |     |  |     +--ro error-link-id?
-     |     |     |  |     |       te-types:te-tp-id
-     |     |     |  |     +--ro lsp-id?              uint16
+     |     |     |  |  |  +--ro error-description?   string
+     |     |     |  |  |  +--ro error-timestamp?
+     |     |     |  |  |  |       yang:date-and-time
+     |     |     |  |  |  +--ro error-node-id?
+     |     |     |  |  |  |       te-types:te-node-id
+     |     |     |  |  |  +--ro error-link-id?
+     |     |     |  |  |          te-types:te-tp-id
+     |     |     |  |  +--ro lsp-id?                        uint16
      |     |     |  +--ro lsps
      |     |     |  |  +--ro lsp* [node lsp-id]
      |     |     |  |     +--ro tunnel-name?
@@ -1828,11 +1818,11 @@ module: ietf-te
      |     |     |     +--ro error-reason?        identityref
      |     |     +--ro lsp-provisioning-error-infos
      |     |     |  +--ro lsp-provisioning-error-info* []
-     |     |     |     +--ro error-description?   string
-     |     |     |     +--ro error-timestamp?     yang:date-and-time
-     |     |     |     +--ro error-node-id?       te-types:te-node-id
-     |     |     |     +--ro error-link-id?       te-types:te-tp-id
-     |     |     |     +--ro lsp-id?              uint16
+     |     |     |  |  +--ro error-description?   string
+     |     |     |  |  +--ro error-timestamp?     yang:date-and-time
+     |     |     |  |  +--ro error-node-id?       te-types:te-node-id
+     |     |     |  |  +--ro error-link-id?       te-types:te-tp-id
+     |     |     |  +--ro lsp-id?                        uint16
      |     |     +--ro lsps
      |     |     |  +--ro lsp* [node lsp-id]
      |     |     |     +--ro tunnel-name?
@@ -2238,11 +2228,11 @@ module: ietf-te
      |     |     |     +--ro error-reason?        identityref
      |     |     +--ro lsp-provisioning-error-infos
      |     |     |  +--ro lsp-provisioning-error-info* []
-     |     |     |     +--ro error-description?   string
-     |     |     |     +--ro error-timestamp?     yang:date-and-time
-     |     |     |     +--ro error-node-id?       te-types:te-node-id
-     |     |     |     +--ro error-link-id?       te-types:te-tp-id
-     |     |     |     +--ro lsp-id?              uint16
+     |     |     |  |  +--ro error-description?   string
+     |     |     |  |  +--ro error-timestamp?     yang:date-and-time
+     |     |     |  |  +--ro error-node-id?       te-types:te-node-id
+     |     |     |  |  +--ro error-link-id?       te-types:te-tp-id
+     |     |     |  +--ro lsp-id?                        uint16
      |     |     +--ro lsps
      |     |        +--ro lsp* [node lsp-id]
      |     |           +--ro tunnel-name?

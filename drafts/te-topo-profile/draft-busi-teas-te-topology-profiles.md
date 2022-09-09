@@ -6,7 +6,7 @@ title: >
    Applicability to non-TE Use Cases
 
 abbrev: TE Topology Profiles
-docname: draft-busi-teas-te-topology-profiles-03
+docname: draft-busi-teas-te-topology-profiles-04
 workgroup: TEAS Working Group
 category: info
 ipr: trust200902
@@ -21,7 +21,7 @@ author:
     email: italo.busi@huawei.com
   -
     name: Xufeng Liu
-    org: Volta Networks
+    org: IBM Corporation
     email: xufeng.liu.ietf@gmail.com
   -
     name: Igor Bryskin
