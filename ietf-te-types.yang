@@ -52,7 +52,7 @@ module ietf-te-types {
      described in BCP 14 (RFC 2119) (RFC 8174) when, and only when,
      they appear in all capitals, as shown here.
 
-     Copyright (c) 2020 IETF Trust and the persons identified as
+     Copyright (c) 2022 IETF Trust and the persons identified as
      authors of the code.  All rights reserved.
 
      Redistribution and use in source and binary forms, with or
@@ -62,8 +62,26 @@ module ietf-te-types {
      Relating to IETF Documents
      (https://trustee.ietf.org/license-info).
 
-     This version of this YANG module is part of RFC 8776; see the
+     This version of this YANG module is part of RFC XXXX; see the
      RFC itself for full legal notices.";
+
+  revision 2022-09-09 {
+    description
+      "Added:
+      - typedef bandwidth-scientific-notation;
+      - identity association-type-diversity;
+      - identity tunnel-admin-auto;
+      - base identity path-computation-error-reason and
+        its derived identities;
+      - base identity protocol-origin-type and
+        its derived identities;
+      - grouping encoding-and-switching-type.";
+    reference
+      "RFC XXXX: Updated Common YANG Data Types for Traffic
+      Engineering";
+  }
+  // RFC Editor: replace XXXX with actual RFC number, update date
+  // information and remove this note
 
   revision 2020-06-10 {
     description
@@ -543,6 +561,40 @@ module ietf-te-types {
        RFC 5305: IS-IS Extensions for Traffic Engineering";
   }
 
+  // NOTE: The typedef bandwidth-scientific-notation below has been
+  // added in this module revision
+  // RFC Editor: remove the note above and this note
+  typedef bandwidth-scientific-notation {
+    type string {
+      pattern
+        '0(\.0?)?([eE](\+)?0?)?|'
+      + '[1-9](\.[0-9]{0,6})?[eE](\+)?(9[0-6]|[1-8][0-9]|0?[0-9])?';
+    }
+    units "bps";
+    description
+      "Bandwidth values, expressed using the scientific notation
+      in bits per second.
+      The encoding format is the external decimal-significant
+      character sequences specified in IEEE 754 and ISO/IEC C99
+      for 32-bit decimal floating-point numbers:
+      (-1)**(S) * 10**(Exponent) * (Significant),
+      where Significant uses 7 digits.
+      An implementation for this representation may use decimal32
+      or binary32. The range of the Exponent is from -95 to +96
+      for decimal32, and from -38 to +38 for binary32.
+      As a bandwidth value, the format is restricted to be
+      normalized, non-negative, and non-fraction:
+      n.dddddde{+}dd, N.DDDDDDE{+}DD, 0e0 or 0E0,
+      where 'd' and 'D' are decimal digits; 'n' and 'N' are
+      non-zeror decimal digits; 'e' and 'E' indicate a power of ten.
+      Some examples are 0e0, 1e10, and 9.953e9.";
+    reference
+      "IEEE Std 754-2008: IEEE Standard for Floating-Point
+      Arithmetic.
+      ISO/IEC C99: Information technology - Programming
+      Languages - C.";
+  }
+
   /* TE features */
 
   feature p2mp-te {
@@ -980,6 +1032,18 @@ module ietf-te-types {
        Label Switched Paths (LSPs)";
   }
 
+  // NOTE: The identity association-type-diversity below has been
+  // added in this module revision
+  // RFC Editor: remove the note above and this note
+  identity association-type-diversity {
+    base association-type;
+    description
+      "Association Type diversity used to associate LSPs whose paths
+       are to be diverse from each other.";
+    reference
+      "RFC8800";
+  }
+
   identity objective-function-type {
     description
       "Base objective function type.";
@@ -1212,6 +1276,18 @@ module ietf-te-types {
     base tunnel-admin-state-type;
     description
       "Tunnel's administrative state is down.";
+  }
+
+  // NOTE: The identity tunnel-admin-auto below has been
+  // added in this module revision
+  // RFC Editor: remove the note above and this note
+  identity tunnel-admin-auto {
+    base tunnel-admin-state-type;
+    description
+      "Tunnel administrative auto state. The administrative status
+       in state datastore transitions to 'tunnel-admin-up' when the
+       tunnel used by the client layer, and to 'tunnel-admin-down'
+       when it is not used by the client layer.";
   }
 
   identity tunnel-state-type {
@@ -2106,6 +2182,211 @@ module ietf-te-types {
     base path-computation-srlg-type;
     description
       "Includes a weighted SRLG check in the path computation.";
+  }
+
+  // NOTE: The base identity path-computation-error-reason and 
+  // its derived identities below have been
+  // added in this module revision
+  // RFC Editor: remove the note above and this note
+  identity path-computation-error-reason {
+    description
+      "Base identity for path computation error reasons.";
+  }
+
+  identity path-computation-error-no-topology {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because there is no topology
+       with the provided topology-identifier.";
+  }
+
+  identity path-computation-error-no-dependent-server {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because one or more dependent
+       path computation servers are unavailable.
+       The dependent path computation server could be
+       a Backward-Recursive Path Computation (BRPC) downstream
+       PCE or a child PCE.";
+    reference
+      "RFC5441, RFC8685";
+  }
+
+  identity path-computation-error-pce-unavailable {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because PCE is not available.";
+    reference
+      "RFC5440";
+  }
+
+  identity path-computation-error-no-inclusion-hop {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because there is no
+       node or link provided by one or more inclusion hops.";
+    reference
+      "RFC8685";
+  }
+
+  identity path-computation-error-destination-unknown-in-domain {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because the destination node is
+       unknown in indicated destination domain.";
+    reference
+      "RFC8685";
+  }
+
+  identity path-computation-error-no-resource {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because there is no
+       available resource in one or more domains.";
+    reference
+      "RFC8685";
+  }
+
+  identity path-computation-error-child-pce-unresponsive {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because child PCE is not
+       responsive.";
+    reference
+      "RFC8685";
+  }
+
+  identity path-computation-error-destination-domain-unknown {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because the destination domain
+       was unknown.";
+    reference
+      "RFC8685";
+  }
+
+  identity path-computation-error-p2mp {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because of P2MP reachability
+       problem.";
+    reference
+      "RFC8306";
+  }
+
+  identity path-computation-error-no-gco-migration {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because of no Global Concurrent
+       Optimization (GCO) migration path found.";
+    reference
+      "RFC5557";
+  }
+
+  identity path-computation-error-no-gco-solution {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because of no GCO solution
+       found.";
+    reference
+      "RFC5557";
+  }
+
+  identity path-computation-error-path-not-found {
+    base path-computation-error-reason;
+    description
+      "Path computation no path found error reason.";
+    reference
+      "RFC5440";
+  }
+
+  identity path-computation-error-pks-expansion {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because of Path-Key Subobject
+       (PKS)  expansion failure.";
+    reference
+      "RFC5520";
+  }
+
+  identity path-computation-error-brpc-chain-unavailable {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because PCE BRPC chain
+       unavailable.";
+    reference
+      "RFC5441";
+  }
+
+  identity path-computation-error-source-unknown {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because source node is unknown.";
+    reference
+      "RFC5440";
+  }
+
+  identity path-computation-error-destination-unknown {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because destination node is
+       unknown.";
+    reference
+      "RFC5440";
+  }
+
+  identity path-computation-error-no-server {
+    base path-computation-error-reason;
+    description
+      "Path computation has failed because path computation
+       server is unavailable.";
+    reference
+      "RFC5440";
+  }
+
+  // NOTE: The base identity tunnel-actions-type and 
+  // its derived identities below have been
+  // added in this module revision
+  // RFC Editor: remove the note above and this note
+  identity tunnel-actions-type {
+    description
+      "TE tunnel actions type.";
+  }
+
+  identity tunnel-action-reoptimize {
+    base tunnel-actions-type;
+    description
+      "Reoptimize tunnel action type.";
+  }
+
+  // NOTE: The base identity protocol-origin-type and 
+  // its derived identities below have been
+  // added in this module revision
+  // RFC Editor: remove the note above and this note
+  identity protocol-origin-type {
+    description
+      "Base identity for protocol origin type.";
+  }
+
+  identity protocol-origin-api {
+    base protocol-origin-type;
+    description
+      "Protocol origin is via Application Programmable Interface
+       (API).";
+  }
+
+  identity protocol-origin-pcep {
+    base protocol-origin-type;
+    description
+      "Protocol origin is Path Computation Engine Protocol (PCEP).";
+    reference "RFC5440";
+  }
+
+  identity protocol-origin-bgp {
+    base protocol-origin-type;
+    description
+      "Protocol origin is Border Gateway Protocol (BGP).";
+    reference "RFC5512";
   }
 
   /**
@@ -3374,6 +3655,33 @@ module ietf-te-types {
           uses explicit-route-hop;
         }
       }
+    }
+  }
+
+  // NOTE: The grouping encoding-and-switching-type below has been
+  // added in this module revision
+  // RFC Editor: remove the note above and this note
+  grouping encoding-and-switching-type {
+    description
+      "Common grouping to define the LSP encoding and
+      switching types";
+    leaf encoding {
+      type identityref {
+        base te-types:lsp-encoding-types;
+      }
+      description
+        "LSP encoding type.";
+      reference
+        "RFC3945";
+    }
+    leaf switching-type {
+      type identityref {
+        base te-types:switching-capabilities;
+      }
+      description
+        "LSP switching type.";
+      reference
+        "RFC3945";
     }
   }
 }

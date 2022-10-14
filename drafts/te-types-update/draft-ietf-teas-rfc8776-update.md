@@ -136,7 +136,7 @@ in this module revision. Please focus your review on this part. See also {{yang-
 RFC Editor: remove the note above and this note
 
 ~~~~ yang
-{::include ./ietf-te-types.yang}
+{::include ../../ietf-te-types.yang}
 ~~~~
 {: #fig-pc-yang title="TE Types YANG module"
 sourcecode-markers="true" sourcecode-name="ietf-te-types@2022-03-25.yang"}
@@ -147,8 +147,7 @@ Editors' note: Copy the text from {{!RFC8776}} before WG LC if the RFC8876-bis a
 
 # IANA Considerations
 
-   This document registers the following URIs in the "ns" subregistry
-   within the "IETF XML registry" {{!RFC3688}}.
+For the following URIs in the "IETF XML Registry" {{?RFC3688}}, IANA has updated the reference field to refer to this document:
 
 ~~~~
       URI: urn:ietf:params:xml:ns:yang:ietf-te-types
@@ -160,8 +159,8 @@ Editors' note: Copy the text from {{!RFC8776}} before WG LC if the RFC8876-bis a
       XML: N/A, the requested URI is an XML namespace.
 ~~~~
 
-   This document registers a YANG module in the "YANG Module Names"
-   registry {{!RFC7950}}.
+This document also adds updated YANG modules to the "YANG Module
+Names" registry {{!RFC7950}}:
 
 ~~~~
       name:      ietf-te-types
@@ -197,7 +196,7 @@ To be added in a future revision of this draft.
 
 {: #yang-diff}
 
-# TE Types YANG Diffs
+## TE Types YANG Diffs
 
 This section provides the diff between the YANG module in section 3.1 of {{!RFC8776}} and the YANG model revision in {{yang-code}}.
 
