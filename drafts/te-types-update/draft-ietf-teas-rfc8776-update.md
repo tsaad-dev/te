@@ -48,7 +48,7 @@ author:
 
 --- abstract
 
-   This document defines few additional common data types and groupings
+   This document defines few additional common data types, identities, and groupings
    in YANG data modeling language to be imported by modules that model Traffic
    Engineering (TE) configuration and state capabilities.
 
@@ -61,13 +61,13 @@ Editors' note: Copy the text from {{!RFC8776}} and merge it with the content of 
 
 # Introduction
 
-After the publication of {{!RFC8776}}, a new typedef and a new grouping to ietf-te-types have been defined. Given their broad applicability this document defines them as part of the ietf-te-types YANG model.
+After the publication of {{!RFC8776}}, few additional common data types, identities, and groupings have been defined. Given their broad applicability this document defines them as part of the revised ietf-te-types YANG model.
 
 Editors' note: Copy the text from {{!RFC8776}} and merge it with the content of this section before WG LC if the RFC8876-bis approach is confirmed.
 
-NOTE: These definitions have been developed in {{?I-D.ietf-teas-yang-te}} and {{?I-D.ietf-teas-yang-l3-te-topo}} and are quite mature: {{?I-D.ietf-teas-yang-te}} in particular is ready from WG Last Call.
+CHANGE NOTE: These definitions have been developed in {{?I-D.ietf-teas-yang-te}}, {{?I-D.ietf-teas-yang-path-computation}} and {{?I-D.ietf-teas-yang-l3-te-topo}} and are quite mature: {{?I-D.ietf-teas-yang-te}} and {{?I-D.ietf-teas-yang-path-computation}} in particular are in WG Last Call and some definitions have been moved to this document as part of WG LC comments resolution.
 
-RFC Editor: remove the note above and this note
+RFC Editor: remove the CHANGE NOTE above and this note
 
 ## Requirements Notation
 
@@ -106,15 +106,61 @@ Editors' note: Copy the text from {{!RFC8776}} before WG LC if the RFC8876-bis a
 
 Editors' note: Copy the text from {{!RFC8776}} and merge it with the content of this section before WG LC if the RFC8876-bis approach is confirmed.
 
-   The module ietf-te-types has been updated to add the following
-   YANG identies, types and groupings which can be reused by TE YANG models:
+The module ietf-te-types updates the following YANG identities defined in {{!RFC8776}}:
 
-bandwidth-scientific-notation
-: This types represents the bandwidth in
-bit-per-second, using the scientific notation (e.g., 10e3).
+association-type:
 
-encoding-and-switching-type
-: This is a common grouping to define the LSP encoding and switching types.
+> A base YANG identity for supported LSP association types as defined in {{!RFC6780}}, {{!RFC4872}}, {{!RFC4873}} and {{!RFC8800}}
+
+objective-function-type:
+
+> A base YANG identity for supported path objective functions, as defined in {{!RFC5541}}.
+
+CHANGE NOTE: The association-type-diversity identity, defined in {{!RFC8800}} has been added to the association-type base identity. The of-minimize-agg-bandwidth-consumption, of-minimize-load-most-loaded-link and of-minimize-cost-path-set, defined in {{!RFC5541}}, have been obsoleted because not applicable to paths but to Synchronization VECtor (SVEC) objects.
+
+RFC Editor: remove the CHANGE NOTE above and this note
+
+The module ietf-te-types has been updated to add the following YANG identities, types and groupings which can be reused by TE YANG models:
+
+bandwidth-scientific-notation:
+
+> This data type represents the bandwidth in bit-per-second, using the scientific notation (e.g., 10e3).
+
+lsp-provisioning-error-reason:
+
+> A base YANG identity for reporting LSP provisioning error reasons. No standard LPS provisioning error reasons are defined in this document.
+
+identity path-computation-error-reason:
+
+> A base YANG identity for reporting path computation error reasons, as defined in {{!RFC5440}}, {{!RFC5441}}, {{!RFC5520}}, {{!RFC5557}}, {{!RFC8306}} and {{!RFC8685}}.
+
+Editors' Note: how to describe the path computation error reasons defined in this document?
+
+tunnel-actions-type:
+
+> A base YANG identity for tunnel actions.
+
+Editors' Note: check whether standard tunnel actions should be defined in this document or not.
+
+protocol-origin-type:
+
+>  A base YANG identity for the type of protocol origin, as defined in {{!RFC5440}} and {{!RFC5512}}.
+
+Editors' Note: how to describe the protocol origin types defined in this document?
+
+svec-objective-function-type:
+
+> A base YANG identity for supported SVEC objective functions, as defined in {{!RFC5541}} and {{!RFC8685}}.
+
+svec-metric-type:
+
+> A base YANG identity for supported SVEC objective functions, as defined in {{!RFC5541}}.
+
+encoding-and-switching-type:
+
+> This is a common grouping to define the LSP encoding and switching types.
+
+Editors' Note: how to describe the tunnel-admin-auto, which is defined in this document as derived from tunnel-admin-status-type base identity?
 
 ## Packet TE Types Module Contents
 
@@ -129,17 +175,15 @@ Editors' note: Copy the text from {{!RFC8776}} and merge it with the content of 
 This section provides the updated revision of the "ietf-te-types"
 YANG module.
 
-NOTE: Only the typedef bandwidth-scientific-notation and 
-the grouping encoding-and-switching-type have been added
-in this module revision. Please focus your review on this part. See also {{yang-diff}}.
+CHANGE NOTE: Please focus your review only on the updates to the YANG model: see also {{yang-diff}}.
 
-RFC Editor: remove the note above and this note
+RFC Editor: remove the CHANGE NOTE above and this note
 
 ~~~~ yang
 {::include ../../ietf-te-types.yang}
 ~~~~
 {: #fig-pc-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2022-10-15.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2022-10-21.yang"}
 
 # Packet TE Types YANG Module
 
@@ -198,13 +242,13 @@ To be added in a future revision of this draft.
 
 ## TE Types YANG Diffs
 
+RFC Editor Note: please remove this appendix before publication.
+
 This section provides the diff between the YANG module in section 3.1 of {{!RFC8776}} and the YANG model revision in {{yang-code}}.
 
 The intention of this appendix is to facilitate focusing the review of the YANG model in {{yang-code}} to the changes compared with the YANG model in {{!RFC8776}}.
 
-Editors note, please remove this appendix before publication.
-
-Note - This diff has been generated using the following UNIX commands to compare the YANG module revisions in section 3.1 of {{!RFC8776}} and in {{yang-code}}:
+This diff has been generated using the following UNIX commands to compare the YANG module revisions in section 3.1 of {{!RFC8776}} and in {{yang-code}}:
 
 ~~~~~
 diff ietf-te-types@2020-06-10.yang ietf-te-types.yang > model-diff.txt
@@ -219,6 +263,8 @@ The output (model-updates.txt) is reported here:
 {: #options}
 
 # Option Considered for updating RFC8776
+
+RFC Editor Note: please remove this appendix before publication.
 
 The concern is how to be able to update the ietf-te-types YANG module published in {{!RFC8776}} without delaying too much the progress of the mature WG documents.
 
@@ -247,8 +293,6 @@ https://datatracker.ietf.org/meeting/114/materials/slides-114-netmod-ad-topic-ma
 Future updates of this document could align with the proposed approach.
 
 Therefore, in order to avoid useless editorial work, this version of the document has been structured to become an RFC8776-bis but not all the existing text in {{!RFC8776}} has been copied: some editors' notes has been inserted instead. These editors' note will be removed and replaced by actual text copied from {{!RFC8776}} before WG LC if the RFC8776-bis approach is confirmed.
-
-Editors note, please remove this appendix before publication.
 
 {: numbered="false"}
 
