@@ -139,7 +139,7 @@ RFC Editor: remove the note above and this note
 {::include ../../ietf-te-types.yang}
 ~~~~
 {: #fig-pc-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2022-03-25.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2022-10-15.yang"}
 
 # Packet TE Types YANG Module
 
