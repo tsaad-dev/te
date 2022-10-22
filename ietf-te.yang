@@ -89,22 +89,6 @@ module ietf-te {
        configured TE tunnel.";
   }
 
-  typedef path-ref {
-    type union {
-      type leafref {
-        path "/te:te/te:tunnels/te:tunnel/"
-           + "te:primary-paths/te:primary-path/te:name";
-      }
-      type leafref {
-        path "/te:te/te:tunnels/te:tunnel/"
-           + "te:secondary-paths/te:secondary-path/te:name";
-      }
-    }
-    description
-      "This type is used by data models that need to reference
-       configured primary or secondary path of a TE tunnel.";
-  }
-
   typedef te-gen-node-id {
     type union {
       type te-types:te-node-id;
@@ -299,13 +283,11 @@ module ietf-te {
         }
         leaf error-node-id {
           type te-types:te-node-id;
-          default "0.0.0.0";
           description
             "Node identifier of node where error occurred.";
         }
         leaf error-link-id {
           type te-types:te-tp-id;
-          default "0";
           description
             "Link ID where the error occurred.";
         }
@@ -332,13 +314,16 @@ module ietf-te {
         }
         leaf node {
           type leafref {
-            path "/te:te/te:lsps/te:lsp/te:node";
+            path "/te:te/te:lsps/te:lsp[tunnel-name="
+               + "current()/../te:tunnel-name][lsp-id="
+               + "current()/../te:lsp-id]/te:node";
           }
           description "The node where the LSP state resides on.";
         }
         leaf lsp-id {
           type leafref {
-            path "/te:te/te:lsps/te:lsp/te:lsp-id";
+            path "/te:te/te:lsps/te:lsp[tunnel-name="
+			   + "current()/../tunnel-name]/te:lsp-id";
           }
           description "The TE LSP identifier.";
         }
@@ -422,7 +407,6 @@ module ietf-te {
         "Protection parameters.";
       leaf enable {
         type boolean;
-        default "false";
         description
           "A flag to specify if LSP protection is enabled.";
         reference
@@ -479,14 +463,6 @@ module ietf-te {
     container restoration {
       description
         "Restoration parameters.";
-      leaf enable {
-        type boolean;
-        default "false";
-        description
-          "A flag to specify if LSP restoration is enabled.";
-        reference
-          "RFC4427";
-      }
       leaf restoration-type {
         type identityref {
           base te-types:lsp-restoration-type;
@@ -699,24 +675,30 @@ module ietf-te {
       container hierarchical-link {
         description
           "Identifies a hierarchical link (in client layer)
-           that this tunnel is associated with.";
+           that this tunnel is associated with. By default, the
+           topology of the hierarchical link is the same topology of
+           the tunnel;";
         reference
           "RFC4206";
+        leaf enable {
+          type boolean;
+          default "false";
+          description
+            "Enables the hierarchical link properties supported by
+             this tunnel";
+        }
         leaf local-te-node-id {
           type te-types:te-node-id;
-          default "0.0.0.0";
           description
             "The local TE node identifier.";
         }
         leaf local-te-link-tp-id {
           type te-types:te-tp-id;
-          default "0";
           description
             "The local TE link termination point identifier.";
         }
         leaf remote-te-node-id {
           type te-types:te-node-id;
-          default "0.0.0.0";
           description
             "Remote TE node identifier.";
         }
@@ -781,9 +763,15 @@ module ietf-te {
    */
 
   container te {
-    presence "Enable TE feature.";
     description
       "TE global container.";
+    leaf enable {
+      type boolean;
+      default "false";
+      description
+        "Enables the TE component features.";
+    }
+
     /* TE Global Data */
     container globals {
       description
@@ -1112,11 +1100,11 @@ module ietf-te {
                  By default, the action applies to the ingress node
                  only.";
             }
-            leaf path-ref {
-              type path-ref;
+            leaf path-name {
+              type string;
               description
-                "Indicates to which path the external command applies
-                 to.";
+                "The name of the path that the external command
+                applies to.";
             }
             leaf traffic-type {
               type enumeration {
@@ -1247,7 +1235,6 @@ module ietf-te {
                 "Origin transit.";
             }
           }
-          default "ingress";
           description
             "The origin of the LSP relative to the location of the
              local switch in the path.";
@@ -1267,7 +1254,6 @@ module ietf-te {
                  has not been committed at the data plane.";
             }
           }
-          default "primary";
           description
             "LSP resource allocation state.";
           reference
@@ -1275,7 +1261,6 @@ module ietf-te {
         }
         leaf lockout-of-normal {
           type boolean;
-          default "false";
           description
             "When set to 'true', it represents a lockout of normal
              traffic external command. When set to 'false', it
@@ -1287,7 +1272,6 @@ module ietf-te {
         }
         leaf freeze {
           type boolean;
-          default "false";
           description
             "When set to 'true', it represents a freeze external
              command.  When set to 'false', it represents a clear
@@ -1313,7 +1297,6 @@ module ietf-te {
                  has not been committed at the data plane.";
             }
           }
-          default "working";
           description
             "LSP role type.";
           reference
@@ -1323,7 +1306,6 @@ module ietf-te {
           type identityref {
             base te-types:lsp-protection-state;
           }
-          default "te-types:normal";
           description
             "The APS state machine controlling which
              tunnels are using the resources of the protecting LSP.";
@@ -1332,7 +1314,6 @@ module ietf-te {
         }
         leaf protection-group-ingress-node-id {
           type te-types:te-node-id;
-          default "0.0.0.0";
           description
             "Indicates the te-node-id of the protection group
              ingress node when the APS state represents an external
@@ -1346,7 +1327,6 @@ module ietf-te {
         }
         leaf protection-group-egress-node-id {
           type te-types:te-node-id;
-          default "0.0.0.0";
           description
             "Indicates the te-node-id of the protection group egress
              node when the APS state represents an external command

@@ -1,5 +1,6 @@
 module: ietf-te
-  +--rw te!
+  +--rw te
+     +--rw enable?    boolean
      +--rw globals
      |  +--rw named-admin-groups
      |  |  +--rw named-admin-group* [name]
@@ -78,7 +79,7 @@ module: ietf-te
      |           +---w protection-external-command?     identityref
      |           +---w protection-group-ingress-node?   boolean
      |           +---w protection-group-egress-node?    boolean
-     |           +---w path-ref?                        path-ref
+     |           +---w path-name?                       string
      |           +---w traffic-type?                    enumeration
      |           +---w extra-traffic-tunnel-ref?        tunnel-ref
      +--ro lsps
@@ -165,8 +166,8 @@ module: ietf-te
     +--ro lsps
        +--ro lsp* [node lsp-id]
           +--ro tunnel-name?   -> /te/lsps/lsp/tunnel-name
-          +--ro node?          -> /te/lsps/lsp/node
-          +--ro lsp-id?        -> /te/lsps/lsp/lsp-id
+          +--ro node?          leafref
+          +--ro lsp-id?        leafref
   grouping path-computation-response:
     +--ro computed-paths-properties
     |  +--ro computed-path-properties* [k-index]
@@ -186,7 +187,6 @@ module: ietf-te
     |  +-- wait-to-revert?                 uint16
     |  +-- aps-signal-id?                  uint8
     +-- restoration
-       +-- enable?                          boolean
        +-- restoration-type?                identityref
        +-- restoration-scheme?              identityref
        +-- restoration-reversion-disable?   boolean
@@ -223,6 +223,7 @@ module: ietf-te
        |     |       -> /te/tunnels/tunnel/name
        |     +---u te-types:encoding-and-switching-type
        +-- hierarchical-link
+          +-- enable?                            boolean
           +-- local-te-node-id?                  te-types:te-node-id
           +-- local-te-link-tp-id?               te-types:te-tp-id
           +-- remote-te-node-id?                 te-types:te-node-id
@@ -235,229 +236,3 @@ module: ietf-te
     |  +---u te-types:label-set-info
     +-- path-out-segment!
        +---u te-types:label-set-info
-
-module: ietf-te-types
-
-  grouping te-bandwidth:
-    +-- te-bandwidth
-       +-- (technology)?
-          +--:(generic)
-             +-- generic?   te-bandwidth
-  grouping te-label:
-    +-- te-label
-       +-- (technology)?
-       |  +--:(generic)
-       |     +-- generic?   rt-types:generalized-label
-       +-- direction?       te-label-direction
-  grouping te-topology-identifier:
-    +-- te-topology-identifier
-       +-- provider-id?   te-global-id
-       +-- client-id?     te-global-id
-       +-- topology-id?   te-topology-id
-  grouping performance-metrics-one-way-delay-loss:
-    +-- one-way-delay?             uint32
-    +-- one-way-delay-normality?
-            te-types:performance-metrics-normality
-  grouping performance-metrics-two-way-delay-loss:
-    +-- two-way-delay?             uint32
-    +-- two-way-delay-normality?
-            te-types:performance-metrics-normality
-  grouping performance-metrics-one-way-bandwidth:
-    +-- one-way-residual-bandwidth?
-    |       rt-types:bandwidth-ieee-float32
-    +-- one-way-residual-bandwidth-normality?
-    |       te-types:performance-metrics-normality
-    +-- one-way-available-bandwidth?
-    |       rt-types:bandwidth-ieee-float32
-    +-- one-way-available-bandwidth-normality?
-    |       te-types:performance-metrics-normality
-    +-- one-way-utilized-bandwidth?
-    |       rt-types:bandwidth-ieee-float32
-    +-- one-way-utilized-bandwidth-normality?
-            te-types:performance-metrics-normality
-  grouping one-way-performance-metrics:
-    +-- one-way-delay?                 uint32
-    +-- one-way-residual-bandwidth?
-    |       rt-types:bandwidth-ieee-float32
-    +-- one-way-available-bandwidth?
-    |       rt-types:bandwidth-ieee-float32
-    +-- one-way-utilized-bandwidth?
-            rt-types:bandwidth-ieee-float32
-  grouping two-way-performance-metrics:
-    +-- two-way-delay?   uint32
-  grouping performance-metrics-thresholds:
-    +---u one-way-performance-metrics
-    +---u two-way-performance-metrics
-  grouping performance-metrics-attributes:
-    +-- performance-metrics-one-way
-    |  +---u performance-metrics-one-way-delay-loss
-    |  +---u performance-metrics-one-way-bandwidth
-    +-- performance-metrics-two-way
-       +---u performance-metrics-two-way-delay-loss
-  grouping performance-metrics-throttle-container:
-    +-- throttle
-       +-- one-way-delay-offset?                  uint32
-       +-- measure-interval?                      uint32
-       +-- advertisement-interval?                uint32
-       +-- suppression-interval?                  uint32
-       +-- threshold-out
-       |  +---u performance-metrics-thresholds
-       +-- threshold-in
-       |  +---u performance-metrics-thresholds
-       +-- threshold-accelerated-advertisement
-          +---u performance-metrics-thresholds
-  grouping explicit-route-hop:
-    +-- (type)?
-       +--:(numbered-node-hop)
-       |  +-- numbered-node-hop
-       |     +-- node-id     te-node-id
-       |     +-- hop-type?   te-hop-type
-       +--:(numbered-link-hop)
-       |  +-- numbered-link-hop
-       |     +-- link-tp-id    te-tp-id
-       |     +-- hop-type?     te-hop-type
-       |     +-- direction?    te-link-direction
-       +--:(unnumbered-link-hop)
-       |  +-- unnumbered-link-hop
-       |     +-- link-tp-id    te-tp-id
-       |     +-- node-id       te-node-id
-       |     +-- hop-type?     te-hop-type
-       |     +-- direction?    te-link-direction
-       +--:(as-number)
-       |  +-- as-number-hop
-       |     +-- as-number    inet:as-number
-       |     +-- hop-type?    te-hop-type
-       +--:(label)
-          +-- label-hop
-             +---u te-label
-  grouping record-route-state:
-    +-- index?                       uint32
-    +-- (type)?
-       +--:(numbered-node-hop)
-       |  +-- numbered-node-hop
-       |     +-- node-id    te-node-id
-       |     +-- flags*     path-attribute-flags
-       +--:(numbered-link-hop)
-       |  +-- numbered-link-hop
-       |     +-- link-tp-id    te-tp-id
-       |     +-- flags*        path-attribute-flags
-       +--:(unnumbered-link-hop)
-       |  +-- unnumbered-link-hop
-       |     +-- link-tp-id    te-tp-id
-       |     +-- node-id?      te-node-id
-       |     +-- flags*        path-attribute-flags
-       +--:(label)
-          +-- label-hop
-             +---u te-label
-             +-- flags*      path-attribute-flags
-  grouping label-restriction-info:
-    +-- restriction?    enumeration
-    +-- index?          uint32
-    +-- label-start
-    |  +---u te-label
-    +-- label-end
-    |  +---u te-label
-    +-- label-step
-    |  +-- (technology)?
-    |     +--:(generic)
-    |        +-- generic?   int32
-    +-- range-bitmap?   yang:hex-string
-  grouping label-set-info:
-    +-- label-restrictions
-       +-- label-restriction* [index]
-          +---u label-restriction-info
-  grouping optimization-metric-entry:
-    +-- metric-type?                      identityref
-    +-- weight?                           uint8
-    +-- explicit-route-exclude-objects
-    |  +---u path-route-exclude-objects
-    +-- explicit-route-include-objects
-       +---u path-route-include-objects
-  grouping common-constraints:
-    +---u te-bandwidth
-    +-- link-protection?   identityref
-    +-- setup-priority?    uint8
-    +-- hold-priority?     uint8
-    +-- signaling-type?    identityref
-  grouping tunnel-constraints:
-    +---u te-topology-identifier
-    +---u common-constraints
-  grouping path-constraints-route-objects:
-    +-- explicit-route-objects-always
-       +-- route-object-exclude-always* [index]
-       |  +-- index?                uint32
-       |  +---u explicit-route-hop
-       +-- route-object-include-exclude* [index]
-          +-- explicit-route-usage?   identityref
-          +-- index?                  uint32
-          +---u explicit-route-hop
-  grouping path-route-include-objects:
-    +-- route-object-include-object* [index]
-       +-- index?                uint32
-       +---u explicit-route-hop
-  grouping path-route-exclude-objects:
-    +-- route-object-exclude-object* [index]
-       +-- index?                uint32
-       +---u explicit-route-hop
-  grouping generic-path-metric-bounds:
-    +-- path-metric-bounds
-       +-- path-metric-bound* [metric-type]
-          +-- metric-type?   identityref
-          +-- upper-bound?   uint64
-  grouping generic-path-optimization:
-    +-- optimizations
-       +-- (algorithm)?
-          +--:(metric) {path-optimization-metric}?
-          |  +-- optimization-metric* [metric-type]
-          |  |  +---u optimization-metric-entry
-          |  +-- tiebreakers
-          |     +-- tiebreaker* [tiebreaker-type]
-          |        +-- tiebreaker-type?   identityref
-          +--:(objective-function)
-                   {path-optimization-objective-function}?
-             +-- objective-function
-                +-- objective-function-type?   identityref
-  grouping generic-path-affinities:
-    +-- path-affinities-values
-    |  +-- path-affinities-value* [usage]
-    |     +-- usage?   identityref
-    |     +-- value?   admin-groups
-    +-- path-affinity-names
-       +-- path-affinity-name* [usage]
-          +-- usage?           identityref
-          +-- affinity-name* [name]
-             +-- name?   string
-  grouping generic-path-srlgs:
-    +-- path-srlgs-lists
-    |  +-- path-srlgs-list* [usage]
-    |     +-- usage?    identityref
-    |     +-- values*   srlg
-    +-- path-srlgs-names
-       +-- path-srlgs-name* [usage]
-          +-- usage?   identityref
-          +-- names*   string
-  grouping generic-path-disjointness:
-    +-- disjointness?   te-path-disjointness
-  grouping common-path-constraints-attributes:
-    +---u common-constraints
-    +---u generic-path-metric-bounds
-    +---u generic-path-affinities
-    +---u generic-path-srlgs
-  grouping generic-path-constraints:
-    +-- path-constraints
-       +---u common-path-constraints-attributes
-       +---u generic-path-disjointness
-  grouping generic-path-properties:
-    +--ro path-properties
-       +--ro path-metric* [metric-type]
-       |  +--ro metric-type?          identityref
-       |  +--ro accumulative-value?   uint64
-       +---u generic-path-affinities
-       +---u generic-path-srlgs
-       +--ro path-route-objects
-          +--ro path-route-object* [index]
-             +--ro index?                uint32
-             +---u explicit-route-hop
-  grouping encoding-and-switching-type:
-    +-- encoding?         identityref
-    +-- switching-type?   identityref
