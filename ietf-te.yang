@@ -32,7 +32,7 @@ module ietf-te {
      WG List:  <mailto:teas@ietf.org>
 
      Editor:   Tarek Saad
-               <mailto:tsaad@juniper.net>
+               <mailto:tsaad.net@gmail.com>
 
      Editor:   Rakesh Gandhi
                <mailto:rgandhi@cisco.com>
@@ -264,7 +264,7 @@ module ietf-te {
       description
         "The number of k-shortest-paths requested from the path
          computation server and returned sorted by its optimization
-         objective. The value 0 all possible paths.";
+         objective.";
     }
   }
 
@@ -279,10 +279,17 @@ module ietf-te {
       list lsp-provisioning-error-info {
         description
           "List of LSP provisioning error info entries.";
+        leaf error-reason {
+          type identityref {
+            base te-types:lsp-provisioning-error-reason;
+          }
+          description
+            "LSP provision error type.";
+        }
         leaf error-description {
           type string;
           description
-            "FIXME: Textual representation of the error occurred during
+            "The textual representation of the error occurred during
              path computation.";
         }
         leaf error-timestamp {
@@ -438,7 +445,6 @@ module ietf-te {
       leaf hold-off-time {
         type uint32;
         units "milli-seconds";
-        default "0";
         description
           "The time between the declaration of an SF or SD condition
            and the initialization of the protection switching
@@ -631,31 +637,6 @@ module ietf-te {
   }
 
   /* This grouping is re-used in path-computation rpc */
-  grouping encoding-and-switching-type {
-    description
-      "Common grouping to define the LSP encoding and
-      switching types";
-    leaf encoding {
-      type identityref {
-        base te-types:lsp-encoding-types;
-      }
-      description
-        "LSP encoding type.";
-      reference
-        "RFC3945";
-    }
-    leaf switching-type {
-      type identityref {
-        base te-types:switching-capabilities;
-      }
-      description
-        "LSP switching type.";
-      reference
-        "RFC3945";
-    }
-  }
-
-  /* This grouping is re-used in path-computation rpc */
   grouping tunnel-common-attributes {
     description
       "Common grouping to define the TE tunnel parameters";
@@ -712,7 +693,7 @@ module ietf-te {
               "Dependency tunnel name. The tunnel may not have been
                instantiated yet.";
           }
-          uses encoding-and-switching-type;
+          uses te-types:encoding-and-switching-type;
         }
       }
       container hierarchical-link {
@@ -932,7 +913,7 @@ module ietf-te {
           description
             "TE tunnel operational state.";
         }
-        uses encoding-and-switching-type;
+        uses te-types:encoding-and-switching-type;
         uses tunnel-common-attributes;
         container controller {
           description
@@ -1344,7 +1325,7 @@ module ietf-te {
           }
           default "te-types:normal";
           description
-            "The state of the APS state machine controlling which
+            "The APS state machine controlling which
              tunnels are using the resources of the protecting LSP.";
           reference
             "RFC7271 and RFC8234";
@@ -1377,10 +1358,10 @@ module ietf-te {
              unknown (e.g., because the ingress node is outside the
              scope of control of the server)";
         }
-        container lsp-record-route-information {
+        container lsp-actual-route-information {
           description
             "RSVP recorded route object information.";
-          list lsp-record-route-information {
+          list lsp-actual-route-information {
             when "../../origin-type = 'ingress'" {
               description
                 "Applicable on ingress LSPs only.";
