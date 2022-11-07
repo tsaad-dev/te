@@ -27,8 +27,8 @@ author:
     email: xufeng.liu.ietf@gmail.com
   -
     name: Tarek Saad
-    org: Juniper Networks
-    email: tsaad@juniper.net
+    org: Cisco Systems, Inc.
+    email: tsaad.net@gmail.com
   -
     name: Rakesh Gandhi
     org: Cisco Systems, Inc.
@@ -129,7 +129,7 @@ contributor:
   turns augment the generic ietf-te-topology YANG module, defined in
   {{!RFC8795}}, as shown in {{fig-mpls-te-topo}}.
 
-~~~~
+~~~~ ascii-art
                   +------------------+    o: augment
      TE generic   | ietf-te-topology |
                   +------------------+
@@ -243,12 +243,10 @@ Note: TE Bandwidth Augmentations for paths, LSPs and links are provided by the i
 
 # YANG model for common MPLS-TE Types
 
-~~~~
-<CODE BEGINS> file "ietf-mpls-te-types@2021-10-12.yang"
+~~~~ yang
 {::include ../../ietf-mpls-te-types.yang}
-<CODE ENDS>
 ~~~~
-{: #fig-mpls-te-types-yang title="MPLS-TE Types YANG model"}
+{: #fig-mpls-te-types-yang title="MPLS-TE Types YANG model" sourcecode-markers="true" sourcecode-name="ietf-mpls-te-types@2022-11-07.yang"}
 
 {: #mpls-te-topology}
 
@@ -261,21 +259,19 @@ Note: TE Bandwidth Augmentations for paths, LSPs and links are provided by the i
   {{fig-mpls-te-topology-tree}} below shows the tree diagram of the YANG model defined in
   module ietf-te-mpls-topology.yang.
 
-~~~~
+~~~~ ascii-art
 {::include ../../ietf-te-mpls-topology.tree}
 ~~~~
-{: #fig-mpls-te-topology-tree title="MPLS-TE topology YANG tree"}
+{: #fig-mpls-te-topology-tree title="MPLS-TE topology YANG tree" artwork-name="ietf-te-mpls-topology.tree"}
 
 {: #mpls-te-topology-yang}
 
 ## YANG Code
 
-~~~~
-<CODE BEGINS> file "ietf-te-mpls-topology@2021-07-12.yang"
+~~~~ yang
 {::include ../../ietf-te-mpls-topology.yang}
-<CODE ENDS>
 ~~~~
-{: #fig-mpls-te-topology-yang title="MPLS-TE topology YANG module"}
+{: #fig-mpls-te-topology-yang title="MPLS-TE topology YANG module" sourcecode-markers="true" sourcecode-name="ietf-te-mpls-topology@2022-11-07.yang"}
 
 {: #security}
 
