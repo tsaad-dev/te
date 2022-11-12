@@ -4,7 +4,7 @@ coding: utf-8
 title: A YANG Data Model for MPLS-TE Topology
 
 abbrev: MPLS-TE Topology YANG Model
-docname: draft-busizheng-teas-yang-te-mpls-topology-02
+docname: draft-busizheng-teas-yang-te-mpls-topology-04
 workgroup: TEAS Working Group
 category: std
 ipr: trust200902
@@ -18,30 +18,32 @@ author:
     org: Huawei Technologies
     email: italo.busi@huawei.com
   -
-    name: Haomian Zheng
-    org: Huawei Technologies
-    email: zhenghaomian@huawei.com
-  -
     name: Aihua Guo
     org: Futurewei Inc.
     email: aihuaguo.ietf@gmail.com
   -
     name: Xufeng Liu
-    org: Volta Networks
+    org: IBM Corporation
     email: xufeng.liu.ietf@gmail.com
+  -
+    name: Tarek Saad
+    org: Cisco Systems, Inc.
+    email: tsaad.net@gmail.com
+  -
+    name: Rakesh Gandhi
+    org: Cisco Systems, Inc.
+    email: rgandhi@cisco.com
+
+contributor:
+  -
+    name: Haomian Zheng
+    org: Huawei Technologies
+    email: zhenghaomian@huawei.com
   -
     name: Vishnu Pavan Beeram
     ins: V. Beeram
     org: Juniper Networks
     email: vbeeram@juniper.net
-  -
-    name: Tarek Saad
-    org: Juniper Networks
-    email: tsaad@juniper.net
-  -
-    name: Rakesh Gandhi
-    org: Cisco Systems, Inc.
-    email: rgandhi@cisco.com
   -
     name: Igor Bryskin
     org: Individual
@@ -50,12 +52,6 @@ author:
     name: Yanlei Zheng
     org: China Unicom
     email: zhengyanlei@chinaunicom.cn
-
-#contributor:
-#  -
-#    name: Italo Busi
-#    org: Huawei
-#    email: italo.busi@huawei.com
 
 --- abstract
 
@@ -114,14 +110,14 @@ author:
   types and groupings which can be
   reused by MPLS-TE YANG models:
 
-  load-balancing-type
+  load-balancing-type:
 
-  : This identify defines the types of load-balancing algorithms used on
+  > This identify defines the types of load-balancing algorithms used on
   bundled MPLS-TE link.
 
-  te-mpls-label-hop
+  te-mpls-label-hop:
 
-  : This grouping is used for the augmentation of TE label for MPLS-TE
+  > This grouping is used for the augmentation of TE label for MPLS-TE
   path.
 
 {: #mpls-te-topo-overview}
@@ -133,7 +129,7 @@ author:
   turns augment the generic ietf-te-topology YANG module, defined in
   {{!RFC8795}}, as shown in {{fig-mpls-te-topo}}.
 
-~~~~
+~~~~ ascii-art
                   +------------------+    o: augment
      TE generic   | ietf-te-topology |
                   +------------------+
@@ -247,12 +243,10 @@ Note: TE Bandwidth Augmentations for paths, LSPs and links are provided by the i
 
 # YANG model for common MPLS-TE Types
 
-~~~~
-<CODE BEGINS>file "ietf-mpls-te-types@2021-07-12.yang"
+~~~~ yang
 {::include ../../ietf-mpls-te-types.yang}
-<CODE ENDS>
 ~~~~
-{: #fig-mpls-te-types-yang title="MPLS-TE Types YANG model"}
+{: #fig-mpls-te-types-yang title="MPLS-TE Types YANG model" sourcecode-markers="true" sourcecode-name="ietf-mpls-te-types@2022-11-07.yang"}
 
 {: #mpls-te-topology}
 
@@ -265,21 +259,19 @@ Note: TE Bandwidth Augmentations for paths, LSPs and links are provided by the i
   {{fig-mpls-te-topology-tree}} below shows the tree diagram of the YANG model defined in
   module ietf-te-mpls-topology.yang.
 
-~~~~
+~~~~ ascii-art
 {::include ../../ietf-te-mpls-topology.tree}
 ~~~~
-{: #fig-mpls-te-topology-tree title="MPLS-TE topology YANG tree"}
+{: #fig-mpls-te-topology-tree title="MPLS-TE topology YANG tree" artwork-name="ietf-te-mpls-topology.tree"}
 
 {: #mpls-te-topology-yang}
 
 ## YANG Code
 
-~~~~
-<CODE BEGINS>file "ietf-te-mpls-topology@2021-07-12.yang"
+~~~~ yang
 {::include ../../ietf-te-mpls-topology.yang}
-<CODE ENDS>
 ~~~~
-{: #fig-mpls-te-topology-yang title="MPLS-TE topology YANG module"}
+{: #fig-mpls-te-topology-yang title="MPLS-TE topology YANG module" sourcecode-markers="true" sourcecode-name="ietf-te-mpls-topology@2022-11-07.yang"}
 
 {: #security}
 
