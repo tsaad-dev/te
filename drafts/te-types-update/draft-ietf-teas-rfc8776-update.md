@@ -255,11 +255,7 @@ protection-external-commands:
 
 association-type:
 
-> A base YANG identity for supported LSP association types as defined in {{?RFC6780}}, {{?RFC4872}}, {{?RFC4873}}, and {{!RFC8800}}.
-
-CHANGE NOTE: The association-type-diversity identity, defined in {{!RFC8800}}, and the association-type-bidirectional have been added to the association-type base identity.
-
-RFC Editor: remove the CHANGE NOTE above and this note
+> A base YANG identity for supported LSP association types as defined in {{associations}}.
 
 objective-function-type:
 
@@ -342,6 +338,27 @@ encoding-and-switching-type:
 CHANGE NOTE: The tunnel-admin-auto YANG identity, derived from the tunnel-admin-status-type base YANG identity has also been added. No description is provided, since no description for the tunnel-admin-status-type base YANG identity has been provided in RFC8776.
 
 RFC Editor: remove the CHANGE NOTE above and this note
+
+{: #associations}
+
+### Association Types
+
+The "ietf-te-types" module contains the YANG reusable identities for supported LSP association types as defined in {{associations}}.
+{{?RFC6780}}, {{?RFC4872}}, {{?RFC4873}}, and {{!RFC8800}}.
+
+CHANGE NOTE: The association-type-diversity identity, defined in {{!RFC8800}} has been added to the association-type base identity.
+
+RFC Editor: remove the CHANGE NOTE above and this note
+
+CHANGE NOTE: The following identity has added to the association-type base identity.
+
+RFC Editor: remove the CHANGE NOTE above and this note
+
+It also defines the following additional YANG reusable identities for supported LSP association types:
+
+association-type-bidirectional:
+
+> A YANG identity to be used, typically when managing a TE controller, to associate two unidirectional LSPs of one tunnel, regardless of how they are configured at the two endpoints.
 
 {: #pc-error}
 
