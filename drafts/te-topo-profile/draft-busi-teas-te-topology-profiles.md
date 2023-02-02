@@ -6,7 +6,7 @@ title: >
    Applicability to non-TE Use Cases
 
 abbrev: TE Topology Profiles
-docname: draft-busi-teas-te-topology-profiles-04
+docname: draft-busi-teas-te-topology-profiles-05
 submissiontype: IETF
 workgroup: TEAS Working Group
 category: info
@@ -30,7 +30,7 @@ author:
     email: i_bryskin@yahoo.com
   -
     name: Tarek Saad
-    org: Juniper Networks
+    org: Cisco Systems Inc
     email: tsaad@juniper.net
   -
     name: Oscar Gonzalez de Dios
