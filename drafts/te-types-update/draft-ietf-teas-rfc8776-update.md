@@ -29,8 +29,8 @@ author:
     email: xufeng.liu.ietf@gmail.com
   -
     name: Tarek Saad
-    org: Cisco Systems, Inc.
-    email: tsaad@juniper.net
+    org: Cisco Systems Inc.
+    email: tsaad.net@gmail.com
   -
     name: Rakesh Gandhi
     org: Cisco Systems, Inc.
