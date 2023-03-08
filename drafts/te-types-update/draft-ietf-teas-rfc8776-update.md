@@ -46,6 +46,14 @@ author:
 
 #contributor:
 
+normative:
+  MEF_10.3:
+    title: Ethernet Services Attributes Phase 3
+    author:
+      org: MEF
+    date: October 2013
+    seriesinfo: MEF 10.3
+
 informative:
   ITU-T_G.709:
     title: Interfaces for the optical transport network
@@ -66,13 +74,13 @@ YANG {{!RFC6020}} {{!RFC7950}} is a data modeling language used to model configu
 
 This document introduces a collection of common data types derived from the built-in YANG data types. The derived types and groupings are designed to be the common types applicable for modeling Traffic Engineering (TE) features in model(s) defined outside of this document.
 
-This document adds few additional common data types, identities, and groupings to the "ietf-te-types" YANG model and obsoletes {{!RFC8776}}.
+This document adds few additional common data types, identities, and groupings to both the "ietf-te-types" and the "ietf-te-packet-types" YANG models and obsoletes {{!RFC8776}}.
 
 For further details, see the revision statements of the YANG modules in Sections X and Y or the summary in Appendix A.
 
 CHANGE NOTE: These definitions have been developed in {{?I-D.ietf-teas-yang-te}}, {{?I-D.ietf-teas-yang-path-computation}} and {{?I-D.ietf-teas-yang-l3-te-topo}} and are quite mature: {{?I-D.ietf-teas-yang-te}} and {{?I-D.ietf-teas-yang-path-computation}} in particular are in WG Last Call and some definitions have been moved to this document as part of WG LC comments resolution.
 
-RFC Editor: remove the CHANGE NOTE above and this note
+RFC Editor: remove the CHANGE NOTEs above and this note
 
 ## Requirements Notation
 
@@ -350,16 +358,6 @@ CHANGE NOTE: The association-type-diversity identity, defined in {{!RFC8800}} ha
 
 RFC Editor: remove the CHANGE NOTE above and this note
 
-CHANGE NOTE: The following identity has added to the association-type base identity.
-
-RFC Editor: remove the CHANGE NOTE above and this note
-
-It also defines the following additional YANG reusable identities for supported LSP association types:
-
-association-type-bidirectional:
-
-> A YANG identity to be used, typically when managing a TE controller, to associate two unidirectional LSPs of one tunnel, regardless of how they are configured at the two endpoints.
-
 {: #pc-error}
 
 ### Path Computation Errors
@@ -414,6 +412,47 @@ performance-metrics-attributes-packet:
 
 > A YANG grouping that contains the generic performance metrics and additional packet-specific metrics.
 
+CHANGE NOTE: The module "ietf-te-packet-types" has been updated to add the following YANG identities and groupings.
+
+RFC Editor: remove the CHANGE NOTE above and this note
+
+bandwidth-profile-type:
+
+> A base YANG identity for various bandwidth profiles specified in {{MEF_10.3}}, {{!RFC2697}}, {{!RFC2698}} and {{!RFC4115}} that may be used to limit bandwidth utilization of packet flows (e.g., MPLS-TE LSPs).
+
+te-packet-path-bandwidth
+
+> A YANG grouping that defines the path bandwidth information and could be used in any Packet TE model (e.g., MPLS-TE topology model) for the path bandwidth representation (e.g., the bandwidth of an MPLS-TE LSP).
+
+> All the path and LSP bandwidth related sections in the "ietf-te-types" generic module, {{te-yang-code}}, need to be augmented with this grouping for the usage of Packet TE technologies.
+
+> The Packet TE path bandwidth can be represented by a bandwidth profile as follow:
+
+~~~~ ascii-art
+         +--:(packet)
+           +--rw bandwidth-profile-name?   string
+           +--rw bandwidth-profile-type?   identityref
+           +--rw cir?                      uint64
+           +--rw eir?                      uint64
+           +--rw cbs?                      uint64
+           +--rw ebs?                      uint64
+~~~~
+
+NOTE: Other formats for the MPLS-TE path bandwidth are defined in {{?I-D.ietf-teas-yang-te-mpls}} and they could be added in a future update of this document.
+
+te-packet-link-bandwidth:
+
+> A YANG grouping that defines the link bandwidth information and could be used in any Packet TE model (e.g., MPLS-TE topology) for link bandwidth representation.
+
+> All the link bandwidth related sections in the "ietf-te-types" generic module, {{te-yang-code}}, need to be augmented with this grouping for the usage of Packet TE technologies.
+
+> The Packet TE link bandwidth can be represented by a bandwidth expressed in scientific notation as follow:
+
+~~~~ ascii-art
+         +--:(packet)
+           +--rw packet-bandwidth?   bandwidth-scientific-notation
+~~~~
+
 {: #te-yang-code}
 
 # TE Types YANG Module
@@ -435,7 +474,7 @@ RFC Editor: remove the CHANGE NOTE above and this note
 {::include ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2023-02-02.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2023-03-08.yang"}
 
 {: #pkt-yang-code}
 
@@ -444,10 +483,10 @@ sourcecode-markers="true" sourcecode-name="ietf-te-types@2023-02-02.yang"}
 The "ietf-te-packet-types" module imports from the "ietf-te-types" module defined in {{te-yang-code}} of this document.
 
 ~~~~ yang
-{::include ietf-te-packet-types.yang}
+{::include ../../ietf-te-packet-types.yang}
 ~~~~
-{: #fig-pkt-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2023-01-12.yang"}
+{: #fig-pkt-yang title="Packet TE Types YANG module"
+sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2023-03-08.yang"}
 
 # IANA Considerations
 
@@ -527,15 +566,39 @@ The intention of this appendix is to facilitate focusing the review of the YANG 
 
 This diff has been generated using the following UNIX commands to compare the YANG module revisions in section 3.1 of {{!RFC8776}} and in {{te-yang-code}}:
 
-~~~~~
-diff ietf-te-types@2020-06-10.yang ietf-te-types.yang > model-diff.txt
+~~~~
+diff ietf-te-types@2020-06-10.yang ietf-te-types.yang 
+     > model-diff.txt
 sed 's/^/    /' model-diff.txt > model-diff-spaces.txt
-sed 's/^    >   /    >   /' model-diff-spaces.txt > model-updates.txt
-~~~~~
+sed 's/^    >   /    >   /' model-diff-spaces.txt 
+    > model-updates.txt
+~~~~
 
 The output (model-updates.txt) is reported here:
 
-{::include ./model-updates.txt}
+{::include ./diffs/te/model-updates.txt}
+
+## Packet TE Types YANG Diffs
+
+RFC Editor Note: please remove this appendix before publication.
+
+This section provides the diff between the YANG module in section 3.2 of {{!RFC8776}} and the YANG model revision in {{pkt-yang-code}}.
+
+The intention of this appendix is to facilitate focusing the review of the YANG model in {{pkt-yang-code}} to the changes compared with the YANG model in {{!RFC8776}}.
+
+This diff has been generated using the following UNIX commands to compare the YANG module revisions in section 3.2 of {{!RFC8776}} and in {{pkt-yang-code}}:
+
+~~~~
+diff ietf-te-packet-types@2020-06-10.yang ietf-te-packet-types.yang 
+     > model-diff.txt
+sed 's/^/    /' model-diff.txt > model-diff-spaces.txt
+sed 's/^    >   /    >   /' model-diff-spaces.txt 
+    > model-updates.txt
+~~~~
+
+The output (model-updates.txt) is reported here:
+
+{::include ./diffs/pkt/model-updates.txt}
 
 {: #options}
 
