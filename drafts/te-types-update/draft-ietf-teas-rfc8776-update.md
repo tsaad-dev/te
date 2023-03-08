@@ -325,7 +325,7 @@ tunnel-actions-type:
 
 > A base YANG identity for tunnel actions.
 
-Editors' Note: check whether standard tunnel actions should be defined in this document or not.
+> No derived identities are defined in this document: implementations are expected to add identities derived from this base.
 
 protocol-origin-type:
 
