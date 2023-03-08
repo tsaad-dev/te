@@ -38,7 +38,7 @@ module ietf-te-packet-types {
      conforms to the Network Management Datastore Architecture
      (NMDA).
 
-     Copyright (c) 2020 IETF Trust and the persons identified as
+     Copyright (c) 2021 IETF Trust and the persons identified as
      authors of the code.  All rights reserved.
 
      Redistribution and use in source and binary forms, with or
@@ -51,17 +51,17 @@ module ietf-te-packet-types {
      This version of this YANG module is part of RFC 8776; see the
      RFC itself for full legal notices.";
 
-  revision 2021-07-11 {
+  revision 2021-10-24 {
     description
       "Added common TE packet identities:
-      - bandwidth-profile-type.
+       - bandwidth-profile-type.
 
-      Added common TE packet types:
-      - bandwidth-scientific-notation.
+       Added common TE packet types:
+       - bandwidth-scientific-notation.
 
-      Added common TE packet groupings:
-      - te-packet-path-bandwidth;
-      - te-packet-link-bandwidth.";
+       Added common TE packet groupings:
+       - te-packet-path-bandwidth;
+       - te-packet-link-bandwidth.";
     reference
       "draft-busizheng-teas-yang-te-mpls-topology";
   }
@@ -172,11 +172,34 @@ module ietf-te-packet-types {
   }
 
   typedef bandwidth-scientific-notation {
-    type string;
+    type string {
+      pattern
+        '0(\.0?)?([eE](\+)?0?)?|'
+      + '[1-9](\.[0-9]{0,6})?[eE](\+)?(9[0-6]|[1-8][0-9]|0?[0-9])?';
+    }
     units "bps";
     description
       "Bandwidth values, expressed using the scientific notation
-      (e.g., 10e3) in bits per second.";
+       in bits per second.
+       The encoding format is the external decimal-significant
+       character sequences specified in IEEE 754 and ISO/IEC C99
+       for 32-bit decimal floating-point numbers:
+       (-1)**(S) * 10**(Exponent) * (Significant),
+       where Significant uses 7 digits.
+       An implementation for this representation may use decimal32
+       or binary32. The range of the Exponent is from -95 to +96
+       for decimal32, and from -38 to +38 for binary32.
+       As a bandwidth value, the format is restricted to be
+       normalized, non-negative, and non-fraction:
+       n.dddddde{+}dd, N.DDDDDDE{+}DD, 0e0 or 0E0,
+       where 'd' and 'D' are decimal digits; 'n' and 'N' are
+       non-zeror decimal digits; 'e' and 'E' indicate a power of ten.
+       Some examples are 0e0, 1e10, and 9.953e9.";
+    reference
+      "IEEE Std 754-2008: IEEE Standard for Floating-Point
+       Arithmetic.
+       ISO/IEC C99: Information technology - Programming
+       Languages - C.";
   }
 
   identity backup-protection-type {
@@ -547,18 +570,19 @@ module ietf-te-packet-types {
       description "Type of Bandwidth Profile.";
     }
 
-    leaf CIR {
+    leaf cir {
       type uint64;
         description
           "Committed Information Rate in Kbps";
     }
 
-    leaf EIR {
+    leaf eir {
       type uint64;
       /*
         Need to indicate that EIR is not supported by RFC 2697
 
         must
+
             '../bw-profile-type = "etht-types:mef-10-bwp" or ' +
             '../bw-profile-type = "etht-types:rfc-2698-bwp" or ' +
             '../bw-profile-type = "etht-types:rfc-4115-bwp"'
@@ -568,20 +592,20 @@ module ietf-te-packet-types {
       */
       description
         "Excess Information Rate in Kbps
-        In case of RFC 2698, PIR = CIR + EIR";
+         In case of RFC 2698, PIR = CIR + EIR";
     }
 
-    leaf CBS {
+    leaf cbs {
       type uint64;
       description
         "Committed Burst Size in in KBytes";
     }
 
-    leaf EBS {
+    leaf ebs {
       type uint64;
       description
         "Excess Burst Size in KBytes.
-          In case of RFC 2698, PBS = CBS + EBS";
+         In case of RFC 2698, PBS = CBS + EBS";
     }
   }
 
