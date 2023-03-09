@@ -343,7 +343,7 @@ encoding-and-switching-type:
 
 > This is a common grouping to define the LSP encoding and switching types.
 
-CHANGE NOTE: The tunnel-admin-auto YANG identity, derived from the tunnel-admin-status-type base YANG identity has also been added. No description is provided, since no description for the tunnel-admin-status-type base YANG identity has been provided in RFC8776.
+CHANGE NOTE: The tunnel-admin-state-auto YANG identity, derived from the tunnel-admin-status-type base YANG identity has also been added. No description is provided, since no description for the tunnel-admin-status-type base YANG identity has been provided in RFC8776.
 
 RFC Editor: remove the CHANGE NOTE above and this note
 
