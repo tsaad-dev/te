@@ -47,6 +47,12 @@ author:
 #contributor:
 
 normative:
+  ITU_G.808.1:
+    title: Generic protection switching - Linear trail and subnetwork protection
+    author:
+      org: ITU-T Recommendation G.808.1
+    date: May 2014
+    seriesinfo: ITU-T G.808.1
   MEF_10.3:
     title: Ethernet Services Attributes Phase 3
     author:
@@ -259,7 +265,9 @@ restoration-scheme-type:
 
 protection-external-commands:
 
-> A base YANG identity for supported protection-related external commands used for troubleshooting purposes, as defined in {{?RFC4427}}.
+> A base YANG identity for supported protection-related external commands used for troubleshooting purposes, as defined in {{?RFC4427}} and {{ITU_G.808.1}}.
+
+CHANGE NOTE: The description and reference of the action-exercise identity, which applies only to APS and it is not defined in RFC4427, has been updated to reference ITU-T G.808.1.
 
 association-type:
 
