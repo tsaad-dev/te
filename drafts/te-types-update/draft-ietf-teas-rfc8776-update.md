@@ -53,14 +53,14 @@ normative:
       org: ITU-T Recommendation G.808.1
     date: May 2014
     seriesinfo: ITU-T G.808.1
+
+informative:
   MEF_10.3:
     title: Ethernet Services Attributes Phase 3
     author:
       org: MEF
     date: October 2013
     seriesinfo: MEF 10.3
-
-informative:
   ITU-T_G.709:
     title: Interfaces for the optical transport network
     author:
@@ -70,7 +70,7 @@ informative:
 
 --- abstract
 
-This document defines a collection of common data types and groupings in YANG data modeling language. These derived common types and groupings are intended to be imported by modules that model Traffic Engineering (TE) configuration and state capabilities.
+This document defines a collection of common data types and groupings in YANG data modeling language. These derived common types and groupings are intended to be imported by modules that model Traffic Engineering (TE) configuration and state capabilities. This document obsoletes RFC 8776.
 
 --- middle
 
@@ -86,7 +86,7 @@ For further details, see the revision statements of the YANG modules in Sections
 
 CHANGE NOTE: These definitions have been developed in {{?I-D.ietf-teas-yang-te}}, {{?I-D.ietf-teas-yang-path-computation}} and {{?I-D.ietf-teas-yang-l3-te-topo}} and are quite mature: {{?I-D.ietf-teas-yang-te}} and {{?I-D.ietf-teas-yang-path-computation}} in particular are in WG Last Call and some definitions have been moved to this document as part of WG LC comments resolution.
 
-RFC Editor: remove the CHANGE NOTEs above and this note
+RFC Editor: remove the CHANGE NOTE above and this note
 
 ## Requirements Notation
 
@@ -111,7 +111,7 @@ RFC Editor: remove the CHANGE NOTEs above and this note
 | te-packet-types | ietf-te-packet-types | RFCXXXX
 {: #tab-prefixes title="Prefixes and corresponding YANG modules"}
 
-RFC Editor Note: Please replace XXXX with the RFC number assigned to this document.
+RFC Editor: Please replace XXXX with the RFC number assigned to this document.
 
 # Acronyms and Abbreviations
 
@@ -149,6 +149,7 @@ DS-TE:
 > Differentiated Services Traffic Engineering
 
 SRLG:
+
 > Shared Risk Link Group
 
 NBMA:
@@ -267,11 +268,17 @@ protection-external-commands:
 
 > A base YANG identity for supported protection-related external commands used for troubleshooting purposes, as defined in {{?RFC4427}} and {{ITU_G.808.1}}.
 
-CHANGE NOTE: The description and reference of the action-exercise identity, which applies only to APS and it is not defined in RFC4427, has been updated to reference ITU-T G.808.1.
+CHANGE NOTE: The description and reference of the identity action-exercise, which applies only to APS and it is not defined in RFC4427, has been updated to reference ITU-T G.808.1.
+
+RFC Editor: remove the CHANGE NOTE above and this note
 
 association-type:
 
-> A base YANG identity for supported LSP association types as defined in {{associations}}.
+> A base YANG identity for supported LSP association types as defined in {{?RFC6780}}, {{?RFC4872}}, {{?RFC4873}}, and {{!RFC8800}}.
+
+CHANGE NOTE: The association-type-diversity identity, defined in {{!RFC8800}} has been added to the association-type base identity.
+
+RFC Editor: remove the CHANGE NOTE above and this note
 
 objective-function-type:
 
@@ -325,7 +332,7 @@ lsp-provisioning-error-reason:
 
 > A base YANG identity for reporting LSP provisioning error reasons. No standard LPS provisioning error reasons are defined in this document.
 
-identity path-computation-error-reason:
+path-computation-error-reason:
 
 > A base YANG identity for reporting path computation error reasons as defined in {{pc-error}}.
 
@@ -347,18 +354,9 @@ encoding-and-switching-type:
 
 CHANGE NOTE: The tunnel-admin-state-auto YANG identity, derived from the tunnel-admin-status-type base YANG identity has also been added. No description is provided, since no description for the tunnel-admin-status-type base YANG identity has been provided in RFC8776.
 
-RFC Editor: remove the CHANGE NOTE above and this note
+CHANGE NOTE: The lsp-restoration-restore-none YANG identity, derived from the lsp-restoration-type base YANG identity has also been added. No description is provided, since no description for the lsp-restoration-type base YANG identity has been provided in RFC8776.
 
-{: #associations}
-
-### Association Types
-
-The "ietf-te-types" module contains the YANG reusable identities for supported LSP association types as defined in {{associations}}.
-{{?RFC6780}}, {{?RFC4872}}, {{?RFC4873}}, and {{!RFC8800}}.
-
-CHANGE NOTE: The association-type-diversity identity, defined in {{!RFC8800}} has been added to the association-type base identity.
-
-RFC Editor: remove the CHANGE NOTE above and this note
+RFC Editor: remove the two CHANGE NOTEs above and this note
 
 {: #pc-error}
 
@@ -376,7 +374,7 @@ path-computation-error-no-topology:
 
 ### Protocol Origin
 
-The "ietf-te-types" module contains the YANG reusable identities for the type of protocol origin as defined in {{!RFC5440}} and {{!RFC5512}}.
+The "ietf-te-types" module contains the YANG reusable identities for the type of protocol origin as defined in {{!RFC5440}} and {{!RFC9012}}.
 
 It also defines the following additional YANG reusable identities for the type of protocol origin:
 
@@ -420,7 +418,7 @@ RFC Editor: remove the CHANGE NOTE above and this note
 
 bandwidth-profile-type:
 
-> A base YANG identity for various bandwidth profiles specified in {{MEF_10.3}}, {{!RFC2697}}, {{!RFC2698}} and {{!RFC4115}} that may be used to limit bandwidth utilization of packet flows (e.g., MPLS-TE LSPs).
+> A base YANG identity for various bandwidth profiles specified in {{MEF_10.3}}, {{?RFC2697}}, {{?RFC2698}} and {{?RFC4115}} that may be used to limit bandwidth utilization of packet flows (e.g., MPLS-TE LSPs).
 
 te-packet-path-bandwidth
 
@@ -476,7 +474,7 @@ RFC Editor: remove the CHANGE NOTE above and this note
 {::include ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2023-03-08.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2023-03-10.yang"}
 
 {: #pkt-yang-code}
 
@@ -484,11 +482,15 @@ sourcecode-markers="true" sourcecode-name="ietf-te-types@2023-03-08.yang"}
 
 The "ietf-te-packet-types" module imports from the "ietf-te-types" module defined in {{te-yang-code}} of this document.
 
+CHANGE NOTE: Please focus your review only on the updates to the YANG model: see also {{te-yang-diff}}.
+
+RFC Editor: remove the CHANGE NOTE above and this note
+
 ~~~~ yang
 {::include ../../ietf-te-packet-types.yang}
 ~~~~
 {: #fig-pkt-yang title="Packet TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2023-03-08.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2023-03-10.yang"}
 
 # IANA Considerations
 
@@ -519,7 +521,7 @@ Names" registry {{!RFC7950}}:
       reference: RFC XXXX
 ~~~~
 
-RFC Editor Note: Please replace XXXX with the RFC number assigned to this document.
+RFC Editor: Please replace XXXX with the RFC number assigned to this document.
 
 # Security Considerations
 
@@ -560,7 +562,7 @@ To be added in a future revision of this draft.
 
 ## TE Types YANG Diffs
 
-RFC Editor Note: please remove this appendix before publication.
+RFC Editor: please remove this appendix before publication.
 
 This section provides the diff between the YANG module in section 3.1 of {{!RFC8776}} and the YANG model revision in {{te-yang-code}}.
 
@@ -578,11 +580,11 @@ sed 's/^    >   /    >   /' model-diff-spaces.txt
 
 The output (model-updates.txt) is reported here:
 
-{::include ./diffs/te/model-updates.txt}
+{::include ./diffs/te-types/model-updates.txt}
 
 ## Packet TE Types YANG Diffs
 
-RFC Editor Note: please remove this appendix before publication.
+RFC Editor: please remove this appendix before publication.
 
 This section provides the diff between the YANG module in section 3.2 of {{!RFC8776}} and the YANG model revision in {{pkt-yang-code}}.
 
@@ -600,13 +602,13 @@ sed 's/^    >   /    >   /' model-diff-spaces.txt
 
 The output (model-updates.txt) is reported here:
 
-{::include ./diffs/pkt/model-updates.txt}
+{::include ./diffs/te-pkt-types/model-updates.txt}
 
 {: #options}
 
 # Option Considered for updating RFC8776
 
-RFC Editor Note: please remove this appendix before publication.
+RFC Editor: please remove this appendix before publication.
 
 The concern is how to be able to update the ietf-te-types YANG module published in {{!RFC8776}} without delaying too much the progress of the mature WG documents.
 
@@ -633,8 +635,6 @@ During the Netmod WG session at IETF 114, an alternative process has been introd
 https://datatracker.ietf.org/meeting/114/materials/slides-114-netmod-ad-topic-managing-the-evolution-of-ietf-yang-modules-00.pdf
 
 Future updates of this document could align with the proposed approach.
-
-Therefore, in order to avoid useless editorial work, this version of the document has been structured to become an RFC8776-bis but not all the existing text in {{!RFC8776}} has been copied: some editors' notes has been inserted instead. These editors' note will be removed and replaced by actual text copied from {{!RFC8776}} before WG LC if the RFC8776-bis approach is confirmed.
 
 {: numbered="false"}
 
