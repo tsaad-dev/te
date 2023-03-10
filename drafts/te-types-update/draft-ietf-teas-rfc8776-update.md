@@ -329,12 +329,6 @@ identity path-computation-error-reason:
 
 > A base YANG identity for reporting path computation error reasons as defined in {{pc-error}}.
 
-tunnel-actions-type:
-
-> A base YANG identity for tunnel actions.
-
-> No derived identities are defined in this document: implementations are expected to add identities derived from this base.
-
 protocol-origin-type:
 
 >  A base YANG identity for the type of protocol origin as defined in {{protocol-origin}}.
