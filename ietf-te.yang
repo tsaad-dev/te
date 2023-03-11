@@ -53,7 +53,7 @@ module ietf-te {
      The model fully conforms to the Network Management
      Datastore Architecture (NMDA).
 
-     Copyright (c) 2022 IETF Trust and the persons identified as
+     Copyright (c) 2023 IETF Trust and the persons identified as
      authors of the code.  All rights reserved.
 
      Redistribution and use in source and binary forms, with or
@@ -72,7 +72,7 @@ module ietf-te {
   // RFC Ed.: update the date below with the date of RFC publication
   // and remove this note.
 
-  revision 2022-10-12 {
+  revision 2023-03-11 {
     description
       "Initial revision for the TE generic YANG module.";
     reference
@@ -461,7 +461,7 @@ module ietf-te {
         type identityref {
           base te-types:lsp-restoration-type;
         }
-        default "te-types:lsp-restoration-restore-any";
+        default "te-types:lsp-restoration-restore-none";
         description
           "LSP restoration type.";
       }
@@ -677,7 +677,6 @@ module ietf-te {
           "RFC4206";
         leaf enable {
           type boolean;
-          default "false";
           description
             "Enables the hierarchical link properties supported by
              this tunnel";
@@ -1049,6 +1048,16 @@ module ietf-te {
             description
               "List of secondary paths for this tunnel.";
             uses path-common-properties;
+            leaf preference {
+              type uint8 {
+                range "1..255";
+              }
+              default "1";
+              description
+                "Specifies a preference for this path. The lower the number
+                 higher the preference. Paths that have the same preference
+                 will be activated together.";
+            }
             uses path-compute-info;
             uses protection-restoration-properties;
             uses path-state;
@@ -1060,7 +1069,7 @@ module ietf-te {
           input {
             leaf action-type {
               type identityref {
-                base te-types:tunnel-actions-type;
+                base te-types:tunnel-action-type;
               }
               description
                 "Tunnel action type.";
@@ -1107,6 +1116,12 @@ module ietf-te {
               type string;
               description
                 "The name of the path that the external command
+                applies to.";
+            }
+            leaf path-type {
+              type te-types:path-type;
+              description
+                "The type of the path that the external command
                 applies to.";
             }
             leaf traffic-type {
@@ -1313,7 +1328,7 @@ module ietf-te {
             "The APS state machine controlling which
              tunnels are using the resources of the protecting LSP.";
           reference
-            "RFC7271 and RFC8234";
+            "ITU_G.808.1, RFC7271, and RFC8234";
         }
         leaf protection-group-ingress-node-id {
           type te-types:te-node-id;
@@ -1420,14 +1435,14 @@ module ietf-te {
           "TE tunnel action information.";
         leaf action {
           type identityref {
-            base te-types:tunnel-actions-type;
+            base te-types:tunnel-action-type;
           }
           description
             "The action type.";
         }
         leaf disruptive {
           when "derived-from-or-self(../action, "
-             + "'te:tunnel-action-reoptimize')";
+             + "'te-types:tunnel-action-reoptimize')";
           type empty;
           description
             "When present, specifies whether or not the
