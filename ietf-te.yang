@@ -24,6 +24,16 @@ module ietf-te {
       "RFC6991: Common YANG Data Types.";
   }
 
+  import ietf-network {
+    prefix "nw";
+    reference "RFC 8345: A YANG Data Model for Network Topologies";
+  }
+
+  import ietf-network-topology {
+    prefix "nt";
+    reference "RFC 8345: A YANG Data Model for Network Topologies";
+  }
+
   organization
     "IETF Traffic Engineering Architecture and Signaling (TEAS)
      Working Group.";
@@ -606,29 +616,46 @@ module ietf-te {
     }
   }
 
+  grouping tunnel-end-point {
+    description
+      "Common grouping used to specify the tunnel source and 
+      destination end-points.";
+    leaf node-id {
+      type nw:node-id;
+      description
+        "The TE tunnel end-point node identifier";
+    }
+    leaf te-node-id {
+      type te-types:te-node-id;
+      description
+        "The TE tunnel end-point TE node identifier";
+    }
+    leaf tunnel-tp-id {
+      when "../node-id or ../te-node-id" {
+        description
+          "The TE tunnel termination point identifier is local to 
+          a node";
+      }
+      type binary;
+      description
+        "The TE tunnel end-point TE tunnel termination point 
+        identifier";
+    }
+  }
+
   /* This grouping is re-used in path-computation rpc */
   grouping tunnel-common-attributes {
     description
       "Common grouping to define the TE tunnel parameters";
-    leaf source {
-      type te-types:te-node-id;
+    container source {
       description
-        "TE tunnel source node ID.";
+        "TE tunnel source end-point.";
+      uses tunnel-end-point;
     }
-    leaf destination {
-      type te-types:te-node-id;
+    container destination {
       description
-        "TE tunnel destination node identifier.";
-    }
-    leaf src-tunnel-tp-id {
-      type binary;
-      description
-        "TE tunnel source termination point identifier.";
-    }
-    leaf dst-tunnel-tp-id {
-      type binary;
-      description
-        "TE tunnel destination termination point identifier.";
+        "TE tunnel destination end-point.";
+      uses tunnel-end-point;
     }
     leaf bidirectional {
       type boolean;
@@ -681,20 +708,41 @@ module ietf-te {
             "Enables the hierarchical link properties supported by
              this tunnel";
         }
+        leaf local-node-id {
+          type nw:node-id;
+          description
+            "The local node identifier.";
+        }
         leaf local-te-node-id {
           type te-types:te-node-id;
           description
             "The local TE node identifier.";
+        }
+        leaf local-link-tp-id {
+          type nt:tp-id;
+          description
+            "The local link termination point identifier.";
         }
         leaf local-te-link-tp-id {
           type te-types:te-tp-id;
           description
             "The local TE link termination point identifier.";
         }
+        leaf remote-link-tp-id {
+          type nt:tp-id;
+          description
+            "The remote link termination point identifier.";
+        }
         leaf remote-te-node-id {
           type te-types:te-node-id;
           description
             "Remote TE node identifier.";
+        }
+        leaf network-id {
+          type nw:network-id;
+          description
+            "The network topology identifier where the hierarchical 
+            link supported by this TE tunnel is instantiated.";
         }
         uses te-types:te-topology-identifier {
           description

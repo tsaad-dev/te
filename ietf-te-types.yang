@@ -19,6 +19,16 @@ module ietf-te-types {
       "RFC 8294: Common YANG Data Types for the Routing Area";
   }
 
+  import ietf-network {
+    prefix "nw";
+    reference "RFC 8345: A YANG Data Model for Network Topologies";
+  }
+
+  import ietf-network-topology {
+    prefix "nt";
+    reference "RFC 8345: A YANG Data Model for Network Topologies";
+  }
+
   organization
     "IETF Traffic Engineering Architecture and Signaling (TEAS)
      Working Group";
@@ -66,7 +76,7 @@ module ietf-te-types {
      (https://www.rfc-editor.org/info/rfcXXXX); see the RFC itself
      for full legal notices.";
 
-  revision 2023-03-10 {
+  revision 2023-05-26 {
     description
       "Added:
       - typedef bandwidth-scientific-notation;
@@ -3004,9 +3014,17 @@ module ietf-te-types {
         "The explicit route entry type.";
       case numbered-node-hop {
         container numbered-node-hop {
+          must "node-id-uri or node-id" {
+            description
+              "At least one node identifier MUST be present.";
+          }
+          leaf node-id-uri {
+            type nw:node-id;
+            description
+              "The identifier of a node in the topology.";
+          }
           leaf node-id {
             type te-node-id;
-            mandatory true;
             description
               "The identifier of a node in the TE topology.";
           }
@@ -3056,17 +3074,31 @@ module ietf-te-types {
       }
       case unnumbered-link-hop {
         container unnumbered-link-hop {
+          must "(link-tp-id-uri or link-tp-id) and " +
+                "(node-id-uri or node-id)" {
+            description
+              "At least one node identifier and at least one Link 
+              Termination Point (LTP) identifier MUST be present.";
+          }
+          leaf link-tp-id-uri {
+            type nt:tp-id;
+            description
+              "Link Termination Point (LTP) identifier.";
+          }
           leaf link-tp-id {
             type te-tp-id;
-            mandatory true;
             description
               "TE LTP identifier.  The combination of the TE link ID
                and the TE node ID is used to identify an unnumbered
                TE link.";
           }
+          leaf node-id-uri {
+            type nw:node-id;
+            description
+              "The identifier of a node in the topology.";
+          }
           leaf node-id {
             type te-node-id;
-            mandatory true;
             description
               "The identifier of a node in the TE topology.";
           }
@@ -3136,11 +3168,19 @@ module ietf-te-types {
         "The Record Route entry type.";
       case numbered-node-hop {
         container numbered-node-hop {
+          must "node-id-uri or node-id" {
+            description
+              "At least one node identifier MUST be present.";
+          }
           description
             "Numbered node route hop container.";
+          leaf node-id-uri {
+            type nw:node-id;
+            description
+              "The identifier of a node in the topology.";
+          }
           leaf node-id {
             type te-node-id;
-            mandatory true;
             description
               "The identifier of a node in the TE topology.";
           }
@@ -3186,13 +3226,28 @@ module ietf-te-types {
       }
       case unnumbered-link-hop {
         container unnumbered-link-hop {
+          must "(link-tp-id-uri or link-tp-id) and " +
+              "(node-id-uri or node-id)" {
+            description
+              "At least one node identifier and at least one Link 
+              Termination Point (LTP) identifier MUST be present.";
+          }
+          leaf link-tp-id-uri {
+            type nt:tp-id;
+            description
+              "Link Termination Point (LTP) identifier.";
+          }
           leaf link-tp-id {
             type te-tp-id;
-            mandatory true;
             description
               "TE LTP identifier.  The combination of the TE link ID
                and the TE node ID is used to identify an unnumbered
                TE link.";
+          }
+          leaf node-id-uri {
+            type nw:node-id;
+            description
+              "The identifier of a node in the topology.";
           }
           leaf node-id {
             type te-node-id;
@@ -3458,6 +3513,11 @@ module ietf-te-types {
     description
       "Tunnel constraints grouping that can be set on
        a constraint set or directly on the tunnel.";
+    leaf network-id {
+      type nw:network-id;
+      description
+        "The network topology identifier.";
+    }
     uses te-topology-identifier;
     uses common-constraints;
   }
