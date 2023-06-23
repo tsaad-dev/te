@@ -39,6 +39,7 @@ module: ietf-te
      |     +---u tunnel-hierarchy-properties
      |     +--rw primary-paths
      |     |  +--rw primary-path* [name]
+     |     |     +--ro active?                      boolean
      |     |     +---u path-common-properties
      |     |     +---u path-forward-properties
      |     |     +---u k-requested-paths
@@ -50,8 +51,9 @@ module: ietf-te
      |     |     |  +---u path-state
      |     |     |  +--rw candidate-secondary-reverse-paths
      |     |     |     +--rw candidate-secondary-reverse-path*
-     |     |     |             [secondary-path]
-     |     |     |        +--rw secondary-path    leafref
+     |     |     |             [secondary-reverse-path]
+     |     |     |        +--rw secondary-reverse-path    leafref
+     |     |     |        +--ro active?                   boolean
      |     |     +--rw candidate-secondary-paths
      |     |        +--rw candidate-secondary-path* [secondary-path]
      |     |           +--rw secondary-path    leafref
@@ -60,6 +62,7 @@ module: ietf-te
      |     |  +--rw secondary-path* [name]
      |     |     +---u path-common-properties
      |     |     +--rw preference?                          uint8
+     |     |     +--rw secondary-reverse-path?              leafref
      |     |     +---u path-compute-info
      |     |     +---u protection-restoration-properties
      |     |     +---u path-state
@@ -211,12 +214,16 @@ module: ietf-te
           |  +---u te-generic-node-id
           +-- global-source?     uint32
           +-- extended-id?       yang:hex-string
+  grouping tunnel-end-point:
+    +-- node-id?        nw:node-id
+    +-- te-node-id?     te-types:te-node-id
+    +-- tunnel-tp-id?   binary
   grouping tunnel-common-attributes:
-    +-- source?             te-types:te-node-id
-    +-- destination?        te-types:te-node-id
-    +-- src-tunnel-tp-id?   binary
-    +-- dst-tunnel-tp-id?   binary
-    +-- bidirectional?      boolean
+    +-- source
+    |  +---u tunnel-end-point
+    +-- destination
+    |  +---u tunnel-end-point
+    +-- bidirectional?   boolean
   grouping tunnel-hierarchy-properties:
     +-- hierarchy
        +-- dependency-tunnels
@@ -226,9 +233,13 @@ module: ietf-te
        |     +---u te-types:encoding-and-switching-type
        +-- hierarchical-link
           +-- enable?                            boolean
+          +-- local-node-id?                     nw:node-id
           +-- local-te-node-id?                  te-types:te-node-id
+          +-- local-link-tp-id?                  nt:tp-id
           +-- local-te-link-tp-id?               te-types:te-tp-id
+          +-- remote-link-tp-id?                 nt:tp-id
           +-- remote-te-node-id?                 te-types:te-node-id
+          +-- network-id?                        nw:network-id
           +---u te-types:te-topology-identifier
   grouping path-constraints-common:
     +---u te-types:common-path-constraints-attributes
