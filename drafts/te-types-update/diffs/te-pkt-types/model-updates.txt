@@ -26,7 +26,7 @@
     >      (https://www.rfc-editor.org/info/rfcXXXX); see the RFC itself
     >      for full legal notices.";
     > 
-    >   revision 2023-06-23 {
+    >   revision 2023-06-27 {
     >     description
     >       "Added common TE packet identities:
     >        - bandwidth-profile-type.
@@ -40,7 +40,7 @@
     >   }
     >   // RFC Editor: replace XXXX with actual RFC number, update date
     >   // information and remove this note
-    61c80,126
+    61c80,158
     <   /**
     ---
     >   /*
@@ -56,46 +56,78 @@
     >       "Bandwidth Profile Types";
     >   }
     > 
-    >     identity mef-10-bwp {
+    >     identity peak-rate-bwp {
     >       base bandwidth-profile-type;
     >       description
-    >         "MEF 10 Bandwidth Profile";
-    >       reference
-    >         "MEF 10.3: Ethernet Services Attributes Phase 3";
+    >         "A Two Rate Bandwidth Profile specified by a Committed 
+    >         Information Rate (CIR) and a Peak Information Rate (PIR).";
     >     }
     > 
-    >     identity rfc-2697-bwp {
+    >     identity excess-rate-bwp {
     >       base bandwidth-profile-type;
     >       description
-    >         "RFC 2697 Bandwidth Profile";
-    >       reference
-    >         "RFC2697: A Single Rate Three Color Marker";
+    >         "A Two Rate Bandwidth Profile specified by a Committed 
+    >         Information Rate (CIR) and an Excess Information Rate 
+    >         (EIR).";
     >     }
     > 
-    >     identity rfc-2698-bwp {
+    >     identity peak-burst-bwp {
     >       base bandwidth-profile-type;
     >       description
-    >         "RFC 2698 Bandwidth Profile";
-    >       reference
-    >         "RFC2698: A Two Rate Three Color Marker";
+    >         "A Three Color Bandwidth Profile specified by a Committed 
+    >         Burst Size (CBS) and a Peak Burst Size (PBS).";
     >     }
     > 
-    >     identity rfc-4115-bwp {
+    >     identity excess-burst-bwp {
     >       base bandwidth-profile-type;
     >       description
-    >         "RFC 4115 Bandwidth Profile";
-    >       reference
-    >         "RFC4115: A Differentiated Service Two-Rate, Three-Color 
-    >         Marker with Efficient Handling of in-Profile Traffic";
+    >         "A Three Color Bandwidth Profile specified by a Committed 
+    >         Burst Size (CBS) and an Excess Burst Size (EBS).";
     >     }
+    > 
+    >       identity mef-10-bwp {
+    >         base excess-rate-bwp;
+    >         base excess-burst-bwp;
+    >         description
+    >           "MEF 10 Bandwidth Profile";
+    >         reference
+    >           "MEF 10.3: Ethernet Services Attributes Phase 3";
+    >       }
+    > 
+    >       identity rfc-2697-bwp {
+    >         base excess-burst-bwp;
+    >         description
+    >           "RFC 2697 Bandwidth Profile";
+    >         reference
+    >           "RFC2697: A Single Rate Three Color Marker";
+    >       }
+    > 
+    >       identity rfc-2698-bwp {
+    >         base peak-rate-bwp;
+    >         base peak-burst-bwp;
+    >         description
+    >           "RFC 2698 Bandwidth Profile";
+    >         reference
+    >           "RFC2698: A Two Rate Three Color Marker";
+    >       }
+    > 
+    >       identity rfc-4115-bwp {
+    >         base excess-rate-bwp;
+    >         base excess-burst-bwp;
+    >         description
+    >           "RFC 4115 Bandwidth Profile";
+    >         reference
+    >           "RFC4115: A Differentiated Service Two-Rate, Three-Color 
+    >           Marker with Efficient Handling of in-Profile Traffic";
+    >       }
     > 
     >   /*
-    180a246,249
+    180a278,281
     >   /*
     >    * Groupings
     >    */
     > 
-    472a542,618
+    472a574,670
     >     }
     >   }
     > 
@@ -115,51 +147,71 @@
     >       }
     >       description "Type of Bandwidth Profile.";
     >     }
-    > 
     >     leaf cir {
     >       type uint64;
     >       units "bits/second";
     >       description
-    >         "Committed Information Rate in kilobits per second.";
+    >         "Committed Information Rate (CIR).";
     >     }
-    > 
     >     leaf eir {
     >       type uint64;
-    >       units "bytes";
-    >       /*
-    >         Need to indicate that EIR is not supported by RFC 2697
-    > 
-    >         must
-    > 
-    >             '../bw-profile-type = "etht-types:mef-10-bwp" or ' +
-    >             '../bw-profile-type = "etht-types:rfc-2698-bwp" or ' +
-    >             '../bw-profile-type = "etht-types:rfc-4115-bwp"'
-    > 
-    >         must
-    >             '../bw-profile-type != "etht-types:rfc-2697-bwp"'
-    >       */
+    >       units "bits/second";
+    >       when 'derived-from(../bandwidth-profile-type, '
+    >           + '"te-packet-types:excess-rate-bwp")' {
+    >         description
+    >           "Applies only to two rate bandwidth profiles, specified 
+    >           by a Committed Information Rate (CIR) and an Excess 
+    >           Information Rate (EIR).";
+    >       }
     >       description
-    >         "Excess Information Rate in kilobits per second.
-    > 
-    >          In case of RFC 2698: PIR = CIR + EIR";
+    >         "Excess Information Rate (EIR).";
     >     }
-    > 
-    >     leaf cbs {
+    >     leaf pir {
     >       type uint64;
     >       units "bits/second";
+    >       when 'derived-from(../bandwidth-profile-type, '
+    >           + '"te-packet-types:peak-rate-bwp")'  {
+    >         description
+    >           "Applies only to two rate bandwidth profiles, specified 
+    >           by a Committed Information Rate (CIR) a Peak Information 
+    >           Rate (PIR).";
+    >       }
     >       description
-    >         "Committed Burst Size.";
+    >         "Peak Information Rate (PIR).";
     >     }
-    > 
+    >     leaf cbs {
+    >       type uint64;
+    >       units "bytes";
+    >       description
+    >         "Committed Burst Size (CBS).";
+    >     }
     >     leaf ebs {
     >       type uint64;
     >       units "bytes";
+    >       when 'derived-from(../bandwidth-profile-type, '
+    >           + '"te-packet-types:excess-burst-bwp")'  {
+    >         description
+    >           "Applies only to three color bandwidth profiles, 
+    >           specified by a Committed Burst Size (CBS) and an Excess 
+    >           Burst Size (EBS).";
+    >       }
     >       description
-    >         "Excess Burst Size.
-    > 
-    >          In case of RFC 2698: PBS = CBS + EBS";
+    >         "Excess Burst Size (EBS).";
     >     }
-    >   }
+    >     leaf pbs {
+    >       type uint64;
+    >       units "bytes";
+    >       when 'derived-from(../bandwidth-profile-type, '
+    >           + '"te-packet-types:peak-burst-bwp")'  {
+    >         description
+    >           "Applies only to three color bandwidth profiles, 
+    >           specified by a Committed Burst Size (CBS) and a Peak 
+    >           Burst Size (PBS).";
+    >       }
+    >       description
+    >         "Peak Burst Size (PBS).";
+    >     }
+    >   } // grouping te-packet-path-bandwidth
     > 
     >   // CHANGE NOTE: The te-packet-path-bandwidth below has been
     >   // added in this module revision

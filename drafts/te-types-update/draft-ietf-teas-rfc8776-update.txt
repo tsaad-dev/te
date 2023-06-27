@@ -81,18 +81,18 @@ Table of Contents
      3.2.  Packet TE Types Module Contents . . . . . . . . . . . . .  11
    4.  TE Types YANG Module  . . . . . . . . . . . . . . . . . . . .  13
    5.  Packet TE Types YANG Module . . . . . . . . . . . . . . . . .  97
-   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . . 110
-   7.  Security Considerations . . . . . . . . . . . . . . . . . . . 111
-   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . . 111
-     8.1.  Normative References  . . . . . . . . . . . . . . . . . . 111
-     8.2.  Informative References  . . . . . . . . . . . . . . . . . 114
-   Appendix A.  Changes from RFC 8776  . . . . . . . . . . . . . . . 121
-     A.1.  TE Types YANG Diffs . . . . . . . . . . . . . . . . . . . 121
-     A.2.  Packet TE Types YANG Diffs  . . . . . . . . . . . . . . . 136
-   Appendix B.  Option Considered for updating RFC8776 . . . . . . . 140
-   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . . 142
-   Contributors  . . . . . . . . . . . . . . . . . . . . . . . . . . 142
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . . 142
+   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . . 111
+   7.  Security Considerations . . . . . . . . . . . . . . . . . . . 112
+   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . . 112
+     8.1.  Normative References  . . . . . . . . . . . . . . . . . . 112
+     8.2.  Informative References  . . . . . . . . . . . . . . . . . 115
+   Appendix A.  Changes from RFC 8776  . . . . . . . . . . . . . . . 122
+     A.1.  TE Types YANG Diffs . . . . . . . . . . . . . . . . . . . 122
+     A.2.  Packet TE Types YANG Diffs  . . . . . . . . . . . . . . . 137
+   Appendix B.  Option Considered for updating RFC8776 . . . . . . . 142
+   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . . 144
+   Contributors  . . . . . . . . . . . . . . . . . . . . . . . . . . 144
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . . 144
 
 1.  Introduction
 
@@ -5454,7 +5454,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
         (https://www.rfc-editor.org/info/rfcXXXX); see the RFC itself
         for full legal notices.";
 
-     revision 2023-06-23 {
+     revision 2023-06-27 {
        description
          "Added common TE packet identities:
           - bandwidth-profile-type.
@@ -5497,46 +5497,46 @@ Internet-Draft            TE Common YANG Types                 June 2023
          "Bandwidth Profile Types";
      }
 
-       identity mef-10-bwp {
+       identity peak-rate-bwp {
          base bandwidth-profile-type;
          description
-           "MEF 10 Bandwidth Profile";
-         reference
-           "MEF 10.3: Ethernet Services Attributes Phase 3";
+           "A Two Rate Bandwidth Profile specified by a Committed
+           Information Rate (CIR) and a Peak Information Rate (PIR).";
        }
 
-       identity rfc-2697-bwp {
+       identity excess-rate-bwp {
          base bandwidth-profile-type;
          description
-           "RFC 2697 Bandwidth Profile";
-         reference
-           "RFC2697: A Single Rate Three Color Marker";
+           "A Two Rate Bandwidth Profile specified by a Committed
+           Information Rate (CIR) and an Excess Information Rate
+           (EIR).";
        }
 
-       identity rfc-2698-bwp {
+       identity peak-burst-bwp {
          base bandwidth-profile-type;
          description
-           "RFC 2698 Bandwidth Profile";
-         reference
-           "RFC2698: A Two Rate Three Color Marker";
+           "A Three Color Bandwidth Profile specified by a Committed
+           Burst Size (CBS) and a Peak Burst Size (PBS).";
        }
 
-       identity rfc-4115-bwp {
+       identity excess-burst-bwp {
          base bandwidth-profile-type;
          description
-           "RFC 4115 Bandwidth Profile";
-         reference
-           "RFC4115: A Differentiated Service Two-Rate, Three-Color
-           Marker with Efficient Handling of in-Profile Traffic";
+           "A Three Color Bandwidth Profile specified by a Committed
+           Burst Size (CBS) and an Excess Burst Size (EBS).";
        }
 
-     /*
-      * Typedefs
-      */
+         identity mef-10-bwp {
+           base excess-rate-bwp;
+           base excess-burst-bwp;
+           description
+             "MEF 10 Bandwidth Profile";
+           reference
+             "MEF 10.3: Ethernet Services Attributes Phase 3";
+         }
 
-     typedef te-bandwidth-requested-type {
-       type enumeration {
-         enum specified {
+         identity rfc-2697-bwp {
+           base excess-burst-bwp;
            description
 
 
@@ -5546,6 +5546,38 @@ Busi, et al.            Expires 29 December 2023               [Page 99]
 Internet-Draft            TE Common YANG Types                 June 2023
 
 
+             "RFC 2697 Bandwidth Profile";
+           reference
+             "RFC2697: A Single Rate Three Color Marker";
+         }
+
+         identity rfc-2698-bwp {
+           base peak-rate-bwp;
+           base peak-burst-bwp;
+           description
+             "RFC 2698 Bandwidth Profile";
+           reference
+             "RFC2698: A Two Rate Three Color Marker";
+         }
+
+         identity rfc-4115-bwp {
+           base excess-rate-bwp;
+           base excess-burst-bwp;
+           description
+             "RFC 4115 Bandwidth Profile";
+           reference
+             "RFC4115: A Differentiated Service Two-Rate, Three-Color
+             Marker with Efficient Handling of in-Profile Traffic";
+         }
+
+     /*
+      * Typedefs
+      */
+
+     typedef te-bandwidth-requested-type {
+       type enumeration {
+         enum specified {
+           description
              "Bandwidth is explicitly specified.";
          }
          enum auto {
@@ -5562,6 +5594,14 @@ Internet-Draft            TE Common YANG Types                 June 2023
        type uint8;
        description
          "Diffserv-TE Class-Type.  Defines a set of Traffic Trunks
+
+
+
+Busi, et al.            Expires 29 December 2023              [Page 100]
+
+Internet-Draft            TE Common YANG Types                 June 2023
+
+
           crossing a link that is governed by a specific set of
           bandwidth constraints.  Class-Type is used for the purposes
           of link bandwidth allocation, constraint-based routing, and
@@ -5594,14 +5634,6 @@ Internet-Draft            TE Common YANG Types                 June 2023
        units "Mbps";
        description
          "Bandwidth values, expressed in megabits per second.";
-
-
-
-Busi, et al.            Expires 29 December 2023              [Page 100]
-
-Internet-Draft            TE Common YANG Types                 June 2023
-
-
      }
 
      typedef bandwidth-gbps {
@@ -5618,6 +5650,14 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
      identity backup-protection-link {
        base backup-protection-type;
+
+
+
+Busi, et al.            Expires 29 December 2023              [Page 101]
+
+Internet-Draft            TE Common YANG Types                 June 2023
+
+
        description
          "Backup provides link protection only.";
      }
@@ -5650,14 +5690,6 @@ Internet-Draft            TE Common YANG Types                 June 2023
        base bc-model-type;
        description
          "Maximum Allocation Bandwidth Constraints Model type.";
-
-
-
-Busi, et al.            Expires 29 December 2023              [Page 101]
-
-Internet-Draft            TE Common YANG Types                 June 2023
-
-
        reference
          "RFC 4125: Maximum Allocation Bandwidth Constraints Model for
                     Diffserv-aware MPLS Traffic Engineering";
@@ -5673,6 +5705,14 @@ Internet-Draft            TE Common YANG Types                 June 2023
           Constraints Model for Diffserv-aware MPLS Traffic Engineering
           & Performance Comparisons";
      }
+
+
+
+
+Busi, et al.            Expires 29 December 2023              [Page 102]
+
+Internet-Draft            TE Common YANG Types                 June 2023
+
 
      /*
       * Groupings
@@ -5706,14 +5746,6 @@ Internet-Draft            TE Common YANG Types                 June 2023
            leaf one-way-max-delay-normality {
              type te-types:performance-metrics-normality;
              default "normal";
-
-
-
-Busi, et al.            Expires 29 December 2023              [Page 102]
-
-Internet-Draft            TE Common YANG Types                 June 2023
-
-
              description
                "One-way maximum delay or latency normality.";
            }
@@ -5730,6 +5762,14 @@ Internet-Draft            TE Common YANG Types                 June 2023
            leaf one-way-delay-variation-normality {
              type te-types:performance-metrics-normality;
              default "normal";
+
+
+
+Busi, et al.            Expires 29 December 2023              [Page 103]
+
+Internet-Draft            TE Common YANG Types                 June 2023
+
+
              description
                "One-way delay variation normality.";
              reference
@@ -5762,14 +5802,6 @@ Internet-Draft            TE Common YANG Types                 June 2023
              reference
                "RFC 7471: OSPF Traffic Engineering (TE) Metric
                 Extensions
-
-
-
-Busi, et al.            Expires 29 December 2023              [Page 103]
-
-Internet-Draft            TE Common YANG Types                 June 2023
-
-
                 RFC 7823: Performance-Based Path Selection for
                 Explicitly Routed Label Switched Paths (LSPs) Using
                 TE Metric Extensions
@@ -5786,6 +5818,14 @@ Internet-Draft            TE Common YANG Types                 June 2023
                range "0..16777215";
              }
              default "0";
+
+
+
+Busi, et al.            Expires 29 December 2023              [Page 104]
+
+Internet-Draft            TE Common YANG Types                 June 2023
+
+
              description
                "Two-way minimum delay or latency in microseconds.";
            }
@@ -5818,14 +5858,6 @@ Internet-Draft            TE Common YANG Types                 June 2023
                "Two-way maximum delay or latency normality.";
              reference
                "RFC 7471: OSPF Traffic Engineering (TE) Metric
-
-
-
-Busi, et al.            Expires 29 December 2023              [Page 104]
-
-Internet-Draft            TE Common YANG Types                 June 2023
-
-
                 Extensions
                 RFC 7823: Performance-Based Path Selection for
                 Explicitly Routed Label Switched Paths (LSPs) Using
@@ -5842,6 +5874,14 @@ Internet-Draft            TE Common YANG Types                 June 2023
                "Two-way delay variation in microseconds.";
              reference
                "RFC 5481: Packet Delay Variation Applicability
+
+
+
+Busi, et al.            Expires 29 December 2023              [Page 105]
+
+Internet-Draft            TE Common YANG Types                 June 2023
+
+
                 Statement, Section 4.2";
            }
            leaf two-way-delay-variation-normality {
@@ -5874,14 +5914,6 @@ Internet-Draft            TE Common YANG Types                 June 2023
              default "normal";
              description
                "Two-way packet loss normality.";
-
-
-
-Busi, et al.            Expires 29 December 2023              [Page 105]
-
-Internet-Draft            TE Common YANG Types                 June 2023
-
-
            }
            description
              "PM two-way packet-specific augmentation for a generic PM
@@ -5898,6 +5930,14 @@ Internet-Draft            TE Common YANG Types                 June 2023
      }
 
      grouping one-way-performance-metrics-packet {
+
+
+
+Busi, et al.            Expires 29 December 2023              [Page 106]
+
+Internet-Draft            TE Common YANG Types                 June 2023
+
+
        description
          "One-way packet PM throttle grouping.";
        leaf one-way-min-delay {
@@ -5930,14 +5970,6 @@ Internet-Draft            TE Common YANG Types                 June 2023
            range "0..50.331642";
          }
          default "0";
-
-
-
-Busi, et al.            Expires 29 December 2023              [Page 106]
-
-Internet-Draft            TE Common YANG Types                 June 2023
-
-
          description
            "One-way packet loss as a percentage of the total traffic
             sent over a configurable interval.  The finest precision is
@@ -5954,6 +5986,14 @@ Internet-Draft            TE Common YANG Types                 June 2023
          }
          default "0";
          description
+
+
+
+Busi, et al.            Expires 29 December 2023              [Page 107]
+
+Internet-Draft            TE Common YANG Types                 June 2023
+
+
            "Two-way minimum delay or latency in microseconds.";
        }
        leaf two-way-max-delay {
@@ -5986,14 +6026,6 @@ Internet-Draft            TE Common YANG Types                 June 2023
      }
 
      grouping performance-metrics-throttle-container-packet {
-
-
-
-Busi, et al.            Expires 29 December 2023              [Page 107]
-
-Internet-Draft            TE Common YANG Types                 June 2023
-
-
        description
          "Packet PM threshold grouping.";
        uses te-types:performance-metrics-throttle-container {
@@ -6010,6 +6042,14 @@ Internet-Draft            TE Common YANG Types                 June 2023
            description
              "PM threshold-in packet augmentation for a
               generic grouping.";
+
+
+
+Busi, et al.            Expires 29 December 2023              [Page 108]
+
+Internet-Draft            TE Common YANG Types                 June 2023
+
+
          }
          augment "throttle/threshold-accelerated-advertisement" {
            uses one-way-performance-metrics-packet;
@@ -6037,67 +6077,27 @@ Internet-Draft            TE Common YANG Types                 June 2023
          }
          description "Type of Bandwidth Profile.";
        }
-
        leaf cir {
          type uint64;
          units "bits/second";
          description
-
-
-
-Busi, et al.            Expires 29 December 2023              [Page 108]
-
-Internet-Draft            TE Common YANG Types                 June 2023
-
-
-           "Committed Information Rate in kilobits per second.";
+           "Committed Information Rate (CIR).";
        }
-
        leaf eir {
          type uint64;
-         units "bytes";
-         /*
-           Need to indicate that EIR is not supported by RFC 2697
-
-           must
-
-               '../bw-profile-type = "etht-types:mef-10-bwp" or ' +
-               '../bw-profile-type = "etht-types:rfc-2698-bwp" or ' +
-               '../bw-profile-type = "etht-types:rfc-4115-bwp"'
-
-           must
-               '../bw-profile-type != "etht-types:rfc-2697-bwp"'
-         */
-         description
-           "Excess Information Rate in kilobits per second.
-
-            In case of RFC 2698: PIR = CIR + EIR";
-       }
-
-       leaf cbs {
-         type uint64;
          units "bits/second";
+         when 'derived-from(../bandwidth-profile-type, '
+             + '"te-packet-types:excess-rate-bwp")' {
+           description
+             "Applies only to two rate bandwidth profiles, specified
+             by a Committed Information Rate (CIR) and an Excess
+             Information Rate (EIR).";
+         }
          description
-           "Committed Burst Size.";
+           "Excess Information Rate (EIR).";
        }
-
-       leaf ebs {
+       leaf pir {
          type uint64;
-         units "bytes";
-         description
-           "Excess Burst Size.
-
-            In case of RFC 2698: PBS = CBS + EBS";
-       }
-     }
-
-     // CHANGE NOTE: The te-packet-path-bandwidth below has been
-     // added in this module revision
-     // RFC Editor: remove the note above and this note
-     grouping te-packet-link-bandwidth {
-       description
-         "Link Bandwidth for Packet. ";
-       leaf packet-bandwidth {
 
 
 
@@ -6106,6 +6106,66 @@ Busi, et al.            Expires 29 December 2023              [Page 109]
 Internet-Draft            TE Common YANG Types                 June 2023
 
 
+         units "bits/second";
+         when 'derived-from(../bandwidth-profile-type, '
+             + '"te-packet-types:peak-rate-bwp")'  {
+           description
+             "Applies only to two rate bandwidth profiles, specified
+             by a Committed Information Rate (CIR) a Peak Information
+             Rate (PIR).";
+         }
+         description
+           "Peak Information Rate (PIR).";
+       }
+       leaf cbs {
+         type uint64;
+         units "bytes";
+         description
+           "Committed Burst Size (CBS).";
+       }
+       leaf ebs {
+         type uint64;
+         units "bytes";
+         when 'derived-from(../bandwidth-profile-type, '
+             + '"te-packet-types:excess-burst-bwp")'  {
+           description
+             "Applies only to three color bandwidth profiles,
+             specified by a Committed Burst Size (CBS) and an Excess
+             Burst Size (EBS).";
+         }
+         description
+           "Excess Burst Size (EBS).";
+       }
+       leaf pbs {
+         type uint64;
+         units "bytes";
+         when 'derived-from(../bandwidth-profile-type, '
+             + '"te-packet-types:peak-burst-bwp")'  {
+           description
+             "Applies only to three color bandwidth profiles,
+             specified by a Committed Burst Size (CBS) and a Peak
+             Burst Size (PBS).";
+         }
+         description
+           "Peak Burst Size (PBS).";
+       }
+     } // grouping te-packet-path-bandwidth
+
+     // CHANGE NOTE: The te-packet-path-bandwidth below has been
+     // added in this module revision
+     // RFC Editor: remove the note above and this note
+
+
+
+Busi, et al.            Expires 29 December 2023              [Page 110]
+
+Internet-Draft            TE Common YANG Types                 June 2023
+
+
+     grouping te-packet-link-bandwidth {
+       description
+         "Link Bandwidth for Packet. ";
+       leaf packet-bandwidth {
          type uint64;
          units "bits/second";
          description
@@ -6153,11 +6213,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-
-
-
-
-Busi, et al.            Expires 29 December 2023              [Page 110]
+Busi, et al.            Expires 29 December 2023              [Page 111]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -6213,7 +6269,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 111]
+Busi, et al.            Expires 29 December 2023              [Page 112]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -6269,7 +6325,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 112]
+Busi, et al.            Expires 29 December 2023              [Page 113]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -6325,7 +6381,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 113]
+Busi, et al.            Expires 29 December 2023              [Page 114]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -6381,7 +6437,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 114]
+Busi, et al.            Expires 29 December 2023              [Page 115]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -6437,7 +6493,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 115]
+Busi, et al.            Expires 29 December 2023              [Page 116]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -6493,7 +6549,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 116]
+Busi, et al.            Expires 29 December 2023              [Page 117]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -6549,7 +6605,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 117]
+Busi, et al.            Expires 29 December 2023              [Page 118]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -6605,7 +6661,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 118]
+Busi, et al.            Expires 29 December 2023              [Page 119]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -6661,7 +6717,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 119]
+Busi, et al.            Expires 29 December 2023              [Page 120]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -6717,7 +6773,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 120]
+Busi, et al.            Expires 29 December 2023              [Page 121]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -6773,7 +6829,7 @@ A.1.  TE Types YANG Diffs
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 121]
+Busi, et al.            Expires 29 December 2023              [Page 122]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -6829,7 +6885,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 122]
+Busi, et al.            Expires 29 December 2023              [Page 123]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -6885,7 +6941,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 123]
+Busi, et al.            Expires 29 December 2023              [Page 124]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -6941,7 +6997,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 124]
+Busi, et al.            Expires 29 December 2023              [Page 125]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -6997,7 +7053,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 125]
+Busi, et al.            Expires 29 December 2023              [Page 126]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -7053,7 +7109,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 126]
+Busi, et al.            Expires 29 December 2023              [Page 127]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -7109,7 +7165,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 127]
+Busi, et al.            Expires 29 December 2023              [Page 128]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -7165,7 +7221,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 128]
+Busi, et al.            Expires 29 December 2023              [Page 129]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -7221,7 +7277,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 129]
+Busi, et al.            Expires 29 December 2023              [Page 130]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -7277,7 +7333,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 130]
+Busi, et al.            Expires 29 December 2023              [Page 131]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -7333,7 +7389,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 131]
+Busi, et al.            Expires 29 December 2023              [Page 132]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -7389,7 +7445,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 132]
+Busi, et al.            Expires 29 December 2023              [Page 133]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -7445,7 +7501,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 133]
+Busi, et al.            Expires 29 December 2023              [Page 134]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -7501,7 +7557,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 134]
+Busi, et al.            Expires 29 December 2023              [Page 135]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -7557,7 +7613,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 135]
+Busi, et al.            Expires 29 December 2023              [Page 136]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -7613,7 +7669,7 @@ A.2.  Packet TE Types YANG Diffs
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 136]
+Busi, et al.            Expires 29 December 2023              [Page 137]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
@@ -7654,7 +7710,7 @@ Internet-Draft            TE Common YANG Types                 June 2023
    >      (https://www.rfc-editor.org/info/rfcXXXX); see the RFC itself
    >      for full legal notices.";
    >
-   >   revision 2023-06-23 {
+   >   revision 2023-06-27 {
    >     description
    >       "Added common TE packet identities:
    >        - bandwidth-profile-type.
@@ -7669,14 +7725,14 @@ Internet-Draft            TE Common YANG Types                 June 2023
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 137]
+Busi, et al.            Expires 29 December 2023              [Page 138]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
 
    >   // RFC Editor: replace XXXX with actual RFC number, update date
    >   // information and remove this note
-   61c80,126
+   61c80,158
    <   /**
    ---
    >   /*
@@ -7692,60 +7748,100 @@ Internet-Draft            TE Common YANG Types                 June 2023
    >       "Bandwidth Profile Types";
    >   }
    >
-   >     identity mef-10-bwp {
+   >     identity peak-rate-bwp {
    >       base bandwidth-profile-type;
    >       description
-   >         "MEF 10 Bandwidth Profile";
-   >       reference
-   >         "MEF 10.3: Ethernet Services Attributes Phase 3";
+   >         "A Two Rate Bandwidth Profile specified by a Committed
+   >         Information Rate (CIR) and a Peak Information Rate (PIR).";
    >     }
    >
-   >     identity rfc-2697-bwp {
+   >     identity excess-rate-bwp {
    >       base bandwidth-profile-type;
    >       description
-   >         "RFC 2697 Bandwidth Profile";
-   >       reference
-   >         "RFC2697: A Single Rate Three Color Marker";
+   >         "A Two Rate Bandwidth Profile specified by a Committed
+   >         Information Rate (CIR) and an Excess Information Rate
+   >         (EIR).";
    >     }
    >
-   >     identity rfc-2698-bwp {
+   >     identity peak-burst-bwp {
    >       base bandwidth-profile-type;
    >       description
-   >         "RFC 2698 Bandwidth Profile";
-   >       reference
-   >         "RFC2698: A Two Rate Three Color Marker";
+   >         "A Three Color Bandwidth Profile specified by a Committed
+   >         Burst Size (CBS) and a Peak Burst Size (PBS).";
    >     }
    >
-   >     identity rfc-4115-bwp {
+   >     identity excess-burst-bwp {
    >       base bandwidth-profile-type;
    >       description
-   >         "RFC 4115 Bandwidth Profile";
-   >       reference
-   >         "RFC4115: A Differentiated Service Two-Rate, Three-Color
+   >         "A Three Color Bandwidth Profile specified by a Committed
+   >         Burst Size (CBS) and an Excess Burst Size (EBS).";
+   >     }
+   >
+   >       identity mef-10-bwp {
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 138]
+Busi, et al.            Expires 29 December 2023              [Page 139]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
 
-   >         Marker with Efficient Handling of in-Profile Traffic";
-   >     }
+   >         base excess-rate-bwp;
+   >         base excess-burst-bwp;
+   >         description
+   >           "MEF 10 Bandwidth Profile";
+   >         reference
+   >           "MEF 10.3: Ethernet Services Attributes Phase 3";
+   >       }
+   >
+   >       identity rfc-2697-bwp {
+   >         base excess-burst-bwp;
+   >         description
+   >           "RFC 2697 Bandwidth Profile";
+   >         reference
+   >           "RFC2697: A Single Rate Three Color Marker";
+   >       }
+   >
+   >       identity rfc-2698-bwp {
+   >         base peak-rate-bwp;
+   >         base peak-burst-bwp;
+   >         description
+   >           "RFC 2698 Bandwidth Profile";
+   >         reference
+   >           "RFC2698: A Two Rate Three Color Marker";
+   >       }
+   >
+   >       identity rfc-4115-bwp {
+   >         base excess-rate-bwp;
+   >         base excess-burst-bwp;
+   >         description
+   >           "RFC 4115 Bandwidth Profile";
+   >         reference
+   >           "RFC4115: A Differentiated Service Two-Rate, Three-Color
+   >           Marker with Efficient Handling of in-Profile Traffic";
+   >       }
    >
    >   /*
-   180a246,249
+   180a278,281
    >   /*
    >    * Groupings
    >    */
    >
-   472a542,618
+   472a574,670
    >     }
    >   }
    >
    >   // CHANGE NOTE: The te-packet-path-bandwidth below has been
    >   // added in this module revision
    >   // RFC Editor: remove the note above and this note
+
+
+
+Busi, et al.            Expires 29 December 2023              [Page 140]
+
+Internet-Draft            TE Common YANG Types                 June 2023
+
+
    >   grouping te-packet-path-bandwidth {
    >     description
    >       "Path bandwidth for Packet. ";
@@ -7759,59 +7855,79 @@ Internet-Draft            TE Common YANG Types                 June 2023
    >       }
    >       description "Type of Bandwidth Profile.";
    >     }
-   >
    >     leaf cir {
    >       type uint64;
    >       units "bits/second";
    >       description
-   >         "Committed Information Rate in kilobits per second.";
+   >         "Committed Information Rate (CIR).";
    >     }
-   >
    >     leaf eir {
    >       type uint64;
+   >       units "bits/second";
+   >       when 'derived-from(../bandwidth-profile-type, '
+   >           + '"te-packet-types:excess-rate-bwp")' {
+   >         description
+   >           "Applies only to two rate bandwidth profiles, specified
+   >           by a Committed Information Rate (CIR) and an Excess
+   >           Information Rate (EIR).";
+   >       }
+   >       description
+   >         "Excess Information Rate (EIR).";
+   >     }
+   >     leaf pir {
+   >       type uint64;
+   >       units "bits/second";
+   >       when 'derived-from(../bandwidth-profile-type, '
+   >           + '"te-packet-types:peak-rate-bwp")'  {
+   >         description
+   >           "Applies only to two rate bandwidth profiles, specified
+   >           by a Committed Information Rate (CIR) a Peak Information
+   >           Rate (PIR).";
+   >       }
+   >       description
+   >         "Peak Information Rate (PIR).";
+   >     }
+   >     leaf cbs {
+   >       type uint64;
    >       units "bytes";
-   >       /*
-   >         Need to indicate that EIR is not supported by RFC 2697
-   >
-   >         must
-   >
-   >             '../bw-profile-type = "etht-types:mef-10-bwp" or ' +
-   >             '../bw-profile-type = "etht-types:rfc-2698-bwp" or ' +
-   >             '../bw-profile-type = "etht-types:rfc-4115-bwp"'
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 139]
+Busi, et al.            Expires 29 December 2023              [Page 141]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
 
-   >
-   >         must
-   >             '../bw-profile-type != "etht-types:rfc-2697-bwp"'
-   >       */
    >       description
-   >         "Excess Information Rate in kilobits per second.
-   >
-   >          In case of RFC 2698: PIR = CIR + EIR";
+   >         "Committed Burst Size (CBS).";
    >     }
-   >
-   >     leaf cbs {
-   >       type uint64;
-   >       units "bits/second";
-   >       description
-   >         "Committed Burst Size.";
-   >     }
-   >
    >     leaf ebs {
    >       type uint64;
    >       units "bytes";
+   >       when 'derived-from(../bandwidth-profile-type, '
+   >           + '"te-packet-types:excess-burst-bwp")'  {
+   >         description
+   >           "Applies only to three color bandwidth profiles,
+   >           specified by a Committed Burst Size (CBS) and an Excess
+   >           Burst Size (EBS).";
+   >       }
    >       description
-   >         "Excess Burst Size.
-   >
-   >          In case of RFC 2698: PBS = CBS + EBS";
+   >         "Excess Burst Size (EBS).";
    >     }
-   >   }
+   >     leaf pbs {
+   >       type uint64;
+   >       units "bytes";
+   >       when 'derived-from(../bandwidth-profile-type, '
+   >           + '"te-packet-types:peak-burst-bwp")'  {
+   >         description
+   >           "Applies only to three color bandwidth profiles,
+   >           specified by a Committed Burst Size (CBS) and a Peak
+   >           Burst Size (PBS).";
+   >       }
+   >       description
+   >         "Peak Burst Size (PBS).";
+   >     }
+   >   } // grouping te-packet-path-bandwidth
    >
    >   // CHANGE NOTE: The te-packet-path-bandwidth below has been
    >   // added in this module revision
@@ -7830,17 +7946,17 @@ Appendix B.  Option Considered for updating RFC8776
 
    RFC Editor: please remove this appendix before publication.
 
-   The concern is how to be able to update the ietf-te-types YANG module
-   published in [RFC8776] without delaying too much the progress of the
-   mature WG documents.
 
 
 
-
-Busi, et al.            Expires 29 December 2023              [Page 140]
+Busi, et al.            Expires 29 December 2023              [Page 142]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
+
+   The concern is how to be able to update the ietf-te-types YANG module
+   published in [RFC8776] without delaying too much the progress of the
+   mature WG documents.
 
    Three possible options have been identified to address this concern.
 
@@ -7886,17 +8002,16 @@ Internet-Draft            TE Common YANG Types                 June 2023
    https://datatracker.ietf.org/meeting/114/materials/slides-114-netmod-
    ad-topic-managing-the-evolution-of-ietf-yang-modules-00.pdf
 
-   Future updates of this document could align with the proposed
-   approach.
 
 
 
-
-
-Busi, et al.            Expires 29 December 2023              [Page 141]
+Busi, et al.            Expires 29 December 2023              [Page 143]
 
 Internet-Draft            TE Common YANG Types                 June 2023
 
+
+   Future updates of this document could align with the proposed
+   approach.
 
 Acknowledgements
 
@@ -7943,10 +8058,63 @@ Authors' Addresses
 
    Igor Bryskin
    Individual
+
+
+
+Busi, et al.            Expires 29 December 2023              [Page 144]
+
+Internet-Draft            TE Common YANG Types                 June 2023
+
+
    Email: i_bryskin@yahoo.com
 
 
 
 
 
-Busi, et al.            Expires 29 December 2023              [Page 142]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Busi, et al.            Expires 29 December 2023              [Page 145]
