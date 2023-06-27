@@ -4,7 +4,7 @@ coding: utf-8
 title: Common YANG Data Types for Traffic Engineering
 
 abbrev: TE Common YANG Types
-docname: draft-ietf-teas-rfc8776-update-04
+docname: draft-ietf-teas-rfc8776-update-05
 obsoletes: 8776
 submissiontype: IETF
 workgroup: TEAS Working Group
@@ -474,7 +474,7 @@ RFC Editor: remove the CHANGE NOTE above and this note
 {::include ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2023-03-10.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2023-06-27.yang"}
 
 {: #pkt-yang-code}
 
@@ -490,7 +490,7 @@ RFC Editor: remove the CHANGE NOTE above and this note
 {::include ../../ietf-te-packet-types.yang}
 ~~~~
 {: #fig-pkt-yang title="Packet TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2023-03-10.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2023-06-27.yang"}
 
 # IANA Considerations
 
