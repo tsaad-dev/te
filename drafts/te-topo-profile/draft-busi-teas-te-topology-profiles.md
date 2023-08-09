@@ -6,7 +6,7 @@ title: >
    Applicability to non-TE Use Cases
 
 abbrev: TE Topology Profiles
-docname: draft-busi-teas-te-topology-profiles-05
+docname: draft-busi-teas-te-topology-profiles-06
 submissiontype: IETF
 workgroup: TEAS Working Group
 category: info
@@ -22,7 +22,7 @@ author:
     email: italo.busi@huawei.com
   -
     name: Xufeng Liu
-    org: IBM Corporation
+    org: Alef Edge
     email: xufeng.liu.ietf@gmail.com
   -
     name: Igor Bryskin
