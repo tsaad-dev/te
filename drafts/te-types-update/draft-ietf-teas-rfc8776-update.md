@@ -4,7 +4,7 @@ coding: utf-8
 title: Common YANG Data Types for Traffic Engineering
 
 abbrev: TE Common YANG Types
-docname: draft-ietf-teas-rfc8776-update-03
+docname: draft-ietf-teas-rfc8776-update-06
 obsoletes: 8776
 submissiontype: IETF
 workgroup: TEAS Working Group
@@ -324,10 +324,6 @@ CHANGE NOTE: The module "ietf-te-types" has been updated to add the following YA
 
 RFC Editor: remove the CHANGE NOTE above and this note
 
-bandwidth-scientific-notation:
-
-> This data type represents the bandwidth, in bit-per-second, using the scientific notation (e.g., 10e3).
-
 lsp-provisioning-error-reason:
 
 > A base YANG identity for reporting LSP provisioning error reasons. No standard LPS provisioning error reasons are defined in this document.
@@ -446,13 +442,6 @@ te-packet-link-bandwidth:
 
 > All the link bandwidth related sections in the "ietf-te-types" generic module, {{te-yang-code}}, need to be augmented with this grouping for the usage of Packet TE technologies.
 
-> The Packet TE link bandwidth can be represented by a bandwidth expressed in scientific notation as follow:
-
-~~~~ ascii-art
-         +--:(packet)
-           +--rw packet-bandwidth?   bandwidth-scientific-notation
-~~~~
-
 {: #te-yang-code}
 
 # TE Types YANG Module
@@ -474,7 +463,7 @@ RFC Editor: remove the CHANGE NOTE above and this note
 {::include ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2023-03-10.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2023-06-27.yang"}
 
 {: #pkt-yang-code}
 
@@ -490,7 +479,7 @@ RFC Editor: remove the CHANGE NOTE above and this note
 {::include ../../ietf-te-packet-types.yang}
 ~~~~
 {: #fig-pkt-yang title="Packet TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2023-03-10.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2023-07-10.yang"}
 
 # IANA Considerations
 
