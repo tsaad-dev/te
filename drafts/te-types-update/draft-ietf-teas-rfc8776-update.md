@@ -4,7 +4,7 @@ coding: utf-8
 title: Common YANG Data Types for Traffic Engineering
 
 abbrev: TE Common YANG Types
-docname: draft-ietf-teas-rfc8776-update-06
+docname: draft-ietf-teas-rfc8776-update-07
 obsoletes: 8776
 submissiontype: IETF
 workgroup: TEAS Working Group
@@ -32,15 +32,15 @@ author:
     org: Cisco Systems Inc.
     email: tsaad.net@gmail.com
   -
-    name: Vishnu Pavan Beeram
-    org: Juniper Networks
-    email: vbeeram@juniper.net
-  -
     name: Igor Bryskin
     org: Individual
     email: i_bryskin@yahoo.com
 
 contributor:
+  -
+    name: Vishnu Pavan Beeram
+    org: Juniper Networks
+    email: vbeeram@juniper.net
   -
     name: Rakesh Gandhi
     org: Cisco Systems, Inc.
