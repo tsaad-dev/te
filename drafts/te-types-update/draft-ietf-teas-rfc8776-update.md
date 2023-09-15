@@ -4,7 +4,7 @@ coding: utf-8
 title: Common YANG Data Types for Traffic Engineering
 
 abbrev: TE Common YANG Types
-docname: draft-ietf-teas-rfc8776-update-05
+docname: draft-ietf-teas-rfc8776-update-06
 obsoletes: 8776
 submissiontype: IETF
 workgroup: TEAS Working Group
@@ -324,10 +324,6 @@ CHANGE NOTE: The module "ietf-te-types" has been updated to add the following YA
 
 RFC Editor: remove the CHANGE NOTE above and this note
 
-bandwidth-scientific-notation:
-
-> This data type represents the bandwidth, in bit-per-second, using the scientific notation (e.g., 10e3).
-
 lsp-provisioning-error-reason:
 
 > A base YANG identity for reporting LSP provisioning error reasons. No standard LPS provisioning error reasons are defined in this document.
@@ -445,13 +441,6 @@ te-packet-link-bandwidth:
 > A YANG grouping that defines the link bandwidth information and could be used in any Packet TE model (e.g., MPLS-TE topology) for link bandwidth representation.
 
 > All the link bandwidth related sections in the "ietf-te-types" generic module, {{te-yang-code}}, need to be augmented with this grouping for the usage of Packet TE technologies.
-
-> The Packet TE link bandwidth can be represented by a bandwidth expressed in scientific notation as follow:
-
-~~~~ ascii-art
-         +--:(packet)
-           +--rw packet-bandwidth?   bandwidth-scientific-notation
-~~~~
 
 {: #te-yang-code}
 
