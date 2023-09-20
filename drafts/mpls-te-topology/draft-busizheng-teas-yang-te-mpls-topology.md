@@ -1,9 +1,11 @@
+---
 coding: utf-8
 
 title: A YANG Data Model for MPLS-TE Topology
 
 abbrev: MPLS-TE Topology YANG Model
-docname: draft-busizheng-teas-yang-te-mpls-topology-04
+docname: draft-busizheng-teas-yang-te-mpls-topology-05
+submissiontype: IETF
 workgroup: TEAS Working Group
 category: std
 ipr: trust200902
@@ -22,7 +24,7 @@ author:
     email: aihuaguo.ietf@gmail.com
   -
     name: Xufeng Liu
-    org: IBM Corporation
+    org: Alef Edge
     email: xufeng.liu.ietf@gmail.com
   -
     name: Tarek Saad
@@ -128,21 +130,21 @@ contributor:
   {{!RFC8795}}, as shown in {{fig-mpls-te-topo}}.
 
 ~~~~ ascii-art
-                +------------------+     ---o: augmentation relationship
-   TE generic   | ietf-te-topology |
                 +------------------+
-                          o
+   TE generic   | ietf-te-topology |
+                +---------+--------+
+                          ^
                           |
+                          | Augments
                           |
-                          |
-             +-------------------------+
+             +------------+------------+
    Packet TE | ietf-te-topology-packet |
-             +-------------------------+
-                          o
+             +------------+------------+
+                          ^
                           |
+                          | Augments
                           |
-                          |
-              +-----------------------+
+              +-----------+-----------+
    MPLS-TE    | ietf-te-mpls-topology |
               +-----------------------+
 ~~~~
@@ -155,8 +157,8 @@ contributor:
     topology, as follow:
 
 ~~~~
-      augment /nw:networks/nw:network/nw:network-types/tet:te-topology
-              /tet-pkt:packet:
+      augment /nw:networks/nw:network/nw:network-types
+              /tet:te-topology/tet-pkt:packet:
         +--rw mpls-topology!
 ~~~~
 
@@ -338,31 +340,33 @@ Note: TE bandwidth augmentations for paths, LSPs, and links are provided by the 
 
 # IANA Considerations
 
-   IANA is requested to register the following URIs in the "ns" subregistry within
-   the "IETF XML Registry" {{!RFC3688}}:
-| mte-types     | ietf-mpls-te-types
-| tet-mpls      | ietf-te-mpls-topology   | This document
+This document requests IANA to register the following URIs in the "ns" subregistry within the "IETF XML Registry" {{!RFC3688}}. Following the format in {{!RFC3688}}, the following registrations are requested.
 
-   URI:  urn:ietf:params:xml:ns:yang:ietf-mpls-te-types
-   Registrant Contact:  The IESG.
-   XML:  N/A; the requested URI is an XML namespace.
+~~~~
+      URI:  urn:ietf:params:xml:ns:yang:ietf-mpls-te-types
+      Registrant Contact:  The IESG.
+      XML: N/A; the requested URI is an XML namespace.
 
-   URI:  urn:ietf:params:xml:ns:yang:ietf-te-mpls-topology
-   Registrant Contact:  The IESG.
-   XML:  N/A; the requested URI is an XML namespace.
+      URI:  urn:ietf:params:xml:ns:yang:ietf-te-mpls-topology
+      Registrant Contact:  The IESG.
+      XML: N/A; the requested URI is an XML namespace.
+~~~~
 
-   IANA is requested to register the following YANG modules in the "YANG Module
-   Names" subregistry {{!RFC6020}} within the "YANG Parameters" registry.
+This document requests IANA to register the following YANG modules in the "IANA Module Names" {{!RFC6020}}. Following the format in {{!RFC6020}}, the following registrations are requested:
 
-   Name:  ietf-mpls-te-types
-   Namespace:  urn:ietf:params:xml:ns:yang:ietf-mpls-te-types
-   Prefix:  mte-types
-   Reference:  {{!This.I-D}}
+~~~~
+      name:      ietf-mpls-te-types
+      namespace: urn:ietf:params:xml:ns:yang:ietf-mpls-te-types
+      prefix:    mte-types
+      reference: RFC XXXX
 
-   Name:  ietf-te-topology-state
-   Namespace:  urn:ietf:params:xml:ns:yang:ietf-te-topology-state
-   Prefix:  tet-mpls
-   Reference:  {{!This.I-D}}
+      name:      ietf-te-mpls-topology
+      namespace: urn:ietf:params:xml:ns:yang:ietf-te-mpls-topology
+      prefix:    tet-mpls
+      reference: RFC XXXX
+~~~~
+
+RFC Editor: Please replace XXXX with the RFC number assigned to this document.
 
 --- back
 

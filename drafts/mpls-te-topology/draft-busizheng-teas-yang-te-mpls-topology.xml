@@ -13,7 +13,7 @@
 
 <?rfc comments="yes"?>
 
-<rfc ipr="trust200902" docName="draft-busizheng-teas-yang-te-mpls-topology-04" category="std" consensus="true" tocInclude="true" sortRefs="true" symRefs="true">
+<rfc ipr="trust200902" docName="draft-busizheng-teas-yang-te-mpls-topology-05" category="std" consensus="true" submissionType="IETF" tocInclude="true" sortRefs="true" symRefs="true">
   <front>
     <title abbrev="MPLS-TE Topology YANG Model">A YANG Data Model for MPLS-TE Topology</title>
 
@@ -30,7 +30,7 @@
       </address>
     </author>
     <author initials="X." surname="Liu" fullname="Xufeng Liu">
-      <organization>IBM Corporation</organization>
+      <organization>Alef Edge</organization>
       <address>
         <email>xufeng.liu.ietf@gmail.com</email>
       </address>
@@ -48,7 +48,7 @@
       </address>
     </author>
 
-    <date year="2022" month="November" day="12"/>
+    <date year="2023" month="September" day="20"/>
 
     
     <workgroup>TEAS Working Group</workgroup>
@@ -57,7 +57,7 @@
     <abstract>
 
 
-<t>This document describes a YANG data model for Multi-Protocol Label
+<t>This document describes a YANG data model for Multiprotocol Label
   Switching (MPLS) with Traffic Engineering (MPLS-TE) networks.</t>
 
 
@@ -73,8 +73,8 @@
 
 <section anchor="introduction"><name>Introduction</name>
 
-<t>This document describes a YANG data model for Multi-Protocol Label
-  Switching (MPLS) with Traffic Engineering (MPLS-TE) networks.</t>
+<t>This document describes a YANG data model for Multiprotocol Label
+  Switching (MPLS) with Traffic Engineering (MPLS-TE) networks <xref target="RFC2702"/>.</t>
 
 <t>This document also defines a collection of common data types and
   groupings in YANG data modeling language for MPLS-TE networks.  These
@@ -82,7 +82,7 @@
   MPLS-TE topology model, defined in this document, as well as by the
   MPLS-TE tunnel model, defined in <xref target="I-D.ietf-teas-yang-te-mpls"/>.</t>
 
-<t>Multi-Protocol Label Switching - Transport Profile (MPLS-TP) is a
+<t>Multiprotocol Label Switching - Transport Profile (MPLS-TP) is a
   profile of the MPLS protocol that is used in packet switched
   transport networks and operated in a similar manner to other existing
   transport technologies (e.g., OTN), as described in <xref target="RFC5921"/>. The YANG
@@ -130,129 +130,134 @@
 <section anchor="mpls-te-types-overview"><name>MPLS-TE Types Overview</name>
 
 <t>The module ietf-mpls-te-types contains the following YANG
-  types and groupings which can be
-  reused by MPLS-TE YANG models:</t>
+  types and groupings which can be used by other MPLS-TE YANG models:</t>
 
 <t>load-balancing-type:</t>
 
 <ul empty="true"><li>
-  <t>This identify defines the types of load-balancing algorithms used on
+  <t>This identity defines the types of load-balancing algorithms used on a
   bundled MPLS-TE link.</t>
 </li></ul>
 
 <t>te-mpls-label-hop:</t>
 
 <ul empty="true"><li>
-  <t>This grouping is used for the augmentation of TE label for MPLS-TE
-  path.</t>
+  <t>This grouping is used for augmentation of the TE label for MPLS-TE
+  paths.</t>
 </li></ul>
 
 </section>
 <section anchor="mpls-te-topo-overview"><name>MPLS-TE Topology Model Overview</name>
 
-<t>The MPLS-TE technology specific topology model augments the ietf-te-
+<t>The MPLS-TE technology-specific topology model augments the ietf-te-
   topology-packet YANG module, defined in <xref target="I-D.ietf-teas-yang-l3-te-topo"/>, which in
-  turns augment the generic ietf-te-topology YANG module, defined in
+  turn augments the generic ietf-te-topology YANG module, defined in
   <xref target="RFC8795"/>, as shown in <xref target="fig-mpls-te-topo"/>.</t>
 
-<figure title="Relationship between MPLS-TE, Packet-TE and TE topology models" anchor="fig-mpls-te-topo"><artwork type="ascii-art"><![CDATA[
-                  +------------------+    o: augment
-     TE generic   | ietf-te-topology |
-                  +------------------+
-                            o
-                            |
-                            |
-                            |
-               +-------------------------+
-     Packet TE | ietf-te-topology-packet |
-               +-------------------------+
-                            o
-                            |
-                            |
-                            |
-                +-----------------------+
-     MPLS-TE    | ietf-te-mpls-topology |
-                +-----------------------+
+<figure title="Relationship between MPLS-TE, Packet-TE and TE Topology Models" anchor="fig-mpls-te-topo"><artwork type="ascii-art"><![CDATA[
+                +------------------+
+   TE generic   | ietf-te-topology |
+                +---------+--------+
+                          ^
+                          |
+                          | Augments
+                          |
+             +------------+------------+
+   Packet TE | ietf-te-topology-packet |
+             +------------+------------+
+                          ^
+                          |
+                          | Augments
+                          |
+              +-----------+-----------+
+   MPLS-TE    | ietf-te-mpls-topology |
+              +-----------------------+
 ]]></artwork></figure>
 
 <t>Given the guidance for augmentation in <xref target="RFC8795"/>, the following
-  technology-specific augmentations need to be provided:</t>
+  technology-specific augmentations need are provided:</t>
 
 <t><list style="symbols">
   <t>A network-type to indicate that the TE topology is an MPLS-TE
-Topology, as follow:</t>
+topology, as follow:</t>
 </list></t>
 
 <figure><artwork><![CDATA[
-      augment /nw:networks/nw:network/nw:network-types/tet:te-topology
-              /tet-pkt:packet:
+      augment /nw:networks/nw:network/nw:network-types
+              /tet:te-topology/tet-pkt:packet:
         +--rw mpls-topology!
 ]]></artwork></figure>
 
 <t><list style="symbols">
-  <t>TE Label Augmentations as described in <xref target="mpls-te-label"/>.</t>
+  <t>TE Label augmentations as described in <xref target="mpls-te-label"/>.</t>
 </list></t>
 
-<t>Note: TE Bandwidth Augmentations for paths, LSPs and links are provided by the ietf-te-topology-packet module, defined in <xref target="I-D.ietf-teas-yang-l3-te-topo"/>.</t>
+<t>Note: TE bandwidth augmentations for paths, LSPs, and links are provided by the ietf-te-topology-packet module, defined in <xref target="I-D.ietf-teas-yang-l3-te-topo"/>.</t>
 
 <section anchor="mpls-te-label"><name>TE Label Augmentations</name>
 
-<t>In MPLS-TE, the label allocation is done by NE, information about
-  label values availability is not necessary to be provided to the
-  controller. Moreover, MPLS-TE tunnels are currently established
+<t>In MPLS-TE, label allocation is done by the network element. Information about
+  the availability of label values does not need to be provided to the
+  controller. Moreover, MPLS-TE tunnels are currently mainly only established
   within a single domain.</t>
 
 <t>Therefore this document does not define any MPLS-TE
-  technology-specific augmentations, of the TE Topology model, for the
-  TE label since no TE label related attributes should be instantiated
+  technology-specific augmentations, of the TE Topology model specific to the
+  TE label because no TE label-related attributes are instantiated
   for MPLS-TE Topologies.</t>
 
-<t>Open issue: shall this module allows the setup of MPLS-TE
-  multi-domain tunnels?</t>
+<t>Furthermore, because the primary use cases are for single domain MPLS-TE tunnels,
+  this document does not define objects that facilitate the setup of multi-domain
+  MPLS-TE tunnels. It is an item for future study to understand how a management
+  system would coordinate YANG configuration of a tunnel that crosses a domain
+  boundary, and it is expected that that would be defined in a separate document.</t>
 
 </section>
 <section anchor="mpls-tp-topology"><name>MPLS-TP Topology</name>
 
-<t>Multi-Protocol Label Switching - Transport Profile (MPLS-TP) is a
+<t>Multiprotocol Label Switching - Transport Profile (MPLS-TP) is a
   profile of the MPLS protocol that is used in packet switched
   transport networks and operated in a similar manner to other existing
   transport technologies (e.g., OTN), as described in <xref target="RFC5921"/>.</t>
 
-<t>Therefore YANG model defined in this document can also be applicable
-  for MPLS-TP networks.</t>
+<t>Therefore, the YANG models defined in this document can also be applied
+  to MPLS-TP networks.</t>
 
 <t>However, as described in <xref target="RFC5921"/>, MPLS-TP networks support
-  bidirectional LSPs and require no ECMP and no PHP. When reporting the
+  bidirectional LSPs and require no equal cost multipath (ECMP) and no
+  previous hop popping (PHP). When reporting the
   topology for an MPLS-TP network, additional information is required
-  to indicate whether the network support these MPLS-TP
+  to indicate whether the network components (links and nodes) support these MPLS-TP
   characteristics.</t>
 
-<t>It is worth noting that <xref target="RFC8795"/> is already capable to model TE
+<t>It is worth noting that <xref target="RFC8795"/> is already capable of modeling TE
   topologies supporting either unidirectional or bidirectional LSPs:
-  all bidirectional TE links can support bidirectional LSPs and all the
-  links can support unidirectional LSPs and it is always possible to
-  associated unidirectional LSPs as long as they belong to the same
-  tunnel.</t>
+  all bidirectional TE links can support bidirectional LSPs, and all
+  links can support unidirectional LSPs. Further, it is always possible to
+  associate two unidirectional LSPs to compose a bidirecitonal service as
+  long as they belong to the same tunnel.</t>
 
 <t>When setting up bidirectional LSPs (e.g., MPLS-TP LSPs) only
   bidirectional TE Links are selected by path computation.</t>
 
 <t>In order to allow reporting that ECMP is not affecting forwarding the
-  packets of a given LSP, the load-balancing-type attribute reports
-  whether a LAG or TE Bundled Link performs load-balancing on a
-  per-flow or per-top-label:</t>
+  packets of a given LSP, the model defined in this documents provides the
+  load-balancing-type attribute which reports whether a link aggregation group (LAG)
+  or TE Bundled Link performs load-balancing, and if so, whether it is on a per-flow
+  or per-top-label basis:</t>
 
 <figure><artwork><![CDATA[
     augment /nw:networks/nw:network/nt:link/tet:te:
       +--rw load-balancing-type?   mte-types:load-balancing-type
 ]]></artwork></figure>
 
-<t>When setting up LSPs which do not requires ECMP (e.g., MPLS-TP LSPs)
-  only Links that are not part of a LAG or TE Bundle or that performs
+<t>When setting up LSPs which require the non-use of ECMP (e.g., MPLS-TP LSPs)
+  only links that are not part of a LAG or TE Bundle, or that perform
   per-top-label load balancing are selected by path computation.</t>
 
-<t>It is assumed that almost all the MPLS-TE nodes are capable to
-  support Ultimate Hop Popping (UHP). However, if some interfaces are
+<t>It is assumed that almost all the MPLS-TE nodes are capable of
+  supporting Ultimate Hop Popping (UHP) (i.e., they do not require the previous
+  node on the path to perform PHP). However, if some interfaces are
   not able to support UHP, they can report it in the MPLS-TE topology:</t>
 
 <figure><artwork><![CDATA[
@@ -261,9 +266,9 @@ Topology, as follow:</t>
       +--ro uhp-incapable?   empty
 ]]></artwork></figure>
 
-<t>When setting up LSPs which do not requires PHP (e.g., MPLS-TP LSPs)
-  only the interfaces (LTPs) which are capable to support UHP in the
-  destination node are selected by path computation.</t>
+<t>When setting up LSPs which require the non-use of PHP (e.g., MPLS-TP LSPs)
+  only the destination node interfaces (link termination points - LTPs) that are capable of supporting UHP
+  are selected by path computation.</t>
 
 </section>
 </section>
@@ -386,11 +391,11 @@ module ietf-mpls-te-types {
 ]]></sourcecode></figure>
 
 </section>
-<section anchor="mpls-te-topology"><name>YANG model for MPLS-TE Topology</name>
+<section anchor="mpls-te-topology"><name>YANG Model for MPLS-TE Topology</name>
 
 <section anchor="mpls-te-topology-tree"><name>YANG Tree</name>
 
-<t><xref target="fig-mpls-te-topology-tree"/> below shows the tree diagram of the YANG model defined in
+<t><xref target="fig-mpls-te-topology-tree"/> shows the tree diagram of the YANG model defined in
   module ietf-te-mpls-topology.yang.</t>
 
 <figure title="MPLS-TE topology YANG tree" anchor="fig-mpls-te-topology-tree"><artwork type="ascii-art" name="ietf-te-mpls-topology.tree"><![CDATA[
@@ -553,12 +558,89 @@ module ietf-te-mpls-topology {
 </section>
 <section anchor="security"><name>Security Considerations</name>
 
-<t>To be added.</t>
+<t>The configuration, state, and action data defined in this document
+   are designed to be accessed via a management protocol with a secure
+   transport layer, such as NETCONF <xref target="RFC6241"/> or RESTCONF <xref target="RFC8040"/>.
+   The lowest NETCONF layer is the secure transport layer, and the
+   mandatory-to-implement secure transport is Secure Shell (SSH)
+   <xref target="RFC6242"/>. The lowest RESTCONF layer is HTTPS, and the mandatory-
+   to-implement secure transport is TLS <xref target="RFC8446"/>.</t>
+
+<t>The NETCONF access control model <xref target="RFC8341"/> provides the means to
+   restrict access for particular NETCONF users to a preconfigured
+   subset of all available NETCONF protocol operations and content.</t>
+
+<t>The ietf-mpls-te-types model presented in this document defines common
+   types intended to be used as imports by other YANG models. Those other
+   models are responsible for considering the security of the objects they
+   define using those imports. Writers of those other models should consider
+   the vulnerabilities created by exposing information about link characteristics
+   and behaviors (such as how packets may be steered onto parallel links),
+   and should be aware of the risks of enabling configuration of which labels
+   are used on hops within an LSP.</t>
+
+<t>The ietf-te-mpls-topology model presented in this document defines
+   technology-specific objects to describe an MPLS-TE topology. It is intended
+   as an aumentation of the te-topology model <xref target="RFC8795"/> and so the core
+   security considerations for that model also apply. In addition, this model
+   defines objects that could expose information about the network behavior
+   or which, if modified by an attacker could disrupt the delivery of
+   services in the network.</t>
+
+<t>The leaf objects defined in ietf-te-mpls-topology are read-only so the
+   risk is from unauthorized access to the information, or from misrepresenting
+   the information reported from the network elements. The objects are:</t>
+
+<t>"tet:te-topology/tet-pkt:packet": Unauthorized read access to this simply
+   indicates that the network topology is MPLS-TE packet-capable: that information is not
+   very valuable to an attacker. Modification of this information might cause
+   a path computation element to incorrectly presume that a network is capable or
+   incapable of supporting MPLS-TE services.</t>
+
+<t>"tet-pkt:packet/tet-mpls:mpls-topology/load-balancing-type": Unauthorized read access to this
+   indicates the mechanism used by a nework node to share traffic across members
+   of a LAG or bundled MPLS-TE link. Such knowledge might help an attacker predict which component
+   link is carrying specific traffic making a physical attack slightly easier. Modification
+   of this information might cause a path computation element to incorrectly presume that
+   a link is suitable or unsuitable for use to provide an MPLS-TP service.</t>
+
+<t>"tet-pkt:packet/tet-mpls:mpls-topology/uhp-incapable": Unauthorized read access to this will
+   give an attacker knowledge about whether PHP is being applied on the final hop of all LSPs to
+   a particular node on the associated link: that information is of little use to an attacker
+   except it may help them to parse an inflight packet. Modification of this information would
+   cause a path computation element to incorrectly consider the associated link as suitable or
+   unsuitable for inclusion in the path of an MPLS-TP service.</t>
 
 </section>
 <section anchor="iana"><name>IANA Considerations</name>
 
-<t>To be added.</t>
+<t>This document requests IANA to register the following URIs in the "ns" subregistry within the "IETF XML Registry" <xref target="RFC3688"/>. Following the format in <xref target="RFC3688"/>, the following registrations are requested.</t>
+
+<figure><artwork><![CDATA[
+      URI:  urn:ietf:params:xml:ns:yang:ietf-mpls-te-types
+      Registrant Contact:  The IESG.
+      XML: N/A; the requested URI is an XML namespace.
+
+      URI:  urn:ietf:params:xml:ns:yang:ietf-te-mpls-topology
+      Registrant Contact:  The IESG.
+      XML: N/A; the requested URI is an XML namespace.
+]]></artwork></figure>
+
+<t>This document requests IANA to register the following YANG modules in the "IANA Module Names" <xref target="RFC6020"/>. Following the format in <xref target="RFC6020"/>, the following registrations are requested:</t>
+
+<figure><artwork><![CDATA[
+      name:      ietf-mpls-te-types
+      namespace: urn:ietf:params:xml:ns:yang:ietf-mpls-te-types
+      prefix:    mte-types
+      reference: RFC XXXX
+
+      name:      ietf-te-mpls-topology
+      namespace: urn:ietf:params:xml:ns:yang:ietf-te-mpls-topology
+      prefix:    tet-mpls
+      reference: RFC XXXX
+]]></artwork></figure>
+
+<t>RFC Editor: Please replace XXXX with the RFC number assigned to this document.</t>
 
 </section>
 
@@ -572,58 +654,75 @@ module ietf-te-mpls-topology {
 
 
 
-
+<reference anchor='RFC2702' target='https://www.rfc-editor.org/info/rfc2702'>
+  <front>
+    <title>Requirements for Traffic Engineering Over MPLS</title>
+    <author fullname='D. Awduche' initials='D.' surname='Awduche'/>
+    <author fullname='J. Malcolm' initials='J.' surname='Malcolm'/>
+    <author fullname='J. Agogbua' initials='J.' surname='Agogbua'/>
+    <author fullname='M. O&apos;Dell' initials='M.' surname='O&apos;Dell'/>
+    <author fullname='J. McManus' initials='J.' surname='McManus'/>
+    <date month='September' year='1999'/>
+    <abstract>
+      <t>This document presents a set of requirements for Traffic Engineering over Multiprotocol Label Switching (MPLS). It identifies the functional capabilities required to implement policies that facilitate efficient and reliable network operations in an MPLS domain. This memo provides information for the Internet community.</t>
+    </abstract>
+  </front>
+  <seriesInfo name='RFC' value='2702'/>
+  <seriesInfo name='DOI' value='10.17487/RFC2702'/>
+</reference>
 
 <reference anchor='RFC8340' target='https://www.rfc-editor.org/info/rfc8340'>
-<front>
-<title>YANG Tree Diagrams</title>
-<author fullname='M. Bjorklund' initials='M.' surname='Bjorklund'><organization/></author>
-<author fullname='L. Berger' initials='L.' role='editor' surname='Berger'><organization/></author>
-<date month='March' year='2018'/>
-<abstract><t>This document captures the current syntax used in YANG module tree diagrams.  The purpose of this document is to provide a single location for this definition.  This syntax may be updated from time to time based on the evolution of the YANG language.</t></abstract>
-</front>
-<seriesInfo name='BCP' value='215'/>
-<seriesInfo name='RFC' value='8340'/>
-<seriesInfo name='DOI' value='10.17487/RFC8340'/>
+  <front>
+    <title>YANG Tree Diagrams</title>
+    <author fullname='M. Bjorklund' initials='M.' surname='Bjorklund'/>
+    <author fullname='L. Berger' initials='L.' role='editor' surname='Berger'/>
+    <date month='March' year='2018'/>
+    <abstract>
+      <t>This document captures the current syntax used in YANG module tree diagrams. The purpose of this document is to provide a single location for this definition. This syntax may be updated from time to time based on the evolution of the YANG language.</t>
+    </abstract>
+  </front>
+  <seriesInfo name='BCP' value='215'/>
+  <seriesInfo name='RFC' value='8340'/>
+  <seriesInfo name='DOI' value='10.17487/RFC8340'/>
 </reference>
-
-
 
 <reference anchor='RFC8294' target='https://www.rfc-editor.org/info/rfc8294'>
-<front>
-<title>Common YANG Data Types for the Routing Area</title>
-<author fullname='X. Liu' initials='X.' surname='Liu'><organization/></author>
-<author fullname='Y. Qu' initials='Y.' surname='Qu'><organization/></author>
-<author fullname='A. Lindem' initials='A.' surname='Lindem'><organization/></author>
-<author fullname='C. Hopps' initials='C.' surname='Hopps'><organization/></author>
-<author fullname='L. Berger' initials='L.' surname='Berger'><organization/></author>
-<date month='December' year='2017'/>
-<abstract><t>This document defines a collection of common data types using the YANG data modeling language.  These derived common types are designed to be imported by other modules defined in the routing area.</t></abstract>
-</front>
-<seriesInfo name='RFC' value='8294'/>
-<seriesInfo name='DOI' value='10.17487/RFC8294'/>
+  <front>
+    <title>Common YANG Data Types for the Routing Area</title>
+    <author fullname='X. Liu' initials='X.' surname='Liu'/>
+    <author fullname='Y. Qu' initials='Y.' surname='Qu'/>
+    <author fullname='A. Lindem' initials='A.' surname='Lindem'/>
+    <author fullname='C. Hopps' initials='C.' surname='Hopps'/>
+    <author fullname='L. Berger' initials='L.' surname='Berger'/>
+    <date month='December' year='2017'/>
+    <abstract>
+      <t>This document defines a collection of common data types using the YANG data modeling language. These derived common types are designed to be imported by other modules defined in the routing area.</t>
+    </abstract>
+  </front>
+  <seriesInfo name='RFC' value='8294'/>
+  <seriesInfo name='DOI' value='10.17487/RFC8294'/>
 </reference>
-
-
 
 <reference anchor='RFC8795' target='https://www.rfc-editor.org/info/rfc8795'>
-<front>
-<title>YANG Data Model for Traffic Engineering (TE) Topologies</title>
-<author fullname='X. Liu' initials='X.' surname='Liu'><organization/></author>
-<author fullname='I. Bryskin' initials='I.' surname='Bryskin'><organization/></author>
-<author fullname='V. Beeram' initials='V.' surname='Beeram'><organization/></author>
-<author fullname='T. Saad' initials='T.' surname='Saad'><organization/></author>
-<author fullname='H. Shah' initials='H.' surname='Shah'><organization/></author>
-<author fullname='O. Gonzalez de Dios' initials='O.' surname='Gonzalez de Dios'><organization/></author>
-<date month='August' year='2020'/>
-<abstract><t>This document defines a YANG data model for representing, retrieving, and manipulating Traffic Engineering (TE) Topologies. The model serves as a base model that other technology-specific TE topology models can augment.</t></abstract>
-</front>
-<seriesInfo name='RFC' value='8795'/>
-<seriesInfo name='DOI' value='10.17487/RFC8795'/>
+  <front>
+    <title>YANG Data Model for Traffic Engineering (TE) Topologies</title>
+    <author fullname='X. Liu' initials='X.' surname='Liu'/>
+    <author fullname='I. Bryskin' initials='I.' surname='Bryskin'/>
+    <author fullname='V. Beeram' initials='V.' surname='Beeram'/>
+    <author fullname='T. Saad' initials='T.' surname='Saad'/>
+    <author fullname='H. Shah' initials='H.' surname='Shah'/>
+    <author fullname='O. Gonzalez de Dios' initials='O.' surname='Gonzalez de Dios'/>
+    <date month='August' year='2020'/>
+    <abstract>
+      <t>This document defines a YANG data model for representing, retrieving, and manipulating Traffic Engineering (TE) Topologies. The model serves as a base model that other technology-specific TE topology models can augment.</t>
+    </abstract>
+  </front>
+  <seriesInfo name='RFC' value='8795'/>
+  <seriesInfo name='DOI' value='10.17487/RFC8795'/>
 </reference>
 
 
-<reference anchor='I-D.ietf-teas-yang-l3-te-topo'>
+<reference anchor='I-D.ietf-teas-yang-l3-te-topo' target='https://datatracker.ietf.org/doc/html/draft-ietf-teas-yang-l3-te-topo-14'>
    <front>
       <title>YANG Data Model for Layer 3 TE Topologies</title>
       <author fullname='Xufeng Liu' initials='X.' surname='Liu'>
@@ -636,7 +735,7 @@ module ietf-te-mpls-topology {
          <organization>Juniper Networks</organization>
       </author>
       <author fullname='Tarek Saad' initials='T.' surname='Saad'>
-         <organization>Juniper Networks</organization>
+         <organization>Cisco Systems Inc</organization>
       </author>
       <author fullname='Himanshu C. Shah' initials='H. C.' surname='Shah'>
          <organization>Ciena</organization>
@@ -644,7 +743,7 @@ module ietf-te-mpls-topology {
       <author fullname='Oscar Gonzalez de Dios' initials='O. G.' surname='de Dios'>
          <organization>Telefonica</organization>
       </author>
-      <date day='10' month='July' year='2022'/>
+      <date day='12' month='March' year='2023'/>
       <abstract>
 	 <t>   This document defines a YANG data model for layer 3 traffic
    engineering topologies.
@@ -652,8 +751,109 @@ module ietf-te-mpls-topology {
 	 </t>
       </abstract>
    </front>
-   <seriesInfo name='Internet-Draft' value='draft-ietf-teas-yang-l3-te-topo-13'/>
-   <format target='https://www.ietf.org/archive/id/draft-ietf-teas-yang-l3-te-topo-13.txt' type='TXT'/>
+   <seriesInfo name='Internet-Draft' value='draft-ietf-teas-yang-l3-te-topo-14'/>
+   
+</reference>
+
+<reference anchor='RFC6241' target='https://www.rfc-editor.org/info/rfc6241'>
+  <front>
+    <title>Network Configuration Protocol (NETCONF)</title>
+    <author fullname='R. Enns' initials='R.' role='editor' surname='Enns'/>
+    <author fullname='M. Bjorklund' initials='M.' role='editor' surname='Bjorklund'/>
+    <author fullname='J. Schoenwaelder' initials='J.' role='editor' surname='Schoenwaelder'/>
+    <author fullname='A. Bierman' initials='A.' role='editor' surname='Bierman'/>
+    <date month='June' year='2011'/>
+    <abstract>
+      <t>The Network Configuration Protocol (NETCONF) defined in this document provides mechanisms to install, manipulate, and delete the configuration of network devices. It uses an Extensible Markup Language (XML)-based data encoding for the configuration data as well as the protocol messages. The NETCONF protocol operations are realized as remote procedure calls (RPCs). This document obsoletes RFC 4741. [STANDARDS-TRACK]</t>
+    </abstract>
+  </front>
+  <seriesInfo name='RFC' value='6241'/>
+  <seriesInfo name='DOI' value='10.17487/RFC6241'/>
+</reference>
+
+<reference anchor='RFC8040' target='https://www.rfc-editor.org/info/rfc8040'>
+  <front>
+    <title>RESTCONF Protocol</title>
+    <author fullname='A. Bierman' initials='A.' surname='Bierman'/>
+    <author fullname='M. Bjorklund' initials='M.' surname='Bjorklund'/>
+    <author fullname='K. Watsen' initials='K.' surname='Watsen'/>
+    <date month='January' year='2017'/>
+    <abstract>
+      <t>This document describes an HTTP-based protocol that provides a programmatic interface for accessing data defined in YANG, using the datastore concepts defined in the Network Configuration Protocol (NETCONF).</t>
+    </abstract>
+  </front>
+  <seriesInfo name='RFC' value='8040'/>
+  <seriesInfo name='DOI' value='10.17487/RFC8040'/>
+</reference>
+
+<reference anchor='RFC6242' target='https://www.rfc-editor.org/info/rfc6242'>
+  <front>
+    <title>Using the NETCONF Protocol over Secure Shell (SSH)</title>
+    <author fullname='M. Wasserman' initials='M.' surname='Wasserman'/>
+    <date month='June' year='2011'/>
+    <abstract>
+      <t>This document describes a method for invoking and running the Network Configuration Protocol (NETCONF) within a Secure Shell (SSH) session as an SSH subsystem. This document obsoletes RFC 4742. [STANDARDS-TRACK]</t>
+    </abstract>
+  </front>
+  <seriesInfo name='RFC' value='6242'/>
+  <seriesInfo name='DOI' value='10.17487/RFC6242'/>
+</reference>
+
+<reference anchor='RFC8446' target='https://www.rfc-editor.org/info/rfc8446'>
+  <front>
+    <title>The Transport Layer Security (TLS) Protocol Version 1.3</title>
+    <author fullname='E. Rescorla' initials='E.' surname='Rescorla'/>
+    <date month='August' year='2018'/>
+    <abstract>
+      <t>This document specifies version 1.3 of the Transport Layer Security (TLS) protocol. TLS allows client/server applications to communicate over the Internet in a way that is designed to prevent eavesdropping, tampering, and message forgery.</t>
+      <t>This document updates RFCs 5705 and 6066, and obsoletes RFCs 5077, 5246, and 6961. This document also specifies new requirements for TLS 1.2 implementations.</t>
+    </abstract>
+  </front>
+  <seriesInfo name='RFC' value='8446'/>
+  <seriesInfo name='DOI' value='10.17487/RFC8446'/>
+</reference>
+
+<reference anchor='RFC8341' target='https://www.rfc-editor.org/info/rfc8341'>
+  <front>
+    <title>Network Configuration Access Control Model</title>
+    <author fullname='A. Bierman' initials='A.' surname='Bierman'/>
+    <author fullname='M. Bjorklund' initials='M.' surname='Bjorklund'/>
+    <date month='March' year='2018'/>
+    <abstract>
+      <t>The standardization of network configuration interfaces for use with the Network Configuration Protocol (NETCONF) or the RESTCONF protocol requires a structured and secure operating environment that promotes human usability and multi-vendor interoperability. There is a need for standard mechanisms to restrict NETCONF or RESTCONF protocol access for particular users to a preconfigured subset of all available NETCONF or RESTCONF protocol operations and content. This document defines such an access control model.</t>
+      <t>This document obsoletes RFC 6536.</t>
+    </abstract>
+  </front>
+  <seriesInfo name='STD' value='91'/>
+  <seriesInfo name='RFC' value='8341'/>
+  <seriesInfo name='DOI' value='10.17487/RFC8341'/>
+</reference>
+
+<reference anchor='RFC3688' target='https://www.rfc-editor.org/info/rfc3688'>
+  <front>
+    <title>The IETF XML Registry</title>
+    <author fullname='M. Mealling' initials='M.' surname='Mealling'/>
+    <date month='January' year='2004'/>
+    <abstract>
+      <t>This document describes an IANA maintained registry for IETF standards which use Extensible Markup Language (XML) related items such as Namespaces, Document Type Declarations (DTDs), Schemas, and Resource Description Framework (RDF) Schemas.</t>
+    </abstract>
+  </front>
+  <seriesInfo name='BCP' value='81'/>
+  <seriesInfo name='RFC' value='3688'/>
+  <seriesInfo name='DOI' value='10.17487/RFC3688'/>
+</reference>
+
+<reference anchor='RFC6020' target='https://www.rfc-editor.org/info/rfc6020'>
+  <front>
+    <title>YANG - A Data Modeling Language for the Network Configuration Protocol (NETCONF)</title>
+    <author fullname='M. Bjorklund' initials='M.' role='editor' surname='Bjorklund'/>
+    <date month='October' year='2010'/>
+    <abstract>
+      <t>YANG is a data modeling language used to model configuration and state data manipulated by the Network Configuration Protocol (NETCONF), NETCONF remote procedure calls, and NETCONF notifications. [STANDARDS-TRACK]</t>
+    </abstract>
+  </front>
+  <seriesInfo name='RFC' value='6020'/>
+  <seriesInfo name='DOI' value='10.17487/RFC6020'/>
 </reference>
 
 
@@ -666,17 +866,17 @@ module ietf-te-mpls-topology {
 
 
 
-<reference anchor='I-D.ietf-teas-yang-te-mpls'>
+<reference anchor='I-D.ietf-teas-yang-te-mpls' target='https://datatracker.ietf.org/doc/html/draft-ietf-teas-yang-te-mpls-04'>
    <front>
       <title>A YANG Data Model for MPLS Traffic Engineering Tunnels</title>
       <author fullname='Tarek Saad' initials='T.' surname='Saad'>
-         <organization>Juniper Networks</organization>
+         <organization>Cisco Systems Inc</organization>
       </author>
       <author fullname='Rakesh Gandhi' initials='R.' surname='Gandhi'>
          <organization>Cisco Systems Inc</organization>
       </author>
       <author fullname='Xufeng Liu' initials='X.' surname='Liu'>
-         <organization>Volta Networks</organization>
+         <organization>IBM Corporation</organization>
       </author>
       <author fullname='Vishnu Pavan Beeram' initials='V. P.' surname='Beeram'>
          <organization>Juniper Networks</organization>
@@ -684,7 +884,7 @@ module ietf-te-mpls-topology {
       <author fullname='Igor Bryskin' initials='I.' surname='Bryskin'>
          <organization>Individual</organization>
       </author>
-      <date day='9' month='March' year='2020'/>
+      <date day='26' month='May' year='2023'/>
       <abstract>
 	 <t>   This document defines a YANG data model for the configuration and
    management of Multiprotocol Label Switching (MPLS) Traffic
@@ -698,25 +898,27 @@ module ietf-te-mpls-topology {
 	 </t>
       </abstract>
    </front>
-   <seriesInfo name='Internet-Draft' value='draft-ietf-teas-yang-te-mpls-03'/>
-   <format target='https://www.ietf.org/archive/id/draft-ietf-teas-yang-te-mpls-03.txt' type='TXT'/>
+   <seriesInfo name='Internet-Draft' value='draft-ietf-teas-yang-te-mpls-04'/>
+   
 </reference>
 
-
-
 <reference anchor='RFC5921' target='https://www.rfc-editor.org/info/rfc5921'>
-<front>
-<title>A Framework for MPLS in Transport Networks</title>
-<author fullname='M. Bocci' initials='M.' role='editor' surname='Bocci'><organization/></author>
-<author fullname='S. Bryant' initials='S.' role='editor' surname='Bryant'><organization/></author>
-<author fullname='D. Frost' initials='D.' role='editor' surname='Frost'><organization/></author>
-<author fullname='L. Levrau' initials='L.' surname='Levrau'><organization/></author>
-<author fullname='L. Berger' initials='L.' surname='Berger'><organization/></author>
-<date month='July' year='2010'/>
-<abstract><t>This document specifies an architectural framework for the application of Multiprotocol Label Switching (MPLS) to the construction of packet-switched transport networks.  It describes a common set of protocol functions -- the MPLS Transport Profile (MPLS-TP) -- that supports the operational models and capabilities typical of such networks, including signaled or explicitly provisioned bidirectional connection-oriented paths, protection and restoration mechanisms, comprehensive Operations, Administration, and Maintenance (OAM) functions, and network operation in the absence of a dynamic control plane or IP forwarding support.  Some of these functions are defined in existing MPLS specifications, while others require extensions to existing specifications to meet the requirements of the MPLS-TP.</t><t>This document defines the subset of the MPLS-TP applicable in general and to point-to-point transport paths.  The remaining subset, applicable specifically to point-to-multipoint transport paths, is outside the scope of this document.</t><t>This document is a product of a joint Internet Engineering Task Force (IETF) / International Telecommunication Union Telecommunication Standardization Sector (ITU-T) effort to include an MPLS Transport Profile within the IETF MPLS and Pseudowire Emulation Edge-to-Edge (PWE3) architectures to support the capabilities and functionalities of a packet transport network as defined by the ITU-T.  This document  is not an Internet Standards Track specification; it is published for  informational purposes.</t></abstract>
-</front>
-<seriesInfo name='RFC' value='5921'/>
-<seriesInfo name='DOI' value='10.17487/RFC5921'/>
+  <front>
+    <title>A Framework for MPLS in Transport Networks</title>
+    <author fullname='M. Bocci' initials='M.' role='editor' surname='Bocci'/>
+    <author fullname='S. Bryant' initials='S.' role='editor' surname='Bryant'/>
+    <author fullname='D. Frost' initials='D.' role='editor' surname='Frost'/>
+    <author fullname='L. Levrau' initials='L.' surname='Levrau'/>
+    <author fullname='L. Berger' initials='L.' surname='Berger'/>
+    <date month='July' year='2010'/>
+    <abstract>
+      <t>This document specifies an architectural framework for the application of Multiprotocol Label Switching (MPLS) to the construction of packet-switched transport networks. It describes a common set of protocol functions -- the MPLS Transport Profile (MPLS-TP) -- that supports the operational models and capabilities typical of such networks, including signaled or explicitly provisioned bidirectional connection-oriented paths, protection and restoration mechanisms, comprehensive Operations, Administration, and Maintenance (OAM) functions, and network operation in the absence of a dynamic control plane or IP forwarding support. Some of these functions are defined in existing MPLS specifications, while others require extensions to existing specifications to meet the requirements of the MPLS-TP.</t>
+      <t>This document defines the subset of the MPLS-TP applicable in general and to point-to-point transport paths. The remaining subset, applicable specifically to point-to-multipoint transport paths, is outside the scope of this document.</t>
+      <t>This document is a product of a joint Internet Engineering Task Force (IETF) / International Telecommunication Union Telecommunication Standardization Sector (ITU-T) effort to include an MPLS Transport Profile within the IETF MPLS and Pseudowire Emulation Edge-to-Edge (PWE3) architectures to support the capabilities and functionalities of a packet transport network as defined by the ITU-T. This document is not an Internet Standards Track specification; it is published for informational purposes.</t>
+    </abstract>
+  </front>
+  <seriesInfo name='RFC' value='5921'/>
+  <seriesInfo name='DOI' value='10.17487/RFC5921'/>
 </reference>
 
 
@@ -727,7 +929,7 @@ module ietf-te-mpls-topology {
 
 <section numbered="false" anchor="acknowledgments"><name>Acknowledgments</name>
 
-<t>We thank Loa Andersson for providing useful suggestions for this draft.</t>
+<t>We thank Loa Andersson and Adrian Farrel for providing useful suggestions for this draft.</t>
 
 <t>This document was prepared using kramdown.</t>
 
@@ -766,106 +968,143 @@ module ietf-te-mpls-topology {
   </back>
 
 <!-- ##markdown-source:
-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
-Ocp1cUEAAA==
+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
+Hl8fT44mlQFBQDiYxAUi8b+8zcvTGlYAAA==
 
 -->
 
