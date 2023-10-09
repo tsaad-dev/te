@@ -53,6 +53,10 @@ contributor:
     name: Yanlei Zheng
     org: China Unicom
     email: zhengyanlei@chinaunicom.cn
+  -
+    name: Adrian Farrel
+    org: Old Dog Consulting
+    email: adrian@olddog.co.uk
 
 --- abstract
 
@@ -374,7 +378,7 @@ RFC Editor: Please replace XXXX with the RFC number assigned to this document.
 
 # Acknowledgments
 
-  We thank Loa Andersson and Adrian Farrel for providing useful suggestions for this draft.
+  We thank Loa Andersson for providing useful suggestions for this draft.
 
   This document was prepared using kramdown.
 
