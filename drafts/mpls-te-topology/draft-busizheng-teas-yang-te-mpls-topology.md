@@ -4,7 +4,7 @@ coding: utf-8
 title: A YANG Data Model for MPLS-TE Topology
 
 abbrev: MPLS-TE Topology YANG Model
-docname: draft-busizheng-teas-yang-te-mpls-topology-05
+docname: draft-busizheng-teas-yang-te-mpls-topology-06
 submissiontype: IETF
 workgroup: TEAS Working Group
 category: std
@@ -50,18 +50,13 @@ contributor:
     org: Individual
     email: i_bryskin@yahoo.com
   -
-    name: Yanlei Zheng
-    org: China Unicom
-    email: zhengyanlei@chinaunicom.cn
-  -
     name: Adrian Farrel
     org: Old Dog Consulting
     email: adrian@olddog.co.uk
 
 --- abstract
 
-  This document describes a YANG data model for Multiprotocol Label
-  Switching (MPLS) with Traffic Engineering (MPLS-TE) networks.
+This document describes a YANG data model for MPLS-TE network topologies.
 
 --- middle
 
@@ -69,8 +64,7 @@ contributor:
 
 # Introduction
 
-  This document describes a YANG data model for Multiprotocol Label
-  Switching (MPLS) with Traffic Engineering (MPLS-TE) networks {{!RFC2702}}.
+  This document describes a YANG data model for MPLS-TE network topologies: {{?RFC2702}}.
 
   This document also defines a collection of common data types and
   groupings in YANG data modeling language for MPLS-TE networks.  These
@@ -82,7 +76,7 @@ contributor:
   profile of the MPLS protocol that is used in packet switched
   transport networks and operated in a similar manner to other existing
   transport technologies (e.g., OTN), as described in {{?RFC5921}}. The YANG
-  model defined in this document can also be for MPLS-TP networks.
+  model defined in this document can also be used for MPLS-TP network topologies.
 
 ## Tree Diagram
 
@@ -98,14 +92,21 @@ contributor:
   are prefixed using the standard prefix associated with the
   corresponding YANG imported modules, as shown in {{tab-prefixes}}.
 
-| Prefix        | YANG module             | Reference
-| rt-types      | ietf-routing-types      | {{!RFC8294}}
-| tet           | ietf-te-topology        | {{!RFC8795}}
-| tet-pkt       | ietf-te-topology-packet | {{!I-D.ietf-teas-yang-l3-te-topo}}
-| te-packet-types | ietf-te-packet-types  | {{!I-D.ietf-teas-yang-l3-te-topo}}
-| mte-types     | ietf-mpls-te-types      | This document
-| tet-mpls      | ietf-te-mpls-topology   | This document
+| Prefix        | YANG Module             | Reference
+| ------------- | ----------------------- | ------------- |
+| rt-types      | ietf-routing-types      | {{!RFC8294}}  |
+| mpls-te-types | ietf-mpls-te-types      | RFC XXXX      |
+| nw            | ietf-network            | {{!RFC8345}}  |
+| nt            | ietf-network-topology   | {{!RFC8345}}  |
+| tet           | ietf-te-topology        | {{!RFC8795}}  |
+| tet-pkt       | ietf-te-topology-packet | \[RFCYYYY]    |
+| tet-mpls      | ietf-te-mpls-topology   | RFC XXXX      |
 {: #tab-prefixes title="Prefixes and corresponding YANG modules"}
+
+RFC Editor Note:
+Please replace XXXX with the RFC number assigned to the RFC once this draft becomes an RFC.
+Please replace YYYY with the RFC numbers assigned to {{!I-D.ietf-teas-yang-l3-te-topo}}.
+Please remove this note.
 
 {: #mpls-te-types-overview}
 
@@ -200,7 +201,7 @@ Note: TE bandwidth augmentations for paths, LSPs, and links are provided by the 
   transport technologies (e.g., OTN), as described in {{?RFC5921}}.
 
   Therefore, the YANG models defined in this document can also be applied
-  to MPLS-TP networks.
+  to MPLS-TP network topologies.
 
   However, as described in {{?RFC5921}}, MPLS-TP networks support
   bidirectional LSPs and require no equal cost multipath (ECMP) and no
@@ -256,7 +257,7 @@ Note: TE bandwidth augmentations for paths, LSPs, and links are provided by the 
 ~~~~ yang
 {::include ../../ietf-mpls-te-types.yang}
 ~~~~
-{: #fig-mpls-te-types-yang title="MPLS-TE Types YANG model" sourcecode-markers="true" sourcecode-name="ietf-mpls-te-types@2022-11-07.yang"}
+{: #fig-mpls-te-types-yang title="MPLS-TE Types YANG model" sourcecode-markers="true" sourcecode-name="ietf-mpls-te-types@2023-10-13.yang"}
 
 {: #mpls-te-topology}
 
@@ -281,7 +282,7 @@ Note: TE bandwidth augmentations for paths, LSPs, and links are provided by the 
 ~~~~ yang
 {::include ../../ietf-te-mpls-topology.yang}
 ~~~~
-{: #fig-mpls-te-topology-yang title="MPLS-TE topology YANG module" sourcecode-markers="true" sourcecode-name="ietf-te-mpls-topology@2022-11-07.yang"}
+{: #fig-mpls-te-topology-yang title="MPLS-TE topology YANG module" sourcecode-markers="true" sourcecode-name="ietf-te-mpls-topology@2023-10-13.yang"}
 
 {: #security}
 
@@ -361,7 +362,7 @@ This document requests IANA to register the following YANG modules in the "IANA 
 ~~~~
       name:      ietf-mpls-te-types
       namespace: urn:ietf:params:xml:ns:yang:ietf-mpls-te-types
-      prefix:    mte-types
+      prefix:    mpls-te-types
       reference: RFC XXXX
 
       name:      ietf-te-mpls-topology
