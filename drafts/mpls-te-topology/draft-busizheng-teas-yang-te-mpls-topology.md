@@ -63,7 +63,7 @@ models that describe network and traffic engineering packet network topologies.
 This document also defines a collection of common YANG data types and groupings specific to MPLS-TE. These
 common types and groupings are intended to be imported by modules that model MPLS-TE technology-specific configuration and state capabilities.
 
-The YANG models defined in this document can also be used for MPLS-TP network topologies.
+The YANG models defined in this document can also be used for MPLS Transport Profile (MPLS-TP) network topologies.
 
 --- middle
 
@@ -75,7 +75,7 @@ Editors' note: Add an introduction to describe the relationship between MPLS and
 
 The YANG models defined in this document applies only to MPLS-TE network topologies.
 
-Multiprotocol Label Switching - Transport Profile (MPLS-TP) is a
+MPLS Transport Profile (MPLS-TP) is a
 profile of the MPLS protocol that is used in packet switched
 transport networks and operated in a similar manner to other existing
 transport technologies (e.g., OTN), as described in {{?RFC5921}}.
