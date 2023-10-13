@@ -56,7 +56,14 @@ contributor:
 
 --- abstract
 
-This document describes a YANG data model for MPLS-TE network topologies.
+This document defines a YANG data model for representing, retrieving,
+and manipulating MPLS-TE network topologies. It is based on and augments existing YANG
+models that describe network and traffic engineering packet network topologies.
+
+This document also defines a collection of common YANG data types and groupings specific to MPLS-TE. These
+common types and groupings are intended to be imported by modules that model MPLS-TE technology-specific configuration and state capabilities.
+
+The YANG models defined in this document can also be used for MPLS-TP network topologies.
 
 --- middle
 
@@ -64,19 +71,26 @@ This document describes a YANG data model for MPLS-TE network topologies.
 
 # Introduction
 
-  This document describes a YANG data model for MPLS-TE network topologies: {{?RFC2702}}.
+Editors' note: Add an introduction to describe the relationship between MPLS and MPLS-TE and describe the between the MPLS and MPLS-TE network topologies.
 
-  This document also defines a collection of common data types and
-  groupings in YANG data modeling language for MPLS-TE networks.  These
-  derived common types and groupings are intended to be imported by the
-  MPLS-TE topology model, defined in this document, as well as by the
-  MPLS-TE tunnel model, defined in {{?I-D.ietf-teas-yang-te-mpls}}.
+The YANG models defined in this document applies only to MPLS-TE network topologies.
 
-  Multiprotocol Label Switching - Transport Profile (MPLS-TP) is a
-  profile of the MPLS protocol that is used in packet switched
-  transport networks and operated in a similar manner to other existing
-  transport technologies (e.g., OTN), as described in {{?RFC5921}}. The YANG
-  model defined in this document can also be used for MPLS-TP network topologies.
+Multiprotocol Label Switching - Transport Profile (MPLS-TP) is a
+profile of the MPLS protocol that is used in packet switched
+transport networks and operated in a similar manner to other existing
+transport technologies (e.g., OTN), as described in {{?RFC5921}}.
+
+The YANG models defined in this document can also be used for MPLS-TP network topologies.
+
+This document defines a YANG data model for representing, retrieving,
+and manipulating MPLS-TE network topologies. It is based on and augments existing YANG
+models that describe network and traffic engineering packet network topologies.
+
+This document also defines a collection of common YANG data types and groupings specific to MPLS-TE. These
+common types and groupings are intended to be imported by modules that model MPLS-TE technology-specific configuration and state capabilities, such as the MPLS-TE topology model, defined in this document, and the
+MPLS-TE tunnel model, defined in {{?I-D.ietf-teas-yang-te-mpls}}.
+
+The YANG models defined in this document conform to the Network Management Datastore Architecture defined in {{!RFC8342}}.
 
 ## Tree Diagram
 
