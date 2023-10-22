@@ -5,22 +5,32 @@
 TEAS Working Group                                               I. Busi
 Internet-Draft                                       Huawei Technologies
 Intended status: Standards Track                                  A. Guo
-Expires: 11 April 2024                                    Futurewei Inc.
+Expires: 24 April 2024                                    Futurewei Inc.
                                                                   X. Liu
                                                                Alef Edge
                                                                  T. Saad
                                                                R. Gandhi
                                                      Cisco Systems, Inc.
-                                                          9 October 2023
+                                                         22 October 2023
 
 
                  A YANG Data Model for MPLS-TE Topology
-             draft-busizheng-teas-yang-te-mpls-topology-05
+             draft-busizheng-teas-yang-te-mpls-topology-06
 
 Abstract
 
-   This document describes a YANG data model for Multiprotocol Label
-   Switching (MPLS) with Traffic Engineering (MPLS-TE) networks.
+   This document defines a YANG data model for representing, retrieving,
+   and manipulating MPLS-TE network topologies.  It is based on and
+   augments existing YANG models that describe network and traffic
+   engineering packet network topologies.
+
+   This document also defines a collection of common YANG data types and
+   groupings specific to MPLS-TE.  These common types and groupings are
+   intended to be imported by modules that model MPLS-TE technology-
+   specific configuration and state capabilities.
+
+   The YANG models defined in this document can also be used for MPLS
+   Transport Profile (MPLS-TP) network topologies.
 
 Status of This Memo
 
@@ -37,26 +47,21 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 11 April 2024.
+   This Internet-Draft will expire on 24 April 2024.
+
+
+
+
+
+Busi, et al.              Expires 24 April 2024                 [Page 1]
+
+Internet-Draft         MPLS-TE Topology YANG Model          October 2023
+
 
 Copyright Notice
 
    Copyright (c) 2023 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
-
-
-
-
-
-
-
-
-
-
-Busi, et al.              Expires 11 April 2024                 [Page 1]
-
-Internet-Draft         MPLS-TE Topology YANG Model          October 2023
-
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents (https://trustee.ietf.org/
@@ -72,47 +77,60 @@ Table of Contents
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
      1.1.  Tree Diagram  . . . . . . . . . . . . . . . . . . . . . .   3
      1.2.  Prefixes in Data Node Names . . . . . . . . . . . . . . .   3
-   2.  MPLS-TE Types Overview  . . . . . . . . . . . . . . . . . . .   3
+   2.  MPLS-TE Types Overview  . . . . . . . . . . . . . . . . . . .   4
    3.  MPLS-TE Topology Model Overview . . . . . . . . . . . . . . .   4
      3.1.  TE Label Augmentations  . . . . . . . . . . . . . . . . .   5
-     3.2.  MPLS-TP Topology  . . . . . . . . . . . . . . . . . . . .   5
-   4.  YANG model for common MPLS-TE Types . . . . . . . . . . . . .   6
+     3.2.  MPLS-TP Topology  . . . . . . . . . . . . . . . . . . . .   6
+   4.  YANG model for common MPLS-TE Types . . . . . . . . . . . . .   7
    5.  YANG Model for MPLS-TE Topology . . . . . . . . . . . . . . .   9
      5.1.  YANG Tree . . . . . . . . . . . . . . . . . . . . . . . .   9
-     5.2.  YANG Code . . . . . . . . . . . . . . . . . . . . . . . .   9
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  12
-   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  13
-   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  14
-     8.1.  Normative References  . . . . . . . . . . . . . . . . . .  14
-     8.2.  Informative References  . . . . . . . . . . . . . . . . .  15
-   Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . . .  16
-   Contributors  . . . . . . . . . . . . . . . . . . . . . . . . . .  16
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  16
+     5.2.  YANG Code . . . . . . . . . . . . . . . . . . . . . . . .  10
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  13
+   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  14
+   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  15
+     8.1.  Normative References  . . . . . . . . . . . . . . . . . .  15
+     8.2.  Informative References  . . . . . . . . . . . . . . . . .  16
+   Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . . .  17
+   Contributors  . . . . . . . . . . . . . . . . . . . . . . . . . .  17
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  17
 
 1.  Introduction
 
-   This document describes a YANG data model for Multiprotocol Label
-   Switching (MPLS) with Traffic Engineering (MPLS-TE) networks
-   [RFC2702].
-
-   This document also defines a collection of common data types and
-   groupings in YANG data modeling language for MPLS-TE networks.  These
-   derived common types and groupings are intended to be imported by the
-   MPLS-TE topology model, defined in this document, as well as by the
-   MPLS-TE tunnel model, defined in [I-D.ietf-teas-yang-te-mpls].
-
-   Multiprotocol Label Switching - Transport Profile (MPLS-TP) is a
-   profile of the MPLS protocol that is used in packet switched
-   transport networks and operated in a similar manner to other existing
-   transport technologies (e.g., OTN), as described in [RFC5921].  The
-   YANG model defined in this document can also be for MPLS-TP networks.
+   This document defines a YANG data model for representing, retrieving,
+   and manipulating MPLS-TE network topologies.  It is based on and
+   augments existing YANG models that describe network and traffic
+   engineering packet network topologies.
 
 
 
-Busi, et al.              Expires 11 April 2024                 [Page 2]
+
+
+
+
+
+
+Busi, et al.              Expires 24 April 2024                 [Page 2]
 
 Internet-Draft         MPLS-TE Topology YANG Model          October 2023
 
+
+   This document also defines a collection of common YANG data types and
+   groupings specific to MPLS-TE.  These common types and groupings are
+   intended to be imported by modules that model MPLS-TE technology-
+   specific configuration and state capabilities, such as the MPLS-TE
+   topology model, defined in this document, and the MPLS-TE tunnel
+   model, defined in [I-D.ietf-teas-yang-te-mpls].
+
+   MPLS Transport Profile (MPLS-TP) is a profile of the MPLS protocol
+   that is used in packet switched transport networks and operated in a
+   similar manner to other existing transport technologies (e.g., OTN),
+   as described in [RFC5921].
+
+   The YANG models defined in this document can also be used for MPLS-TP
+   network topologies.
+
+   The YANG models defined in this document conform to the Network
+   Management Datastore Architecture defined in [RFC8342].
 
 1.1.  Tree Diagram
 
@@ -126,29 +144,56 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
    are prefixed using the standard prefix associated with the
    corresponding YANG imported modules, as shown in Table 1.
 
-   +============+====================+=================================+
-   | Prefix     | YANG module        | Reference                       |
-   +============+====================+=================================+
-   | rt-types   | ietf-routing-      | [RFC8294]                       |
-   |            | types              |                                 |
-   +------------+--------------------+---------------------------------+
-   | tet        | ietf-te-           | [RFC8795]                       |
-   |            | topology           |                                 |
-   +------------+--------------------+---------------------------------+
-   | tet-pkt    | ietf-te-           | [I-D.ietf-teas-yang-l3-te-topo] |
-   |            | topology-packet    |                                 |
-   +------------+--------------------+---------------------------------+
-   | te-packet- | ietf-te-packet-    | [I-D.ietf-teas-yang-l3-te-topo] |
-   | types      | types              |                                 |
-   +------------+--------------------+---------------------------------+
-   | mte-types  | ietf-mpls-te-      | This document                   |
-   |            | types              |                                 |
-   +------------+--------------------+---------------------------------+
-   | tet-mpls   | ietf-te-mpls-      | This document                   |
-   |            | topology           |                                 |
-   +------------+--------------------+---------------------------------+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Busi, et al.              Expires 24 April 2024                 [Page 3]
+
+Internet-Draft         MPLS-TE Topology YANG Model          October 2023
+
+
+          +===============+=========================+===========+
+          | Prefix        | YANG Module             | Reference |
+          +===============+=========================+===========+
+          | rt-types      | ietf-routing-types      | [RFC8294] |
+          +---------------+-------------------------+-----------+
+          | mpls-te-types | ietf-mpls-te-types      | RFC XXXX  |
+          +---------------+-------------------------+-----------+
+          | nw            | ietf-network            | [RFC8345] |
+          +---------------+-------------------------+-----------+
+          | nt            | ietf-network-topology   | [RFC8345] |
+          +---------------+-------------------------+-----------+
+          | tet           | ietf-te-topology        | [RFC8795] |
+          +---------------+-------------------------+-----------+
+          | tet-pkt       | ietf-te-topology-packet | [RFCYYYY] |
+          +---------------+-------------------------+-----------+
+          | tet-mpls      | ietf-te-mpls-topology   | RFC XXXX  |
+          +---------------+-------------------------+-----------+
 
               Table 1: Prefixes and corresponding YANG modules
+
+   RFC Editor Note: Please replace XXXX with the RFC number assigned to
+   the RFC once this draft becomes an RFC.  Please replace YYYY with the
+   RFC numbers assigned to [I-D.ietf-teas-yang-l3-te-topo].  Please
+   remove this note.
 
 2.  MPLS-TE Types Overview
 
@@ -162,14 +207,6 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
 
    te-mpls-label-hop:
 
-
-
-
-Busi, et al.              Expires 11 April 2024                 [Page 3]
-
-Internet-Draft         MPLS-TE Topology YANG Model          October 2023
-
-
       This grouping is used for augmentation of the TE label for MPLS-TE
       paths.
 
@@ -180,6 +217,14 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
    [I-D.ietf-teas-yang-l3-te-topo], which in turn augments the generic
    ietf-te-topology YANG module, defined in [RFC8795], as shown in
    Figure 1.
+
+
+
+
+Busi, et al.              Expires 24 April 2024                 [Page 4]
+
+Internet-Draft         MPLS-TE Topology YANG Model          October 2023
+
 
                    +------------------+
       TE generic   | ietf-te-topology |
@@ -218,14 +263,6 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
    provided by the ietf-te-topology-packet module, defined in
    [I-D.ietf-teas-yang-l3-te-topo].
 
-
-
-
-Busi, et al.              Expires 11 April 2024                 [Page 4]
-
-Internet-Draft         MPLS-TE Topology YANG Model          October 2023
-
-
 3.1.  TE Label Augmentations
 
    In MPLS-TE, label allocation is done by the network element.
@@ -237,6 +274,13 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
    specific augmentations, of the TE Topology model specific to the TE
    label because no TE label-related attributes are instantiated for
    MPLS-TE Topologies.
+
+
+
+Busi, et al.              Expires 24 April 2024                 [Page 5]
+
+Internet-Draft         MPLS-TE Topology YANG Model          October 2023
+
 
    Furthermore, because the primary use cases are for single domain
    MPLS-TE tunnels, this document does not define objects that
@@ -254,7 +298,7 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
    transport technologies (e.g., OTN), as described in [RFC5921].
 
    Therefore, the YANG models defined in this document can also be
-   applied to MPLS-TP networks.
+   applied to MPLS-TP network topologies.
 
    However, as described in [RFC5921], MPLS-TP networks support
    bidirectional LSPs and require no equal cost multipath (ECMP) and no
@@ -273,15 +317,6 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
    When setting up bidirectional LSPs (e.g., MPLS-TP LSPs) only
    bidirectional TE Links are selected by path computation.
 
-
-
-
-
-Busi, et al.              Expires 11 April 2024                 [Page 5]
-
-Internet-Draft         MPLS-TE Topology YANG Model          October 2023
-
-
    In order to allow reporting that ECMP is not affecting forwarding the
    packets of a given LSP, the model defined in this documents provides
    the load-balancing-type attribute which reports whether a link
@@ -295,6 +330,13 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
    LSPs) only links that are not part of a LAG or TE Bundle, or that
    perform per-top-label load balancing are selected by path
    computation.
+
+
+
+Busi, et al.              Expires 24 April 2024                 [Page 6]
+
+Internet-Draft         MPLS-TE Topology YANG Model          October 2023
+
 
    It is assumed that almost all the MPLS-TE nodes are capable of
    supporting Ultimate Hop Popping (UHP) (i.e., they do not require the
@@ -313,15 +355,16 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
 
 4.  YANG model for common MPLS-TE Types
 
-   <CODE BEGINS> file "ietf-mpls-te-types@2022-11-07.yang"
+   <CODE BEGINS> file "ietf-mpls-te-types@2023-10-13.yang"
    module ietf-mpls-te-types {
      yang-version 1.1;
      namespace "urn:ietf:params:xml:ns:yang:ietf-mpls-te-types";
-
-     prefix "mte-types";
+     prefix mpls-te-types;
 
      import ietf-routing-types {
-       prefix "rt-types";
+       prefix rt-types;
+       reference
+         "RFC 8294: Common YANG Data Types for the Routing Area";
      }
 
      organization
@@ -330,19 +373,8 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
        "WG Web:   <https://datatracker.ietf.org/wg/teas/>
         WG List:  <mailto:teas@ietf.org>
 
-
-
-
-Busi, et al.              Expires 11 April 2024                 [Page 6]
-
-Internet-Draft         MPLS-TE Topology YANG Model          October 2023
-
-
         Editor:   Italo Busi
                   <mailto:italo.busi@huawei.com>
-
-        Editor:   Haomian Zheng
-                  <mailto:zhenghaomian@huawei.com>
 
         Editor:   Aihua Guo
                   <mailto:aihuaguo.ietf@gmail.com>
@@ -350,52 +382,46 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
         Editor:   Xufeng Liu
                   <mailto:xufeng.liu.ietf@gmail.com>
 
-        Editor:   Vishnu Pavan Beeram
-                  <mailto:vbeeram@juniper.net>
-
         Editor:   Tarek Saad
                   <mailto:tsaad.net@gmail.com>
 
         Editor:   Rakesh Gandhi
-                  <mailto:rgandhi@cisco.com>
-
-        Editor:   Igor Bryskin
-                  <mailto:i_bryskin@yahoo.com>
-
-        Editor:   Yanlei Zheng
-                  <mailto:zhengyanlei@chinaunicom.cn>";
-
-     description
-       "This module defines technology-specific MPLS-TE types
-        data model.
-
-        Copyright (c) 2022 IETF Trust and the persons
-        identified as authors of the code.  All rights reserved.
-
-        Redistribution and use in source and binary forms, with
-        or without modification, is permitted pursuant to, and
-        subject to the license terms contained in, the Revised
-        BSD License set forth in Section 4.c of the IETF Trust's
-        Legal Provisions Relating to IETF Documents
-        (https://trustee.ietf.org/license-info).
-
-        This version of this YANG module is part of RFC XXXX; see
-        the RFC itself for full legal notices.";
-
-     revision 2022-11-07 {
-       description
-         "Initial Version";
-       reference
 
 
 
-Busi, et al.              Expires 11 April 2024                 [Page 7]
+Busi, et al.              Expires 24 April 2024                 [Page 7]
 
 Internet-Draft         MPLS-TE Topology YANG Model          October 2023
 
 
-         "draft-busizheng-teas-yang-te-mpls-topology-02";
+                  <mailto:rgandhi@cisco.com>";
+
+     description
+       "This module defines a collection of common YANG data type
+       and grouping definitions specific to MPLS-TE.
+
+       Copyright (c) 2023 IETF Trust and the persons
+       identified as authors of the code.  All rights reserved.
+
+       Redistribution and use in source and binary forms, with or
+       without modification, is permitted pursuant to, and subject to
+       the license terms contained in, the Revised BSD License set
+       forth in Section 4.c of the IETF Trust's Legal Provisions
+       Relating to IETF Documents
+       (https://trustee.ietf.org/license-info).
+
+        This version of this YANG module is part of RFC XXXX; see
+        the RFC itself for full legal notices.";
+
+     revision 2023-10-13 {
+       description
+         "Initial Version";
+       reference
+         "RFC XXXX: A YANG Data Model for MPLS-TE Topology";
      }
+     // RFC Editor: replace XXXX with the actual RFC number assigned
+     // to the RFC once this draft
+     // becomes an RFC, update date information and remove this note.
 
      /*
      * Typedefs
@@ -416,6 +442,14 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
          enum per-top-label {
            description
              "The load-balancing algorithm ensures incoming MPLS
+
+
+
+Busi, et al.              Expires 24 April 2024                 [Page 8]
+
+Internet-Draft         MPLS-TE Topology YANG Model          October 2023
+
+
               packets with the same top MPLS label and that egress on
               on a LAG or bundled TE link are forwarded on the same
               component link.
@@ -442,14 +476,6 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
            "MPLS Label.";
        }
      }  // grouping te-mpls-label-hop
-
-
-
-Busi, et al.              Expires 11 April 2024                 [Page 8]
-
-Internet-Draft         MPLS-TE Topology YANG Model          October 2023
-
-
    }
    <CODE ENDS>
 
@@ -468,51 +494,74 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
                /tet-pkt:packet:
        +--rw mpls-topology!
      augment /nw:networks/nw:network/nt:link/tet:te:
-       +--rw load-balancing-type?   mte-types:load-balancing-type
+       +--rw load-balancing-type?   mpls-te-types:load-balancing-type
      augment /nw:networks/nw:network/nw:node/nt:termination-point
                /tet:te:
        +--ro uhp-incapable?   empty
+
+
+
+Busi, et al.              Expires 24 April 2024                 [Page 9]
+
+Internet-Draft         MPLS-TE Topology YANG Model          October 2023
+
 
                     Figure 3: MPLS-TE topology YANG tree
 
 5.2.  YANG Code
 
-   <CODE BEGINS> file "ietf-te-mpls-topology@2022-11-07.yang"
+   <CODE BEGINS> file "ietf-te-mpls-topology@2023-10-13.yang"
    module ietf-te-mpls-topology {
      yang-version 1.1;
      namespace "urn:ietf:params:xml:ns:yang:ietf-te-mpls-topology";
-
-     prefix "tet-mpls";
+     prefix tet-mpls;
 
      import ietf-network {
-       prefix "nw";
+       prefix nw;
+       reference
+         "RFC 8345: A YANG Data Model for Network Topologies";
      }
 
      import ietf-network-topology {
-       prefix "nt";
+       prefix nt;
+       reference
+         "RFC 8345: A YANG Data Model for Network Topologies";
      }
 
      import ietf-te-topology {
-       prefix "tet";
+       prefix tet;
+       reference
+         "RFC 8795: YANG Data Model for Traffic Engineering
+          (TE) Topologies";
      }
 
      import ietf-te-topology-packet {
-       prefix "tet-pkt";
+       prefix tet-pkt;
+       reference
+         "RFC YYYY: YANG Data Model for Layer 3 TE Topologies";
+     }
+     // RFC Editor: replace YYYY with the actual RFC number assigned
+     // to the RFC once draft-ietf-teas-yang-l3-te-topo
+     // becomes an RFC and remove this note.
+
+     import ietf-mpls-te-types {
+       prefix mpls-te-types;
+       reference
+         "RFC XXXX: A YANG Data Model for MPLS-TE Topology";
+     }
+     // RFC Editor: replace XXXX with the actual RFC number assigned
+     // to the RFC once this draft
+     // becomes an RFC and remove this note.
+
+     organization
 
 
 
-Busi, et al.              Expires 11 April 2024                 [Page 9]
+Busi, et al.              Expires 24 April 2024                [Page 10]
 
 Internet-Draft         MPLS-TE Topology YANG Model          October 2023
 
 
-     }
-
-     import ietf-mpls-te-types {
-       prefix "mte-types";
-     }
-
-     organization
        "Internet Engineering Task Force (IETF) TEAS WG";
      contact
        "WG Web:   <https://datatracker.ietf.org/wg/teas/>
@@ -521,61 +570,56 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
         Editor:   Italo Busi
                   <mailto:italo.busi@huawei.com>
 
-        Editor:   Haomian Zheng
-                  <mailto:zhenghaomian@huawei.com>
-
         Editor:   Aihua Guo
                   <mailto:aihuaguo.ietf@gmail.com>
 
         Editor:   Xufeng Liu
                   <mailto:xufeng.liu.ietf@gmail.com>
 
-        Editor:   Vishnu Pavan Beeram
-                  <mailto:vbeeram@juniper.net>
-
         Editor:   Tarek Saad
                   <mailto:tsaad.net@gmail.com>
 
         Editor:   Rakesh Gandhi
-                  <mailto:rgandhi@cisco.com>
-
-        Editor:   Igor Bryskin
-                  <mailto:i_bryskin@yahoo.com>
-
-        Editor:   Yanlei Zheng
-                  <mailto:zhengyanlei@chinaunicom.cn>";
+                  <mailto:rgandhi@cisco.com>";
 
      description
-       "This module defines technology-specific MPLS-TE topology
-        data model.
+       "This module defines a YANG data model for representing,
+       retrieving, and manipulating MPLS-TE network topologies.
 
-        Copyright (c) 2022 IETF Trust and the persons
-        identified as authors of the code.  All rights reserved.
+       This module defines MPLS-TE technology-specific augmentations
+       to the generic Packet TE topology module
+       (ietf-te-topology-packet).
 
-        Redistribution and use in source and binary forms, with
-        or without modification, is permitted pursuant to, and
+       Copyright (c) 2022 IETF Trust and the persons
+       identified as authors of the code.  All rights reserved.
+
+       Redistribution and use in source and binary forms, with
+       or without modification, is permitted pursuant to, and
+       subject to the license terms contained in, the Revised
+       BSD License set forth in Section 4.c of the IETF Trust's
+       Legal Provisions Relating to IETF Documents
+       (https://trustee.ietf.org/license-info).
+
+       This version of this YANG module is part of RFC XXXX; see
+       the RFC itself for full legal notices.";
+
+     revision 2023-10-13 {
+       description
+         "Initial Version";
+       reference
+         "RFC XXXX: A YANG Data Model for MPLS-TE Topology";
+     }
+     // RFC Editor: replace XXXX with the actual RFC number assigned
 
 
 
-Busi, et al.              Expires 11 April 2024                [Page 10]
+Busi, et al.              Expires 24 April 2024                [Page 11]
 
 Internet-Draft         MPLS-TE Topology YANG Model          October 2023
 
 
-        subject to the license terms contained in, the Revised
-        BSD License set forth in Section 4.c of the IETF Trust's
-        Legal Provisions Relating to IETF Documents
-        (https://trustee.ietf.org/license-info).
-
-        This version of this YANG module is part of RFC XXXX; see
-        the RFC itself for full legal notices.";
-
-     revision 2022-11-07 {
-       description
-         "Initial Version";
-       reference
-         "draft-busizheng-teas-yang-te-mpls-topology-04";
-     }
+     // to the RFC once this draft
+     // becomes an RFC, update date information and remove this note.
 
      /*
       * Augmentations
@@ -603,21 +647,13 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
          "Augment TE Link.";
 
        leaf load-balancing-type {
-         type mte-types:load-balancing-type;
+         type mpls-te-types:load-balancing-type;
          default 'per-flow';
          description
            "Indicates the type of load-balancing (per-flow or per-LSP)
             performed by the bundled TE Link.
 
             This leaf is not present when the TE Link is not bundled.";
-
-
-
-Busi, et al.              Expires 11 April 2024                [Page 11]
-
-Internet-Draft         MPLS-TE Topology YANG Model          October 2023
-
-
        }  // leaf load-balancing-type
      }
 
@@ -630,6 +666,14 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
        description "Augment LTP.";
 
        leaf uhp-incapable {
+
+
+
+Busi, et al.              Expires 24 April 2024                [Page 12]
+
+Internet-Draft         MPLS-TE Topology YANG Model          October 2023
+
+
          type empty;
          config false;
          description
@@ -666,14 +710,6 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
    the risks of enabling configuration of which labels are used on hops
    within an LSP.
 
-
-
-
-Busi, et al.              Expires 11 April 2024                [Page 12]
-
-Internet-Draft         MPLS-TE Topology YANG Model          October 2023
-
-
    The ietf-te-mpls-topology model presented in this document defines
    technology-specific objects to describe an MPLS-TE topology.  It is
    intended as an aumentation of the te-topology model [RFC8795] and so
@@ -686,6 +722,13 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
    the risk is from unauthorized access to the information, or from
    misrepresenting the information reported from the network elements.
    The objects are:
+
+
+
+Busi, et al.              Expires 24 April 2024                [Page 13]
+
+Internet-Draft         MPLS-TE Topology YANG Model          October 2023
+
 
    "tet:te-topology/tet-pkt:packet": Unauthorized read access to this
    simply indicates that the network topology is MPLS-TE packet-capable:
@@ -718,18 +761,6 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
    "ns" subregistry within the "IETF XML Registry" [RFC3688].  Following
    the format in [RFC3688], the following registrations are requested.
 
-
-
-
-
-
-
-
-Busi, et al.              Expires 11 April 2024                [Page 13]
-
-Internet-Draft         MPLS-TE Topology YANG Model          October 2023
-
-
          URI:  urn:ietf:params:xml:ns:yang:ietf-mpls-te-types
          Registrant Contact:  The IESG.
          XML: N/A; the requested URI is an XML namespace.
@@ -742,9 +773,22 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
    the "IANA Module Names" [RFC6020].  Following the format in
    [RFC6020], the following registrations are requested:
 
+
+
+
+
+
+
+
+
+Busi, et al.              Expires 24 April 2024                [Page 14]
+
+Internet-Draft         MPLS-TE Topology YANG Model          October 2023
+
+
          name:      ietf-mpls-te-types
          namespace: urn:ietf:params:xml:ns:yang:ietf-mpls-te-types
-         prefix:    mte-types
+         prefix:    mpls-te-types
          reference: RFC XXXX
 
          name:      ietf-te-mpls-topology
@@ -763,28 +807,13 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
               Liu, X., Bryskin, I., Beeram, V. P., Saad, T., Shah, H.
               C., and O. G. de Dios, "YANG Data Model for Layer 3 TE
               Topologies", Work in Progress, Internet-Draft, draft-ietf-
-              teas-yang-l3-te-topo-14, 12 March 2023,
+              teas-yang-l3-te-topo-15, 21 October 2023,
               <https://datatracker.ietf.org/doc/html/draft-ietf-teas-
-              yang-l3-te-topo-14>.
-
-   [RFC2702]  Awduche, D., Malcolm, J., Agogbua, J., O'Dell, M., and J.
-              McManus, "Requirements for Traffic Engineering Over MPLS",
-              RFC 2702, DOI 10.17487/RFC2702, September 1999,
-              <https://www.rfc-editor.org/info/rfc2702>.
+              yang-l3-te-topo-15>.
 
    [RFC3688]  Mealling, M., "The IETF XML Registry", BCP 81, RFC 3688,
               DOI 10.17487/RFC3688, January 2004,
               <https://www.rfc-editor.org/info/rfc3688>.
-
-
-
-
-
-
-Busi, et al.              Expires 11 April 2024                [Page 14]
-
-Internet-Draft         MPLS-TE Topology YANG Model          October 2023
-
 
    [RFC6020]  Bjorklund, M., Ed., "YANG - A Data Modeling Language for
               the Network Configuration Protocol (NETCONF)", RFC 6020,
@@ -804,6 +833,15 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
               Protocol", RFC 8040, DOI 10.17487/RFC8040, January 2017,
               <https://www.rfc-editor.org/info/rfc8040>.
 
+
+
+
+
+Busi, et al.              Expires 24 April 2024                [Page 15]
+
+Internet-Draft         MPLS-TE Topology YANG Model          October 2023
+
+
    [RFC8294]  Liu, X., Qu, Y., Lindem, A., Hopps, C., and L. Berger,
               "Common YANG Data Types for the Routing Area", RFC 8294,
               DOI 10.17487/RFC8294, December 2017,
@@ -817,6 +855,16 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
               Access Control Model", STD 91, RFC 8341,
               DOI 10.17487/RFC8341, March 2018,
               <https://www.rfc-editor.org/info/rfc8341>.
+
+   [RFC8342]  Bjorklund, M., Schoenwaelder, J., Shafer, P., Watsen, K.,
+              and R. Wilton, "Network Management Datastore Architecture
+              (NMDA)", RFC 8342, DOI 10.17487/RFC8342, March 2018,
+              <https://www.rfc-editor.org/info/rfc8342>.
+
+   [RFC8345]  Clemm, A., Medved, J., Varga, R., Bahadur, N.,
+              Ananthakrishnan, H., and X. Liu, "A YANG Data Model for
+              Network Topologies", RFC 8345, DOI 10.17487/RFC8345, March
+              2018, <https://www.rfc-editor.org/info/rfc8345>.
 
    [RFC8446]  Rescorla, E., "The Transport Layer Security (TLS) Protocol
               Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
@@ -834,14 +882,6 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
               Saad, T., Gandhi, R., Liu, X., Beeram, V. P., and I.
               Bryskin, "A YANG Data Model for MPLS Traffic Engineering
               Tunnels", Work in Progress, Internet-Draft, draft-ietf-
-
-
-
-Busi, et al.              Expires 11 April 2024                [Page 15]
-
-Internet-Draft         MPLS-TE Topology YANG Model          October 2023
-
-
               teas-yang-te-mpls-04, 26 May 2023,
               <https://datatracker.ietf.org/doc/html/draft-ietf-teas-
               yang-te-mpls-04>.
@@ -850,6 +890,13 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
               L., and L. Berger, "A Framework for MPLS in Transport
               Networks", RFC 5921, DOI 10.17487/RFC5921, July 2010,
               <https://www.rfc-editor.org/info/rfc5921>.
+
+
+
+Busi, et al.              Expires 24 April 2024                [Page 16]
+
+Internet-Draft         MPLS-TE Topology YANG Model          October 2023
+
 
 Acknowledgments
 
@@ -878,25 +925,12 @@ Contributors
    Email: i_bryskin@yahoo.com
 
 
-   Yanlei Zheng
-   China Unicom
-   Email: zhengyanlei@chinaunicom.cn
-
-
    Adrian Farrel
    Old Dog Consulting
    Email: adrian@olddog.co.uk
 
 
 Authors' Addresses
-
-
-
-
-Busi, et al.              Expires 11 April 2024                [Page 16]
-
-Internet-Draft         MPLS-TE Topology YANG Model          October 2023
-
 
    Italo Busi
    Huawei Technologies
@@ -911,6 +945,13 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
    Xufeng Liu
    Alef Edge
    Email: xufeng.liu.ietf@gmail.com
+
+
+
+
+Busi, et al.              Expires 24 April 2024                [Page 17]
+
+Internet-Draft         MPLS-TE Topology YANG Model          October 2023
 
 
    Tarek Saad
@@ -949,4 +990,19 @@ Internet-Draft         MPLS-TE Topology YANG Model          October 2023
 
 
 
-Busi, et al.              Expires 11 April 2024                [Page 17]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Busi, et al.              Expires 24 April 2024                [Page 18]
