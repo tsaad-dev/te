@@ -305,12 +305,18 @@ switching-capabilities:
 > A base YANG identity for supported interface switching capabilities as defined in {{?RFC3471}}.
 
 resource-affinities-type:
-
+exx
 > A base YANG identity for supported attribute filters associated with a tunnel that must be satisfied for a link to be acceptable as defined in {{?RFC2702}} and {{?RFC3209}}.
+
+CHANGE NOTE: The description of the path-metric-type has been updated
 
 path-metric-type:
 
 > A base YANG identity for supported path metric types as defined in {{?RFC3785}} and {{?RFC7471}}.
+
+> Since the unit of path metric bound is interpreted in the context of the metric-type, derived identities SHOULD describe the unit and maximum value of the path metric.
+
+> For example, the bound of the 'path-metric-loss', defined in 'ietf-te-packet-types', is defined in multiples of the basic unit 0.000003% as described in {{?RFC7471}} for OSPF, and {{?RFC8570}} for IS-IS.
 
 explicit-route-hop:
 
@@ -415,6 +421,14 @@ RFC Editor: remove the CHANGE NOTE above and this note
 bandwidth-profile-type:
 
 > A base YANG identity for various bandwidth profiles specified in {{MEF_10.3}}, {{?RFC2697}}, {{?RFC2698}} and {{?RFC4115}} that may be used to limit bandwidth utilization of packet flows (e.g., MPLS-TE LSPs).
+
+path-metric-loss:
+
+> A YANG identity, derived from the 'path-metric-type' base identity, defined in 'ietf-te-types', that represents the path loss metric type, defined in {{?RFC8233}}.
+
+path-metric-delay-variation:
+
+> A YANG identity, derived from the 'path-metric-type' base identity, defined in 'ietf-te-types', that represents the path delay variation metric type, defined in {{?RFC8233}}.
 
 te-packet-path-bandwidth
 
