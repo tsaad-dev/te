@@ -305,16 +305,18 @@ switching-capabilities:
 > A base YANG identity for supported interface switching capabilities as defined in {{?RFC3471}}.
 
 resource-affinities-type:
-exx
+
 > A base YANG identity for supported attribute filters associated with a tunnel that must be satisfied for a link to be acceptable as defined in {{?RFC2702}} and {{?RFC3209}}.
 
 CHANGE NOTE: The description of the path-metric-type has been updated
+
+RFC Editor: remove the CHANGE NOTE above and this note
 
 path-metric-type:
 
 > A base YANG identity for supported path metric types as defined in {{?RFC3630}} {{?RFC3785}}, {{!RFC5440}}, {{?RFC7471}}, {{?RFC8233}} and {{?RFC8570}}.
 
-> Since the unit of the path metric value is interpreted in the context of the path metric type, derived identities SHOULD describe the unit and maximum value of the path metric types they define.
+> The unit of the path metric value is interpreted in the context of the path metric type. The derived identities SHOULD describe the unit and maximum value of the path metric types they define.
 
 > For example, the bound of the 'path-metric-loss', defined in 'ietf-te-packet-types', is defined in multiples of the basic unit 0.000003% as described in {{?RFC7471}} and {{?RFC8570}}.
 
@@ -469,7 +471,7 @@ RFC Editor: remove the CHANGE NOTE above and this note
 {::include ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2023-06-27.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2023-11-24.yang"}
 
 {: #pkt-yang-code}
 
