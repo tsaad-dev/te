@@ -6,7 +6,7 @@ title: >
    Applicability to non-TE Use Cases
 
 abbrev: TE Topology Profiles
-docname: draft-busi-teas-te-topology-profiles-06
+docname: draft-busi-teas-te-topology-profiles-07
 submissiontype: IETF
 workgroup: TEAS Working Group
 category: info
@@ -242,51 +242,6 @@ contributor:
    any technology (TE or non-TE) that requires management of the
    administrative and operational state and administrative names for
    nodes, termination points and links.
-
-{: #geolocation}
-
-## Geolocation
-
-   The TE Topology model supports the management of geolocation
-   coordinates for nodes and termination points. This solution is
-   generic and does not necessarily require the network to be a TE
-   network.
-
-   The TE topology data model profile shown in {{geolocation-tree}}
-   can be used to
-   model geolocation data for networks.
-
-~~~~
-   module: ietf-te-topology
-     augment /nw:networks/nw:network/nw:network-types:
-       +--rw te-topology!
-     augment /nw:networks/nw:network/nw:node/nt:termination-point:
-       +--rw te-tp-id?   te-types:te-tp-id
-       +--rw te!
-          +--ro geolocation
-             +--ro altitude?    int64
-             +--ro latitude?    geographic-coordinate-degree
-             +--ro longitude?   geographic-coordinate-degree
-     augment /nw:networks/nw:network/nw:node:
-       +--rw te-node-id?   te-types:te-node-id
-       +--rw te!
-          +--ro geolocation
-             +--ro altitude?    int64
-             +--ro latitude?    geographic-coordinate-degree
-             +--ro longitude?   geographic-coordinate-degree
-     augment /nw:networks/nw:network/nw:node/nt:termination-point:
-       +--rw te-tp-id?   te-types:te-tp-id
-       +--rw te!
-          +--ro geolocation
-             +--ro altitude?    int64
-             +--ro latitude?    geographic-coordinate-degree
-             +--ro longitude?   geographic-coordinate-degree
-~~~~
-{: #geolocation-tree title="Generic Topology with geolocation information"}
-
-   This profile is applicable to any network technology (TE or non-TE)
-   that requires management of the geolocation information for its nodes
-   and termination points.
 
 {: #overlay-underlay}
 
