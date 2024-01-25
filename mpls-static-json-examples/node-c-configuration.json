@@ -1,0 +1,196 @@
+{
+  "ietf-routing:routing": {
+    "ietf-mpls:mpls": {
+      "interfaces": {
+        "interface": [
+          {
+            "name": "mpls-if-C-1",
+            "mpls-enabled": true
+          },
+          {
+            "name": "mpls-if-C-2",
+            "mpls-enabled": true
+          },
+          {
+            "name": "mpls-if-C-3",
+            "mpls-enabled": true
+          },
+          {
+            "name": "mpls-if-C-4",
+            "mpls-enabled": true
+          }
+        ]
+      },
+      "ietf-mpls-static:static-lsps": {
+        "static-lsp": [
+          {
+            "name": "lsp1-forward",
+            "operation": "swap-and-forward",
+            "in-segment": {
+              "fec": {
+                "incoming-label": 103
+              }
+            },
+            "out-segment": {
+              "nhlfe-single": {
+                "mpls-label-stack": {
+                  "entry": [
+                    {
+                      "id": 1,
+                      "label": 100
+                    }
+                  ]
+                },
+                "outgoing-interface": "mpls-if-C-3"
+              }
+            }
+          },
+          {
+            "name": "lsp1-reverse",
+            "operation": "swap-and-forward",
+            "in-segment": {
+              "fec": {
+                "incoming-label": 113,
+                "incoming-interface": "mpls-if-C-3"
+              }
+            },
+            "out-segment": {
+              "nhlfe-multiple": {
+                "nhlfe": [
+                  {
+                    "index": "1",
+                    "backup-index": "2",
+                    "role": "primary",
+                    "mpls-label-stack": {
+                      "entry": [
+                        {
+                          "id": 1,
+                          "label": 212
+                        },
+                        {
+                          "id": 2,
+                          "label": 111
+                        }
+                      ]
+                    },
+                    "outgoing-interface": "mpls-if-C-1"
+                  },
+                  {
+                    "index": "2",
+                    "role": "backup",
+                    "mpls-label-stack": {
+                      "entry": [
+                        {
+                          "id": 1,
+                          "label": 314
+                        },
+                        {
+                          "id": 2,
+                          "label": 111
+                        }
+                      ]
+                    },
+                    "outgoing-interface": "mpls-if-C-2"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "name": "lsp2-forward",
+            "operation": "pop-and-lookup",
+            "in-segment": {
+              "fec": {
+                "incoming-label": 203,
+                "incoming-interface": "mpls-if-C-1"
+              }
+            }
+          },
+          {
+            "name": "lsp2-reverse",
+            "operation": "impose-and-forward",
+            "out-segment": {
+              "nhlfe-single": {
+                "mpls-label-stack": {
+                  "entry": [
+                    {
+                      "id": 1,
+                      "label": 212
+                    }
+                  ]
+                },
+                "outgoing-interface": "mpls-if-C-1"
+              }
+            }
+          },
+    		  {
+            "name": "lsp3-forward",
+            "operation": "pop-and-lookup",
+            "in-segment": {
+              "fec": {
+                "incoming-label": 303,
+                "incoming-interface": "mpls-if-C-2"
+              }
+            }
+          },
+          {
+            "name": "lsp3-reverse",
+            "operation": "impose-and-forward",
+            "out-segment": {
+              "nhlfe-single": {
+                "mpls-label-stack": {
+                  "entry": [
+                    {
+                      "id": 1,
+                      "label": 314
+                    }
+                  ]
+                },
+                "outgoing-interface": "mpls-if-C-2"
+              }
+            }
+          }
+        ]
+      },
+      "ietf-mpls-static-extended:bidir-static-lsps": {
+        "bidir-static-lsp": [
+          {
+            "name": "lsp1",
+            "forward-lsp": "lsp1-forward",
+            "reverse-lsp": "lsp1-reverse"
+          },
+          {
+            "name": "lsp2",
+            "forward-lsp": "lsp2-forward",
+            "reverse-lsp": "lsp2-reverse"
+          },
+          {
+            "name": "lsp3",
+            "forward-lsp": "lsp3-forward",
+            "reverse-lsp": "lsp3-reverse"
+          }
+        ]
+      }
+    }
+  },
+  "ietf-interfaces:interfaces": {
+    "interface":  [
+      {
+        "name": "mpls-if-C-1",
+        "type": "iana-if-type:ethernetCsmacd"
+      },
+      {
+        "name": "mpls-if-C-2",
+        "type": "iana-if-type:ethernetCsmacd"
+      },
+      {
+        "name": "mpls-if-C-3",
+        "type": "iana-if-type:ethernetCsmacd"
+      },
+      {
+        "name": "mpls-if-C-4",
+        "type": "iana-if-type:ethernetCsmacd"
+      }
+    ]
+  }
+}

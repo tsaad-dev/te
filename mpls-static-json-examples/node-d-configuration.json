@@ -1,0 +1,89 @@
+{
+  "ietf-routing:routing": {
+    "ietf-mpls:mpls": {
+      "interfaces": {
+        "interface": [
+          {
+            "name": "mpls-if-D-1",
+            "mpls-enabled": true
+          },
+          {
+            "name": "mpls-if-D-2",
+            "mpls-enabled": true
+          }
+        ]
+      },
+      "ietf-mpls-static:static-lsps": {
+        "static-lsp": [
+          {
+            "name": "lsp3-forward",
+            "operation": "swap-and-forward",
+			      "in-segment": {
+              "fec": {
+                "incoming-label": 304,
+                "incoming-interface": "mpls-if-D-1"
+              }
+            },
+            "out-segment": {
+              "nhlfe-single": {
+                "mpls-label-stack": {
+                  "entry": [
+                    {
+                      "id": 1,
+                      "label": 303
+                    }
+                  ]
+                },
+                "outgoing-interface": "mpls-if-D-2"
+              }
+            }
+          },
+          {
+            "name": "lsp3-reverse",
+            "operation": "swap-and-forward",
+             "in-segment": {
+              "fec": {
+                "incoming-label": 314,
+                "incoming-interface": "mpls-if-D-2"
+              }
+            },
+            "out-segment": {
+              "nhlfe-single": {
+                "mpls-label-stack": {
+                  "entry": [
+                    {
+                      "id": 1,
+                      "label": 311
+                    }
+                  ]
+                },
+                "outgoing-interface": "mpls-if-D-1"
+              }
+            }
+          }
+        ]
+      },
+      "ietf-mpls-static-extended:bidir-static-lsps": {
+        "bidir-static-lsp": [
+          {
+            "name": "lsp3",
+            "forward-lsp": "lsp3-forward",
+            "reverse-lsp": "lsp3-reverse"
+          }
+        ]
+      }
+    }
+  },
+  "ietf-interfaces:interfaces": {
+    "interface":  [
+      {
+        "name": "mpls-if-D-1",
+        "type": "iana-if-type:ethernetCsmacd"
+      },
+      {
+        "name": "mpls-if-D-2",
+        "type": "iana-if-type:ethernetCsmacd"
+      }
+    ]
+  }
+}

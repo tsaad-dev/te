@@ -1,0 +1,89 @@
+{
+  "ietf-routing:routing": {
+    "ietf-mpls:mpls": {
+      "interfaces": {
+        "interface": [
+          {
+            "name": "mpls-if-B-1",
+            "mpls-enabled": true
+          },
+          {
+            "name": "mpls-if-B-2",
+            "mpls-enabled": true
+          }
+        ]
+      },
+      "ietf-mpls-static:static-lsps": {
+        "static-lsp": [
+          {
+            "name": "lsp2-forward",
+            "operation": "swap-and-forward",
+			      "in-segment": {
+              "fec": {
+                "incoming-label": 202,
+                "incoming-interface": "mpls-if-B-1"
+              }
+            },
+            "out-segment": {
+              "nhlfe-single": {
+                "mpls-label-stack": {
+                  "entry": [
+                    {
+                      "id": 1,
+                      "label": 203
+                    }
+                  ]
+                },
+                "outgoing-interface": "mpls-if-B-2"
+              }
+            }
+          },
+          {
+            "name": "lsp2-reverse",
+            "operation": "pop-and-lookup",
+             "in-segment": {
+              "fec": {
+                "incoming-label": 212,
+                "incoming-interface": "mpls-if-B-2"
+              }
+            },
+            "out-segment": {
+              "nhlfe-single": {
+                "mpls-label-stack": {
+                  "entry": [
+                    {
+                      "id": 1,
+                      "label": 211
+                    }
+                  ]
+                },
+                "outgoing-interface": "mpls-if-B-1"
+              }
+            }
+          }
+        ]
+      },
+      "ietf-mpls-static-extended:bidir-static-lsps": {
+        "bidir-static-lsp": [
+          {
+            "name": "lsp2",
+            "forward-lsp": "lsp2-forward",
+            "reverse-lsp": "lsp2-reverse"
+          }
+        ]
+      }
+    }
+  },
+  "ietf-interfaces:interfaces": {
+    "interface":  [
+      {
+        "name": "mpls-if-B-1",
+        "type": "iana-if-type:ethernetCsmacd"
+      },
+      {
+        "name": "mpls-if-B-2",
+        "type": "iana-if-type:ethernetCsmacd"
+      }
+    ]
+  }
+}
