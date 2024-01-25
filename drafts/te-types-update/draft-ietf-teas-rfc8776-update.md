@@ -487,7 +487,7 @@ RFC Editor: remove the CHANGE NOTE above and this note
 {::include ../../ietf-te-packet-types.yang}
 ~~~~
 {: #fig-pkt-yang title="Packet TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2023-07-10.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2024-01-25.yang"}
 
 # IANA Considerations
 
