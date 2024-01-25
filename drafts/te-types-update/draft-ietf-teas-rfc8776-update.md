@@ -471,7 +471,7 @@ RFC Editor: remove the CHANGE NOTE above and this note
 {::include ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2023-11-24.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2024-01-25.yang"}
 
 {: #pkt-yang-code}
 
