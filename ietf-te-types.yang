@@ -75,14 +75,14 @@ module ietf-te-types {
      This version of this YANG module is part of RFC XXXX
      (https://www.rfc-editor.org/info/rfcXXXX); see the RFC itself
      for full legal notices.";
-
-  revision 2023-06-27 {
+  revision 2023-11-29 {
     description
       "Added:
       - base identity lsp-provisioning-error-reason;
       - identity association-type-diversity;
       - identity tunnel-admin-state-auto;
       - identity lsp-restoration-restore-none;
+      - identity restoration-scheme-rerouting;
       - base identity path-computation-error-reason and
         its derived identities;
       - base identity protocol-origin-type and
@@ -94,15 +94,20 @@ module ietf-te-types {
       
       Updated:
       - description of the base identity objective-function-type;
-      - description and reference of identity action-exercise.
+      - description and reference of identity action-exercise;
+      - typedef te-node-id to support also 16 octects TE identifiers.
       
       Obsoleted:
-      - identity of-minimize-agg-bandwidth-consumption
-      - identity of-minimize-load-most-loaded-link
-      - identity of-minimize-cost-path-set";
+      - identity of-minimize-agg-bandwidth-consumption;
+      - identity of-minimize-load-most-loaded-link;
+      - identity of-minimize-cost-path-set;
+      - identity lsp-protection-reroute-extra;
+      - identity lsp-protection-reroute.
+
+      Container explicit-route-objects-always renamed as
+      explicit-route-objects.";
     reference
-      "RFC XXXX: Updated Common YANG Data Types for Traffic
-      Engineering";
+      "RFC XXXX: Common YANG Data Types for Traffic Engineering";
   }
   // RFC Editor: replace XXXX with actual RFC number, update date
   // information and remove this note
@@ -392,25 +397,36 @@ module ietf-te-types {
   }
 
   typedef te-node-id {
-    type yang:dotted-quad;
+    type union {
+      type yang:dotted-quad;
+      type inet:ipv6-address-no-zone;
+    }
     description
       "A type representing the identifier for a node in a TE
        topology.
-       The identifier is represented as 4 octets in dotted-quad
-       notation.
+
+       The identifier is represented either as 4 octets in
+       dotted-quad notation or 16 octets in full, mixed, shortened,
+       or shortened-mixed IPv6 address notation.
+
        This attribute MAY be mapped to the Router Address TLV
        described in Section 2.4.1 of RFC 3630, the TE Router ID
        described in Section 3 of RFC 6827, the Traffic Engineering
-       Router ID TLV described in Section 4.3 of RFC 5305, or the
-       TE Router ID TLV described in Section 3.2.1 of RFC 6119.
+       Router ID TLV described in Section 4.3 of RFC 5305, the TE
+       Router ID TLV described in Section 3.2.1 of RFC 6119, or the
+       IPv6 TE Router ID TLV described in Section 4.1 of RFC 6119.
+
        The reachability of such a TE node MAY be achieved by a
        mechanism such as that described in Section 6.2 of RFC 6827.";
     reference
       "RFC 3630: Traffic Engineering (TE) Extensions to OSPF
        Version 2, Section 2.4.1
+
        RFC 5305: IS-IS Extensions for Traffic Engineering,
        Section 4.3
+
        RFC 6119: IPv6 Traffic Engineering in IS-IS, Section 3.2.1
+
        RFC 6827: Automatically Switched Optical Network (ASON)
        Routing for OSPFv2 Protocols, Section 3";
   }
@@ -1476,6 +1492,21 @@ module ietf-te-types {
       "Base identity for LSP restoration schemes.";
   }
 
+    // CHANGE NOTE: The identity restoration-scheme-rerouting 
+    // below has been added in this module revision
+    // RFC Editor: remove the note above and this note
+    identity restoration-scheme-rerouting {
+      base restoration-scheme-type;
+      description
+        "Restoration LSP is computed after the failure detection.
+        
+        This restoration scheme is also known as
+        'Full LSP Re-routing.'";
+      reference
+        "RFC 4427: Recovery (Protection and Restoration) Terminology
+        for Generalized Multi-Protocol Label Switching (GMPLS)";
+    }
+
   identity restoration-scheme-preconfigured {
     base restoration-scheme-type;
     description
@@ -1520,19 +1551,35 @@ module ietf-te-types {
        Generalized Multi-Protocol Label Switching (GMPLS) Recovery";
   }
 
+  // CHANGE NOTE: The identity lsp-protection-reroute-extra
+  // below has been obsoleted in this module revision
+  // RFC Editor: remove the note above and this note
   identity lsp-protection-reroute-extra {
     base lsp-protection-type;
+    status obsolete;
     description
-      "'(Full) Rerouting' LSP protection type.";
+      "'(Full) Rerouting' LSP protection type.
+      
+      This identity has been obsoleted: the
+      'restoration-scheme-rerouting' identity SHOULD be used
+      instead.";
     reference
       "RFC 4872: RSVP-TE Extensions in Support of End-to-End
        Generalized Multi-Protocol Label Switching (GMPLS) Recovery";
   }
 
+  // CHANGE NOTE: The identity lsp-protection-reroute
+  // below has been obsoleted in this module revision
+  // RFC Editor: remove the note above and this note
   identity lsp-protection-reroute {
     base lsp-protection-type;
+    status obsolete;
     description
-      "'Rerouting without Extra-Traffic' LSP protection type.";
+      "'Rerouting without Extra-Traffic' LSP protection type.
+      
+      This identity has been obsoleted: the
+      'restoration-scheme-rerouting' identity SHOULD be used
+      instead.";
     reference
       "RFC 4872: RSVP-TE Extensions in Support of End-to-End
        Generalized Multi-Protocol Label Switching (GMPLS) Recovery";
@@ -2058,9 +2105,15 @@ module ietf-te-types {
        Protocol-Traffic Engineering (RSVP-TE)";
   }
 
+  // CHANGE NOTE: The description of the identity path-metric-type
+  // has been updated in this module revision
+  // RFC Editor: remove the note above and this note
   identity path-metric-type {
     description
-      "Base identity for the path metric type.";
+      "Base identity for the path metric type.
+      
+      Derived identities SHOULD describe the unit and maximum value
+      of the path metric types they define.";
   }
 
   identity path-metric-te {
@@ -2081,11 +2134,18 @@ module ietf-te-types {
        second MPLS Traffic Engineering (TE) Metric";
   }
 
+  // CHANGE NOTE: The reference for the identity path-metric-hop
+  // has been added in this module revision
+  // RFC Editor: remove the note above and this note
   identity path-metric-hop {
     base path-metric-type;
     description
       "Hop path metric.";
+    reference
+      "RFC5440: Path Computation Element (PCE) Communication
+      Protocol (PCEP)";
   }
+
 
   identity path-metric-delay-average {
     base path-metric-type;
@@ -2267,7 +2327,8 @@ module ietf-te-types {
         "Path computation has failed because of an unspecified 
         reason.";
       reference
-        "Section 7.5 of RFC5440";
+        "Section 7.5 of RFC5440: Path Computation Element (PCE)
+        Communication Protocol (PCEP)";
     }
 
     identity path-computation-error-no-topology {
@@ -2298,7 +2359,8 @@ module ietf-te-types {
         It corresponds to bit 31 of the Flags field of the 
         NO-PATH-VECTOR TLV.";
       reference
-        "RFC5440;
+        "RFC5440: Path Computation Element (PCE) Communication
+        Protocol (PCEP);
         
         https://www.iana.org/assignments/pcep/pcep.xhtml";
     }
@@ -2445,7 +2507,8 @@ module ietf-te-types {
         It corresponds to bit 29 of the Flags field of the 
         NO-PATH-VECTOR TLV.";
       reference
-        "RFC5440;
+        "RFC5440: Path Computation Element (PCE) Communication
+        Protocol (PCEP);
         
         https://www.iana.org/assignments/pcep/pcep.xhtml";
     }
@@ -2459,7 +2522,8 @@ module ietf-te-types {
         It corresponds to bit 30 of the Flags field of the 
         NO-PATH-VECTOR TLV.";
       reference
-        "RFC5440;
+        "RFC5440: Path Computation Element (PCE) Communication
+        Protocol (PCEP);
         
         https://www.iana.org/assignments/pcep/pcep.xhtml";
     }
@@ -2470,7 +2534,8 @@ module ietf-te-types {
         "Path computation has failed because path computation
         server is unavailable.";
       reference
-        "RFC5440;
+        "RFC5440: Path Computation Element (PCE) Communication
+        Protocol (PCEP);
         
         https://www.iana.org/assignments/pcep/pcep.xhtml";
     }
@@ -2496,7 +2561,9 @@ module ietf-te-types {
       description
         "Protocol origin is Path Computation Engine Protocol 
         (PCEP).";
-      reference "RFC5440";
+      reference
+        "RFC5440: Path Computation Element (PCE) Communication
+        Protocol (PCEP)";
     }
 
     identity protocol-origin-bgp {
@@ -3741,9 +3808,13 @@ module ietf-te-types {
           type uint64;
           default "0";
           description
-            "Upper bound on the end-to-end TE path metric.  A zero
-             indicates an unbounded upper limit for the specific
-             'metric-type'.";
+            "Upper bound on the end-to-end TE path metric.
+            
+            A zero indicates an unbounded upper limit for the
+            specific 'metric-type'.
+            
+            The unit of is interpreted in the context of the
+            path-metric-type.";
         }
       }
     }
