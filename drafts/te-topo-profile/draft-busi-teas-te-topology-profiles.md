@@ -6,7 +6,7 @@ title: >
    Applicability to non-TE Use Cases
 
 abbrev: TE Topology Profiles
-docname: draft-busi-teas-te-topology-profiles-07
+docname: draft-busi-teas-te-topology-profiles-08
 submissiontype: IETF
 workgroup: TEAS Working Group
 category: info
@@ -47,11 +47,6 @@ contributor:
     name: Haomian Zheng
     org: Huawei
     email: zhenghaomian@huawei.com
-  -
-    name: Vishnu Pavan Beeram
-    ins: V. Beeram
-    org: Juniper Networks
-    email: vbeeram@juniper.net
   -
     name: Sergio Belotti
     org: Nokia
@@ -519,8 +514,8 @@ Other examples of multi-hierarchy topologies are described in
 
 ## Example (Link augmentation)
 
-   This section provides an example on how technology-specific
-   attributes can be added to the Link construct:
+This section provides an example on how technology-specific
+attributes can be added to the Link construct:
 
 ~~~~
       +--rw link* [link-id]
@@ -552,17 +547,17 @@ Other examples of multi-hierarchy topologies are described in
 ~~~~
 {: #example-link-tree title="Augmenting the Link with technology-specific attributes"}
 
-   The technology-specific attributes within the example-link-attributes
-   container can be defined either in the technology-specific TE
-   Topology Model (Option 1) or in the technology-specific Network
-   Topology Model (Option 2 or Option 3). These attributes can only be
-   non-TE and do not require the implementation of the te container.
+The technology-specific attributes within the example-link-attributes
+container can be defined either in the technology-specific TE
+Topology Model (Option 1) or in the technology-specific Network
+Topology Model (Option 2 or Option 3). These attributes can only be
+non-TE and do not require the implementation of the te container.
 
-   The technology-specific attributes within the
-   example-te-link-attributes container as well as the example
-   max-link-bandwidth can only be defined in the technology-specific TE
-   Topology Model (Option 1 or Option 3). These attributes can be TE or
-   non-TE and require the implementation of the te container.
+The technology-specific attributes within the
+example-te-link-attributes container as well as the example
+max-link-bandwidth can only be defined in the technology-specific TE
+Topology Model (Option 1 or Option 3). These attributes can be TE or
+non-TE and require the implementation of the te container.
 
 {: #implement}
 
@@ -584,26 +579,26 @@ More investigation is required in case the TE topology profile is configured by 
 
 # Security Considerations
 
-   This document provides only information about how the TE Topology
-   Model, as defined in {{!RFC8795}}, can be profiled to address some
-   scenarios which are not considered as TE.
+This document provides only information about how the TE Topology
+Model, as defined in {{!RFC8795}}, can be profiled to address some
+scenarios which are not considered as TE.
 
-   As such, this document does not introduce any additional security
-   considerations besides those already defined in {{!RFC8795}}.
+As such, this document does not introduce any additional security
+considerations besides those already defined in {{!RFC8795}}.
 
 {: #iana}
 
 # IANA Considerations
 
-   This document requires no IANA actions.
+This document requires no IANA actions.
 
 {: numbered="false"}
 
 # Acknowledgments
 
-  The authors would like to thank Daniele Ceccarelli, Jonas Ahlberg and Scott Mansfield 
-  for providing useful suggestions for this draft.
+The authors would like to thank Vishnu Pavan Beeram, Daniele Ceccarelli, Jonas Ahlberg and Scott Mansfield 
+for providing useful suggestions for this draft.
 
-  This document was prepared using kramdown.
+This document was prepared using kramdown.
 
-  Previous versions of this document was prepared using 2-Word-v2.0.template.dot.
+Initial versions of this document were prepared using 2-Word-v2.0.template.dot.
