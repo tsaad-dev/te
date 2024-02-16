@@ -94,8 +94,6 @@ module ietf-te-types {
       - base identity link-metric-type and its derived identities;
       - identity path-metric-delay;
       - typedef te-gen-node-id;
-      - ordered-by statement to tiebreaker list in
-        generic-path-optimization grouping;
       - grouping encoding-and-switching-type;
       - grouping te-generic-node-id;.
       
@@ -4002,15 +4000,18 @@ module ietf-te-types {
             uses optimization-metric-entry;
           }
           /* Tiebreakers */
+          // CHANGE NOTE: The tiebreakers container below has been
+          // deprecated in this module revision
+          // RFC Editor: remove the note above and this note
           container tiebreakers {
             description
-              "Container for the list of tiebreakers.";
+              "Container for the list of tiebreakers.
+              
+              This container has been obsoleted by the tiebreaker
+              leaf.";
+            status deprecated;
             list tiebreaker {
               key "tiebreaker-type";
-              // CHANGE NOTE: The ordered-by statement below has been
-              // added in this module revision
-              // RFC Editor: remove the note above and this note
-              ordered-by user;
               description
                 "The list of tiebreaker criteria to apply on an
                  equally favored set of paths, in order to pick
@@ -4043,6 +4044,15 @@ module ietf-te-types {
           }
         }
       }
+    }
+    leaf tiebreaker {
+      type identityref {
+        base path-tiebreaker-type;
+      }
+      default "te-types:path-tiebreaker-random";
+      description
+        "The tiebreaker criteria to apply on an equally favored set
+        of paths, in order to pick the best.";
     }
   }
 
