@@ -75,37 +75,88 @@ module ietf-te-types {
      This version of this YANG module is part of RFC XXXX
      (https://www.rfc-editor.org/info/rfcXXXX); see the RFC itself
      for full legal notices.";
-  revision 2024-01-29 {
+  revision 2024-02-22 {
     description
-      "Added:
-      - base identity lsp-provisioning-error-reason;
-      - identity association-type-diversity;
-      - identity tunnel-admin-state-auto;
-      - identity lsp-restoration-restore-none;
-      - identity restoration-scheme-rerouting;
-      - base identity path-computation-error-reason and
-        its derived identities;
-      - base identity protocol-origin-type and
-        its derived identities;
-      - base identity svec-objective-function-type and its derived
-        identities;
-      - base identity svec-metric-type and its derived identities;
-      - grouping encoding-and-switching-type.
-      
-      Updated:
-      - description of the base identity objective-function-type;
-      - description and reference of identity action-exercise;
-      - typedef te-node-id to support also 16 octects TE identifiers.
-      
-      Obsoleted:
-      - identity of-minimize-agg-bandwidth-consumption;
-      - identity of-minimize-load-most-loaded-link;
-      - identity of-minimize-cost-path-set;
-      - identity lsp-protection-reroute-extra;
-      - identity lsp-protection-reroute.
+      "This revision adds the following new identities:
+      - lsp-provisioning-error-reason;
+      - association-type-diversity;
+      - tunnel-admin-state-auto;
+      - lsp-restoration-restore-none;
+      - restoration-scheme-rerouting;
+      - path-metric-optimization-type;
+      - link-path-metric-type;
+      - link-metric-type and its derived identities;
+      - path-computation-error-reason and its derived identities;
+      - protocol-origin-type and its derived identities;
+      - svec-objective-function-type and its derived identities;
+      - svec-metric-type and its derived identities.
 
-      Container explicit-route-objects-always renamed as
-      explicit-route-objects.";
+      This revision adds the following new data types:
+      - path-type;
+      - te-gen-node-id.
+
+      This revision adds the following new groupings:
+      - encoding-and-switching-type;
+      - te-generic-node-id.
+
+      This revision updates the following identities:
+      - objective-function-type;
+      - action-exercise;
+      - path-metric-type;
+      - path-metric-te;
+      - path-metric-igp;
+      - path-metric-hop;
+      - path-metric-delay-average;
+      - path-metric-delay-minimum;
+      - path-metric-residual-bandwidth;
+      - path-metric-optimize-includes;
+      - path-metric-optimize-excludes;
+      - te-optimization-criterion.
+
+      This revision updates the following data types:
+      - te-node-id.
+
+      This revision updates the following groupings:
+      - explicit-route-hop:
+        - adds the following leaves:
+          - node-id-uri;
+          - link-tp-id-uri;
+        - updates the following leaves:
+          - node-id;
+          - link-tp-id;
+      - record-route-state:
+        - adds the following leaves:
+          - node-id-uri;
+          - link-tp-id-uri;
+        - updates the following leaves:
+          - node-id;
+          - link-tp-id;
+      - optimization-metric-entry:
+        - updates the following leaves:
+          - metric-type;
+      - tunnel-constraints;
+        - adds the following leaves:
+          - network-id;
+      - path-constraints-route-objects:
+        - updates the following containers:
+          - explicit-route-objects-always;
+      - generic-path-metric-bounds:
+        - updates the following leaves:
+          - metric-type;
+      - generic-path-optimization
+        - adds the following leaves:
+          - tiebreaker;
+        - deprecate the following containers:
+          - tiebreakers.
+
+      This revision obsoletes the following identities:
+      - of-minimize-agg-bandwidth-consumption;
+      - of-minimize-load-most-loaded-link;
+      - of-minimize-cost-path-set;
+      - lsp-protection-reroute-extra;
+      - lsp-protection-reroute.
+
+      This revision provides also few editorial changes.";
     reference
       "RFC XXXX: Common YANG Data Types for Traffic Engineering";
   }
@@ -114,7 +165,7 @@ module ietf-te-types {
 
   revision 2020-06-10 {
     description
-      "Latest revision of TE types.";
+      "Initial Version of TE types.";
     reference
       "RFC 8776: Common YANG Data Types for Traffic Engineering";
   }
@@ -131,13 +182,16 @@ module ietf-te-types {
     description
       "Administrative group / resource class / color representation
        in 'hex-string' type.
+
        The most significant byte in the hex-string is the farthest
        to the left in the byte sequence.  Leading zero bytes in the
        configured value may be omitted for brevity.";
     reference
       "RFC 3630: Traffic Engineering (TE) Extensions to OSPF
        Version 2
+
        RFC 5305: IS-IS Extensions for Traffic Engineering
+       
        RFC 7308: Extended Administrative Groups in MPLS Traffic
        Engineering (MPLS-TE)";
   }
@@ -156,6 +210,7 @@ module ietf-te-types {
     description
       "Extended administrative group / resource class / color
        representation in 'hex-string' type.
+
        The most significant byte in the hex-string is the farthest
        to the left in the byte sequence.  Leading zero bytes in the
        configured value may be omitted for brevity.";
@@ -200,9 +255,11 @@ module ietf-te-types {
        bit not set), abnormal (anomalous bit set), or unknown.";
     reference
       "RFC 7471: OSPF Traffic Engineering (TE) Metric Extensions
+
        RFC 7823: Performance-Based Path Selection for Explicitly
        Routed Label Switched Paths (LSPs) Using TE Metric
        Extensions
+
        RFC 8570: IS-IS Traffic Engineering (TE) Metric Extensions";
   }
 
@@ -308,12 +365,15 @@ module ietf-te-types {
     description
       "An identifier to uniquely identify an operator, which can be
        either a provider or a client.
+
        The definition of this type is taken from RFCs 6370 and 5003.
+
        This attribute type is used solely to provide a globally
        unique context for TE topologies.";
     reference
       "RFC 5003: Attachment Individual Identifier (AII) Types for
        Aggregation
+
        RFC 6370: MPLS Transport Profile (MPLS-TP) Identifiers";
   }
 
@@ -578,6 +638,7 @@ module ietf-te-types {
     }
     description
       "An identifier for a topology.
+
        It is optional to have one or more prefixes at the beginning,
        separated by colons.  The prefixes can be 'network-types' as
        defined in the 'ietf-network' module in RFC 8345, to help the
@@ -596,6 +657,7 @@ module ietf-te-types {
     }
     description
       "An identifier for a TE link endpoint on a node.
+
        This attribute is mapped to a local or remote link identifier
        as defined in RFCs 3630 and 5305.";
     reference
@@ -1099,7 +1161,7 @@ module ietf-te-types {
       "Association Type diversity used to associate LSPs whose 
       paths are to be diverse from each other.";
     reference
-      "RFC8800: Path Computation Element Communication Protocol 
+      "RFC 8800: Path Computation Element Communication Protocol 
       (PCEP) Extension for Label Switched Path (LSP) Diversity 
       Constraint Signaling";
   }
@@ -1110,7 +1172,7 @@ module ietf-te-types {
   // RFC Editor: remove the note above and this note
   identity objective-function-type {
     description
-      "Base identity for path objective function type.";
+      "Base identity for path objective function types.";
   }
 
   identity of-minimize-cost-path {
@@ -1149,7 +1211,11 @@ module ietf-te-types {
     status obsolete;
     description
       "Objective function for minimizing aggregate bandwidth
-      consumption.";
+      consumption.
+      
+      This identity has been obsoleted: the
+      'svec-of-minimize-agg-bandwidth-consumption' identity SHOULD
+      be used instead.";
     reference
       "RFC 5541: Encoding of Objective Functions in the Path
       Computation Element Communication Protocol (PCEP)";
@@ -1163,7 +1229,11 @@ module ietf-te-types {
     status obsolete;
     description
       "Objective function for minimizing the load on the link that
-      is carrying the highest load.";
+      is carrying the highest load.
+      
+      This identity has been obsoleted: the
+      'svec-of-minimize-load-most-loaded-link' identity SHOULD
+      be used instead.";
     reference
       "RFC 5541: Encoding of Objective Functions in the Path
       Computation Element Communication Protocol (PCEP)";
@@ -1176,7 +1246,11 @@ module ietf-te-types {
     base objective-function-type;
     status obsolete;
     description
-      "Objective function for minimizing the cost on a path set.";
+      "Objective function for minimizing the cost on a path set.
+      
+      This identity has been obsoleted: the
+      'svec-of-minimize-cost-path-set' identity SHOULD
+      be used instead.";
     reference
       "RFC 5541: Encoding of Objective Functions in the Path
        Computation Element Communication Protocol (PCEP)";
@@ -1187,16 +1261,23 @@ module ietf-te-types {
       "Base identity for supported path computation mechanisms.";
   }
 
+  // CHANGE NOTE: The reference of the identity path-locally-computed
+  // below has been updated in this module revision
+  // RFC Editor: remove the note above and this note
   identity path-locally-computed {
     base path-computation-method;
     description
       "Indicates a constrained-path LSP in which the
        path is computed by the local LER.";
     reference
-      "RFC 3272: Overview and Principles of Internet Traffic
-       Engineering, Section 5.4";
+      "RFC 9522: Overview and Principles of Internet Traffic
+      Engineering, Section 4.4";
   }
 
+  // CHANGE NOTE: The reference of the identity 
+  // path-externally-queried below has been updated
+  // in this module revision
+  // RFC Editor: remove the note above and this note
   identity path-externally-queried {
     base path-computation-method;
     description
@@ -1208,12 +1289,17 @@ module ietf-te-types {
        returned by the external source may require further local
        computation on the device.";
     reference
-      "RFC 3272: Overview and Principles of Internet Traffic
+      "RFC 9522: Overview and Principles of Internet Traffic
        Engineering
+
        RFC 4657: Path Computation Element (PCE) Communication
        Protocol Generic Requirements";
   }
 
+  // CHANGE NOTE: The reference of the identity 
+  // path-explicitly-defined below has been updated
+  // in this module revision
+  // RFC Editor: remove the note above and this note
   identity path-explicitly-defined {
     base path-computation-method;
     description
@@ -1222,7 +1308,8 @@ module ietf-te-types {
        hops.";
     reference
       "RFC 3209: RSVP-TE: Extensions to RSVP for LSP Tunnels
-       RFC 3272: Overview and Principles of Internet Traffic
+
+       RFC 9522: Overview and Principles of Internet Traffic
        Engineering";
   }
 
@@ -2111,89 +2198,231 @@ module ietf-te-types {
        Protocol-Traffic Engineering (RSVP-TE)";
   }
 
-  // CHANGE NOTE: The description of the identity path-metric-type
-  // has been updated in this module revision
-  // RFC Editor: remove the note above and this note
-  identity path-metric-type {
-    description
-      "Base identity for the path metric type.
-      
-      Derived identities SHOULD describe the unit and maximum value
-      of the path metric types they define.";
-  }
-
-  identity path-metric-te {
-    base path-metric-type;
-    description
-      "TE path metric.";
-    reference
-      "RFC 3785: Use of Interior Gateway Protocol (IGP) Metric as a
-       second MPLS Traffic Engineering (TE) Metric";
-  }
-
-  identity path-metric-igp {
-    base path-metric-type;
-    description
-      "IGP path metric.";
-    reference
-      "RFC 3785: Use of Interior Gateway Protocol (IGP) Metric as a
-       second MPLS Traffic Engineering (TE) Metric";
-  }
-
-  // CHANGE NOTE: The reference for the identity path-metric-hop
+  // CHANGE NOTE: The path-metric-optimization-type base identity
   // has been added in this module revision
   // RFC Editor: remove the note above and this note
-  identity path-metric-hop {
-    base path-metric-type;
+  identity path-metric-optimization-type {
     description
-      "Hop path metric.";
-    reference
-      "RFC5440: Path Computation Element (PCE) Communication
-      Protocol (PCEP)";
+      "Base identity used to define the path metric optimization
+      types.";
   }
 
-
-  identity path-metric-delay-average {
-    base path-metric-type;
+  // CHANGE NOTE: The link-path-metric-type base identity
+  // has been added in this module revision
+  // RFC Editor: remove the note above and this note
+  identity link-path-metric-type {
     description
-      "Average unidirectional link delay.";
-    reference
-      "RFC 7471: OSPF Traffic Engineering (TE) Metric Extensions";
+      "Base identity used to define the link and the path metric
+      types.
+      
+      The unit of the path metric value is interpreted in the
+      context of the path metric type and the derived identities
+      SHOULD describe the unit of the path metric types they
+      define.";
   }
 
-  identity path-metric-delay-minimum {
-    base path-metric-type;
-    description
-      "Minimum unidirectional link delay.";
-    reference
-      "RFC 7471: OSPF Traffic Engineering (TE) Metric Extensions";
-  }
+    // CHANGE NOTE: The link-metric-type base identity
+    // and its derived identities
+    // have been added in this module revision
+    // RFC Editor: remove the note above and this note
+    identity link-metric-type {
+      base link-path-metric-type;
+      description
+        "Base identity for the link metric types.";
+    }
 
-  identity path-metric-residual-bandwidth {
-    base path-metric-type;
-    description
-      "Unidirectional Residual Bandwidth, which is defined to be
-       Maximum Bandwidth (RFC 3630) minus the bandwidth currently
-       allocated to LSPs.";
-    reference
-      "RFC 3630: Traffic Engineering (TE) Extensions to OSPF
-       Version 2
-       RFC 7471: OSPF Traffic Engineering (TE) Metric Extensions";
-  }
+      identity link-metric-te {
+        base link-metric-type;
+        description
+          "Traffic Engineering (TE) Link Metric.";
+        reference
+          "RFC 3630: Traffic Engineering (TE) Extensions to OSPF
+          Version 2, section 2.5.5
 
-  identity path-metric-optimize-includes {
-    base path-metric-type;
-    description
-      "A metric that optimizes the number of included resources
-       specified in a set.";
-  }
+          RFC 5305: IS-IS Extensions for Traffic Engineering,
+          section 3.7";
+      }
 
-  identity path-metric-optimize-excludes {
-    base path-metric-type;
-    description
-      "A metric that optimizes to a maximum the number of excluded
-       resources specified in a set.";
-  }
+      identity link-metric-igp {
+        base link-metric-type;
+        description
+          "Interior Gateway Protocol (IGP) Link Metric.";
+        reference
+          "RFC 3785: Use of Interior Gateway Protocol (IGP) Metric
+          as a second MPLS Traffic Engineering (TE) Metric";
+      }
+
+      identity link-metric-delay-average {
+        base link-metric-type;
+        description
+          "Unidirectional Link Delay, measured in units of
+          microseconds.";
+        reference
+          "RFC 7471: OSPF Traffic Engineering (TE) Metric
+          Extensions, section 4.1
+          
+          RFC 8570: IS-IS Traffic Engineering (TE) Metric
+          Extensions, section 4.1";
+      }
+
+      identity link-metric-delay-minimum {
+        base link-metric-type;
+        description
+          "Minimum unidirectional Link Delay, measured in units of
+          microseconds.";
+        reference
+          "RFC 7471: OSPF Traffic Engineering (TE) Metric
+          Extensions, section 4.2
+          
+          RFC 8570: IS-IS Traffic Engineering (TE) Metric
+          Extensions, section 4.2";
+      }
+
+      identity link-metric-delay-maximum {
+        base link-metric-type;
+        description
+          "Maximum unidirectional Link Delay, measured in units of
+          microseconds.";
+        reference
+          "RFC 7471: OSPF Traffic Engineering (TE) Metric
+          Extensions, section 4.2
+          
+          RFC 8570: IS-IS Traffic Engineering (TE) Metric
+          Extensions, section 4.2";
+      }
+
+      identity link-metric-residual-bandwidth {
+        base link-metric-type;
+        description
+          "Unidirectional Residual Bandwidth, measured in units of
+          bytes per second.
+          
+          It is defined to be Maximum Bandwidth minus the bandwidth
+          currently allocated to LSPs.";
+        reference
+          "RFC 7471: OSPF Traffic Engineering (TE) Metric
+          Extensions, section 4.5
+          
+          RFC 8570: IS-IS Traffic Engineering (TE) Metric
+          Extensions, section 4.5";
+      }
+
+    // CHANGE NOTE: The base and the description of the
+    // path-metric-type identity
+    // has been updated in this module revision
+    // RFC Editor: remove the note above and this note
+    identity path-metric-type {
+      base link-path-metric-type;
+      base path-metric-optimization-type;
+      description
+        "Base identity for the path metric types.";
+    }
+
+      // CHANGE NOTE: The description and the reference of the
+      // path-metric-te identity have been updated
+      // in this module revision
+      // RFC Editor: remove the note above and this note
+      identity path-metric-te {
+        base path-metric-type;
+        description
+          "Traffic Engineering (TE) Path Metric.";
+        reference
+          "RFC 5440: Path Computation Element (PCE) Communication
+          Protocol (PCEP), section 7.8";
+      }
+
+      // CHANGE NOTE: The description and the reference of the
+      // path-metric-igp identity have been updated 
+      // in this module revision
+      // RFC Editor: remove the note above and this note
+      identity path-metric-igp {
+        base path-metric-type;
+        description
+          "Interior Gateway Protocol (IGP) Path Metric.";
+        reference
+          "RFC 5440: Path Computation Element (PCE) Communication
+          Protocol (PCEP), section 7.8";
+      }
+
+      // CHANGE NOTE: The description and the reference of the
+      // path-metric-hop identity have been updated
+      // in this module revision
+      // RFC Editor: remove the note above and this note
+      identity path-metric-hop {
+        base path-metric-type;
+        description
+          "Hop Count Path Metric.";
+        reference
+          "RFC 5440: Path Computation Element (PCE) Communication
+          Protocol (PCEP), section 7.8";
+      }
+
+      // CHANGE NOTE: The description and the reference of the
+      // path-metric-delay-average identity have been updated
+      // in this module revision
+      // RFC Editor: remove the note above and this note
+      identity path-metric-delay-average {
+        base path-metric-type;
+        description
+          "The Path Delay Metric, measured in units of
+          microseconds.";
+        reference
+          "RFC8233: Extensions to the Path Computation Element
+          Communication Protocol (PCEP) to Compute Service-Aware
+          Label Switched Paths (LSPs), section 3.1.1";
+      }
+
+      // CHANGE NOTE: The description and the reference of the
+      // path-metric-delay-minimum identity have been updated
+      // in this module revision
+      // RFC Editor: remove the note above and this note
+      identity path-metric-delay-minimum {
+        base path-metric-type;
+        description
+          "The Path Min Delay Metric, measured in units of
+          microseconds.";
+        reference
+          "I-D.ietf-pce-sid-algo: Carrying SR-Algorithm information
+          in PCE-based Networks, section 3.5.1";
+      }
+
+      // CHANGE NOTE: The description and the reference of the
+      // path-metric-residual-bandwidth identity have been updated
+      // in this module revision
+      // RFC Editor: remove the note above and this note
+      identity path-metric-residual-bandwidth {
+        base path-metric-type;
+        description
+          "The Path Residual Bandwidth, defined as the minimum Link
+          Residual Bandwidth all the links along the path.
+
+          The Path Residual Bandwidth can be seen as the path
+          metric associated with the Maximum residual Bandwidth Path
+          (MBP) objective function.";
+        reference
+          "RFC 5541: Encoding of Objective Functions in the Path
+          Computation Element Communication Protocol (PCEP)";
+      }
+
+    // CHANGE NOTE: The base of the path-metric-optimize-includes
+    // identity has been updated in this module revision
+    // RFC Editor: remove the note above and this note
+    identity path-metric-optimize-includes {
+      base path-metric-optimization-type;
+      description
+        "A metric that optimizes the number of included resources
+        specified in a set.";
+    }
+
+    // CHANGE NOTE: The base of the path-metric-optimize-excludes
+    // identity has been updated in this module revision
+    // RFC Editor: remove the note above and this note
+    identity path-metric-optimize-excludes {
+      base path-metric-optimization-type;
+      description
+        "A metric that optimizes to a maximum the number of excluded
+        resources specified in a set.";
+    }
 
   identity path-tiebreaker-type {
     description
@@ -2257,11 +2486,15 @@ module ietf-te-types {
        RFC 3209: RSVP-TE: Extensions to RSVP for LSP Tunnels";
   }
 
+  // CHANGE NOTE: The reference of the identity 
+  // te-optimization-criterion below has been updated
+  // in this module revision
+  // RFC Editor: remove the note above and this note
   identity te-optimization-criterion {
     description
       "Base identity for the TE optimization criteria.";
     reference
-      "RFC 3272: Overview and Principles of Internet Traffic
+      "RFC 9522: Overview and Principles of Internet Traffic
        Engineering";
   }
 
@@ -2333,8 +2566,8 @@ module ietf-te-types {
         "Path computation has failed because of an unspecified 
         reason.";
       reference
-        "Section 7.5 of RFC5440: Path Computation Element (PCE)
-        Communication Protocol (PCEP)";
+        "RFC 5440: Path Computation Element (PCE) Communication
+        Protocol (PCEP), section 7.5";
     }
 
     identity path-computation-error-no-topology {
@@ -2354,7 +2587,13 @@ module ietf-te-types {
         a Backward-Recursive Path Computation (BRPC) downstream
         PCE or a child PCE.";
       reference
-        "RFC5441, RFC8685";
+        "RFC 5441: A Backward-Recursive PCE-Based Computation (BRPC)
+        Procedure to Compute Shortest Constrained Inter-Domain
+        Traffic Engineering Label Switched Paths
+        
+        RFC 8685: Path Computation Element Communication Protocol 
+        (PCEP) Extensions for the Hierarchical Path Computation 
+        Element (H-PCE) Architecture";
     }
 
     identity path-computation-error-pce-unavailable {
@@ -2365,10 +2604,11 @@ module ietf-te-types {
         It corresponds to bit 31 of the Flags field of the 
         NO-PATH-VECTOR TLV.";
       reference
-        "RFC5440: Path Computation Element (PCE) Communication
-        Protocol (PCEP);
+        "RFC 5440: Path Computation Element (PCE) Communication
+        Protocol (PCEP)
         
-        https://www.iana.org/assignments/pcep/pcep.xhtml";
+        https://www.iana.org/assignments/pcep
+        /pcep.xhtml#no-path-vector-tlv";
     }
 
     identity path-computation-error-no-inclusion-hop {
@@ -2387,9 +2627,12 @@ module ietf-te-types {
         It corresponds to bit 19 of the Flags field of the 
         NO-PATH-VECTOR TLV.";
       reference
-        "RFC8685;
+        "RFC 8685: Path Computation Element Communication Protocol 
+        (PCEP) Extensions for the Hierarchical Path Computation 
+        Element (H-PCE) Architecture
         
-        https://www.iana.org/assignments/pcep/pcep.xhtml";
+        https://www.iana.org/assignments/pcep
+        /pcep.xhtml#no-path-vector-tlv";
     }
 
     identity path-computation-error-no-resource {
@@ -2401,9 +2644,12 @@ module ietf-te-types {
         It corresponds to bit 20 of the Flags field of the 
         NO-PATH-VECTOR TLV.";
       reference
-        "RFC8685;
+        "RFC 8685: Path Computation Element Communication Protocol 
+        (PCEP) Extensions for the Hierarchical Path Computation 
+        Element (H-PCE) Architecture
         
-        https://www.iana.org/assignments/pcep/pcep.xhtml";
+        https://www.iana.org/assignments/pcep
+        /pcep.xhtml#no-path-vector-tlv";
     }
 
     identity path-computation-error-child-pce-unresponsive {
@@ -2415,9 +2661,12 @@ module ietf-te-types {
         It corresponds to bit 21 of the Flags field of the 
         NO-PATH-VECTOR TLV.";
       reference
-        "RFC8685;
+        "RFC 8685: Path Computation Element Communication Protocol 
+        (PCEP) Extensions for the Hierarchical Path Computation 
+        Element (H-PCE) Architecture
         
-        https://www.iana.org/assignments/pcep/pcep.xhtml";
+        https://www.iana.org/assignments/pcep
+        /pcep.xhtml#no-path-vector-tlv";
     }
 
     identity path-computation-error-destination-domain-unknown {
@@ -2429,9 +2678,12 @@ module ietf-te-types {
         It corresponds to bit 22 of the Flags field of the 
         NO-PATH-VECTOR TLV.";
       reference
-        "RFC8685;
+        "RFC 8685: Path Computation Element Communication Protocol 
+        (PCEP) Extensions for the Hierarchical Path Computation 
+        Element (H-PCE) Architecture
         
-        https://www.iana.org/assignments/pcep/pcep.xhtml";
+        https://www.iana.org/assignments/pcep
+        /pcep.xhtml#no-path-vector-tlv";
     }
 
     identity path-computation-error-p2mp {
@@ -2443,9 +2695,12 @@ module ietf-te-types {
         It corresponds to bit 24 of the Flags field of the 
         NO-PATH-VECTOR TLV.";
       reference
-        "RFC8306;
+        "RFC 8306: Extensions to the Path Computation Element
+        Communication Protocol (PCEP) for Point-to-Multipoint
+        Traffic Engineering Label Switched Paths
         
-        https://www.iana.org/assignments/pcep/pcep.xhtml";
+        https://www.iana.org/assignments/pcep
+        /pcep.xhtml#no-path-vector-tlv";
     }
 
     identity path-computation-error-no-gco-migration {
@@ -2457,9 +2712,12 @@ module ietf-te-types {
         It corresponds to bit 26 of the Flags field of the 
         NO-PATH-VECTOR TLV.";
       reference
-        "RFC5557;
+        "RFC 5557: Path Computation Element Communication Protocol
+        (PCEP) Requirements and Protocol Extensions in Support of
+        Global Concurrent Optimization
         
-        https://www.iana.org/assignments/pcep/pcep.xhtml";
+        https://www.iana.org/assignments/pcep
+        /pcep.xhtml#no-path-vector-tlv";
     }
 
     identity path-computation-error-no-gco-solution {
@@ -2471,9 +2729,12 @@ module ietf-te-types {
         It corresponds to bit 25 of the Flags field of the 
         NO-PATH-VECTOR TLV.";
       reference
-        "RFC5557;
+        "RFC 5557: Path Computation Element Communication Protocol
+        (PCEP) Requirements and Protocol Extensions in Support of
+        Global Concurrent Optimization
         
-        https://www.iana.org/assignments/pcep/pcep.xhtml";
+        https://www.iana.org/assignments/pcep
+        /pcep.xhtml#no-path-vector-tlv";
     }
 
     identity path-computation-error-pks-expansion {
@@ -2485,9 +2746,12 @@ module ietf-te-types {
         It corresponds to bit 27 of the Flags field of the 
         NO-PATH-VECTOR TLV.";
       reference
-        "RFC5520;
+        "RFC 5520: Preserving Topology Confidentiality in
+        Inter-Domain Path Computation Using a Path-Key-Based
+        Mechanism
         
-        https://www.iana.org/assignments/pcep/pcep.xhtml";
+        https://www.iana.org/assignments/pcep
+        /pcep.xhtml#no-path-vector-tlv";
     }
 
     identity path-computation-error-brpc-chain-unavailable {
@@ -2499,9 +2763,12 @@ module ietf-te-types {
         It corresponds to bit 28 of the Flags field of the 
         NO-PATH-VECTOR TLV.";
       reference
-        "RFC5441;
+        "RFC 5441: A Backward-Recursive PCE-Based Computation (BRPC)
+        Procedure to Compute Shortest Constrained Inter-Domain
+        Traffic Engineering Label Switched Paths
         
-        https://www.iana.org/assignments/pcep/pcep.xhtml";
+        https://www.iana.org/assignments/pcep
+        /pcep.xhtml#no-path-vector-tlv";
     }
 
     identity path-computation-error-source-unknown {
@@ -2513,10 +2780,11 @@ module ietf-te-types {
         It corresponds to bit 29 of the Flags field of the 
         NO-PATH-VECTOR TLV.";
       reference
-        "RFC5440: Path Computation Element (PCE) Communication
+        "RFC 5440: Path Computation Element (PCE) Communication
         Protocol (PCEP);
         
-        https://www.iana.org/assignments/pcep/pcep.xhtml";
+        https://www.iana.org/assignments/pcep
+        /pcep.xhtml#no-path-vector-tlv";
     }
 
     identity path-computation-error-destination-unknown {
@@ -2528,10 +2796,11 @@ module ietf-te-types {
         It corresponds to bit 30 of the Flags field of the 
         NO-PATH-VECTOR TLV.";
       reference
-        "RFC5440: Path Computation Element (PCE) Communication
+        "RFC 5440: Path Computation Element (PCE) Communication
         Protocol (PCEP);
         
-        https://www.iana.org/assignments/pcep/pcep.xhtml";
+        https://www.iana.org/assignments/pcep
+        /pcep.xhtml#no-path-vector-tlv";
     }
 
     identity path-computation-error-no-server {
@@ -2540,10 +2809,11 @@ module ietf-te-types {
         "Path computation has failed because path computation
         server is unavailable.";
       reference
-        "RFC5440: Path Computation Element (PCE) Communication
+        "RFC 5440: Path Computation Element (PCE) Communication
         Protocol (PCEP);
         
-        https://www.iana.org/assignments/pcep/pcep.xhtml";
+        https://www.iana.org/assignments/pcep
+        /pcep.xhtml#no-path-vector-tlv";
     }
 
   // CHANGE NOTE: The base identity protocol-origin-type and 
@@ -2568,7 +2838,7 @@ module ietf-te-types {
         "Protocol origin is Path Computation Engine Protocol 
         (PCEP).";
       reference
-        "RFC5440: Path Computation Element (PCE) Communication
+        "RFC 5440: Path Computation Element (PCE) Communication
         Protocol (PCEP)";
     }
 
@@ -2576,7 +2846,7 @@ module ietf-te-types {
       base protocol-origin-type;
       description
         "Protocol origin is Border Gateway Protocol (BGP).";
-      reference "RFC9012";
+      reference "RFC 9012";
     }
 
   // CHANGE NOTE: The base identity svec-objective-function-type 
@@ -2587,8 +2857,8 @@ module ietf-te-types {
     description
       "Base identity for SVEC objective function type.";
     reference
-      "RFC5541: Encoding of Objective Functions in the Path
-       Computation Element Communication Protocol (PCEP).";
+      "RFC 5541: Encoding of Objective Functions in the Path
+       Computation Element Communication Protocol (PCEP)";
   }
 
     identity svec-of-minimize-agg-bandwidth-consumption {
@@ -2597,8 +2867,8 @@ module ietf-te-types {
         "Objective function for minimizing aggregate bandwidth 
         consumption (MBC).";
       reference
-        "RFC5541: Encoding of Objective Functions in the Path
-        Computation Element Communication Protocol (PCEP).";
+        "RFC 5541: Encoding of Objective Functions in the Path
+        Computation Element Communication Protocol (PCEP)";
     }
 
     identity svec-of-minimize-load-most-loaded-link {
@@ -2607,8 +2877,8 @@ module ietf-te-types {
         "Objective function for minimizing the load on the link that 
         is carrying the highest load (MLL).";
       reference
-        "RFC5541: Encoding of Objective Functions in the Path
-        Computation Element Communication Protocol (PCEP).";
+        "RFC 5541: Encoding of Objective Functions in the Path
+        Computation Element Communication Protocol (PCEP)";
     }
 
     identity svec-of-minimize-cost-path-set {
@@ -2617,8 +2887,8 @@ module ietf-te-types {
         "Objective function for minimizing the cost on a path set 
         (MCC).";
       reference
-        "RFC5541: Encoding of Objective Functions in the Path
-        Computation Element Communication Protocol (PCEP).";
+        "RFC 5541: Encoding of Objective Functions in the Path
+        Computation Element Communication Protocol (PCEP)";
     }
 
     identity svec-of-minimize-common-transit-domain {
@@ -2627,9 +2897,9 @@ module ietf-te-types {
         "Objective function for minimizing the number of common 
         transit domains (MCTD).";
       reference
-        "RFC8685: Path Computation Element Communication Protocol 
+        "RFC 8685: Path Computation Element Communication Protocol 
         (PCEP) Extensions for the Hierarchical Path Computation 
-        Element (H-PCE) Architecture.";
+        Element (H-PCE) Architecture";
     }
 
     identity svec-of-minimize-shared-link {
@@ -2638,7 +2908,7 @@ module ietf-te-types {
         "Objective function for minimizing the number of shared 
         links (MSL).";
       reference
-        "RFC8685: Path Computation Element Communication Protocol 
+        "RFC 8685: Path Computation Element Communication Protocol 
         (PCEP) Extensions for the Hierarchical Path Computation 
         Element (H-PCE) Architecture.";
     }
@@ -2649,7 +2919,7 @@ module ietf-te-types {
         "Objective function for minimizing the number of shared 
         Shared Risk Link Groups (SRLG) (MSS).";
       reference
-        "RFC8685: Path Computation Element Communication Protocol 
+        "RFC 8685: Path Computation Element Communication Protocol 
         (PCEP) Extensions for the Hierarchical Path Computation 
         Element (H-PCE) Architecture.";
     }
@@ -2660,7 +2930,7 @@ module ietf-te-types {
         "Objective function for minimizing the number of shared 
         nodes (MSN).";
       reference
-        "RFC8685: Path Computation Element Communication Protocol 
+        "RFC 8685: Path Computation Element Communication Protocol 
         (PCEP) Extensions for the Hierarchical Path Computation 
         Element (H-PCE) Architecture.";
     }
@@ -2673,35 +2943,35 @@ module ietf-te-types {
     description
       "Base identity for SVEC metric type.";
     reference
-      "RFC5541: Encoding of Objective Functions in the Path
-       Computation Element Communication Protocol (PCEP).";
+      "RFC 5541: Encoding of Objective Functions in the Path
+       Computation Element Communication Protocol (PCEP)";
   }
 
-    identity svec-metric-cumul-te {
+    identity svec-metric-cumulative-te {
       base svec-metric-type;
       description
         "Cumulative TE cost.";
       reference
-        "RFC5541: Encoding of Objective Functions in the Path
-        Computation Element Communication Protocol (PCEP).";
+        "RFC 5541: Encoding of Objective Functions in the Path
+        Computation Element Communication Protocol (PCEP)";
     }
 
-    identity svec-metric-cumul-igp {
+    identity svec-metric-cumulative-igp {
       base svec-metric-type;
       description
         "Cumulative IGP cost.";
       reference
-        "RFC5541: Encoding of Objective Functions in the Path
-        Computation Element Communication Protocol (PCEP).";
+        "RFC 5541: Encoding of Objective Functions in the Path
+        Computation Element Communication Protocol (PCEP)";
     }
 
-    identity svec-metric-cumul-hop {
+    identity svec-metric-cumulative-hop {
       base svec-metric-type;
       description
         "Cumulative Hop path metric.";
       reference
-        "RFC5541: Encoding of Objective Functions in the Path
-        Computation Element Communication Protocol (PCEP).";
+        "RFC 5541: Encoding of Objective Functions in the Path
+        Computation Element Communication Protocol (PCEP)";
     }
 
     identity svec-metric-aggregate-bandwidth-consumption {
@@ -2709,8 +2979,8 @@ module ietf-te-types {
       description
         "Aggregate bandwidth consumption.";
       reference
-        "RFC5541: Encoding of Objective Functions in the Path
-        Computation Element Communication Protocol (PCEP).";
+        "RFC 5541: Encoding of Objective Functions in the Path
+        Computation Element Communication Protocol (PCEP)";
     }
 
     identity svec-metric-load-of-the-most-loaded-link {
@@ -2718,8 +2988,8 @@ module ietf-te-types {
       description
         "Load of the most loaded link.";
       reference
-        "RFC5541: Encoding of Objective Functions in the Path
-        Computation Element Communication Protocol (PCEP).";
+        "RFC 5541: Encoding of Objective Functions in the Path
+        Computation Element Communication Protocol (PCEP)";
     }
 
   /**
@@ -2833,10 +3103,12 @@ module ietf-te-types {
        PM.";
     reference
       "RFC 7471: OSPF Traffic Engineering (TE) Metric Extensions
-       RFC 7823: Performance-Based Path Selection for Explicitly
-       Routed Label Switched Paths (LSPs) Using TE Metric
-       Extensions
-       RFC 8570: IS-IS Traffic Engineering (TE) Metric Extensions";
+      
+      RFC 7823: Performance-Based Path Selection for Explicitly
+      Routed Label Switched Paths (LSPs) Using TE Metric
+      Extensions
+
+      RFC 8570: IS-IS Traffic Engineering (TE) Metric Extensions";
     leaf one-way-delay {
       type uint32 {
         range "0..16777215";
@@ -3268,6 +3540,9 @@ module ietf-te-types {
     }
   }
 
+  // CHANGE NOTE: The explicit-route-hop grouping below has been
+  // updated in this module revision
+  // RFC Editor: remove the note above and this note
   grouping record-route-state {
     description
       "The Record Route grouping.";
@@ -3541,12 +3816,15 @@ module ietf-te-types {
     }
   }
 
+  // CHANGE NOTE: The grouping optimization-metric-entry below has
+  // been updated in this module revision
+  // RFC Editor: remove the note above and this note
   grouping optimization-metric-entry {
     description
       "Optimization metrics configuration grouping.";
     leaf metric-type {
       type identityref {
-        base path-metric-type;
+        base path-metric-optimization-type;
       }
       description
         "Identifies the 'metric-type' that the path computation
@@ -3624,6 +3902,9 @@ module ietf-te-types {
     }
   }
 
+  // CHANGE NOTE: The grouping tunnel-constraints below has
+  // been updated in this module revision
+  // RFC Editor: remove the note above and this note
   grouping tunnel-constraints {
     description
       "Tunnel constraints grouping that can be set on
@@ -3637,13 +3918,13 @@ module ietf-te-types {
     uses common-constraints;
   }
 
+  // CHANGE NOTE: The grouping path-constraints-route-objects below
+  // has been updated in this module revision
+  // RFC Editor: remove the note above and this note
   grouping path-constraints-route-objects {
     description
       "List of route entries to be included or excluded when
        performing the path computation.";
-    // CHANGE NOTE: The explicit-route-objects container below has
-    // been updated in this module revision
-    // RFC Editor: remove the note above and this note
     container explicit-route-objects {
       description
         "Container for the explicit route object lists.";
@@ -3769,19 +4050,30 @@ module ietf-te-types {
     }
   }
 
+  // CHANGE NOTE: The grouping generic-path-metric-bounds below
+  // has been updated in this module revision
+  // RFC Editor: remove the note above and this note
   grouping generic-path-metric-bounds {
     description
       "TE path metric bounds grouping.";
     container path-metric-bounds {
       description
-        "TE path metric bounds container.";
+        "Top-level container for the list of path metric bounds.";
       list path-metric-bound {
         key "metric-type";
         description
-          "List of TE path metric bounds.";
+          "List of path metric bounds, which can apply to link and
+          path metrics.
+          
+          TE paths which have at least one path metric which
+          exceeds the specified bounds MUST NOT be selected.
+          
+          TE paths that traverse TE links which have at least one
+          link metric which exceeds the specified bounds MUST NOT
+          be selected.";
         leaf metric-type {
           type identityref {
-            base path-metric-type;
+            base link-path-metric-type;
           }
           description
             "Identifies an entry in the list of 'metric-type' items
@@ -3791,18 +4083,21 @@ module ietf-te-types {
           type uint64;
           default "0";
           description
-            "Upper bound on the end-to-end TE path metric.
+            "Upper bound on the specified 'metric-type'.
             
             A zero indicates an unbounded upper limit for the
-            specific 'metric-type'.
+            specificied 'metric-type'.
             
             The unit of is interpreted in the context of the
-            path-metric-type.";
+            'metric-type' identity.";
         }
       }
     }
   }
 
+  // CHANGE NOTE: The grouping generic-path-metric-bounds below
+  // has been updated in this module revision
+  // RFC Editor: remove the note above and this note
   grouping generic-path-optimization {
     description
       "TE generic path optimization grouping.";
@@ -3824,8 +4119,12 @@ module ietf-te-types {
           }
           /* Tiebreakers */
           container tiebreakers {
+            status deprecated;
             description
-              "Container for the list of tiebreakers.";
+              "Container for the list of tiebreakers.
+              
+              This container has been obsoleted by the tiebreaker
+              leaf.";
             list tiebreaker {
               key "tiebreaker-type";
               description
@@ -3860,6 +4159,15 @@ module ietf-te-types {
           }
         }
       }
+    }
+    leaf tiebreaker {
+      type identityref {
+        base path-tiebreaker-type;
+      }
+      default "te-types:path-tiebreaker-random";
+      description
+        "The tiebreaker criteria to apply on an equally favored set
+        of paths, in order to pick the best.";
     }
   }
 
@@ -4065,7 +4373,7 @@ module ietf-te-types {
       description
         "LSP encoding type.";
       reference
-        "RFC3945";
+        "RFC 3945";
     }
     leaf switching-type {
       type identityref {
@@ -4074,7 +4382,7 @@ module ietf-te-types {
       description
         "LSP switching type.";
       reference
-        "RFC3945";
+        "RFC 3945";
     }
   }
 
