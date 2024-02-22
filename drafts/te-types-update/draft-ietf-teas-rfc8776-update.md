@@ -455,7 +455,7 @@ The "ietf-te-types" module imports from the following modules:
 - "ietf-routing-types" as defined in {{!RFC8294}}
 
 In addition to {{!RFC6991}} and {{!RFC8294}}, this module references the following documents in defining the types and YANG groupings:
-{{?RFC3272}}, {{?RFC4090}}, {{?RFC4202}}, {{?RFC4328}}, {{?RFC4561}}, {{?RFC4657}}, {{?RFC4736}}, {{?RFC6004}}, {{?RFC6511}}, {{?RFC7139}}, {{?RFC7308}}, {{?RFC7551}}, {{?RFC7571}}, {{?RFC7579}}, and {{ITU-T_G.709}}.
+{{?RFC9522}}, {{?RFC4090}}, {{?RFC4202}}, {{?RFC4328}}, {{?RFC4561}}, {{?RFC4657}}, {{?RFC4736}}, {{?RFC6004}}, {{?RFC6511}}, {{?RFC7139}}, {{?RFC7308}}, {{?RFC7551}}, {{?RFC7571}}, {{?RFC7579}}, and {{ITU-T_G.709}}.
 
 CHANGE NOTE: Please focus your review only on the updates to the YANG model: see also {{te-yang-diff}}.
 
