@@ -4,7 +4,7 @@ coding: utf-8
 title: Common YANG Data Types for Traffic Engineering
 
 abbrev: TE Common YANG Types
-docname: draft-ietf-teas-rfc8776-update-10
+docname: draft-ietf-teas-rfc8776-update-09
 obsoletes: 8776
 submissiontype: IETF
 workgroup: TEAS Working Group
@@ -70,7 +70,7 @@ informative:
 
 --- abstract
 
-This document defines a collection of common data types, identities, and groupings in YANG data modeling language. These derived common types and groupings are intended to be imported by modules that model Traffic Engineering (TE) configuration and state capabilities. This document obsoletes RFC 8776.
+This document defines a collection of common data types and groupings in YANG data modeling language. These derived common types and groupings are intended to be imported by modules that model Traffic Engineering (TE) configuration and state capabilities. This document obsoletes RFC 8776.
 
 --- middle
 
@@ -78,9 +78,15 @@ This document defines a collection of common data types, identities, and groupin
 
 YANG {{!RFC6020}} {{!RFC7950}} is a data modeling language used to model configuration data, state data, Remote Procedure Calls, and notifications for network management protocols such as the Network Configuration Protocol (NETCONF) {{!RFC6241}}. The YANG language supports a small set of built-in data types and provides mechanisms to derive other types from the built-in types.
 
-This document introduces a collection of common data types derived from the built-in YANG data types. The derived data types, identities, and groupings are designed to be the common definitions applicable for modeling Traffic Engineering (TE) features in model(s) defined outside of this document.
+This document introduces a collection of common data types derived from the built-in YANG data types. The derived types and groupings are designed to be the common types applicable for modeling Traffic Engineering (TE) features in model(s) defined outside of this document.
 
-This document adds new common data types, identities, and groupings to both the "ietf-te-types" and the "ietf-te-packet-types" YANG models and obsoletes {{!RFC8776}}. For further details, see the revision statements of the YANG modules in {{te-yang-code}} and {{pkt-yang-code}}, or the summary in {{changes-bis}}.
+This document adds few additional common data types, identities, and groupings to both the "ietf-te-types" and the "ietf-te-packet-types" YANG models and obsoletes {{!RFC8776}}.
+
+For further details, see the revision statements of the YANG modules in Sections X and Y or the summary in Appendix A.
+
+CHANGE NOTE: These definitions have been developed in {{?I-D.ietf-teas-yang-te}}, {{?I-D.ietf-teas-yang-path-computation}} and {{?I-D.ietf-teas-yang-l3-te-topo}} and are quite mature: {{?I-D.ietf-teas-yang-te}} and {{?I-D.ietf-teas-yang-path-computation}} in particular are in WG Last Call and some definitions have been moved to this document as part of WG LC comments resolution.
+
+RFC Editor: remove the CHANGE NOTE above and this note
 
 ## Requirements Notation
 
@@ -547,195 +553,7 @@ RFC Editor: Please replace XXXX with the RFC number assigned to this document.
 
 # Changes from RFC 8776
 
-This version adds new common data types, identities, and groupings to the YANG modules. It also updates some of the existing data types, identities, and groupings in the YANG modules and fixes few bugs in {{!RFC8776}}.
-
-The following new identities have been added to the 'ietf-te-types' module:
-
-- lsp-provisioning-error-reason;
-
-- association-type-diversity;
-
-- tunnel-admin-state-auto;
-
-- lsp-restoration-restore-none;
-
-- restoration-scheme-rerouting;
-
-- path-metric-optimization-type;
-
-- link-path-metric-type;
-
-- link-metric-type and its derived identities;
-
-- path-computation-error-reason and its derived identities;
-
-- protocol-origin-type and its derived identities;
-
-- svec-objective-function-type and its derived identities;
-
-- svec-metric-type and its derived identities.
-
-The following new data types have been added to the 'ietf-te-types' module:
-
-- path-type;
-
-- te-gen-node-id.
-
-The following new groupings have been added to the 'ietf-te-types' module:
-
-- encoding-and-switching-type;
-
-- te-generic-node-id.
-
-The following new identities have been added to the 'ietf-te-packet-types' module:
-
-- bandwidth-profile-type;
-
-- link-metric-delay-variation;
-
-- link-metric-loss;
-
-- path-metric-delay-variation;
-
-- path-metric-loss.
-
-The following new groupings have been added to the 'ietf-te-packet-types' module:
-
-- te-packet-path-bandwidth;
-
-- te-packet-link-bandwidth.
-
-The following identities, already defined in {{!RFC8776}}, have been updated in the 'ietf-te-types' module:
-
-- objective-function-type (editorial);
-
-- action-exercise (bug fix);
-
-- path-metric-type:
-
-   new base identities have been added;
-
-- path-metric-te (bug fix);
-
-- path-metric-igp (bug fix);
-
-- path-metric-hop (bug fix);
-
-- path-metric-delay-average (bug fix);
-
-- path-metric-delay-minimum (bug fix);
-
-- path-metric-residual-bandwidth (bug fix);
-
-- path-metric-optimize-includes (bug fix);
-
-- path-metric-optimize-excludes (bug fix);
-
-- te-optimization-criterion (editorial).
-
-The following data type, already defined in {{!RFC8776}}, has been updated in the 'ietf-te-types' module:
-
-- te-node-id;
-
-   The data type has been changed to be a union.
-
-The following groupings, already defined in {{!RFC8776}}, have been updated in the 'ietf-te-types' module:
-
-- explicit-route-hop
-
-   The following new leaves have been added to the 'explicit-route-hop' grouping:
-
-   - node-id-uri;
-
-   - link-tp-id-uri;
-
-   The following leaves, already defined in {{!RFC8776}}, have been updated in the 'explicit-route-hop':
-
-   - node-id;
-
-   - link-tp-id.
-
-      The mandatory true statements for the node-id and link-tp-id have been replaced by must statements that requires at least the presence of:
-
-      - node-id or node-id-uri;
-
-      - link-tp-id or link-tp-id-uri.
-
-- explicit-route-hop
-
-   The following new leaves have been added to the 'explicit-route-hop' grouping:
-
-   - node-id-uri;
-
-   - link-tp-id-uri;
-
-   The following leaves, already defined in {{!RFC8776}}, have been updated in the 'explicit-route-hop':
-
-   - node-id;
-
-   - link-tp-id.
-
-      The mandatory true statements for the node-id and link-tp-id have been replaced by must statements that requires at least the presence of:
-
-      - node-id or node-id-uri;
-
-      - link-tp-id or link-tp-id-uri.
-
-- optimization-metric-entry:
-
-   The following leaves, already defined in {{!RFC8776}}, have been updated in the 'optimization-metric-entry':
-
-   - metric-type;
-
-      The base identity has been updated without impacting the set of derived identities that are allowed.
-
-- tunnel-constraints;
-
-   The following new leaf have been added to the 'tunnel-constraints' grouping:
-
-    - network-id;
-
-- path-constraints-route-objects:
-
-   The following container, already defined in {{!RFC8776}}, has been updated in the 'path-constraints-route-objects':
-
-    - explicit-route-objects-always;
-
-      The container has been renamed as 'explicit-route-objects'. This change is not affecting any IETF standard YANG models since this grouping has not yet been used by any YANG model defined in existing IETF RFCs.
-
-- generic-path-metric-bounds:
-
-   The following leaves, already defined in {{!RFC8776}}, have been updated in the 'optimization-metric-entry':
-
-   - metric-type;
-
-      The base identity has been updated to:
-
-      - increase the set of derived identities that are allowed and;
-
-      - remove from this set the 'path-metric-optimize-includes' and the 'path-metric-optimize-excludes' identities (bug fixing)
-      
-- generic-path-optimization
-
-   The following new leaf have been added to the 'generic-path-optimization' grouping:
-
-    - tiebreaker;
-
-   The following container, already defined in {{!RFC8776}}, has been deprecated:
-
-    - tiebreakers.
-
-The following identities, already defined in {{!RFC8776}}, have been obsoletes in the 'ietf-te-types' module for bug fixing:
-
-- of-minimize-agg-bandwidth-consumption;
-
-- of-minimize-load-most-loaded-link;
-
-- of-minimize-cost-path-set;
-
-- lsp-protection-reroute-extra;
-
-- lsp-protection-reroute.
+To be added in a future revision of this draft.
 
 {: #te-yang-diff}
 
