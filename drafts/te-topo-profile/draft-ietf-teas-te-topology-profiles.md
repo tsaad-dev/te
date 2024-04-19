@@ -6,7 +6,7 @@ title: >
    Applicability to non-TE Use Cases
 
 abbrev: TE Topology Profiles
-docname: draft-ietf-teas-te-topology-profiles-01
+docname: draft-ietf-teas-te-topology-profiles-latest
 submissiontype: IETF
 workgroup: TEAS Working Group
 category: info
@@ -573,17 +573,16 @@ Note: that this issue is also tracked in github as issue #167.
 
 ## Implemented profiles
 
-When a server implements a profile of the TE topology model, it is not clear how the server
-can report to the client the subset of the model being implemented.
+When a server implements a profile of the TE topology model, there is no standardize mechanism for the server to report to the client the subset of the model being implemented.
 
 It is also worth noting that the supported profile may also depend on other attributes
-(for example the network type).
+(for example the network type), so the YANG deviation mechanism is not applicable to this scenario.
 
 In case the TE topology profile is reported by the server to the client, the server will report
 in the operational datastore only the leaves which have been implemented, as described
 in section 5.3 of {{!RFC8342}}.
 
-More investigation is required in case the TE topology profile is configured by the client.
+More investigation is required in case the TE topology profile is configured by the client, to  avoid that the client tries to write an attribute not used in the TE Topology profile implemented by the server.
 
 Note: that this issue is also tracked in github as issue #161.
 
