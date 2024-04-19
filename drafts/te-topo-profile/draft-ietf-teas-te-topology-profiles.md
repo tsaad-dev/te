@@ -130,8 +130,8 @@ contributor:
        +--rw te!
           +--rw admin-status?
           |       te-types:te-admin-status
-          +--rw inter-domain-plug-id?          binary
-          +--ro oper-status?                   te-types:te-oper-status
+          +--rw inter-domain-plug-id?        binary
+          +--ro oper-status?                 te-types:te-oper-status
 ~~~~
 {: #uni-discovery-tree title="UNI Topology"}
 
@@ -215,21 +215,21 @@ contributor:
        +--rw te-node-id?   te-types:te-node-id
        +--rw te!
           +--rw te-node-attributes
-          |  +--rw admin-status?               te-types:te-admin-status
-          |  +--rw name?                       string
-          +--ro oper-status?                   te-types:te-oper-status
+          |  +--rw admin-status?          te-types:te-admin-status
+          |  +--rw name?                  string
+          +--ro oper-status?              te-types:te-oper-status
      augment /nw:networks/nw:network/nt:link:
        +--rw te!
           +--rw te-link-attributes
-          |  +--rw name?                       string
-          |  +--rw admin-status?               te-types:te-admin-status
-          +--ro oper-status?                   te-types:te-oper-status
+          |  +--rw name?                  string
+          |  +--rw admin-status?          te-types:te-admin-status
+          +--ro oper-status?              te-types:te-oper-status
      augment /nw:networks/nw:network/nw:node/nt:termination-point:
        +--rw te-tp-id?   te-types:te-tp-id
        +--rw te!
-          +--rw admin-status?                  te-types:te-admin-status
-          +--rw name?                          string
-          +--ro oper-status?                   te-types:te-oper-status
+          +--rw admin-status?             te-types:te-admin-status
+          +--rw name?                     string
+          +--ro oper-status?              te-types:te-oper-status
 ~~~~
 {: #admin-oper-state-tree title="Generic Topology with admin and operational state"}
 
@@ -259,7 +259,7 @@ contributor:
        +--rw te!
           +--rw te-node-attributes
              +--rw underlay-topology {te-topology-hierarchy}?
-                +--rw network-ref?   -> /nw:networks/network/network-id
+                +--rw network-ref? -> /nw:networks/network/network-id
      augment /nw:networks/nw:network/nt:link:
        +--rw te!
           +--rw te-link-attributes
@@ -575,14 +575,13 @@ Note: that this issue is also tracked in github as issue #167.
 
 When a server implements a profile of the TE topology model, there is no standardize mechanism for the server to report to the client the subset of the model being implemented.
 
-It is also worth noting that the supported profile may also depend on other attributes
-(for example the network type), so the YANG deviation mechanism is not applicable to this scenario.
-
-In case the TE topology profile is reported by the server to the client, the server will report
-in the operational datastore only the leaves which have been implemented, as described
+This might not be an issue in case the TE topology profile is read by the the client because the server reports in the operational datastore only the leaves which have been implemented, as described
 in section 5.3 of {{!RFC8342}}.
 
-More investigation is required in case the TE topology profile is configured by the client, to  avoid that the client tries to write an attribute not used in the TE Topology profile implemented by the server.
+More investigation is instead required in case the TE topology profile is configured by the client, to  avoid that the client tries to write an attribute not used in the TE Topology profile implemented by the server.
+
+It is also worth noting that the supported profile may also depend on other attributes
+(for example the network type), so the YANG deviation mechanism is not applicable to this scenario.
 
 Note: that this issue is also tracked in github as issue #161.
 
