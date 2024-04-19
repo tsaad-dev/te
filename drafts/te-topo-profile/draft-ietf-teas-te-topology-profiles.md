@@ -6,7 +6,7 @@ title: >
    Applicability to non-TE Use Cases
 
 abbrev: TE Topology Profiles
-docname: draft-ietf-teas-te-topology-profiles-00
+docname: draft-ietf-teas-te-topology-profiles-01
 submissiontype: IETF
 workgroup: TEAS Working Group
 category: info
@@ -559,9 +559,19 @@ max-link-bandwidth can only be defined in the technology-specific TE
 Topology Model (Option 1 or Option 3). These attributes can be TE or
 non-TE and require the implementation of the te container.
 
+{: #open-issues}
+
+# Open Issues
+
+## Supporting node/link versus overlay/underlay
+
+Some more explanation of the difference between supporting-node/supporting-link and overlay/underlay has been requested.
+
+Note: that this issue is tracked also in github as issue #167.
+
 {: #implement}
 
-# Implemented profiles
+## Implemented profiles
 
 When a server implements a profile of the TE topology model, it is not clear how the server
 can report to the client the subset of the model being implemented.
@@ -574,6 +584,12 @@ in the operational datastore only the leaves which have been implemented, as des
 in section 5.3 of {{!RFC8342}}.
 
 More investigation is required in case the TE topology profile is configured by the client.
+
+Note: that this issue is tracked also in github as issue #161.
+
+## Applicability to non-TE use cases
+
+Extending the applicability of RFC8795 to non-TE use cases is important. However, it is desirable to avoid any debate about whether these use cases in section 2 are or are not TE.
 
 {: #security}
 
