@@ -567,7 +567,7 @@ non-TE and require the implementation of the te container.
 
 Some more explanation of the difference between supporting-node/supporting-link and overlay/underlay has been requested.
 
-Note: that this issue is tracked also in github as issue #167.
+Note: that this issue is also tracked in github as issue #167.
 
 {: #implement}
 
@@ -585,11 +585,19 @@ in section 5.3 of {{!RFC8342}}.
 
 More investigation is required in case the TE topology profile is configured by the client.
 
-Note: that this issue is tracked also in github as issue #161.
+Note: that this issue is also tracked in github as issue #161.
 
 ## Applicability to non-TE use cases
 
 Extending the applicability of RFC8795 to non-TE use cases is important. However, it is desirable to avoid any debate about whether these use cases in section 2 are or are not TE.
+
+Note: that this issue is also tracked in github as issue #276.
+
+### Update UNI topology discovery use case
+
+{{uni-discovery}} points to individual drafts and does reflect the progress made since then. For example, the UNI draft was replaced by other drafts that then led to the SAP model {{?RFC9408}}, which covers both UNI and NNI.
+
+Note: that this issue is also tracked in github as issue #275.
 
 {: #security}
 
