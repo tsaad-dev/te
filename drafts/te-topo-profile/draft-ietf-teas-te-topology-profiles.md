@@ -6,7 +6,7 @@ title: >
    Applicability to non-TE Use Cases
 
 abbrev: TE Topology Profiles
-docname: draft-busi-teas-te-topology-profiles-08
+docname: draft-ietf-teas-te-topology-profiles-00
 submissiontype: IETF
 workgroup: TEAS Working Group
 category: info
