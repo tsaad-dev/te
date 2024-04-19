@@ -573,7 +573,7 @@ Note: that this issue is also tracked in github as issue #167.
 
 ## Implemented profiles
 
-When a server implements a profile of the TE topology model, there is no standardize mechanism for the server to report to the client the subset of the model being implemented.
+When a server implements a profile of the TE topology model, there is no standardized mechanism for the server to report to the client the subset of the model being implemented.
 
 This might not be an issue in case the TE topology profile is read by the the client because the server reports in the operational datastore only the leaves which have been implemented, as described
 in section 5.3 of {{!RFC8342}}.
