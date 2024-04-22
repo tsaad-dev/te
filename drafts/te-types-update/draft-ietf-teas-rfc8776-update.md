@@ -425,7 +425,7 @@ This document requests IANA to update the following URIs in the "IETF XML Regist
       XML: N/A, the requested URI is an XML namespace.
 ~~~~
 
-This document also requets IANA to add the following YANG modules to the "YANG Module
+This document also requests IANA to add the following YANG modules to the "YANG Module
 Names" registry {{!RFC7950}}:
 
 ~~~~
