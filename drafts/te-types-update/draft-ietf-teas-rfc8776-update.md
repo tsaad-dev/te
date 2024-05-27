@@ -4,7 +4,7 @@ coding: utf-8
 title: Common YANG Data Types for Traffic Engineering
 
 abbrev: TE Common YANG Types
-docname: draft-ietf-teas-rfc8776-update-10
+docname: draft-ietf-teas-rfc8776-update-latest
 obsoletes: 8776
 submissiontype: IETF
 workgroup: TEAS Working Group
@@ -216,7 +216,9 @@ te-global-id:
 
 te-node-id:
 
-> A type representing the identifier for a node in a TE topology. The identifier is represented as 4 octets in dotted-quad notation. This attribute MAY be mapped to the Router Address TLV described in Section 2.4.1 of {{?RFC3630}}, the TE Router ID described in Section 3 of {{?RFC6827}}, the Traffic Engineering Router ID TLV described in Section 4.3 of {{?RFC5305}}, or the TE Router ID TLV described in Section 3.2.1 of {{?RFC6119}}. The reachability of such a TE node MAY be achieved by a mechanism such as that described in Section 6.2 of {{?RFC6827}}.
+> A type representing the identifier for a node in a TE topology. The identifier is represented either as 4 octets in dotted-quad notation or as 16 octets in full, mixed, shortened, or shortened-mixed IPv6 address notation.
+
+> This attribute MAY be mapped to the Router Address TLV described in Section 2.4.1 of {{?RFC3630}}, the TE Router ID described in Section 3 of {{?RFC6827}}, the Traffic Engineering Router ID TLV described in Section 4.3 of {{?RFC5305}}, or the TE Router ID TLV described in Section 3.2.1 of {{?RFC6119}}. The reachability of such a TE node MAY be achieved by a mechanism such as that described in Section 6.2 of {{?RFC6827}}.
 
 te-topology-id:
 
