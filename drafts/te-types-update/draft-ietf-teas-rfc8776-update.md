@@ -82,14 +82,11 @@ This document introduces a collection of common data types derived from the buil
 
 This document adds new common data types, identities, and groupings to both the "ietf-te-types" and the "ietf-te-packet-types" YANG models and obsoletes {{!RFC8776}}. For further details, see the revision statements of the YANG modules in {{te-yang-code}} and {{pkt-yang-code}}, or the summary in {{changes-bis}}.
 
-## Requirements Notation
+## Terminology
 
 {::boilerplate bcp14}
 
-## Terminology
-
-   The terminology for describing YANG data models is found in
-   {{!RFC7950}}.
+The terminology for describing YANG data models is found in {{!RFC7950}}.
 
 ## Prefixes in Data Node Names
 
@@ -426,17 +423,7 @@ te-packet-path-bandwidth
 
 > All the path and LSP bandwidth related sections in the "ietf-te-types" generic module, {{te-yang-code}}, need to be augmented with this grouping for the usage of Packet TE technologies.
 
-> The Packet TE path bandwidth can be represented by a bandwidth profile as follow:
-
-~~~~ ascii-art
-         +--:(packet)
-           +--rw bandwidth-profile-name?   string
-           +--rw bandwidth-profile-type?   identityref
-           +--rw cir?                      uint64
-           +--rw eir?                      uint64
-           +--rw cbs?                      uint64
-           +--rw ebs?                      uint64
-~~~~
+> The Packet TE path bandwidth can be represented by a bandwidth profile.
 
 NOTE: Other formats for the MPLS-TE path bandwidth are defined in {{?I-D.ietf-teas-yang-te-mpls}} and they could be added in a future update of this document.
 
@@ -738,6 +725,28 @@ The following identities, already defined in {{!RFC8776}}, have been obsoletes i
 - lsp-protection-reroute-extra;
 
 - lsp-protection-reroute.
+
+## Model Tree Structure
+
+### TE Types Module Tree Structure
+
+{{fig-te-yang-tree}} below shows the tree diagram of the YANG data model defined in module "ietf-te-types" ({{te-yang-code}}).
+
+~~~~ ascii-art
+{::include ../../ietf-te-types.tree.fold}
+~~~~
+{: #fig-te-yang-tree title="TE Types tree diagram"
+artwork-name="ietf-te-types.tree"}
+
+### Packet TE Types Module Tree Structure
+
+{{fig-pkt-yang-tree}} below shows the tree diagram of the YANG data model defined in module "ietf-te-packet-types" ({{pkt-yang-code}}).
+
+~~~~ ascii-art
+{::include ../../ietf-te-packet-types.tree.fold}
+~~~~
+{: #fig-pkt-yang-tree title="Packet TE Types tree diagram"
+artwork-name="ietf-te-packet-types.tree"}
 
 {: #te-yang-diff}
 
