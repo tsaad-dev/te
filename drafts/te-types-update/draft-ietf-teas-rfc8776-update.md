@@ -225,6 +225,10 @@ te-metric:
 te-recovery-status:
 : An enumerated type for the different statuses of a recovery action as defined in {{?RFC4427}} and {{?RFC6378}}.
 
+
+Also, the "ietf-te-types" module contains the following YANG reusable identities:
+
+
 path-attribute-flags:
 : A base YANG identity for supported LSP path flags as defined in {{?RFC3209}}, {{?RFC4090}}, {{?RFC4736}}, {{?RFC5712}}, {{?RFC4920}}, {{?RFC5420}}, {{?RFC7570}}, {{?RFC4875}}, {{?RFC5151}}, {{?RFC5150}}, {{?RFC6001}}, {{?RFC6790}}, {{?RFC7260}}, {{?RFC8001}}, {{?RFC8149}}, and {{?RFC8169}}.
 
