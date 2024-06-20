@@ -84,7 +84,7 @@ This document obsoletes RFC 8776.
 
 YANG {{!RFC6020}} {{!RFC7950}} is a data modeling language used to model configuration data, state data, Remote Procedure Calls, and notifications for network management protocols such as the Network Configuration Protocol (NETCONF) {{!RFC6241}} or RESTCONF {{!RFC8040}}. The YANG language supports a small set of built-in data types and provides mechanisms to derive other types from the built-in types.
 
-This document introduces a collection of common data types derived from the built-in YANG data types. The derived data types, identities, and groupings are designed to be the common definitions applicable for modeling Traffic Engineering (TE) features in model(s) defined outside of this document. These types can be used by non-TE modules per the guidance in {{Section 4.12 of ?I-D.ietf-netmod-rfc8407bis}}.
+This document introduces a collection of common data types derived from the built-in YANG data types. The derived data types, identities, and groupings are designed to be the common definitions applicable mainly for modeling Traffic Engineering (TE) features in model(s) defined outside of this document. Nevertheless, these common definitions can be used by any other module per the guidance in {{Section 4.12 of ?I-D.ietf-netmod-rfc8407bis}}.
 
 This document adds new common data types, identities, and groupings to both the "ietf-te-types" and the "ietf-te-packet-types" YANG models and obsoletes {{!RFC8776}}. For further details, refer to the revision statements of the YANG modules in {{te-yang-code}} and {{pkt-yang-code}} or the changes summary in {{changes-bis}}.
 
