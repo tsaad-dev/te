@@ -74,7 +74,7 @@ informative:
 
 --- abstract
 
-This document defines a collection of common data types, identities, and groupings in YANG data modeling language. These derived common types and groupings are intended to be imported by modules that model, e.g., Traffic Engineering (TE) configuration and state capabilities.
+This document defines a collection of common data types, identities, and groupings in YANG data modeling language. These derived common types and groupings are intended to be imported by other modules, e.g., those which model the Traffic Engineering (TE) configuration and state capabilities.
 
 This document obsoletes RFC 8776.
 
