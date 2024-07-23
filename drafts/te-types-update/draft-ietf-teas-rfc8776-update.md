@@ -85,16 +85,14 @@ This document introduces a collection of common data types derived from the buil
 
 This document adds new common data types, identities, and groupings to both the "ietf-te-types" and the "ietf-te-packet-types" YANG models and obsoletes {{!RFC8776}}. For further details, refer to {{changes-bis}}.
 
-## Requirements Notation
+## Terminology
 
 {::boilerplate bcp14}
 
-> RFC Editor: The document uses "CHANGE NOTE" to ease identifying the changes vs. RFC8776. Please remove these notes.
-
-## Terminology
-
    The terminology for describing YANG data models is found in
    {{!RFC7950}}.
+
+> RFC Editor: The document uses "CHANGE NOTE" to ease identifying the changes vs. RFC8776. Please remove these notes.
 
 ## Prefixes in Data Node Names
 
@@ -110,10 +108,9 @@ This document adds new common data types, identities, and groupings to both the 
 | te-packet-types | ietf-te-packet-types | RFCXXXX
 {: #tab-prefixes title="Prefixes and corresponding YANG modules"}
 
-> RFC Editor: Please replace XXXX through this document with the RFC number assigned to this document.
+> RFC Editor: Please replace XXXX through this document with the RFC number assigned to this document. Please remove this note.
 
 # Acronyms and Abbreviations
-
 
 GMPLS:
 : Generalized Multiprotocol Label Switching
