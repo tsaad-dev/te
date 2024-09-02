@@ -116,8 +116,17 @@ Tree diagrams used in this document follow the notation defined in {{?RFC8340}}.
 
 # Acronyms and Abbreviations
 
+APS:
+: Automatic Protection Switching
+
+DS-TE:
+: Differentiated Services Traffic Engineering
+
 GMPLS:
 : Generalized Multiprotocol Label Switching
+
+LER:
+: Label Edge Router
 
 LSP:
 : Label Switched Path
@@ -125,29 +134,17 @@ LSP:
 LSR:
 : Label Switching Router
 
-LER:
-: Label Edge Router
-
 MPLS:
 : Multiprotocol Label Switching
-
-RSVP:
-: Resource Reservation Protocol
-
-TE:
-: Traffic Engineering
-
-DS-TE:
-: Differentiated Services Traffic Engineering
-
-SRLG:
-: Shared Risk Link Group
 
 NBMA:
 : Non-Broadcast Multi-Access
 
-APS:
-: Automatic Protection Switching
+PM:
+: Performance Metrics
+
+RSVP:
+: Resource Reservation Protocol
 
 SD:
 : Signal Degrade
@@ -155,11 +152,14 @@ SD:
 SF:
 : Signal Fail
 
+SRLG:
+: Shared Risk Link Group
+
+TE:
+: Traffic Engineering
+
 WTR:
 : Wait-to-Restore
-
-PM:
-: Performance Metrics
 
 # Overview {#overview}
 
