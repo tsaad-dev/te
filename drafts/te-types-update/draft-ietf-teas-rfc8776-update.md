@@ -94,6 +94,10 @@ This document adds new common data types, identities, and groupings to both the 
 
 > RFC Editor: The document uses "CHANGE NOTE" to ease identifying the changes vs. RFC8776. Please remove these notes.
 
+## Tree Diagrams
+
+Tree diagrams used in this document follow the notation defined in {{?RFC8340}}.
+
 ## Prefixes in Data Node Names
 
   Names of data nodes and other data model objects
@@ -443,6 +447,25 @@ Names" registry {{!RFC7950}}:
 
 --- back
 
+# The Complete Schema Trees
+
+This appendix presents the complete tree of the TE and Packet TE types data
+model.
+See {{?RFC8340}} for an explanation of the symbols used.
+The data type of every leaf node is shown near the right end of the corresponding line.
+
+## TE Types Schema Tree
+
+~~~~ ascii-art
+{::include ../../ietf-te-types.tree.fold}
+~~~~
+
+## Packet TE Types Schema Tree
+
+~~~~ ascii-art
+{::include ../../ietf-te-packet-types.tree.fold}
+~~~~
+
 # Changes from RFC 8776 {#changes-bis}
 
 This version adds new common data types, identities, and groupings to the YANG modules. It also updates some of the existing data types, identities, and groupings in the YANG modules and fixes few bugs in {{!RFC8776}}.
@@ -718,4 +741,10 @@ Robert Wilton, Lou Berger, Mahesh Jethanandani and Jeff Haas
 for their valuable input to the discussion
 about the process to follow to provide tiny updates to a YANG module already published as an RFC.
 
-   This document was prepared using kramdown.
+The authors would like to thank
+Mohamed Boucadair
+and
+Sergio Belotti
+for their valuable comments and suggestions on this document.
+
+This document was prepared using kramdown.
