@@ -310,6 +310,12 @@ It also defines the following additional YANG reusable identities for reporting 
 path-computation-error-no-topology:
 : A YANG identity for reporting path computation error when there is no topology with the provided topology identifier.
 
+path-computation-error-no-dependent-server:
+: A YANG identity for reporting path computation error when one or more dependent path computation servers are unavailable.
+: The dependent path computation server could be a Backward-Recursive Path Computation (BRPC) downstream PCE or a child PCE.
+
+The derived identities are defined in the "ietf-te-types" module instead of an IANA-maintained module to allow defining new identities (e.g., the path-computation-error-no-topology), which are applicable to other contexts than Path Computation Element Communication Protocol (PCEP), as well as some hierarchical definitions (e.g., the path-computation-error-child-pce-unresponsive and the identities are derived from the path-computation-error-no-dependent-server identity).
+
 ### Protocol Origin {#protocol-origin}
 
 The "ietf-te-types" module contains the YANG reusable identities for the type of protocol origin as defined in {{!RFC5440}} and {{!RFC9012}}.
