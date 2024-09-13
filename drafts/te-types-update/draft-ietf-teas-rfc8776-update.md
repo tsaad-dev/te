@@ -314,7 +314,11 @@ path-computation-error-no-dependent-server:
 : A YANG identity for reporting path computation error when one or more dependent path computation servers are unavailable.
 : The dependent path computation server could be a Backward-Recursive Path Computation (BRPC) downstream PCE or a child PCE.
 
-The derived identities are defined in the "ietf-te-types" module instead of an IANA-maintained module to allow defining new identities (e.g., the path-computation-error-no-topology), which are applicable to other contexts than Path Computation Element Communication Protocol (PCEP), as well as some hierarchical definitions (e.g., the path-computation-error-child-pce-unresponsive and the identities are derived from the path-computation-error-no-dependent-server identity).
+The derived identities are defined in the "ietf-te-types" module because there are error reasons which are:
+
+1. applicable only to the TE YANG models and not to PCEP environments (e.g., path-computation-error-no-topology);
+1. technology-specific (e.g., No RWA constraints met) which are better defined in technology-specific YANG models;
+1. match more than one PCEP numbers in order to hide the details of the underlay PCE architecture (e.g.,  path-computation-error-no-dependent-server).
 
 ### Protocol Origin {#protocol-origin}
 
