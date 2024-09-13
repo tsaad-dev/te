@@ -358,12 +358,12 @@ performance-metrics-attributes-packet:
 bandwidth-profile-type:
 : A base YANG identity for various bandwidth profiles specified in {{MEF_10.3}}, {{!RFC2697}}, {{!RFC2698}} and {{!RFC4115}} that may be used to limit bandwidth utilization of packet flows (e.g., MPLS-TE LSPs).
 
+bandwidth-profile-parameters:
+: A YANG grouping that defines common parameters for bandwidth profiles in packet networks.
+
 te-packet-path-bandwidth:
 : A YANG grouping that defines the path bandwidth information and could be used in any Packet TE model (e.g., MPLS-TE topology model) for the path bandwidth representation (e.g., the bandwidth of an MPLS-TE LSP).
 : All the path and LSP bandwidth related sections in the "ietf-te-types" generic module, {{te-yang-code}}, need to be augmented with this grouping for the usage of Packet TE technologies.
-: The Packet TE path bandwidth can be represented by a bandwidth profile.
-
-> NOTE: Other formats for the MPLS-TE path bandwidth are defined in {{?I-D.ietf-teas-yang-te-mpls}} and they could be added in a future update of this document.
 
 te-packet-link-bandwidth:
 : A YANG grouping that defines the link bandwidth information and could be used in any Packet TE model (e.g., MPLS-TE topology) for link bandwidth representation.
