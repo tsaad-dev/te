@@ -47,20 +47,6 @@ contributor:
     email: rgandhi@cisco.com
 
 normative:
-  ITU_G.808.1:
-    title: Generic protection switching - Linear trail and subnetwork protection
-    author:
-      org: ITU-T Recommendation G.808.1
-    date: May 2014
-    seriesinfo: ITU-T Recommendation G.808.1
-    target: https://www.itu.int/rec/T-REC-G.808.1
-  MEF_10.3:
-    title: Ethernet Services Attributes Phase 3
-    author:
-      org: MEF
-    date: October 2013
-    seriesinfo: MEF 10.3
-    target: https://www.mef.net/Assets/Technical_Specifications/PDF/MEF_10.pdf
   ITU-T_G.709:
     title: Interfaces for the optical transport network
     author:
@@ -68,6 +54,15 @@ normative:
     date: June 2020
     seriesinfo: ITU-T G.709
     target: https://www.itu.int/rec/T-REC-G.709
+
+informative:
+  MEF_10.3:
+    title: Ethernet Services Attributes Phase 3
+    author:
+      org: MEF
+    date: October 2013
+    seriesinfo: MEF 10.3
+    target: https://www.mef.net/Assets/Technical_Specifications/PDF/MEF_10.pdf
 
 --- abstract
 
@@ -178,7 +173,7 @@ te-label:
 : A YANG grouping that defines the generic TE label. The modeling structure allows augmentation for each technology. For unspecified technologies, "rt-types:generalized-label" is used.
 
 performance-metrics-attributes:
-: A YANG grouping that defines one-way and two-way measured Performance Metrics (PM) and indications of anomalies on link(s) or the path as defined in {{!RFC7471}}, {{!RFC8570}}, and {{!RFC7823}}.
+: A YANG grouping that defines one-way and two-way measured Performance Metrics (PM) and indications of anomalies on link(s) or the path as defined in {{!RFC7471}}, {{!RFC8570}}, and {{?RFC7823}}.
 
 performance-metrics-throttle-container:
 : A YANG grouping that defines configurable thresholds for advertisement suppression and measurement intervals.
@@ -221,23 +216,21 @@ te-metric:
 : A type representing the TE metric as defined in {{!RFC3785}}.
 
 te-recovery-status:
-: An enumerated type for the different statuses of a recovery action as defined in {{!RFC4427}} and {{!RFC6378}}.
+: An enumerated type for the different statuses of a recovery action as defined in {{!RFC6378}} and {{?RFC4427}}.
 
 The "ietf-te-types" module contains the following YANG reusable identities:
 
 path-attribute-flags:
-: A base YANG identity for supported LSP path flags as defined in {{!RFC3209}}, {{!RFC4090}}, {{!RFC4736}}, {{!RFC5712}}, {{!RFC4920}}, {{!RFC5420}}, {{!RFC7570}}, {{!RFC4875}}, {{!RFC5151}}, {{!RFC5150}}, {{!RFC6001}}, {{!RFC6790}}, {{!RFC7260}}, {{!RFC8001}}, {{!RFC8149}}, and {{!RFC8169}}.
+: A base YANG identity for supported LSP path flags as defined in {{!RFC3209}}, {{!RFC4090}}, {{?RFC4736}}, {{!RFC5712}}, {{!RFC4920}}, {{!RFC5420}}, {{!RFC7570}}, {{!RFC4875}}, {{!RFC5151}}, {{!RFC5150}}, {{!RFC6001}}, {{!RFC6790}}, {{!RFC7260}}, {{!RFC8001}}, {{!RFC8149}}, and {{!RFC8169}}.
 
 link-protection-type:
-: A base YANG identity for supported link protection types as defined in {{!RFC4872}} and {{!RFC4427}}.
+: A base YANG identity for supported link protection types as defined in {{!RFC4872}}.
 
 restoration-scheme-type:
 : A base YANG identity for supported LSP restoration schemes as defined in {{!RFC4872}}.
 
 protection-external-commands:
-: A base YANG identity for supported protection-related external commands used for troubleshooting purposes, as defined in {{!RFC4427}} and {{ITU_G.808.1}}.
-
-> CHANGE NOTE: The description and reference of the identity action-exercise, which applies only to APS and it is not defined in RFC4427, has been updated to reference ITU-T G.808.1.
+: A base YANG identity for supported protection-related external commands used for troubleshooting purposes, as defined in {{!RFC4872}}, {{!RFC6368}}, {{!RFC7271}} and {{?RFC4427}}.
 
 association-type:
 : A base YANG identity for supported LSP association types as defined in {{!RFC6780}}, {{!RFC4872}}, {{!RFC4873}}, and {{!RFC8800}}.
@@ -262,12 +255,12 @@ switching-capabilities:
 : A base YANG identity for supported interface switching capabilities as defined in {{!RFC3471}}.
 
 resource-affinities-type:
-: A base YANG identity for supported attribute filters associated with a tunnel that must be satisfied for a link to be acceptable as defined in {{!RFC2702}} and {{!RFC3209}}.
+: A base YANG identity for supported attribute filters associated with a tunnel that must be satisfied for a link to be acceptable as defined in {{!RFC3209}} and {{?RFC2702}}.
 
 > CHANGE NOTE: The description of the path-metric-type has been updated
 
 path-metric-type:
-: A base YANG identity for supported path metric types as defined in {{!RFC3630}}, {{!RFC3785}}, {{!RFC5440}}, {{!RFC7471}}, {{!RFC8233}}, {{!RFC8570}} and {{!I-D.ietf-pce-sid-algo}}.
+: A base YANG identity for supported path metric types as defined in {{!RFC3630}}, {{!RFC3785}}, {{!RFC5440}}, {{!RFC7471}}, {{!RFC8233}}, {{!RFC8570}} and {{?I-D.ietf-pce-sid-algo-14}}.
 : The unit of the path metric value is interpreted in the context of the path metric type. The derived identities SHOULD describe the unit and maximum value of the path metric types they define.
 : For example, the bound of the 'path-metric-loss', defined in 'ietf-te-packet-types', is defined in multiples of the basic unit 0.000003% as described in {{!RFC7471}} and {{!RFC8570}}.
 
@@ -345,7 +338,7 @@ bc-type:
 : A type that represents Diffserv-TE Bandwidth Constraints (BCs) as defined in {{!RFC4124}}.
 
 bc-model-type:
-: A base YANG identity for supported Diffserv-TE Bandwidth Constraints Models as defined in {{!RFC4125}}, {{!RFC4126}}, and {{!RFC4127}}.
+: A base YANG identity for supported Diffserv-TE Bandwidth Constraints Models as defined in {{?RFC4125}}, {{?RFC4126}}, and {{?RFC4127}}.
 
 te-bandwidth-requested-type:
 : An enumerated type for the different options to request bandwidth for a specific tunnel.
@@ -356,7 +349,7 @@ performance-metrics-attributes-packet:
 > CHANGE NOTE: The module "ietf-te-packet-types" has been updated to add the following YANG identities and groupings.
 
 bandwidth-profile-type:
-: A base YANG identity for various bandwidth profiles specified in {{MEF_10.3}}, {{!RFC2697}}, {{!RFC2698}} and {{!RFC4115}} that may be used to limit bandwidth utilization of packet flows (e.g., MPLS-TE LSPs).
+: A base YANG identity for various bandwidth profiles specified in {{MEF_10.3}}, {{?RFC2697}} and {{?RFC2698}} that may be used to limit bandwidth utilization of packet flows (e.g., MPLS-TE LSPs).
 
 bandwidth-profile-parameters:
 : A YANG grouping that defines common parameters for bandwidth profiles in packet networks.
@@ -378,7 +371,7 @@ The "ietf-te-types" module imports from the following modules:
 - "ietf-routing-types" as defined in {{!RFC8294}}
 
 In addition to {{!RFC6991}} and {{!RFC8294}}, this module references the following documents in defining the types and YANG groupings:
-{{!RFC9522}}, {{!RFC4090}}, {{!RFC4202}}, {{!RFC4328}}, {{!RFC4561}}, {{!RFC4657}}, {{!RFC4736}}, {{!RFC6004}}, {{!RFC6511}}, {{!RFC7139}}, {{!RFC7308}}, {{!RFC7551}}, {{!RFC7571}}, {{!RFC7579}}, and {{ITU-T_G.709}}.
+{{?RFC9522}}, {{!RFC4090}}, {{!RFC4202}}, {{!RFC4328}}, {{!RFC4561}}, {{?RFC4657}}, {{?RFC4736}}, {{!RFC6004}}, {{!RFC6378}}, {{!RFC6511}}, {{!RFC7139}}, {{!RFC7271}}, {{!RFC7308}}, {{!RFC7551}}, {{!RFC7571}}, {{!RFC7579}}, and {{ITU-T_G.709}}.
 
 > CHANGE NOTE: Please focus your review only on the updates to the YANG model: see also {{te-yang-diff}}.
 
@@ -386,7 +379,7 @@ In addition to {{!RFC6991}} and {{!RFC8294}}, this module references the followi
 {::include ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2024-01-29.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2024-10-17.yang"}
 
 # Packet TE Types YANG Module {#pkt-yang-code}
 
@@ -398,7 +391,7 @@ The "ietf-te-packet-types" module imports from the "ietf-te-types" module define
 {::include ../../ietf-te-packet-types.yang}
 ~~~~
 {: #fig-pkt-yang title="Packet TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2024-01-25.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2024-10-17.yang"}
 
 # IANA Considerations
 
