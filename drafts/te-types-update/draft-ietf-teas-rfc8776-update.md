@@ -162,6 +162,8 @@ This document defines two YANG modules for common TE types: "ietf-te-types" for 
 
 The "ietf-te-types" module ({{te-yang-code}}) contains common TE types that are independent and agnostic of any specific technology or control-plane instance.
 
+### Groupings
+
 The "ietf-te-types" module contains the following YANG reusable groupings:
 
 te-bandwidth:
@@ -181,6 +183,8 @@ explicit-route-hop:
 
 encoding-and-switching-type:
 : This is a common grouping to define the LSP encoding and switching types.
+
+### Data Types
 
 The "ietf-te-types" module contains the following YANG reusable data types:
 
@@ -224,6 +228,8 @@ te-recovery-status:
 
 te-link-access-type:
 : An enumerated type for the different TE link access types as defined in {{!RFC3630}}.
+
+### Identities
 
 The "ietf-te-types" module contains the following YANG reusable identities:
 
@@ -280,7 +286,7 @@ svec-objective-function-type:
 svec-metric-type:
 : A base YANG identity for supported SVEC objective functions as defined in {{!RFC5541}}.
 
-### Path Computation Errors {#pc-error}
+#### Path Computation Errors {#pc-error}
 
 The "ietf-te-types" module contains the YANG reusable identities for indicating path computation error reasons as defined in {{!RFC5440}}, {{!RFC5441}}, {{!RFC5520}}, {{!RFC5557}}, {{!RFC8306}}, and {{!RFC8685}}.
 
@@ -299,7 +305,7 @@ The derived identities are defined in the "ietf-te-types" module, instead of an 
 1. technology-specific (e.g., No RWA constraints met) which are better defined in technology-specific YANG models;
 1. match more than one PCEP numbers in order to hide the details of the underlay PCE architecture (e.g.,  path-computation-error-no-dependent-server).
 
-### Protocol Origin {#protocol-origin}
+#### Protocol Origin {#protocol-origin}
 
 The "ietf-te-types" module contains the YANG reusable identities for the type of protocol origin as defined in {{!RFC5440}} and {{!RFC9012}}.
 
@@ -311,6 +317,8 @@ protocol-origin-api:
 ## Packet TE Types Module Contents
 
 The "ietf-te-packet-types" module ({{pkt-yang-code}}) covers the common types and groupings that are specific to packet technology.
+
+### Groupings
 
 The "ietf-te-packet-types" module contains the following YANG reusable groupings:
 
@@ -328,10 +336,14 @@ te-packet-link-bandwidth:
 : A YANG grouping that defines the link bandwidth information and could be used in any Packet TE model (e.g., MPLS-TE topology) for link bandwidth representation.
 : All the link bandwidth related sections in the "ietf-te-types" generic module, {{te-yang-code}}, need to be augmented with this grouping for the usage of Packet TE technologies.
 
+### Data Types
+
 The "ietf-te-packet-types" module contains the following YANG reusable data types:
 
 te-bandwidth-requested-type:
 : An enumerated type for the different options to request bandwidth for a specific tunnel.
+
+### Identities
 
 The "ietf-te-packet-types" module contains the following YANG reusable identities:
 
@@ -359,7 +371,7 @@ In addition to {{!RFC6991}} and {{!RFC8294}}, this module references the followi
 {::include ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2024-10-30.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2024-11-09.yang"}
 
 # Packet TE Types YANG Module {#pkt-yang-code}
 
