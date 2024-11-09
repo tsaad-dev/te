@@ -78,7 +78,7 @@ YANG {{!RFC6020}} {{!RFC7950}} is a data modeling language used to model configu
 
 This document introduces a collection of common data types derived from the built-in YANG data types. The derived data types, identities, and groupings are mainly designed to be the common definitions applicable for modeling Traffic Engineering (TE) features in model(s) defined outside of this document. Nevertheless, these common definitions can be used by any other module per the guidance in {{Section 4.12 of ?I-D.ietf-netmod-rfc8407bis}}.
 
-This document adds new common data types, identities, and groupings to both the "ietf-te-types" and the "ietf-te-packet-types" YANG models and obsoletes {{!RFC8776}}. For further details, refer to {{changes-bis}}.
+This document adds new common data types, identities, and groupings to both the "ietf-te-types" and the "ietf-te-packet-types" YANG modules and obsoletes {{!RFC8776}}. For further details, refer to {{changes-bis}}.
 
 ## Terminology
 
@@ -86,10 +86,6 @@ This document adds new common data types, identities, and groupings to both the 
 
    The terminology for describing YANG data models is found in
    {{!RFC7950}}.
-
-## Tree Diagrams
-
-Tree diagrams used in this document follow the notation defined in {{?RFC8340}}.
 
 ## Prefixes in Data Node Names
 
@@ -106,6 +102,10 @@ Tree diagrams used in this document follow the notation defined in {{?RFC8340}}.
 {: #tab-prefixes title="Prefixes and corresponding YANG modules"}
 
 > RFC Editor: Please replace XXXX through this document with the RFC number assigned to this document. Please remove this note.
+
+## Tree Diagrams
+
+Tree diagrams used in this document follow the notation defined in {{?RFC8340}}.
 
 # Acronyms and Abbreviations
 
@@ -176,6 +176,12 @@ performance-metrics-attributes:
 performance-metrics-throttle-container:
 : A YANG grouping that defines configurable thresholds for advertisement suppression and measurement intervals.
 
+explicit-route-hop:
+: A YANG grouping that defines supported explicit routes as defined in {{!RFC3209}} and {{!RFC3477}}.
+
+encoding-and-switching-type:
+: This is a common grouping to define the LSP encoding and switching types.
+
 The "ietf-te-types" module contains the following YANG reusable data types:
 
 te-ds-class:
@@ -215,6 +221,9 @@ te-metric:
 
 te-recovery-status:
 : An enumerated type for the different statuses of a recovery action as defined in {{!RFC6378}} and {{?RFC4427}}.
+
+te-link-access-type:
+: An enumerated type for the different TE link access types as defined in {{!RFC3630}}.
 
 The "ietf-te-types" module contains the following YANG reusable identities:
 
@@ -256,17 +265,11 @@ path-metric-type:
 : The unit of the path metric value is interpreted in the context of the path metric type. The derived identities SHOULD describe the unit and maximum value of the path metric types they define.
 : For example, the bound of the 'path-metric-loss', defined in 'ietf-te-packet-types', is defined in multiples of the basic unit 0.000003% as described in {{!RFC7471}} and {{!RFC8570}}.
 
-explicit-route-hop:
-: A YANG grouping that defines supported explicit routes as defined in {{!RFC3209}} and {{!RFC3477}}.
-
-te-link-access-type:
-: An enumerated type for the different TE link access types as defined in {{!RFC3630}}.
-
 lsp-provisioning-error-reason:
-: A base YANG identity for reporting LSP provisioning error reasons. No standard LPS provisioning error reasons are defined in this document.
+: A base YANG identity for indicating LSP provisioning error reasons. No standard LSP provisioning error reasons are defined in this document.
 
 path-computation-error-reason:
-: A base YANG identity for reporting path computation error reasons as defined in {{pc-error}}.
+: A base YANG identity for indicating path computation error reasons as defined in {{pc-error}}.
 
 protocol-origin-type:
 :  A base YANG identity for the type of protocol origin as defined in {{protocol-origin}}.
@@ -277,23 +280,20 @@ svec-objective-function-type:
 svec-metric-type:
 : A base YANG identity for supported SVEC objective functions as defined in {{!RFC5541}}.
 
-encoding-and-switching-type:
-: This is a common grouping to define the LSP encoding and switching types.
-
 ### Path Computation Errors {#pc-error}
 
-The "ietf-te-types" module contains the YANG reusable identities for reporting path computation error reasons as defined in {{!RFC5440}}, {{!RFC5441}}, {{!RFC5520}}, {{!RFC5557}}, {{!RFC8306}}, and {{!RFC8685}}.
+The "ietf-te-types" module contains the YANG reusable identities for indicating path computation error reasons as defined in {{!RFC5440}}, {{!RFC5441}}, {{!RFC5520}}, {{!RFC5557}}, {{!RFC8306}}, and {{!RFC8685}}.
 
-It also defines the following additional YANG reusable identities for reporting also the following path computation error reasons:
+It also defines the following additional YANG reusable identities for indicating also the following path computation error reasons:
 
 path-computation-error-no-topology:
-: A YANG identity for reporting path computation error when there is no topology with the provided topology identifier.
+: A YANG identity for indicating path computation error when there is no topology with the provided topology identifier.
 
 path-computation-error-no-dependent-server:
-: A YANG identity for reporting path computation error when one or more dependent path computation servers are unavailable.
+: A YANG identity for indicating path computation error when one or more dependent path computation servers are unavailable.
 : The dependent path computation server could be a Backward-Recursive Path Computation (BRPC) downstream PCE or a child PCE.
 
-The derived identities are defined in the "ietf-te-types" module because there are error reasons which are:
+The derived identities are defined in the "ietf-te-types" module, instead of an IANA-maintained module, because there are error reasons which are:
 
 1. applicable only to the TE YANG models and not to PCEP environments (e.g., path-computation-error-no-topology);
 1. technology-specific (e.g., No RWA constraints met) which are better defined in technology-specific YANG models;
@@ -312,28 +312,10 @@ protocol-origin-api:
 
 The "ietf-te-packet-types" module ({{pkt-yang-code}}) covers the common types and groupings that are specific to packet technology.
 
-The "ietf-te-packet-types" module contains the following YANG reusable types and groupings:
-
-backup-protection-type:
-: A base YANG identity for supported protection types that a backup or bypass tunnel can provide as defined in {{!RFC4090}}.
-
-te-class-type:
-: A type that represents the Diffserv-TE Class-Type as defined in {{!RFC4124}}.
-
-bc-type:
-: A type that represents Diffserv-TE Bandwidth Constraints (BCs) as defined in {{!RFC4124}}.
-
-bc-model-type:
-: A base YANG identity for supported Diffserv-TE Bandwidth Constraints Models as defined in {{?RFC4125}}, {{?RFC4126}}, and {{?RFC4127}}.
-
-te-bandwidth-requested-type:
-: An enumerated type for the different options to request bandwidth for a specific tunnel.
+The "ietf-te-packet-types" module contains the following YANG reusable groupings:
 
 performance-metrics-attributes-packet:
 : A YANG grouping that contains the generic performance metrics and additional packet-specific metrics.
-
-bandwidth-profile-type:
-: A base YANG identity for various bandwidth profiles specified in {{MEF_10.3}}, {{?RFC2697}} and {{?RFC2698}} that may be used to limit bandwidth utilization of packet flows (e.g., MPLS-TE LSPs).
 
 bandwidth-profile-parameters:
 : A YANG grouping that defines common parameters for bandwidth profiles in packet networks.
@@ -345,6 +327,22 @@ te-packet-path-bandwidth:
 te-packet-link-bandwidth:
 : A YANG grouping that defines the link bandwidth information and could be used in any Packet TE model (e.g., MPLS-TE topology) for link bandwidth representation.
 : All the link bandwidth related sections in the "ietf-te-types" generic module, {{te-yang-code}}, need to be augmented with this grouping for the usage of Packet TE technologies.
+
+The "ietf-te-packet-types" module contains the following YANG reusable data types:
+
+te-bandwidth-requested-type:
+: An enumerated type for the different options to request bandwidth for a specific tunnel.
+
+The "ietf-te-packet-types" module contains the following YANG reusable identities:
+
+backup-protection-type:
+: A base YANG identity for supported protection types that a backup or bypass tunnel can provide as defined in {{!RFC4090}}.
+
+bc-model-type:
+: A base YANG identity for supported Diffserv-TE Bandwidth Constraints Models as defined in {{?RFC4125}}, {{?RFC4126}}, and {{?RFC4127}}.
+
+bandwidth-profile-type:
+: A base YANG identity for various bandwidth profiles specified in {{MEF_10.3}}, {{?RFC2697}} and {{?RFC2698}} that may be used to limit bandwidth utilization of packet flows (e.g., MPLS-TE LSPs).
 
 # TE Types YANG Module {#te-yang-code}
 
@@ -361,7 +359,7 @@ In addition to {{!RFC6991}} and {{!RFC8294}}, this module references the followi
 {::include ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2024-10-24.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2024-10-30.yang"}
 
 # Packet TE Types YANG Module {#pkt-yang-code}
 
@@ -371,7 +369,7 @@ The "ietf-te-packet-types" module imports from the "ietf-te-types" module define
 {::include ../../ietf-te-packet-types.yang}
 ~~~~
 {: #fig-pkt-yang title="Packet TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2024-10-17.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2024-10-30.yang"}
 
 # IANA Considerations
 
