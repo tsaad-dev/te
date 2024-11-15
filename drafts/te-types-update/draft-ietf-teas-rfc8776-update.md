@@ -269,7 +269,7 @@ resource-affinities-type:
 path-metric-type:
 : A base YANG identity for supported path metric types as defined in {{!RFC3630}}, {{!RFC3785}}, {{!RFC5440}}, {{!RFC7471}}, {{!RFC8233}}, {{!RFC8570}} and {{?I-D.ietf-pce-sid-algo-14}}.
 : The unit of the path metric value is interpreted in the context of the path metric type. The derived identities SHOULD describe the unit and maximum value of the path metric types they define.
-: For example, the bound of the 'path-metric-loss', defined in 'ietf-te-packet-types', is defined in multiples of the basic unit 0.000003% as described in {{!RFC7471}} and {{!RFC8570}}.
+: For example, the measurement unit is not applicable for the number of hops metric ('path-metric-hop'). Conversely, the bound of the 'path-metric-loss', defined in 'ietf-te-packet-types', is defined in multiples of the basic unit 0.000003% as described in {{!RFC7471}} and {{!RFC8570}}.
 
 lsp-provisioning-error-reason:
 : A base YANG identity for indicating LSP provisioning error reasons. No standard LSP provisioning error reasons are defined in this document.
