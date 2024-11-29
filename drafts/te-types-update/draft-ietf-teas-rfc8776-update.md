@@ -181,6 +181,9 @@ performance-metrics-throttle-container:
 explicit-route-hop:
 : A YANG grouping that defines supported explicit routes as defined in {{!RFC3209}} and {{!RFC3477}}.
 
+explicit-route-hop-with-srlg:
+: A YANG grouping that augments the 'explicit-route-hop' to specify also Shared Risk Link Group (SRLG)  hops.
+
 encoding-and-switching-type:
 : This is a common grouping to define the LSP encoding and switching types.
 
@@ -371,7 +374,7 @@ In addition to {{!RFC6991}} and {{!RFC8294}}, this module references the followi
 {::include ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2024-11-29.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2024-11-28.yang"}
 
 # Packet TE Types YANG Module {#pkt-yang-code}
 
@@ -381,7 +384,7 @@ The "ietf-te-packet-types" module imports from the "ietf-te-types" module define
 {::include ../../ietf-te-packet-types.yang}
 ~~~~
 {: #fig-pkt-yang title="Packet TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2024-11-29.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2024-11-28.yang"}
 
 # IANA Considerations
 
@@ -501,6 +504,8 @@ The following new data types have been added to the 'ietf-te-types' module:
 - te-gen-node-id.
 
 The following new groupings have been added to the 'ietf-te-types' module:
+
+- explicit-route-hop-with-srlg;
 
 - encoding-and-switching-type;
 
