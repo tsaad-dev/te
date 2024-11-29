@@ -371,7 +371,7 @@ In addition to {{!RFC6991}} and {{!RFC8294}}, this module references the followi
 {::include ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2024-11-28.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2024-11-29.yang"}
 
 # Packet TE Types YANG Module {#pkt-yang-code}
 
@@ -381,7 +381,7 @@ The "ietf-te-packet-types" module imports from the "ietf-te-types" module define
 {::include ../../ietf-te-packet-types.yang}
 ~~~~
 {: #fig-pkt-yang title="Packet TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2024-11-28.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2024-11-29.yang"}
 
 # IANA Considerations
 
