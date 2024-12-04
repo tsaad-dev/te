@@ -258,13 +258,15 @@ te-tunnel-type:
 : A base YANG identity for supported TE tunnel types as defined in {{!RFC3209}} and {{!RFC4875}}.
 
 lsp-encoding-types:
-: A base YANG identity for supported LSP encoding types as defined in {{!RFC3471}}.
+: A base YANG identity for supported LSP encoding types as defined in {{!RFC3471}}, {{!RFC4328}} and {{!RFC6004}}.
+: Additional technology-specific LSP encoding types can be defined in other technology-specific models.
 
 lsp-protection-type:
 : A base YANG identity for supported LSP protection types as defined in {{!RFC4872}} and {{!RFC4873}}.
 
 switching-capabilities:
-: A base YANG identity for supported interface switching capabilities as defined in {{!RFC3471}}.
+: A base YANG identity for supported interface switching capabilities as defined in {{!RFC3471}}, {{!RFC6002}}, {{!RFC6004}}, {{!RFC7074}} and {{!RFC7138}}.
+: Additional technology-specific interface switching capabilities can be defined in other technology-specific models.
 
 resource-affinities-type:
 : A base YANG identity for supported attribute filters associated with a tunnel that must be satisfied for a link to be acceptable as defined in {{!RFC3209}} and {{?RFC2702}}.
