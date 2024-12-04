@@ -181,6 +181,9 @@ performance-metrics-throttle-container:
 explicit-route-hop:
 : A YANG grouping that defines supported explicit routes as defined in {{!RFC3209}} and {{!RFC3477}}.
 
+explicit-route-hop-with-srlg:
+: A YANG grouping that augments the 'explicit-route-hop' to specify also Shared Risk Link Group (SRLG)  hops.
+
 encoding-and-switching-type:
 : This is a common grouping to define the LSP encoding and switching types.
 
@@ -255,13 +258,15 @@ te-tunnel-type:
 : A base YANG identity for supported TE tunnel types as defined in {{!RFC3209}} and {{!RFC4875}}.
 
 lsp-encoding-types:
-: A base YANG identity for supported LSP encoding types as defined in {{!RFC3471}}.
+: A base YANG identity for supported LSP encoding types as defined in {{!RFC3471}}, {{!RFC4328}} and {{!RFC6004}}.
+: Additional technology-specific LSP encoding types can be defined in other technology-specific models.
 
 lsp-protection-type:
 : A base YANG identity for supported LSP protection types as defined in {{!RFC4872}} and {{!RFC4873}}.
 
 switching-capabilities:
-: A base YANG identity for supported interface switching capabilities as defined in {{!RFC3471}}.
+: A base YANG identity for supported interface switching capabilities as defined in {{!RFC3471}}, {{!RFC6002}}, {{!RFC6004}}, {{!RFC7074}} and {{!RFC7138}}.
+: Additional technology-specific interface switching capabilities can be defined in other technology-specific models.
 
 resource-affinities-type:
 : A base YANG identity for supported attribute filters associated with a tunnel that must be satisfied for a link to be acceptable as defined in {{!RFC3209}} and {{?RFC2702}}.
@@ -371,7 +376,7 @@ In addition to {{!RFC6991}} and {{!RFC8294}}, this module references the followi
 {::include ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2024-11-09.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2024-11-28.yang"}
 
 # Packet TE Types YANG Module {#pkt-yang-code}
 
@@ -381,7 +386,7 @@ The "ietf-te-packet-types" module imports from the "ietf-te-types" module define
 {::include ../../ietf-te-packet-types.yang}
 ~~~~
 {: #fig-pkt-yang title="Packet TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2024-10-30.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2024-11-28.yang"}
 
 # IANA Considerations
 
@@ -501,6 +506,8 @@ The following new data types have been added to the 'ietf-te-types' module:
 - te-gen-node-id.
 
 The following new groupings have been added to the 'ietf-te-types' module:
+
+- explicit-route-hop-with-srlg;
 
 - encoding-and-switching-type;
 
