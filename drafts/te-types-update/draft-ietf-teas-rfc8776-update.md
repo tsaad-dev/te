@@ -653,7 +653,7 @@ The following groupings, already defined in {{!RFC8776}}, have been updated in t
 
     - tiebreakers.
 
-The following identities, already defined in {{!RFC8776}}, have been obsoletes in the 'ietf-te-types' module for bug fixing:
+The following identities, already defined in {{!RFC8776}}, have been obsoleted in the 'ietf-te-types' module for bug fixing:
 
 - of-minimize-agg-bandwidth-consumption;
 
