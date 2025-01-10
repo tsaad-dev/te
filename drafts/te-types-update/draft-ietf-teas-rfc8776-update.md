@@ -78,6 +78,8 @@ YANG {{!RFC6020}} {{!RFC7950}} is a data modeling language used to model configu
 
 This document introduces a collection of common data types derived from the built-in YANG data types. The derived data types, identities, and groupings are mainly designed to be the common definitions applicable for modeling Traffic Engineering (TE) features in model(s) defined outside of this document. Nevertheless, these common definitions can be used by any other module per the guidance in {{Section 4.12 of ?I-D.ietf-netmod-rfc8407bis}}.
 
+The YANG data model in this document conforms to the Network Management Datastore Architecture defined in {{!RFC8342}}.
+
 This document adds new common data types, identities, and groupings to both the "ietf-te-types" and the "ietf-te-packet-types" YANG modules and obsoletes {{!RFC8776}}. For further details, refer to {{changes-bis}}.
 
 ## Terminology
