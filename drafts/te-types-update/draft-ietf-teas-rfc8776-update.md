@@ -182,7 +182,7 @@ explicit-route-hop:
 : A YANG grouping that defines supported explicit routes as defined in {{!RFC3209}} and {{!RFC3477}}.
 
 explicit-route-hop-with-srlg:
-: A YANG grouping that augments the 'explicit-route-hop' to specify also Shared Risk Link Group (SRLG)  hops.
+: A YANG grouping that augments the 'explicit-route-hop' to specify also Shared Risk Link Group (SRLG) hops.
 
 encoding-and-switching-type:
 : This is a common grouping to define the LSP encoding and switching types.
@@ -283,7 +283,7 @@ path-computation-error-reason:
 : A base YANG identity for indicating path computation error reasons as defined in {{pc-error}}.
 
 protocol-origin-type:
-:  A base YANG identity for the type of protocol origin as defined in {{protocol-origin}}.
+: A base YANG identity for the type of protocol origin as defined in {{protocol-origin}}.
 
 svec-objective-function-type:
 : A base YANG identity for supported SVEC objective functions as defined in {{!RFC5541}} and {{!RFC8685}}.
@@ -308,7 +308,7 @@ The derived identities are defined in the "ietf-te-types" module, instead of an 
 
 1. applicable only to the TE YANG models and not to PCEP environments (e.g., path-computation-error-no-topology);
 1. technology-specific (e.g., No RWA constraints met) which are better defined in technology-specific YANG models;
-1. match more than one PCEP numbers in order to hide the details of the underlay PCE architecture (e.g.,  path-computation-error-no-dependent-server).
+1. match more than one PCEP numbers in order to hide the details of the underlay PCE architecture (e.g., path-computation-error-no-dependent-server).
 
 #### Protocol Origin {#protocol-origin}
 
@@ -317,7 +317,7 @@ The "ietf-te-types" module contains the YANG reusable identities for the type of
 It also defines the following additional YANG reusable identities for the type of protocol origin:
 
 protocol-origin-api:
-:  A YANG identity to be used when  the type of protocol origin is an Application Programmable Interface (API).
+: A YANG identity to be used when the type of protocol origin is an Application Programmable Interface (API).
 
 ## Packet TE Types Module Contents
 
@@ -373,7 +373,7 @@ In addition to {{!RFC6991}} and {{!RFC8294}}, this module references the followi
 {{?RFC9522}}, {{!RFC4090}}, {{!RFC4202}}, {{!RFC4328}}, {{!RFC4561}}, {{?RFC4657}}, {{?RFC4736}}, {{!RFC6004}}, {{!RFC6378}}, {{!RFC6511}}, {{!RFC7139}}, {{!RFC7271}}, {{!RFC7308}}, {{!RFC7551}}, {{!RFC7571}}, {{!RFC7579}}, and {{ITU-T_G.709}}.
 
 ~~~~ yang
-{::include ../../ietf-te-types.yang}
+{::include-fold ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
 sourcecode-markers="true" sourcecode-name="ietf-te-types@2024-11-28.yang"}
@@ -383,7 +383,7 @@ sourcecode-markers="true" sourcecode-name="ietf-te-types@2024-11-28.yang"}
 The "ietf-te-packet-types" module imports from the "ietf-te-types" module defined in {{te-yang-code}} of this document.
 
 ~~~~ yang
-{::include ../../ietf-te-packet-types.yang}
+{::include-fold ../../ietf-te-packet-types.yang}
 ~~~~
 {: #fig-pkt-yang title="Packet TE Types YANG module"
 sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2024-11-28.yang"}
@@ -460,13 +460,13 @@ The data type of every leaf node is shown near the right end of the correspondin
 ## TE Types Schema Tree
 
 ~~~~ ascii-art
-{::include ../../ietf-te-types.tree.fold}
+{::include-fold ../../ietf-te-types.tree}
 ~~~~
 
 ## Packet TE Types Schema Tree
 
 ~~~~ ascii-art
-{::include ../../ietf-te-packet-types.tree.fold}
+{::include-fold ../../ietf-te-packet-types.tree}
 ~~~~
 
 # Changes from RFC 8776 {#changes-bis}
@@ -640,7 +640,7 @@ The following groupings, already defined in {{!RFC8776}}, have been updated in t
       - increase the set of derived identities that are allowed and;
 
       - remove from this set the 'path-metric-optimize-includes' and the 'path-metric-optimize-excludes' identities (bug fixing)
-      
+
 - generic-path-optimization
 
    The following new leaf have been added to the 'generic-path-optimization' grouping:
