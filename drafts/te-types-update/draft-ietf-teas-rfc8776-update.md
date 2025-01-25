@@ -164,76 +164,6 @@ This document defines two YANG modules for common TE types: "ietf-te-types" for 
 
 The "ietf-te-types" module ({{te-yang-code}}) contains common TE types that are independent and agnostic of any specific technology or control-plane instance.
 
-### Groupings
-
-The "ietf-te-types" module contains the following YANG reusable groupings:
-
-te-bandwidth:
-: A YANG grouping that defines the generic TE bandwidth. The modeling structure allows augmentation for each technology. For unspecified technologies, the string-encoded "te-bandwidth" type is used.
-
-te-label:
-: A YANG grouping that defines the generic TE label. The modeling structure allows augmentation for each technology. For unspecified technologies, "rt-types:generalized-label" is used.
-
-performance-metrics-attributes:
-: A YANG grouping that defines one-way and two-way measured Performance Metrics (PM) and indications of anomalies on link(s) or the path as defined in {{!RFC7471}}, {{!RFC8570}}, and {{?RFC7823}}.
-
-performance-metrics-throttle-container:
-: A YANG grouping that defines configurable thresholds for advertisement suppression and measurement intervals.
-
-explicit-route-hop:
-: A YANG grouping that defines supported explicit routes as defined in {{!RFC3209}} and {{!RFC3477}}.
-
-explicit-route-hop-with-srlg:
-: A YANG grouping that augments the 'explicit-route-hop' to specify also Shared Risk Link Group (SRLG) hops.
-
-encoding-and-switching-type:
-: This is a common grouping to define the LSP encoding and switching types.
-
-### Data Types
-
-The "ietf-te-types" module contains the following YANG reusable data types:
-
-te-ds-class:
-: A type representing the Differentiated Services (DS) Class-Type of traffic as defined in {{!RFC4124}}.
-
-te-label-direction:
-: An enumerated type for specifying the forward or reverse direction of a label.
-
-te-hop-type:
-: An enumerated type for specifying that a hop is loose or strict.
-
-te-global-id:
-: A type representing the identifier that uniquely identifies an operator, which can be either a provider or a client. The definition of this type is taken from {{Section 3 of !RFC6370}} and {{Section 3 of !RFC5003}}. This attribute type is used solely to provide a globally unique context for TE topologies.
-
-te-node-id:
-: A type representing the identifier for a node in a TE topology. The identifier is represented either as 4 octets in dotted-quad notation or as 16 octets in full, mixed, shortened, or shortened-mixed IPv6 address notation.
-: This attribute MAY be mapped to the Router Address TLV described in {{Section 2.4.1 of !RFC3630}}, the TE Router ID described in {{Section 6.2 of !RFC6827}}, the Traffic Engineering Router ID TLV described in {{Section 4.3 of !RFC5305}}, or the TE Router ID TLV described in {{Section 3.2.1 of !RFC6119}}.
-: The reachability of such a TE node MAY be achieved by a mechanism such as that described in {{Section 6.2 of !RFC6827}}.
-
-te-topology-id:
-: A type representing the identifier for a topology. It is optional to have one or more prefixes at the beginning, separated by colons. The prefixes can be "network-types" as defined in the "ietf-network" module in {{!RFC8345}}, to help the user better understand the topology before further inquiry is made.
-
-te-tp-id:
-: A type representing the identifier of a TE interface Link Termination Point (LTP) on a specific TE node where the TE link connects. This attribute is mapped to a local or remote link identifier {{!RFC3630}} {{!RFC5305}}.
-
-te-path-disjointness:
-: A type representing the different resource disjointness options for a TE tunnel path as defined in {{!RFC4872}}.
-
-admin-groups:
-: A union type for a TE link's classic or extended administrative groups as defined in {{!RFC3630}}, {{!RFC5305}}, and {{!RFC7308}}.
-
-srlg:
-: A type representing the Shared Risk Link Group (SRLG) as defined in {{!RFC4203}} and {{!RFC5307}}.
-
-te-metric:
-: A type representing the TE metric as defined in {{!RFC3785}}.
-
-te-recovery-status:
-: An enumerated type for the different statuses of a recovery action as defined in {{!RFC6378}} and {{?RFC4427}}.
-
-te-link-access-type:
-: An enumerated type for the different TE link access types as defined in {{!RFC3630}}.
-
 ### Identities
 
 The "ietf-te-types" module contains the following YANG reusable identities:
@@ -321,9 +251,99 @@ It also defines the following additional YANG reusable identities for the type o
 protocol-origin-api:
 : A YANG identity to be used when the type of protocol origin is an Application Programmable Interface (API).
 
+### Data Types
+
+The "ietf-te-types" module contains the following YANG reusable data types:
+
+te-ds-class:
+: A type representing the Differentiated Services (DS) Class-Type of traffic as defined in {{!RFC4124}}.
+
+te-label-direction:
+: An enumerated type for specifying the forward or reverse direction of a label.
+
+te-hop-type:
+: An enumerated type for specifying that a hop is loose or strict.
+
+te-global-id:
+: A type representing the identifier that uniquely identifies an operator, which can be either a provider or a client. The definition of this type is taken from {{Section 3 of !RFC6370}} and {{Section 3 of !RFC5003}}. This attribute type is used solely to provide a globally unique context for TE topologies.
+
+te-node-id:
+: A type representing the identifier for a node in a TE topology. The identifier is represented either as 4 octets in dotted-quad notation or as 16 octets in full, mixed, shortened, or shortened-mixed IPv6 address notation.
+: This attribute MAY be mapped to the Router Address TLV described in {{Section 2.4.1 of !RFC3630}}, the TE Router ID described in {{Section 6.2 of !RFC6827}}, the Traffic Engineering Router ID TLV described in {{Section 4.3 of !RFC5305}}, or the TE Router ID TLV described in {{Section 3.2.1 of !RFC6119}}.
+: The reachability of such a TE node MAY be achieved by a mechanism such as that described in {{Section 6.2 of !RFC6827}}.
+
+te-topology-id:
+: A type representing the identifier for a topology. It is optional to have one or more prefixes at the beginning, separated by colons. The prefixes can be "network-types" as defined in the "ietf-network" module in {{!RFC8345}}, to help the user better understand the topology before further inquiry is made.
+
+te-tp-id:
+: A type representing the identifier of a TE interface Link Termination Point (LTP) on a specific TE node where the TE link connects. This attribute is mapped to a local or remote link identifier {{!RFC3630}} {{!RFC5305}}.
+
+te-path-disjointness:
+: A type representing the different resource disjointness options for a TE tunnel path as defined in {{!RFC4872}}.
+
+admin-groups:
+: A union type for a TE link's classic or extended administrative groups as defined in {{!RFC3630}}, {{!RFC5305}}, and {{!RFC7308}}.
+
+srlg:
+: A type representing the Shared Risk Link Group (SRLG) as defined in {{!RFC4203}} and {{!RFC5307}}.
+
+te-metric:
+: A type representing the TE metric as defined in {{!RFC3785}}.
+
+te-recovery-status:
+: An enumerated type for the different statuses of a recovery action as defined in {{!RFC6378}} and {{?RFC4427}}.
+
+te-link-access-type:
+: An enumerated type for the different TE link access types as defined in {{!RFC3630}}.
+
+### Groupings
+
+The "ietf-te-types" module contains the following YANG reusable groupings:
+
+te-bandwidth:
+: A YANG grouping that defines the generic TE bandwidth. The modeling structure allows augmentation for each technology. For unspecified technologies, the string-encoded "te-bandwidth" type is used.
+
+te-label:
+: A YANG grouping that defines the generic TE label. The modeling structure allows augmentation for each technology. For unspecified technologies, "rt-types:generalized-label" is used.
+
+performance-metrics-attributes:
+: A YANG grouping that defines one-way and two-way measured Performance Metrics (PM) and indications of anomalies on link(s) or the path as defined in {{!RFC7471}}, {{!RFC8570}}, and {{?RFC7823}}.
+
+performance-metrics-throttle-container:
+: A YANG grouping that defines configurable thresholds for advertisement suppression and measurement intervals.
+
+explicit-route-hop:
+: A YANG grouping that defines supported explicit routes as defined in {{!RFC3209}} and {{!RFC3477}}.
+
+explicit-route-hop-with-srlg:
+: A YANG grouping that augments the 'explicit-route-hop' to specify also Shared Risk Link Group (SRLG) hops.
+
+encoding-and-switching-type:
+: This is a common grouping to define the LSP encoding and switching types.
+
 ## Packet TE Types Module Contents
 
 The "ietf-te-packet-types" module ({{pkt-yang-code}}) covers the common types and groupings that are specific to packet technology.
+
+### Identities
+
+The "ietf-te-packet-types" module contains the following YANG reusable identities:
+
+backup-protection-type:
+: A base YANG identity for supported protection types that a backup or bypass tunnel can provide as defined in {{!RFC4090}}.
+
+bc-model-type:
+: A base YANG identity for supported Diffserv-TE Bandwidth Constraints Models as defined in {{?RFC4125}}, {{?RFC4126}}, and {{?RFC4127}}.
+
+bandwidth-profile-type:
+: A base YANG identity for various bandwidth profiles specified in {{MEF_10.3}}, {{?RFC2697}} and {{?RFC2698}} that may be used to limit bandwidth utilization of packet flows (e.g., MPLS-TE LSPs).
+
+### Data Types
+
+The "ietf-te-packet-types" module contains the following YANG reusable data types:
+
+te-bandwidth-requested-type:
+: An enumerated type for the different options to request bandwidth for a specific tunnel.
 
 ### Groupings
 
@@ -342,26 +362,6 @@ te-packet-path-bandwidth:
 te-packet-link-bandwidth:
 : A YANG grouping that defines the link bandwidth information and could be used in any Packet TE model (e.g., MPLS-TE topology) for link bandwidth representation.
 : All the link bandwidth related sections in the "ietf-te-types" generic module, {{te-yang-code}}, need to be augmented with this grouping for the usage of Packet TE technologies.
-
-### Data Types
-
-The "ietf-te-packet-types" module contains the following YANG reusable data types:
-
-te-bandwidth-requested-type:
-: An enumerated type for the different options to request bandwidth for a specific tunnel.
-
-### Identities
-
-The "ietf-te-packet-types" module contains the following YANG reusable identities:
-
-backup-protection-type:
-: A base YANG identity for supported protection types that a backup or bypass tunnel can provide as defined in {{!RFC4090}}.
-
-bc-model-type:
-: A base YANG identity for supported Diffserv-TE Bandwidth Constraints Models as defined in {{?RFC4125}}, {{?RFC4126}}, and {{?RFC4127}}.
-
-bandwidth-profile-type:
-: A base YANG identity for various bandwidth profiles specified in {{MEF_10.3}}, {{?RFC2697}} and {{?RFC2698}} that may be used to limit bandwidth utilization of packet flows (e.g., MPLS-TE LSPs).
 
 # TE Types YANG Module {#te-yang-code}
 
