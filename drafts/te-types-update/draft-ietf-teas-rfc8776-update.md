@@ -78,9 +78,9 @@ YANG {{!RFC6020}} {{!RFC7950}} is a data modeling language used to model configu
 
 This document introduces a collection of common data types derived from the built-in YANG data types. The derived data types, identities, and groupings are mainly designed to be the common definitions applicable for modeling Traffic Engineering (TE) features in model(s) defined outside of this document. Nevertheless, these common definitions can be used by any other module per the guidance in {{Section 4.12 of ?I-D.ietf-netmod-rfc8407bis}} and {{Section 4.13 of ?I-D.ietf-netmod-rfc8407bis}}.
 
-> Note: Some groupings defined in this document do not always follow the suggestion in
+> Note: Some groupings defined in this document do not follow the guidelines of
 {{Section 4.13 of ?I-D.ietf-netmod-rfc8407bis}} not to include
-"default" statements. This is due to the fact that they were already defined in {{?RFC8876}} and removing "default"
+"default" statements. This is due to the fact that they were already defined in {{?RFC8776}} and removing "default"
 statements is not a backward compatible change, as defined in {{Section 11 of !RFC7950}}.
 
 The YANG data model in this document conforms to the Network Management Datastore Architecture defined in {{!RFC8342}}.
@@ -450,7 +450,7 @@ the YANG module that need to be considered.
 
 Modules that use the groupings that are defined in this document
 should identify the corresponding security considerations.
-For example using 'explicit-route-hop', 'record-route-state' or 'te-topology-identifier' groupings may expose sensitive topology information, such as the 'client-id' of a client the TE topology is customized for, as defined in {{Section 5.4 of !RFC8795}}.
+For example using 'explicit-route-hop', 'record-route-state' or 'te-topology-identifier' (which includes the 'client-id') groupings may expose sensitive topology information.
 
 --- back
 
