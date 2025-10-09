@@ -231,13 +231,13 @@ nodes, termination points and links.
 
 ## Overlay and Underlay non-TE Topologies {#overlay-underlay}
 
-   The TE Topology model supports the management of overlay/underlay
-   relationship for nodes and links, as described in section 5.8 of
-   {{!RFC8795}}. This solution is generic and does not require the network
-   to be a TE network.
+The TE Topology model supports the management of overlay/underlay
+relationship for nodes and links, as described in section 5.8 of
+{{!RFC8795}}. This solution is generic and does not require the network
+to be a TE network.
 
-   The following TE topology data model profile can be used to manage
-   overlay/underlay network data:
+The following TE topology data model profile can be used to manage
+overlay/underlay network data:
 
 ~~~~
    module: ietf-te-topology
@@ -272,13 +272,19 @@ nodes, termination points and links.
                                +--rw hop-type?     te-hop-type
                                +--rw direction?    te-link-direction
 ~~~~
-{: #overlay-underlay-tree title="Generic Topology with overlay/underlay information"}
+{:#overlay-underlay-tree title="Generic Topology with overlay/underlay information"}
 
-   This profile is applicable to any technology (TE or non-TE) when it
-   is needed to manage the overlay/underlay information. It is also
-   allows a TE underlay network to support a non-TE overlay network and,
-   vice versa, a non-TE underlay network to support a TE overlay
-   network.
+This profile is applicable to any technology (TE or non-TE) when it
+is needed to manage the overlay/underlay information. It is also
+allows a TE underlay network to support a non-TE overlay network and,
+vice versa, a non-TE underlay network to support a TE overlay
+network.
+
+### Supporting relationships in RFC8345
+
+{{!RFC8345}} defines the modeling constructs for supporting relations, including supporting network (i.e. topology), supporting node, supporting link, and supporting termination point. These relation constructs facilitate network mappings and transformations. One use case is to map a customized topology to a native topology. The customized topology uses different name spaces from the native topology when naming nodes, links, or termination points. There is a supporting relationship between a modeling construct in the customized topography to its counterpart in the native topology. In such a relationship, the modeling constructs at both ends represent the same type of network objects, which can be network (i.e. topology), node, link, or termination point.
+
+{{!RFC8795}} defines the modeling constructs for network overlay and underlay relations. When the network overlay technology is used, some network objects (nodes or links) in the overlay network are built on top of network objects in the underlay network. As a result, the overlay-underlay relationship is created between network objects in the overlay networks and other network objects in the underlay network. Between the network object pairs in the overlay-underlay relationship, the types of the network objects are usually not the same. The network object can be a node in the overlay network, while the related underlay network object is a topology in the underlay network. A link in the overlay network can be related to a path that consists of a sequence of nodes and links in the underlay network.
 
 ## Nodes with switching limitations {#switching-limitations}
 
@@ -541,12 +547,6 @@ Topology Model (Option 1 or Option 3). These attributes can be TE or
 non-TE and require the implementation of the te container.
 
 # Open Issues {#open-issues}
-
-## Supporting node/link versus overlay/underlay
-
-Some more explanation of the difference between supporting-node/supporting-link and overlay/underlay has been requested.
-
-Note: that this issue is also tracked in github as issue #167.
 
 ## Implemented profiles {#implement}
 
