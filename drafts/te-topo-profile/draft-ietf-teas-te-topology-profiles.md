@@ -124,7 +124,7 @@ The following profile of the YANG data model defined in {{!RFC8795}} can be used
 ~~~~
 {:#uni-discovery-tree title="UNI Topology"}
 
-The UNI Topology profiled YANG data model shown in {{uni-discovery-tree}} can also be used with technology-specific UNI augmentations, as described in {{augmentations}}.
+The UNI Topology profiled YANG data model shown in {{uni-discovery-tree}} can also be used with technology-specific UNI augmentations, as described in {{augmentations}}. Technology-specific augmentations can for example describe the capability of the TP to be configured as a UNI for the types of services supported by the UNI (e.g., L2VPN/L3VPN).
 
 For example, in {{?I-D.ietf-ccamp-eth-client-te-topo-yang}},
 the eth-svc container is defined to
