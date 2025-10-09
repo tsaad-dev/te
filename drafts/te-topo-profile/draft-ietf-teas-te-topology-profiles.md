@@ -266,6 +266,8 @@ network.
 
 ## Nodes with switching limitations {#switching-limitations}
 
+It is worth noting that a node, as defined in {{!RFC8345}}, does not provide any information about the possible connectivity between its TPs.
+
 A node can have some switching limitations where connectivity is not
 possible between all its TP pairs, for example when:
 
@@ -311,6 +313,27 @@ any technology (TE or non-TE) networks that requires managing nodes
 with certain connectivity constraints. When used with TE
 technologies, additional TE attributes, as defined in {{!RFC8795}}, can
 also be provided.
+
+## Multipoint links {#mp-links}
+
+According to {{section 4.4.4 of !RFC8345}}, multipoint links can be "represented through pseudonodes (similar to IS-IS, for example)".
+
+The directionality of each access point of a multipoint link is described by the links connected to the TP on the pseudonode:
+
+- if there in only one incoming link (with the TP referenced as destination), the TP can only received traffic (i.e., the TP is a source TP from the perspective of the pseudonode representing the multipoint link);
+- if there is only one outgoing link (with the TP referenced as source), the TP can only transmit traffic (i.e., the TP is a destination TP from the perspective of the pseudonode representing the multipoint link);
+- if there are two links, one incoming and one outgoing, the TP can transmit and receive traffic (i.e., the TP is bidirectional also from the perspective of the pseudonode representing the multipoint link).
+
+The switching limitations of the pseudonode, as defined in {{switching-limitations}}, provides sufficient information to identify the type of multipoint link:
+- in case of multipoint links, the connectivity matrix of the pseudnode, reports that connectivity is enabled by default between all the TPs of the node;
+- in case of point-to-multipoint links, the connectivity matrix of the pseudnode, reports that connectivity is possible only between the root TP and the leaf TPs
+>>
+- if the point-to-multipoint link is unidirectional, the connectivity matrix of the pseudonodes reports that connectivity is only possible from the root TP to the leaf TPs;
+>>
+- if the point-to-multipoint link is unidirectional, the connectivity matrix of the pseudonodes reports that connectivity is possible from the root TP to the leaf TPs as well as from the leaf TPs to the root TP;
+>>
+- the connectivity matrix of the psuedonode can also describe point-to-multipoint links with more than one root (also known as rooted-multipoint links), indicating also whether connectivity between root TPs is allowed or not;
+- in case of hybrid multipoint links, the connectivity matrix of the pseunode reports the list of TP pairs for which connectivity is allowed or not allowed.
 
 # Technology-specific augmentations {#augmentations}
 
