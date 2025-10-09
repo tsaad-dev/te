@@ -73,14 +73,13 @@ TE encompasses the application of technology and scientific
 principles to the measurement, characterization, modeling, and
 control of Internet traffic.
 
-The TE Topology Model is augmenting the Network Topology Model
-defined in {{!RFC8345}} with generic and technology-agnostic features
-that some are strictly applicable to TE networks, while others
-applicable to both TE and non-TE networks.
+The TE Topology Model is augmenting the Network Topology Model defined in {{!RFC8345}} with generic and technology-agnostic features, some of which are strictly applicable to TE networks, while others applicable to both TE and non-TE networks, and therefore could be considered as core network topology model constructs.
 
-Examples of such features that are applicable to both TE and non-TE
-networks are: inter-domain link discovery (plug-id), geo-
-localization, and admin/operational status.
+Examples of core network topology model constructs supported by the YANG data model defined in {{!RFC8795}}: inter-domain link discovery (plug-id),  and admin/operational status.
+
+It is also worth noting that also the boundary between the TE-specific model constructs and the core network topology model constructs is also blurred since new applications may need to leverage on constructs which was originally defined to support TE applications but that are also needed to support these new applications.
+
+An example of a concept that originated from TE application but can be considered a core network topology model construct is the SRLG. New applications such as what-if analysis need to be aware of the SRLG information also for non-TE network topologies to provide reliable results.
 
 It is also worth noting that the TE Topology Model is quite an
 extensive and comprehensive model in which most features are
@@ -103,16 +102,13 @@ and non-TE technologies.
 
 ## UNI Topology Discovery {#uni-discovery}
 
-   UNI Topology Discovery is independent from whether the network is TE
-   or non-TE.
+UNI Topology Discovery is independent from whether the network is TE or non-TE.
 
-   The TE Topology Model supports inter-domain link discovery (including
-   but not being limited to UNI link discovery) using the plug-id
-   attribute. This solution is quite generic and does not require the
-   network to be a TE network.
+The YANG data model defined in {{!RFC8795}} supports inter-domain link discovery (including
+but not being limited to UNI link discovery) using the plug-id
+attribute.
 
-   The following profile of the TE Topology model can be used for the
-   UNI Topology Discovery:
+The following profile of the YANG data model defined in {{!RFC8795}} can be used to support the UNI Topology Discovery:
 
 ~~~~ ascii-art
    module: ietf-te-topology
@@ -126,22 +122,17 @@ and non-TE technologies.
           +--rw inter-domain-plug-id?        binary
           +--ro oper-status?                 te-types:te-oper-status
 ~~~~
-{: #uni-discovery-tree title="UNI Topology"}
+{:#uni-discovery-tree title="UNI Topology"}
 
-   The profile data model shown in {{uni-discovery-tree}} can be used to discover TE
-   and non TE UNIs as well as to discover UNIs for TE or non TE
-   networks.
+The UNI Topology profiled YANG data model shown in {{uni-discovery-tree}} can also be used with technology-specific UNI augmentations, as described in {{augmentations}}.
 
-   Such a UNI TE Topology profile model can also be used with
-   technology-specific UNI augmentations, as described in section 3.
+For example, in {{?I-D.ietf-ccamp-eth-client-te-topo-yang}},
+the eth-svc container is defined to
+represent the capabilities of the Termination Point (TP) to be
+configured as an Ethernet UNI, together with the Ethernet
+classification and VLAN operations supported by that TP.
 
-   For example, in {{?I-D.ietf-ccamp-eth-client-te-topo-yang}},
-   the eth-svc container is defined to
-   represent the capabilities of the Termination Point (TP) to be
-   configured as an Ethernet client UNI, together with the Ethernet
-   classification and VLAN operations supported by that TP.
-
-   The {{?I-D.ietf-ccamp-otn-topo-yang}} provides another example, where:
+The {{?I-D.ietf-ccamp-otn-topo-yang}} provides another example, where:
 
 -  the client-svc container is defined to represent the capabilities
    of the TP to be configured as an transparent client UNI (e.g.,
@@ -152,25 +143,12 @@ and non-TE technologies.
    to be configured as an OTN UNI, together with the information
    about OTN label and bandwidth availability at the OTN UNI.
 
-   For example, the UNI TE Topology profile can be used to model
-   features defined in {{?I-D.ogondio-opsawg-uni-topology}}:
+The UNI Topology profiled YANG data model shown in {{uni-discovery-tree}} does not require the network to be a TE network and, therefore, it could be used as a core network topology model to discover UNIs (or in general any external link) for TE and non-TE networks as well as multi-layer networks encompassing both TE and non-TE layers.
 
--  The inter-domain-plug-id attribute would provide the same
-   information as the attachment-id attribute defined in
-   {{?I-D.ogondio-opsawg-uni-topology}};
+It is also worth noting that the UNI links can also be TE (e.g. an OTN UNI) or non-TE (e.g., an Ethernet UNI) as well as multi-function UNI links, supporting both TE and non-TE technologies, such as the UNI links, described in {{section 4.4 of ?I-D.ietf-ccamp-transport-nbi-app-statement}}, which can be configured either OTN UNI or Ethernet UNI or SDH UNI.
 
--  The admin-status and oper-status that exists in this TE topology
-   profile can provide the same information as the admin-status and
-   oper-status attributes defined in {{?I-D.ogondio-opsawg-uni-topology}}.
-
-   Following the same approach in {{?I-D.ietf-ccamp-eth-client-te-topo-yang}}
-   and {{?I-D.ietf-ccamp-otn-topo-yang}}, the type
-   and encapsulation-type attributes can be defined by technology-
-   specific UNI augmentations to represent the capability of a TP to be
-   configured as a L2VPN/L3VPN UNI Service Attachment Point (SAP).
-
-   The advantages of using a TE Topology profile would be having common
-   solutions for:
+The advantages of using the UNI Topology profiled YANG data model shown in {{uni-discovery-tree}} as a core network topology model is to have a common
+solutions for:
 
 -  discovering UNIs as well as inter-domain NNI links, which is
    applicable to any technology (TE or non TE) used at the UNI or
