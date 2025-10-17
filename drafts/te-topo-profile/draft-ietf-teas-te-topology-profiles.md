@@ -77,7 +77,7 @@ The TE Topology Model is augmenting the Network Topology Model defined in {{!RFC
 
 Examples of core network topology model constructs supported by the YANG data model defined in {{!RFC8795}}: inter-domain link discovery (plug-id),  and admin/operational status.
 
-It is also worth noting that also the boundary between the TE-specific model constructs and the core network topology model constructs is also blurred since new applications may need to leverage on constructs which was originally defined to support TE applications but that are also needed to support these new applications.
+It is also worth noting that also the boundary between the TE-specific model constructs and the core network topology model constructs is also blurred since new happlications may need to leverage on constructs which was originally defined to support TE applications but that are also needed to support these new applications.
 
 An example of a concept that originated from TE application but can be considered a core network topology model construct is the SRLG. New applications such as what-if analysis need to be aware of the SRLG information also for non-TE network topologies to provide reliable results.
 
@@ -124,6 +124,12 @@ The following profile of the YANG data model defined in {{!RFC8795}} can be used
 ~~~~
 {:#uni-discovery-tree title="UNI Topology"}
 
+Note: It would have been more straightforward to understand that the solution is generic
+if the 'inter-domain-plug-id' leaf were defined
+under a container with a different name than 'te' or directly under the parent 'termination-point' data node.
+
+It is also worth noting that the UNI links can also be TE (e.g. an OTN UNI) or non-TE (e.g., an Ethernet UNI) as well as multi-function UNI links, supporting both TE and non-TE technologies, such as the UNI links, described in {{section 4.4 of ?I-D.ietf-ccamp-transport-nbi-app-statement}}, which can be configured either OTN UNI or Ethernet UNI or SDH UNI.
+
 The UNI Topology profiled YANG data model shown in {{uni-discovery-tree}} can also be used with technology-specific UNI augmentations, as described in {{augmentations}}. Technology-specific augmentations can for example describe the capability of the TP to be configured as a UNI for the types of services supported by the UNI (e.g., L2VPN/L3VPN).
 
 For example, in {{?I-D.ietf-ccamp-eth-client-te-topo-yang}},
@@ -143,12 +149,10 @@ The {{?I-D.ietf-ccamp-otn-topo-yang}} provides another example, where:
    to be configured as an OTN UNI, together with the information
    about OTN label and bandwidth availability at the OTN UNI.
 
-The UNI Topology profiled YANG data model shown in {{uni-discovery-tree}} does not require the network to be a TE network and, therefore, it could be used as a core network topology model to discover UNIs (or in general any external link) for TE and non-TE networks as well as multi-layer networks encompassing both TE and non-TE layers.
+Te UNI Topology profiled YANG data model shown in {{uni-discovery-tree}} does not require the network to be a TE network and, therefore, it could be used as a core network topology model to discover UNIs (or in general any external link) for TE and non-TE networks as well as multi-layer networks encompassing both TE and non-TE layers.
 
-It is also worth noting that the UNI links can also be TE (e.g. an OTN UNI) or non-TE (e.g., an Ethernet UNI) as well as multi-function UNI links, supporting both TE and non-TE technologies, such as the UNI links, described in {{section 4.4 of ?I-D.ietf-ccamp-transport-nbi-app-statement}}, which can be configured either OTN UNI or Ethernet UNI or SDH UNI.
-
-The advantages of using the UNI Topology profiled YANG data model shown in {{uni-discovery-tree}} as a core network topology model is to have a common
-solutions for:
+The advantages of using the UNI Topology profiled YANG data model shown in {{uni-discovery-tree}}
+as a core network topology model is to have a common solutions for:
 
 -  discovering UNIs as well as inter-domain NNI links, which is
    applicable to any technology (TE or non TE) used at the UNI or
@@ -160,13 +164,13 @@ solutions for:
 
 ## Administrative and Operational status management {#admin-oper-state}
 
-The TE Topology Model supports the management of administrative and
-operational state, including also the possibility to associate some
-administrative names, for nodes, termination points and links. This
-solution is generic and also does not require the network to be a TE
-network.
+The management of administrative and operational state is independent from whether the network is TE or non-TE.
 
-The following profile of the TE Topology Model can be used for
+The YANG data model defined in {{!RFC8795}} supports the management of administrative and
+operational state for nodes, termination points and links.
+It also includes the possibility to associate some administrative names to network topologies, nodes, termination points and links.
+
+The following profile of the YANG data model defined in {{!RFC8795}} can be used for
 administrative and operational state management:
 
 ~~~~
@@ -202,20 +206,24 @@ administrative and operational state management:
 ~~~~
 {:#admin-oper-state-tree title="Generic Topology with admin and operational state"}
 
-The TE topology data model profile shown in {{admin-oper-state-tree}} is applicable to
-any technology (TE or non-TE) that requires management of the
-administrative and operational state and administrative names for
-nodes, termination points and links.
+Note: It would have been more straightforward to understand that the solution is generic
+if the 'name', 'admin-status' and 'oper-status' leafs were defined
+under a container with a different name than 'te' (e.g., 'state-management') or directly under the parent data node (e.g., network).
 
-## Overlay and Underlay non-TE Topologies {#overlay-underlay}
+The administrative and operational state management profiled YANG data model shown in {{admin-oper-state-tree}}
+does not require the network to be a TE network and, therefore, it could be used as a core network topology model to
+manage the administrative and operational state for nodes, termination points and links as well as the administrative names for networks, nodes, termination points and links.
 
-The TE Topology model supports the management of overlay/underlay
+## Overlay and Underlay Topologies {#overlay-underlay}
+
+The navigation of the overlay/underlay relationship for nodes and links is independent from whether the overlay or underlay networks are TE or non-TE.
+
+The YANG data model defined in {{!RFC8795}} supports the management of overlay/underlay
 relationship for nodes and links, as described in section 5.8 of
-{{!RFC8795}}. This solution is generic and does not require the network
-to be a TE network.
+{{!RFC8795}}.
 
-The following TE topology data model profile can be used to manage
-overlay/underlay network data:
+The following profile of the YANG data model defined in {{!RFC8795}} can be used for
+to manage overlay/underlay network data:
 
 ~~~~
    module: ietf-te-topology
@@ -252,11 +260,20 @@ overlay/underlay network data:
 ~~~~
 {:#overlay-underlay-tree title="Generic Topology with overlay/underlay information"}
 
-This profile is applicable to any technology (TE or non-TE) when it
-is needed to manage the overlay/underlay information. It is also
-allows a TE underlay network to support a non-TE overlay network and,
-vice versa, a non-TE underlay network to support a TE overlay
-network.
+Note: It would have been more straightforward to understand that the solution is generic
+if the 'underlay-topology' container or the 'underlay' container were defined
+under a container with a different name than 'te' or directly under the parent 'node' or, respectively, 'link' data node.
+
+The underlay/overlay network profiled YANG data model shown in {{overlay-underlay-tree}}
+does not require the network to be a TE network and, therefore, it could be used as a core network topology model to manage the overlay/underlay navigation between different network topologies.
+
+The advantages of using the underlay/overlay network profiled YANG data model shown in {{overlay-underlay-tree}}
+as a core network topology model is to have a common solutions for navigating between overlay/underlay network topologies where:
+
+- both the underlay and overlay network topologies are TE networks;
+- both the underlay and overlay network topologies are non-TE networks;
+- the underlay and overlay network topologies are TE and non-TE networks;
+- the underlay or the overlay network topology is a multi-layer network encompassing both TE and non-TE layers.
 
 ### Supporting relationships in RFC8345
 
@@ -275,16 +292,14 @@ possible between all its TP pairs, for example when:
 
 -  the node represents an abstraction of a network topology.
 
-This scenario is generic and applies to both TE and non-TE
-technologies.
+The management of nodes with switching limitations is independent from whether the network is TE or non-TE.
 
-A connectivity TE Topology profile data model supports the management
-of the node connectivity matrix to represent feasible connections
-between termination points across the nodes. This solution is generic
-and does not necessarily require a TE enabled network.
+The YANG data model defined in {{!RFC8795}} supports the management of nodes with switching limitations by defining
+the node connectivity matrix to represent feasible connections
+between termination points across the nodes.
 
-The following profile of the TE Topology model can be used for nodes
-with connectivity constraints:
+The following profile of the YANG data model defined in {{!RFC8795}} can be used for
+modelling nodes with connectivity constraints:
 
 ~~~~
    module: ietf-te-topology
@@ -307,33 +322,43 @@ with connectivity constraints:
 ~~~~
 {:#switching-limitations-tree title="Generic Topology with connectivity constraints"}
 
-The TE topology data model profile shown in {{switching-limitations-tree}}
-is applicable to
-any technology (TE or non-TE) networks that requires managing nodes
-with certain connectivity constraints. When used with TE
-technologies, additional TE attributes, as defined in {{!RFC8795}}, can
-also be provided.
+Note: It would have been more straightforward to understand that the solution is generic
+if the 'connectivity-matrices' container were defined
+under a container with a different name than 'te' or directly under the parent 'node' data node.
+
+The node connectivity constraints profiled YANG data model shown in {{switching-limitations-tree}}
+does not require the network to be a TE network and, therefore, it could be used as a core network topology model to
+manage nodes
+with certain connectivity constraints.
 
 ## Multipoint links {#mp-links}
 
+The management of multipoint links is independent from whether the links are TE or non-TE.
+
 According to {{section 4.4.4 of !RFC8345}}, multipoint links can be "represented through pseudonodes (similar to IS-IS, for example)".
 
-The directionality of each access point of a multipoint link is described by the links connected to the TP on the pseudonode:
+Each access point can have different directionality with respect to the multipoint link, as shown in {{mp-link-example}}:
+- an access point of a multipoint link can be able to both transmit and receive traffic: this access point can be modelled as a TP (e.g., TP A in {{mp-link-example}}) terminating two links, one incoming link (e.g., Link 1 in {{mp-link-example}}) and one outgoing link (e.g., Link 2 in {{mp-link-example}});
+- an access point of a multipoint link can be able only to receive traffic: this access point can be modelled as a TP (e.g., TP B in {{mp-link-example}}) with only one incoming link (e.g., Link 3 in {{mp-link-example}});
+- an access point of a multipoint link can be able only to transmit traffic: this access point can be modelled as a TP (e.g., TP C in {{mp-link-example}}) with only one outgoing link (e.g., Link 4 in {{mp-link-example}}).
 
-- if there in only one incoming link (with the TP referenced as destination), the TP can only received traffic (i.e., the TP is a source TP from the perspective of the pseudonode representing the multipoint link);
-- if there is only one outgoing link (with the TP referenced as source), the TP can only transmit traffic (i.e., the TP is a destination TP from the perspective of the pseudonode representing the multipoint link);
-- if there are two links, one incoming and one outgoing, the TP can transmit and receive traffic (i.e., the TP is bidirectional also from the perspective of the pseudonode representing the multipoint link).
+~~~~ ascii-art
+{::include ./figures/mp-link-example.txt}
+~~~~
+{:#mp-link-example title="Example of a pseudonode modelling a multipoint link"}
 
 The switching limitations of the pseudonode, as defined in {{switching-limitations}}, provides sufficient information to identify the type of multipoint link:
 - in case of multipoint links, the connectivity matrix of the pseudnode, reports that connectivity is enabled by default between all the TPs of the node;
 - in case of point-to-multipoint links, the connectivity matrix of the pseudnode, reports that connectivity is possible only between the root TP and the leaf TPs
 >>
-- if the point-to-multipoint link is unidirectional, the connectivity matrix of the pseudonodes reports that connectivity is only possible from the root TP to the leaf TPs;
->>
-- if the point-to-multipoint link is unidirectional, the connectivity matrix of the pseudonodes reports that connectivity is possible from the root TP to the leaf TPs as well as from the leaf TPs to the root TP;
+- if the point-to-multipoint link is bidirectional, the connectivity matrix of the pseudonodes reports that connectivity is possible from the root TP to the leaf TPs as well as from the leaf TPs to the root TP;
 >>
 - the connectivity matrix of the psuedonode can also describe point-to-multipoint links with more than one root (also known as rooted-multipoint links), indicating also whether connectivity between root TPs is allowed or not;
 - in case of hybrid multipoint links, the connectivity matrix of the pseunode reports the list of TP pairs for which connectivity is allowed or not allowed.
+
+It is worth noting that the directionality of the access point of a multipoint link overrides the switching limitations of the pseudonode. For example, even if the connectivity matrix of the psuedonode in {{mp-link-example}} indicates that connectivity is possible between TP A and TP B, the traffic entering the pseudonode from TP A cannot be transmitted by TP B since there is no outgoing link from TP B.
+
+Therefore, the connectivity matrix of a pseudonode modelling a point-to-multipoint unidirectional link, does not need to report that connectivity is only possible from the root TP to the leaf TPs but it can report that connectivity is possible by default between all the TPs of the node. The fact that the pseudonode is a point-to-multipoint unidirectional link can be understood by the fact that there is only one root TP, which can only receive traffic, and one or more leaf TPs, which can only transmit traffic.
 
 # Technology-specific augmentations {#augmentations}
 
@@ -383,8 +408,10 @@ and {{?I-D.ietf-ccamp-otn-topo-yang}}.
 It is worth noting that a profile of the technology-specific TE
 Topology model not using any TE topology attribute or constructs can
 be used to address any use case that do not require these attributes.
-In this case, only the te-topology presence container of the TE
-Topology Model needs to be implemented.
+In this case, only the 'te-topology' presence container of the TE
+Topology Model needs to be implemented because it is the parent container
+for the 'network-type' representing the technology-specific topology model.
+Other data nodes defined in the TE Topology Model do not need to be implemented by this profile.
 
 The second option is to define a technology-specific Network Topology
 Model which augments the Network Topology Model and to rely on the
