@@ -128,7 +128,7 @@ Note: It would have been more straightforward to understand that the solution is
 if the 'inter-domain-plug-id' leaf were defined
 under a container with a different name than 'te' or directly under the parent 'termination-point' data node.
 
-It is also worth noting that the UNI links can also be TE (e.g. an OTN UNI) or non-TE (e.g., an Ethernet UNI) as well as multi-function UNI links, supporting both TE and non-TE technologies, such as the UNI links, described in {{section 4.4 of ?I-D.ietf-ccamp-transport-nbi-app-statement}}, which can be configured either OTN UNI or Ethernet UNI or SDH UNI.
+It is also worth noting that the UNI links can also be TE (e.g. an OTN UNI) or non-TE (e.g., an Ethernet UNI) as well as multi-function UNI links, supporting both TE and non-TE technologies, such as the UNI links, described in {{Section 4.4 of ?I-D.ietf-ccamp-transport-nbi-app-statement}}, which can be configured either OTN UNI or Ethernet UNI or SDH UNI.
 
 The UNI Topology profiled YANG data model shown in {{uni-discovery-tree}} can also be used with technology-specific UNI augmentations, as described in {{augmentations}}. Technology-specific augmentations can for example describe the capability of the TP to be configured as a UNI for the types of services supported by the UNI (e.g., L2VPN/L3VPN).
 
@@ -335,7 +335,7 @@ with certain connectivity constraints.
 
 The management of multipoint links is independent from whether the links are TE or non-TE.
 
-According to {{section 4.4.4 of !RFC8345}}, multipoint links can be "represented through pseudonodes (similar to IS-IS, for example)".
+According to {{Section 4.4.4 of !RFC8345}}, multipoint links can be "represented through pseudonodes (similar to IS-IS, for example)".
 
 Each access point can have different directionality with respect to the multipoint link, as shown in {{mp-link-example}}:
 - an access point of a multipoint link can be able to both transmit and receive traffic: this access point can be modelled as a TP (e.g., TP A in {{mp-link-example}}) terminating two links, one incoming link (e.g., Link 1 in {{mp-link-example}}) and one outgoing link (e.g., Link 2 in {{mp-link-example}});
@@ -354,7 +354,7 @@ The switching limitations of the pseudonode, as defined in {{switching-limitatio
 - if the point-to-multipoint link is bidirectional, the connectivity matrix of the pseudonodes reports that connectivity is possible from the root TP to the leaf TPs as well as from the leaf TPs to the root TP;
 >>
 - the connectivity matrix of the psuedonode can also describe point-to-multipoint links with more than one root (also known as rooted-multipoint links), indicating also whether connectivity between root TPs is allowed or not;
-- in case of hybrid multipoint links, the connectivity matrix of the pseunode reports the list of TP pairs for which connectivity is allowed or not allowed.
+- in case of hybrid multipoint links, as defined in {{?I-D.ietf-nmop-simap-concept}}, the connectivity matrix of the pseunode reports the list of TP pairs for which connectivity is allowed or not allowed.
 
 It is worth noting that the directionality of the access point of a multipoint link overrides the switching limitations of the pseudonode. For example, even if the connectivity matrix of the psuedonode in {{mp-link-example}} indicates that connectivity is possible between TP A and TP B, the traffic entering the pseudonode from TP A cannot be transmitted by TP B since there is no outgoing link from TP B.
 
