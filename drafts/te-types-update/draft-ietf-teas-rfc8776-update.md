@@ -383,7 +383,7 @@ In addition to {{!RFC6991}} and {{!RFC8294}}, this module references the followi
 {::include-fold ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2025-10-15.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2025-10-17.yang"}
 
 # Packet TE Types YANG Module {#pkt-yang-code}
 
