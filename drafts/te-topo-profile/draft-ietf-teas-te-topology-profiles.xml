@@ -15,7 +15,7 @@
 
 <rfc ipr="trust200902" docName="draft-ietf-teas-te-topology-profiles-latest" category="info" submissionType="IETF" tocInclude="true" sortRefs="true" symRefs="true">
   <front>
-    <title abbrev="TE Topology Profiles">Profiles for Traffic Engineering (TE) Topology Data Model and Applicability to non-TE Use Cases</title>
+    <title abbrev="TE Topology Profiles">Profiles for Traffic Engineering (TE) Topology Data Model and Applicability to non-TE-centric Use Cases</title>
 
     <author initials="I." surname="Busi" fullname="Italo Busi">
       <organization>Huawei</organization>
@@ -48,7 +48,7 @@
       </address>
     </author>
 
-    <date year="2025" month="October" day="17"/>
+    <date year="2025" month="October" day="20"/>
 
     
     <workgroup>TEAS Working Group</workgroup>
@@ -59,9 +59,10 @@
 
 <?line 55?>
 
-<t>This document describes how profiles of the Traffic Engineering (TE)
-   Topology Model, defined in RFC8795, can be used to address
-   applications beyond "Traffic Engineering".</t>
+<t>This document describes how profiles of the 
+Topology YANG data model, defined in RFC8795, can be used to address
+applications in Traffic Engineering aware (TE-aware) deployments,
+irrespective of whether they are TE-centric or not.</t>
 
 
 
@@ -74,13 +75,11 @@
   <middle>
 
 
-<?line 61?>
+<?line 62?>
 
 <section anchor="introduction"><name>Introduction</name>
 
-<t>There are many network scenarios being discussed in various IETF
-Working Groups (WGs) that are not classified as "Traffic Engineering"
-but can be addressed by a sub-set (profile) of the YANG data model, defined in <xref target="RFC8795"/>.</t>
+<t>Many network scenarios are being discussed in various IETF Working Groups (WGs) that are not classified as "Traffic Engineering" use cases but can be addressed by a profile (sub-set) of the Topology YANG data model, defined in <xref target="RFC8795"/>.</t>
 
 <t>Traffic Engineering (TE) is defined in <xref target="I-D.ietf-teas-rfc3272bis"/> as aspects of
 Internet network engineering that deal with the issues of performance
@@ -89,43 +88,35 @@ TE encompasses the application of technology and scientific
 principles to the measurement, characterization, modeling, and
 control of Internet traffic.</t>
 
-<t>The TE Topology Model is augmenting the Network Topology Model defined in <xref target="RFC8345"/> with generic and technology-agnostic features, some of which are strictly applicable to TE networks, while others applicable to both TE and non-TE networks, and therefore could be considered as core network topology model constructs.</t>
+<t>The Topology YANG data model, defined in <xref target="RFC8795"/>, augments the Network Topology YANG data model, defined in <xref target="RFC8345"/>, with generic and technology-agnostic features that are not only applicable to TE-centric deployments, but also applicable to non-TE-centric yet TE-aware deployments.</t>
 
-<t>Examples of core network topology model constructs supported by the YANG data model defined in <xref target="RFC8795"/>: inter-domain link discovery (plug-id),  and admin/operational status.</t>
+<t>A TE-aware deployment is one where the topology carries information that can be used to influence how traffic can be engineered within the network. In some scenarios, this information can be leveraged even in use cases where traffic doesn't need to be engineered.</t>
 
-<t>It is also worth noting that also the boundary between the TE-specific model constructs and the core network topology model constructs is also blurred since new happlications may need to leverage on constructs which was originally defined to support TE applications but that are also needed to support these new applications.</t>
+<t>Examples of generic TE-aware features that can apply to both TE-centric and non-TE-centric use-cases are: inter-domain link discovery (plug-id), geo-localization, multi-layer topology representation, node-specific switching limitation, link reliability, and topology abstraction.</t>
 
-<t>An example of a concept that originated from TE application but can be considered a core network topology model construct is the SRLG. New applications such as what-if analysis need to be aware of the SRLG information also for non-TE network topologies to provide reliable results.</t>
+<t>It is also worth noting that also the boundary between the TE-specific model constructs and the core network topology model constructs is also blurred since new applications may need to leverage on constructs which was originally defined to support TE-centric scenarios but that are also needed to support these new applications.</t>
 
-<t>It is also worth noting that the TE Topology Model is quite an
+<t>An example of a concept that originated from TE-centric scenarios but can be considered a core network topology model construct is the SRLG. New applications such as what-if analysis need to be aware of the SRLG information also for non-TE-centric scenarios to provide reliable results.</t>
+
+<t>It is also worth noting that the Topology YANG data model, defined in <xref target="RFC8795"/>, is quite an
 extensive and comprehensive model in which most features are
-optional. Therefore, even though the full model appears to be
-complex, at the first glance, a sub-set of the model (profile) can be
-used to address specific scenarios, e.g. suitable also to non-TE use
-cases.</t>
+optional. Therefore, even though the full model appears to be complex, at the first glance, a profile (sub-set) of the model can be used to address specific scenarios irrespective of whether they are TE-centric or not.</t>
 
-<t>The implementation of such TE Topology profiles can simplify and
-expedite adoption of the full TE topology YANG data model, and allow
-for its reuse even for non-TE use case. The key question being
-whether all or some of the attributes defined in the TE Topology
-Model are needed to address a given network scenario.</t>
+<t>The implementation of profiles can simplify and expedite adoption of the Topology YANG data model, defined <xref target="RFC8795"/>, and allow for its reuse even for non-TE-centric use-cases. The key question is whether all or some of the attributes defined in the Topology YANG data model, defined in <xref target="RFC8795"/>, are needed to address a given network scenario.</t>
 
-<t><xref target="examples"/> provides examples where profiles of the TE Topology Model
-can be used to address some generic use cases applicable to both TE
-and non-TE technologies.</t>
+<t><xref target="examples"/> provides examples where profiles of the Topology YANG data model, defined in <xref target="RFC8795"/>, can be used to address some generic use cases applicable to both TE-centric and non-TE-centric deployments.</t>
+
+<t>Understanding that these profiles are generic would be more straightforward
+if the profiled YANG data nodes where defined
+under a container with a different name than 'te' or directly under the parent YANG data node.
+However, the 'te' container in the context of <xref target="RFC8795"/>, should be understood as the container of YANG data nodes providing TE-aware topology information.</t>
 
 </section>
-<section anchor="examples"><name>Examples of non-TE scenarios</name>
+<section anchor="examples"><name>Examples of generic profiles</name>
 
 <section anchor="uni-discovery"><name>UNI Topology Discovery</name>
 
-<t>UNI Topology Discovery is independent from whether the network is TE or non-TE.</t>
-
-<t>The YANG data model defined in <xref target="RFC8795"/> supports inter-domain link discovery (including
-but not being limited to UNI link discovery) using the plug-id
-attribute.</t>
-
-<t>The following profile of the YANG data model defined in <xref target="RFC8795"/> can be used to support the UNI Topology Discovery:</t>
+<t>The following profile of the Topology YANG data model, defined in <xref target="RFC8795"/>, can be used to support the UNI Topology Discovery, or in general, inter-domain link discovery:</t>
 
 <figure title="UNI Topology" anchor="uni-discovery-tree"><artwork type="ascii-art"><![CDATA[
    module: ietf-te-topology
@@ -139,10 +130,6 @@ attribute.</t>
           +--rw inter-domain-plug-id?        binary
           +--ro oper-status?                 te-types:te-oper-status
 ]]></artwork></figure>
-
-<t>Note: It would have been more straightforward to understand that the solution is generic
-if the 'inter-domain-plug-id' leaf were defined
-under a container with a different name than 'te' or directly under the parent 'termination-point' data node.</t>
 
 <t>It is also worth noting that the UNI links can also be TE (e.g. an OTN UNI) or non-TE (e.g., an Ethernet UNI) as well as multi-function UNI links, supporting both TE and non-TE technologies, such as the UNI links, described in <xref section="4.4" sectionFormat="of" target="I-D.ietf-ccamp-transport-nbi-app-statement"/>, which can be configured either OTN UNI or Ethernet UNI or SDH UNI.</t>
 
@@ -183,14 +170,8 @@ configured as either Ethernet or OTN UNI).</t>
 </section>
 <section anchor="admin-oper-state"><name>Administrative and Operational status management</name>
 
-<t>The management of administrative and operational state is independent from whether the network is TE or non-TE.</t>
-
-<t>The YANG data model defined in <xref target="RFC8795"/> supports the management of administrative and
-operational state for nodes, termination points and links.
-It also includes the possibility to associate some administrative names to network topologies, nodes, termination points and links.</t>
-
-<t>The following profile of the YANG data model defined in <xref target="RFC8795"/> can be used for
-administrative and operational state management:</t>
+<t>The following profile of the Topology YANG data model, defined in <xref target="RFC8795"/>, can be used to manage the
+administrative and operational for nodes, termination points and links as well as to associate some administrative names to network topologies, nodes, termination points and links:</t>
 
 <figure title="Generic Topology with admin and operational state" anchor="admin-oper-state-tree"><artwork><![CDATA[
    module: ietf-te-topology
@@ -224,25 +205,12 @@ administrative and operational state management:</t>
           +--ro oper-status?              te-types:te-oper-status
 ]]></artwork></figure>
 
-<t>Note: It would have been more straightforward to understand that the solution is generic
-if the 'name', 'admin-status' and 'oper-status' leafs were defined
-under a container with a different name than 'te' (e.g., 'state-management') or directly under the parent data node (e.g., network).</t>
-
-<t>The administrative and operational state management profiled YANG data model shown in <xref target="admin-oper-state-tree"/>
-does not require the network to be a TE network and, therefore, it could be used as a core network topology model to
-manage the administrative and operational state for nodes, termination points and links as well as the administrative names for networks, nodes, termination points and links.</t>
-
 </section>
 <section anchor="overlay-underlay"><name>Overlay and Underlay Topologies</name>
 
-<t>The navigation of the overlay/underlay relationship for nodes and links is independent from whether the overlay or underlay networks are TE or non-TE.</t>
-
-<t>The YANG data model defined in <xref target="RFC8795"/> supports the management of overlay/underlay
-relationship for nodes and links, as described in section 5.8 of
-<xref target="RFC8795"/>.</t>
-
-<t>The following profile of the YANG data model defined in <xref target="RFC8795"/> can be used for
-to manage overlay/underlay network data:</t>
+<t>The following profile of the Topology YANG data model, defined in <xref target="RFC8795"/>, can be used
+to manage the overlay/underlay relationships for nodes and links, as described in section 5.8 of
+<xref target="RFC8795"/>:</t>
 
 <figure title="Generic Topology with overlay/underlay information" anchor="overlay-underlay-tree"><artwork><![CDATA[
    module: ietf-te-topology
@@ -278,13 +246,6 @@ to manage overlay/underlay network data:</t>
                                +--rw direction?    te-link-direction
 ]]></artwork></figure>
 
-<t>Note: It would have been more straightforward to understand that the solution is generic
-if the 'underlay-topology' container or the 'underlay' container were defined
-under a container with a different name than 'te' or directly under the parent 'node' or, respectively, 'link' data node.</t>
-
-<t>The underlay/overlay network profiled YANG data model shown in <xref target="overlay-underlay-tree"/>
-does not require the network to be a TE network and, therefore, it could be used as a core network topology model to manage the overlay/underlay navigation between different network topologies.</t>
-
 <t>The advantages of using the underlay/overlay network profiled YANG data model shown in <xref target="overlay-underlay-tree"/>
 as a core network topology model is to have a common solutions for navigating between overlay/underlay network topologies where:</t>
 
@@ -315,14 +276,10 @@ possible between all its TP pairs, for example when:</t>
   <t>the node represents an abstraction of a network topology.</t>
 </list></t>
 
-<t>The management of nodes with switching limitations is independent from whether the network is TE or non-TE.</t>
-
-<t>The YANG data model defined in <xref target="RFC8795"/> supports the management of nodes with switching limitations by defining
+<t>The following profile of the Topology YANG data model, defined in <xref target="RFC8795"/>, can be used for
+the management of nodes with switching limitations by defining
 the node connectivity matrix to represent feasible connections
-between termination points across the nodes.</t>
-
-<t>The following profile of the YANG data model defined in <xref target="RFC8795"/> can be used for
-modelling nodes with connectivity constraints:</t>
+between termination points across the nodes:</t>
 
 <figure title="Generic Topology with connectivity constraints" anchor="switching-limitations-tree"><artwork><![CDATA[
    module: ietf-te-topology
@@ -344,19 +301,8 @@ modelling nodes with connectivity constraints:</t>
                    +--rw is-allowed?              boolean
 ]]></artwork></figure>
 
-<t>Note: It would have been more straightforward to understand that the solution is generic
-if the 'connectivity-matrices' container were defined
-under a container with a different name than 'te' or directly under the parent 'node' data node.</t>
-
-<t>The node connectivity constraints profiled YANG data model shown in <xref target="switching-limitations-tree"/>
-does not require the network to be a TE network and, therefore, it could be used as a core network topology model to
-manage nodes
-with certain connectivity constraints.</t>
-
 </section>
 <section anchor="mp-links"><name>Multipoint links</name>
-
-<t>The management of multipoint links is independent from whether the links are TE or non-TE.</t>
 
 <t>According to <xref section="4.4.4" sectionFormat="of" target="RFC8345"/>, multipoint links can be "represented through pseudonodes (similar to IS-IS, for example)".</t>
 
@@ -366,8 +312,31 @@ with certain connectivity constraints.</t>
 - an access point of a multipoint link can be able only to transmit traffic: this access point can be modelled as a TP (e.g., TP C in <xref target="mp-link-example"/>) with only one outgoing link (e.g., Link 4 in <xref target="mp-link-example"/>).</t>
 
 <figure title="Example of a pseudonode modelling a multipoint link" anchor="mp-link-example"><artwork type="ascii-art"><![CDATA[
-See: Figure in 
-https://github.com/tsaad-dev/te/pull/314#discussion_r2440659072
+                        |
+                        |  Link3
+                        |
+                        V
+                       +-+
+                      /   \
+                     |  B  |
+                      \   /
+              +--------+-+--------+
+             /                     \
+            /                       \
+            |                       |
+            |                       |
+  Link 1    |                       |
+        +-+ |                       | +-+
+ ----->/   \|                       |/   \
+      |  A  |       Psedonode       |  C  |----->          
+ <-----\   /|                       |\   /
+        +-+ |                       | +-+   Link 4
+  Link 2    |                       | 
+            |                       |
+            |                       |
+            \                       / 
+             \                     /
+              +-------------------+
 ]]></artwork></figure>
 
 <t>The switching limitations of the pseudonode, as defined in <xref target="switching-limitations"/>, provides sufficient information to identify the type of multipoint link:
@@ -381,15 +350,46 @@ https://github.com/tsaad-dev/te/pull/314#discussion_r2440659072
 
 <t>It is worth noting that the directionality of the access point of a multipoint link overrides the switching limitations of the pseudonode. For example, even if the connectivity matrix of the psuedonode in <xref target="mp-link-example"/> indicates that connectivity is possible between TP A and TP B, the traffic entering the pseudonode from TP A cannot be transmitted by TP B since there is no outgoing link from TP B.</t>
 
-<t>Therefore, the connectivity matrix of a pseudonode modelling a point-to-multipoint unidirectional link, does not need to report that connectivity is only possible from the root TP to the leaf TPs but it can report that connectivity is possible by default between all the TPs of the node. The fact that the pseudonode is a point-to-multipoint unidirectional link can be understood by the fact that there is only one root TP, which can only receive traffic, and one or more leaf TPs, which can only transmit traffic.</t>
+<t>Therefore, the connectivity matrix of a pseudonode modelling a point-to-multipoint unidirectional link, does not need to report that connectivity is only possible from the root TP to the leaf TPs but it can report that connectivity is possible by default between all the TPs of the node.
+The pseudonode represents a point-to-multipoint unidirectional link, as indicated by a single root TP that can only receive traffic and one or more leaf TPs that can only transmit traffic.</t>
+
+<figure title="Example of a pseudonode modelling an undirectional point-to-multipoint link" anchor="p2mp-link-example"><artwork type="ascii-art"><![CDATA[
+                        |
+                        |  Link1
+                        |
+                        V
+                       +-+
+                      /   \
+                     |  A  |
+                      \   /
+              +--------+-+--------+
+             /                     \
+            /                       \
+            |                       |
+            |                       |
+  Link 2    |                       |       Link 3
+        +-+ |                       | +-+
+       /   \|                       |/   \
+ <----|  B  |       Psedonode       |  C  |----->          
+       \   /|                       |\   /
+        +-+ |                       | +-+
+            |                       | 
+            |                       |
+            |                       |
+            \                       / 
+             \                     /
+              +-------------------+
+]]></artwork></figure>
+
+<t>For example, <xref target="p2mp-link-example"/> shows an example of a pseudonode representing an unidirectional point-to-multipoint link where the TP A is the root TP and TPs B and C are the two leaf TPs.</t>
 
 </section>
 </section>
 <section anchor="augmentations"><name>Technology-specific augmentations</name>
 
 <t>There are two main options to define technology-specific Topology
-   Models which can use the attributes defined in the TE Topology Model
-   <xref target="RFC8795"/>.</t>
+   Models which can use the attributes defined in the
+   Topology YANG data model, defined in <xref target="RFC8795"/>.</t>
 
 <t>Both options are applicable to any possible profile of the TE
    Topology Model, such as those defined in <xref target="examples"/>.</t>
@@ -632,8 +632,8 @@ in section 5.3 of <xref target="RFC8342"/>.</t>
 </section>
 <section anchor="security"><name>Security Considerations</name>
 
-<t>This document provides only information about how the TE Topology
-Model, as defined in <xref target="RFC8795"/>, can be profiled to address some
+<t>This document provides only information about how the Topology
+YANG data model, defined in <xref target="RFC8795"/>, can be profiled to address some
 scenarios which are not considered as TE.</t>
 
 <t>As such, this document does not introduce any additional security
@@ -877,7 +877,7 @@ for providing useful suggestions for this draft.</t>
       <author fullname="Thomas Graf" initials="T." surname="Graf">
          <organization>Swisscom</organization>
       </author>
-      <date day="26" month="September" year="2025"/>
+      <date day="18" month="October" year="2025"/>
       <abstract>
 	 <t>   This document defines the concept of Service &amp; Infrastructure Maps
    (SIMAP) and identifies a set of SIMAP requirements and use cases.
@@ -889,7 +889,7 @@ for providing useful suggestions for this draft.</t>
 	 </t>
       </abstract>
    </front>
-   <seriesInfo name="Internet-Draft" value="draft-ietf-nmop-simap-concept-06"/>
+   <seriesInfo name="Internet-Draft" value="draft-ietf-nmop-simap-concept-07"/>
    
 </reference>
 
@@ -976,178 +976,178 @@ for providing useful suggestions for this draft.</t>
   </back>
 
 <!-- ##markdown-source:
-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
-Mo2vjqf3ppWATQkCYpoWMPn/AZrHjhT9ewAA
+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
+08+njYCNCUJimuNL0/4XT+q4uh98AAA=
 
 -->
 

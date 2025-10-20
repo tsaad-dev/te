@@ -5,25 +5,26 @@
 TEAS Working Group                                               I. Busi
 Internet-Draft                                                    Huawei
 Intended status: Informational                                    X. Liu
-Expires: 20 April 2026                                         Alef Edge
+Expires: 23 April 2026                                         Alef Edge
                                                               I. Bryskin
                                                               Individual
                                                                  T. Saad
                                                        Cisco Systems Inc
                                                      O. Gonzalez de Dios
                                                               Telefonica
-                                                         17 October 2025
+                                                         20 October 2025
 
 
      Profiles for Traffic Engineering (TE) Topology Data Model and
-                   Applicability to non-TE Use Cases
+               Applicability to non-TE-centric Use Cases
               draft-ietf-teas-te-topology-profiles-latest
 
 Abstract
 
-   This document describes how profiles of the Traffic Engineering (TE)
-   Topology Model, defined in RFC8795, can be used to address
-   applications beyond "Traffic Engineering".
+   This document describes how profiles of the Topology YANG data model,
+   defined in RFC8795, can be used to address applications in Traffic
+   Engineering aware (TE-aware) deployments, irrespective of whether
+   they are TE-centric or not.
 
 Status of This Memo
 
@@ -40,24 +41,26 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 20 April 2026.
+   This Internet-Draft will expire on 23 April 2026.
 
 Copyright Notice
 
    Copyright (c) 2025 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
-   This document is subject to BCP 78 and the IETF Trust's Legal
-   Provisions Relating to IETF Documents (https://trustee.ietf.org/
-   license-info) in effect on the date of publication of this document.
 
 
 
-Busi, et al.              Expires 20 April 2026                 [Page 1]
+
+
+Busi, et al.              Expires 23 April 2026                 [Page 1]
 
 Internet-Draft            TE Topology Profiles              October 2025
 
 
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
    Please review these documents carefully, as they describe your rights
    and restrictions with respect to this document.  Code Components
    extracted from this document must include Revised BSD License text as
@@ -67,13 +70,13 @@ Internet-Draft            TE Topology Profiles              October 2025
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
-   2.  Examples of non-TE scenarios  . . . . . . . . . . . . . . . .   3
-     2.1.  UNI Topology Discovery  . . . . . . . . . . . . . . . . .   3
+   2.  Examples of generic profiles  . . . . . . . . . . . . . . . .   4
+     2.1.  UNI Topology Discovery  . . . . . . . . . . . . . . . . .   4
      2.2.  Administrative and Operational status management  . . . .   5
-     2.3.  Overlay and Underlay Topologies . . . . . . . . . . . . .   7
+     2.3.  Overlay and Underlay Topologies . . . . . . . . . . . . .   6
        2.3.1.  Supporting relationships in RFC8345 . . . . . . . . .   8
-     2.4.  Nodes with switching limitations  . . . . . . . . . . . .   9
-     2.5.  Multipoint links  . . . . . . . . . . . . . . . . . . . .  10
+     2.4.  Nodes with switching limitations  . . . . . . . . . . . .   8
+     2.5.  Multipoint links  . . . . . . . . . . . . . . . . . . . .   9
    3.  Technology-specific augmentations . . . . . . . . . . . . . .  12
      3.1.  Multi-inheritance . . . . . . . . . . . . . . . . . . . .  14
      3.2.  Example (Link augmentation) . . . . . . . . . . . . . . .  15
@@ -92,10 +95,10 @@ Table of Contents
 
 1.  Introduction
 
-   There are many network scenarios being discussed in various IETF
-   Working Groups (WGs) that are not classified as "Traffic Engineering"
-   but can be addressed by a sub-set (profile) of the YANG data model,
-   defined in [RFC8795].
+   Many network scenarios are being discussed in various IETF Working
+   Groups (WGs) that are not classified as "Traffic Engineering" use
+   cases but can be addressed by a profile (sub-set) of the Topology
+   YANG data model, defined in [RFC8795].
 
    Traffic Engineering (TE) is defined in [I-D.ietf-teas-rfc3272bis] as
    aspects of Internet network engineering that deal with the issues of
@@ -106,76 +109,81 @@ Table of Contents
 
 
 
-
-
-
-Busi, et al.              Expires 20 April 2026                 [Page 2]
+Busi, et al.              Expires 23 April 2026                 [Page 2]
 
 Internet-Draft            TE Topology Profiles              October 2025
 
 
-   The TE Topology Model is augmenting the Network Topology Model
-   defined in [RFC8345] with generic and technology-agnostic features,
-   some of which are strictly applicable to TE networks, while others
-   applicable to both TE and non-TE networks, and therefore could be
-   considered as core network topology model constructs.
+   The Topology YANG data model, defined in [RFC8795], augments the
+   Network Topology YANG data model, defined in [RFC8345], with generic
+   and technology-agnostic features that are not only applicable to TE-
+   centric deployments, but also applicable to non-TE-centric yet TE-
+   aware deployments.
 
-   Examples of core network topology model constructs supported by the
-   YANG data model defined in [RFC8795]: inter-domain link discovery
-   (plug-id), and admin/operational status.
+   A TE-aware deployment is one where the topology carries information
+   that can be used to influence how traffic can be engineered within
+   the network.  In some scenarios, this information can be leveraged
+   even in use cases where traffic doesn't need to be engineered.
+
+   Examples of generic TE-aware features that can apply to both TE-
+   centric and non-TE-centric use-cases are: inter-domain link discovery
+   (plug-id), geo-localization, multi-layer topology representation,
+   node-specific switching limitation, link reliability, and topology
+   abstraction.
 
    It is also worth noting that also the boundary between the TE-
    specific model constructs and the core network topology model
    constructs is also blurred since new applications may need to
-   leverage on constructs which was originally defined to support TE
-   applications but that are also needed to support these new
+   leverage on constructs which was originally defined to support TE-
+   centric scenarios but that are also needed to support these new
    applications.
 
-   An example of a concept that originated from TE application but can
-   be considered a core network topology model construct is the SRLG.
-   New applications such as what-if analysis need to be aware of the
-   SRLG information also for non-TE network topologies to provide
+   An example of a concept that originated from TE-centric scenarios but
+   can be considered a core network topology model construct is the
+   SRLG.  New applications such as what-if analysis need to be aware of
+   the SRLG information also for non-TE-centric scenarios to provide
    reliable results.
 
-   It is also worth noting that the TE Topology Model is quite an
-   extensive and comprehensive model in which most features are
-   optional.  Therefore, even though the full model appears to be
-   complex, at the first glance, a sub-set of the model (profile) can be
-   used to address specific scenarios, e.g. suitable also to non-TE use
-   cases.
+   It is also worth noting that the Topology YANG data model, defined in
+   [RFC8795], is quite an extensive and comprehensive model in which
+   most features are optional.  Therefore, even though the full model
+   appears to be complex, at the first glance, a profile (sub-set) of
+   the model can be used to address specific scenarios irrespective of
+   whether they are TE-centric or not.
 
-   The implementation of such TE Topology profiles can simplify and
-   expedite adoption of the full TE topology YANG data model, and allow
-   for its reuse even for non-TE use case.  The key question being
-   whether all or some of the attributes defined in the TE Topology
-   Model are needed to address a given network scenario.
+   The implementation of profiles can simplify and expedite adoption of
+   the Topology YANG data model, defined [RFC8795], and allow for its
+   reuse even for non-TE-centric use-cases.  The key question is whether
+   all or some of the attributes defined in the Topology YANG data
+   model, defined in [RFC8795], are needed to address a given network
+   scenario.
 
-   Section 2 provides examples where profiles of the TE Topology Model
-   can be used to address some generic use cases applicable to both TE
-   and non-TE technologies.
-
-2.  Examples of non-TE scenarios
-
-2.1.  UNI Topology Discovery
-
-   UNI Topology Discovery is independent from whether the network is TE
-   or non-TE.
+   Section 2 provides examples where profiles of the Topology YANG data
+   model, defined in [RFC8795], can be used to address some generic use
+   cases applicable to both TE-centric and non-TE-centric deployments.
 
 
 
 
-
-Busi, et al.              Expires 20 April 2026                 [Page 3]
+Busi, et al.              Expires 23 April 2026                 [Page 3]
 
 Internet-Draft            TE Topology Profiles              October 2025
 
 
-   The YANG data model defined in [RFC8795] supports inter-domain link
-   discovery (including but not being limited to UNI link discovery)
-   using the plug-id attribute.
+   Understanding that these profiles are generic would be more
+   straightforward if the profiled YANG data nodes where defined under a
+   container with a different name than 'te' or directly under the
+   parent YANG data node.  However, the 'te' container in the context of
+   [RFC8795], should be understood as the container of YANG data nodes
+   providing TE-aware topology information.
 
-   The following profile of the YANG data model defined in [RFC8795] can
-   be used to support the UNI Topology Discovery:
+2.  Examples of generic profiles
+
+2.1.  UNI Topology Discovery
+
+   The following profile of the Topology YANG data model, defined in
+   [RFC8795], can be used to support the UNI Topology Discovery, or in
+   general, inter-domain link discovery:
 
       module: ietf-te-topology
         augment /nw:networks/nw:network/nw:network-types:
@@ -189,11 +197,6 @@ Internet-Draft            TE Topology Profiles              October 2025
              +--ro oper-status?                 te-types:te-oper-status
 
                            Figure 1: UNI Topology
-
-   Note: It would have been more straightforward to understand that the
-   solution is generic if the 'inter-domain-plug-id' leaf were defined
-   under a container with a different name than 'te' or directly under
-   the parent 'termination-point' data node.
 
    It is also worth noting that the UNI links can also be TE (e.g. an
    OTN UNI) or non-TE (e.g., an Ethernet UNI) as well as multi-function
@@ -215,23 +218,24 @@ Internet-Draft            TE Topology Profiles              October 2025
 
    The [I-D.ietf-ccamp-otn-topo-yang] provides another example, where:
 
-   *  the client-svc container is defined to represent the capabilities
-      of the TP to be configured as an transparent client UNI (e.g.,
-      STM-N, Fiber Channel or transparent Ethernet);
 
 
 
-Busi, et al.              Expires 20 April 2026                 [Page 4]
+Busi, et al.              Expires 23 April 2026                 [Page 4]
 
 Internet-Draft            TE Topology Profiles              October 2025
 
+
+   *  the client-svc container is defined to represent the capabilities
+      of the TP to be configured as an transparent client UNI (e.g.,
+      STM-N, Fiber Channel or transparent Ethernet);
 
    *  the OTN technology-specific Link Termination Point (LTP)
       augmentations are defined to represent the capabilities of the TP
       to be configured as an OTN UNI, together with the information
       about OTN label and bandwidth availability at the OTN UNI.
 
-   The UNI Topology profiled YANG data model shown in Figure 1 does not
+   Te UNI Topology profiled YANG data model shown in Figure 1 does not
    require the network to be a TE network and, therefore, it could be
    used as a core network topology model to discover UNIs (or in general
    any external link) for TE and non-TE networks as well as multi-layer
@@ -251,17 +255,11 @@ Internet-Draft            TE Topology Profiles              October 2025
 
 2.2.  Administrative and Operational status management
 
-   The management of administrative and operational state is independent
-   from whether the network is TE or non-TE.
-
-   The YANG data model defined in [RFC8795] supports the management of
-   administrative and operational state for nodes, termination points
-   and links.  It also includes the possibility to associate some
+   The following profile of the Topology YANG data model, defined in
+   [RFC8795], can be used to manage the administrative and operational
+   for nodes, termination points and links as well as to associate some
    administrative names to network topologies, nodes, termination points
-   and links.
-
-   The following profile of the YANG data model defined in [RFC8795] can
-   be used for administrative and operational state management:
+   and links:
 
 
 
@@ -277,7 +275,9 @@ Internet-Draft            TE Topology Profiles              October 2025
 
 
 
-Busi, et al.              Expires 20 April 2026                 [Page 5]
+
+
+Busi, et al.              Expires 23 April 2026                 [Page 5]
 
 Internet-Draft            TE Topology Profiles              October 2025
 
@@ -314,18 +314,11 @@ Internet-Draft            TE Topology Profiles              October 2025
 
         Figure 2: Generic Topology with admin and operational state
 
-   Note: It would have been more straightforward to understand that the
-   solution is generic if the 'name', 'admin-status' and 'oper-status'
-   leafs were defined under a container with a different name than 'te'
-   (e.g., 'state-management') or directly under the parent data node
-   (e.g., network).
+2.3.  Overlay and Underlay Topologies
 
-   The administrative and operational state management profiled YANG
-   data model shown in Figure 2 does not require the network to be a TE
-   network and, therefore, it could be used as a core network topology
-   model to manage the administrative and operational state for nodes,
-   termination points and links as well as the administrative names for
-   networks, nodes, termination points and links.
+   The following profile of the Topology YANG data model, defined in
+   [RFC8795], can be used to manage the overlay/underlay relationships
+   for nodes and links, as described in section 5.8 of [RFC8795]:
 
 
 
@@ -333,23 +326,17 @@ Internet-Draft            TE Topology Profiles              October 2025
 
 
 
-Busi, et al.              Expires 20 April 2026                 [Page 6]
+
+
+
+
+
+
+
+Busi, et al.              Expires 23 April 2026                 [Page 6]
 
 Internet-Draft            TE Topology Profiles              October 2025
 
-
-2.3.  Overlay and Underlay Topologies
-
-   The navigation of the overlay/underlay relationship for nodes and
-   links is independent from whether the overlay or underlay networks
-   are TE or non-TE.
-
-   The YANG data model defined in [RFC8795] supports the management of
-   overlay/underlay relationship for nodes and links, as described in
-   section 5.8 of [RFC8795].
-
-   The following profile of the YANG data model defined in [RFC8795] can
-   be used for to manage overlay/underlay network data:
 
       module: ietf-te-topology
         augment /nw:netorks/nw:network/nw:network-types:
@@ -385,27 +372,6 @@ Internet-Draft            TE Topology Profiles              October 2025
 
         Figure 3: Generic Topology with overlay/underlay information
 
-
-
-
-
-Busi, et al.              Expires 20 April 2026                 [Page 7]
-
-Internet-Draft            TE Topology Profiles              October 2025
-
-
-   Note: It would have been more straightforward to understand that the
-   solution is generic if the 'underlay-topology' container or the
-   'underlay' container were defined under a container with a different
-   name than 'te' or directly under the parent 'node' or, respectively,
-   'link' data node.
-
-   The underlay/overlay network profiled YANG data model shown in
-   Figure 3 does not require the network to be a TE network and,
-   therefore, it could be used as a core network topology model to
-   manage the overlay/underlay navigation between different network
-   topologies.
-
    The advantages of using the underlay/overlay network profiled YANG
    data model shown in Figure 3 as a core network topology model is to
    have a common solutions for navigating between overlay/underlay
@@ -418,6 +384,15 @@ Internet-Draft            TE Topology Profiles              October 2025
 
    *  the underlay and overlay network topologies are TE and non-TE
       networks;
+
+
+
+
+
+Busi, et al.              Expires 23 April 2026                 [Page 7]
+
+Internet-Draft            TE Topology Profiles              October 2025
+
 
    *  the underlay or the overlay network topology is a multi-layer
       network encompassing both TE and non-TE layers.
@@ -442,14 +417,6 @@ Internet-Draft            TE Topology Profiles              October 2025
    some network objects (nodes or links) in the overlay network are
    built on top of network objects in the underlay network.  As a
    result, the overlay-underlay relationship is created between network
-
-
-
-Busi, et al.              Expires 20 April 2026                 [Page 8]
-
-Internet-Draft            TE Topology Profiles              October 2025
-
-
    objects in the overlay networks and other network objects in the
    underlay network.  Between the network object pairs in the overlay-
    underlay relationship, the types of the network objects are usually
@@ -472,39 +439,21 @@ Internet-Draft            TE Topology Profiles              October 2025
 
    *  the node represents an abstraction of a network topology.
 
-   The management of nodes with switching limitations is independent
-   from whether the network is TE or non-TE.
-
-   The YANG data model defined in [RFC8795] supports the management of
-   nodes with switching limitations by defining the node connectivity
-   matrix to represent feasible connections between termination points
-   across the nodes.
-
-   The following profile of the YANG data model defined in [RFC8795] can
-   be used for modelling nodes with connectivity constraints:
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Busi, et al.              Expires 20 April 2026                 [Page 9]
+Busi, et al.              Expires 23 April 2026                 [Page 8]
 
 Internet-Draft            TE Topology Profiles              October 2025
 
+
+   The following profile of the Topology YANG data model, defined in
+   [RFC8795], can be used for the management of nodes with switching
+   limitations by defining the node connectivity matrix to represent
+   feasible connections between termination points across the nodes:
 
       module: ietf-te-topology
         augment /nw:networks/nw:network/nw:network-types:
@@ -526,41 +475,10 @@ Internet-Draft            TE Topology Profiles              October 2025
 
           Figure 4: Generic Topology with connectivity constraints
 
-   Note: It would have been more straightforward to understand that the
-   solution is generic if the 'connectivity-matrices' container were
-   defined under a container with a different name than 'te' or directly
-   under the parent 'node' data node.
-
-   The node connectivity constraints profiled YANG data model shown in
-   Figure 4 does not require the network to be a TE network and,
-   therefore, it could be used as a core network topology model to
-   manage nodes with certain connectivity constraints.
-
 2.5.  Multipoint links
-
-   The management of multipoint links is independent from whether the
-   links are TE or non-TE.
 
    According to Section 4.4.4 of [RFC8345], multipoint links can be
    "represented through pseudonodes (similar to IS-IS, for example)".
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Busi, et al.              Expires 20 April 2026                [Page 10]
-
-Internet-Draft            TE Topology Profiles              October 2025
-
 
    Each access point can have different directionality with respect to
    the multipoint link, as shown in Figure 5: - an access point of a
@@ -575,8 +493,44 @@ Internet-Draft            TE Topology Profiles              October 2025
    point can be modelled as a TP (e.g., TP C in Figure 5) with only one
    outgoing link (e.g., Link 4 in Figure 5).
 
-   See: Figure in
-   https://github.com/tsaad-dev/te/pull/314#discussion_r2440659072
+
+
+
+
+
+
+
+
+Busi, et al.              Expires 23 April 2026                 [Page 9]
+
+Internet-Draft            TE Topology Profiles              October 2025
+
+
+                           |
+                           |  Link3
+                           |
+                           V
+                          +-+
+                         /   \
+                        |  B  |
+                         \   /
+                 +--------+-+--------+
+                /                     \
+               /                       \
+               |                       |
+               |                       |
+     Link 1    |                       |
+           +-+ |                       | +-+
+    ----->/   \|                       |/   \
+         |  A  |       Psedonode       |  C  |----->
+    <-----\   /|                       |\   /
+           +-+ |                       | +-+   Link 4
+     Link 2    |                       |
+               |                       |
+               |                       |
+               \                       /
+                \                     /
+                 +-------------------+
 
        Figure 5: Example of a pseudonode modelling a multipoint link
 
@@ -598,6 +552,16 @@ Internet-Draft            TE Topology Profiles              October 2025
    connectivity matrix of the pseunode reports the list of TP pairs for
    which connectivity is allowed or not allowed.
 
+
+
+
+
+
+Busi, et al.              Expires 23 April 2026                [Page 10]
+
+Internet-Draft            TE Topology Profiles              October 2025
+
+
    It is worth noting that the directionality of the access point of a
    multipoint link overrides the switching limitations of the
    pseudonode.  For example, even if the connectivity matrix of the
@@ -610,30 +574,65 @@ Internet-Draft            TE Topology Profiles              October 2025
    to-multipoint unidirectional link, does not need to report that
    connectivity is only possible from the root TP to the leaf TPs but it
    can report that connectivity is possible by default between all the
+   TPs of the node.  The pseudonode represents a point-to-multipoint
+   unidirectional link, as indicated by a single root TP that can only
+   receive traffic and one or more leaf TPs that can only transmit
+   traffic.
+
+                           |
+                           |  Link1
+                           |
+                           V
+                          +-+
+                         /   \
+                        |  A  |
+                         \   /
+                 +--------+-+--------+
+                /                     \
+               /                       \
+               |                       |
+               |                       |
+     Link 2    |                       |       Link 3
+           +-+ |                       | +-+
+          /   \|                       |/   \
+    <----|  B  |       Psedonode       |  C  |----->
+          \   /|                       |\   /
+           +-+ |                       | +-+
+               |                       |
+               |                       |
+               |                       |
+               \                       /
+                \                     /
+                 +-------------------+
+
+        Figure 6: Example of a pseudonode modelling an undirectional
+                         point-to- multipoint link
 
 
 
-Busi, et al.              Expires 20 April 2026                [Page 11]
+
+
+
+Busi, et al.              Expires 23 April 2026                [Page 11]
 
 Internet-Draft            TE Topology Profiles              October 2025
 
 
-   TPs of the node.  The fact that the pseudonode is a point-to-
-   multipoint unidirectional link can be understood by the fact that
-   there is only one root TP, which can only receive traffic, and one or
-   more leaf TPs, which can only transmit traffic.
+   For example, Figure 6 shows an example of a pseudonode representing
+   an unidirectional point-to-multipoint link where the TP A is the root
+   TP and TPs B and C are the two leaf TPs.
 
 3.  Technology-specific augmentations
 
    There are two main options to define technology-specific Topology
-   Models which can use the attributes defined in the TE Topology Model
-   [RFC8795].
+   Models which can use the attributes defined in the Topology YANG data
+   model, defined in [RFC8795].
 
    Both options are applicable to any possible profile of the TE
    Topology Model, such as those defined in Section 2.
 
    The first option is to define a technology-specific TE Topology Model
-   which augments the TE Topology Model, as shown in Figure 6:
+   which augments the TE Topology Model, as shown in Figure 7:
 
                               +-------------------+
                               | Network Topology  |
@@ -655,7 +654,7 @@ Internet-Draft            TE Topology Profiles              October 2025
                              |     TE Topology     |
                              +---------------------+
 
-                 Figure 6: Augmenting the TE Topology Model
+                 Figure 7: Augmenting the TE Topology Model
 
    This approach is more suitable for cases when the technology-specific
    TE topology model provides augmentations to the TE Topology
@@ -664,19 +663,16 @@ Internet-Draft            TE Topology Profiles              October 2025
    allows providing augmentations to the Network Topology constructs,
    such as nodes, links, and termination points (TPs).
 
-
-
-
-
-
-Busi, et al.              Expires 20 April 2026                [Page 12]
-
-Internet-Draft            TE Topology Profiles              October 2025
-
-
    This is the approach currently used in
    [I-D.ietf-ccamp-eth-client-te-topo-yang] and
    [I-D.ietf-ccamp-otn-topo-yang].
+
+
+
+Busi, et al.              Expires 23 April 2026                [Page 12]
+
+Internet-Draft            TE Topology Profiles              October 2025
+
 
    It is worth noting that a profile of the technology-specific TE
    Topology model not using any TE topology attribute or constructs can
@@ -705,7 +701,7 @@ Internet-Draft            TE Topology Profiles              October 2025
              |  (profile)  |       |  Network Topology   |
              +-------------+       +---------------------+
 
-        Figure 7: Augmenting the Network Topology Model with multi-
+        Figure 8: Augmenting the Network Topology Model with multi-
                                 inheritance
 
    This approach is more suitable in cases where the technology-specific
@@ -721,11 +717,15 @@ Internet-Draft            TE Topology Profiles              October 2025
    specific TE Topology Model which augments the TE Topology Model, and
    a technology-specific Network Topology Model which augments the
    Network Topology Model and to rely on the multiple inheritance
-   capability, as shown in Figure 8:
+   capability, as shown in Figure 9:
 
 
 
-Busi, et al.              Expires 20 April 2026                [Page 13]
+
+
+
+
+Busi, et al.              Expires 23 April 2026                [Page 13]
 
 Internet-Draft            TE Topology Profiles              October 2025
 
@@ -750,10 +750,10 @@ Internet-Draft            TE Topology Profiles              October 2025
          |     TE Topology     |
          +---------------------+
 
-        Figure 8: Augmenting both the Network and TE Topology Models
+        Figure 9: Augmenting both the Network and TE Topology Models
 
    This option does not provide any technical advantage with respect to
-   the first option, shown in Figure 6, but could be useful to add
+   the first option, shown in Figure 7, but could be useful to add
    augmentations to the TE Topology constructs and to re-use an already
    existing technology-specific Network Topology Model.
 
@@ -769,7 +769,7 @@ Internet-Draft            TE Topology Profiles              October 2025
    network subtypes.
 
    The hierarchy of network subtypes can be single hierarchy, as shown
-   in Figure 6.  In this case, each presence container contains at most
+   in Figure 7.  In this case, each presence container contains at most
    one child presence container, as shows in the JSON code below:
 
 
@@ -781,7 +781,7 @@ Internet-Draft            TE Topology Profiles              October 2025
 
 
 
-Busi, et al.              Expires 20 April 2026                [Page 14]
+Busi, et al.              Expires 23 April 2026                [Page 14]
 
 Internet-Draft            TE Topology Profiles              October 2025
 
@@ -795,7 +795,7 @@ Internet-Draft            TE Topology Profiles              October 2025
    }
 
    The hierarchy of network subtypes can also be multi-hierarchy, as
-   shown in Figure 7 and Figure 8.  In this case, one presence container
+   shown in Figure 8 and Figure 9.  In this case, one presence container
    can contain more than one child presence containers, as show in the
    JSON codes below:
 
@@ -837,7 +837,7 @@ Internet-Draft            TE Topology Profiles              October 2025
 
 
 
-Busi, et al.              Expires 20 April 2026                [Page 15]
+Busi, et al.              Expires 23 April 2026                [Page 15]
 
 Internet-Draft            TE Topology Profiles              October 2025
 
@@ -869,7 +869,7 @@ Internet-Draft            TE Topology Profiles              October 2025
                            +--:(example)
                               +--rw example?   example-bandwidth
 
-     Figure 9: Augmenting the Link with technology-specific attributes
+     Figure 10: Augmenting the Link with technology-specific attributes
 
    The technology-specific attributes within the example-link-attributes
    container can be defined either in the technology-specific TE
@@ -893,7 +893,7 @@ Internet-Draft            TE Topology Profiles              October 2025
 
 
 
-Busi, et al.              Expires 20 April 2026                [Page 16]
+Busi, et al.              Expires 23 April 2026                [Page 16]
 
 Internet-Draft            TE Topology Profiles              October 2025
 
@@ -933,8 +933,8 @@ Internet-Draft            TE Topology Profiles              October 2025
 
 5.  Security Considerations
 
-   This document provides only information about how the TE Topology
-   Model, as defined in [RFC8795], can be profiled to address some
+   This document provides only information about how the Topology YANG
+   data model, defined in [RFC8795], can be profiled to address some
    scenarios which are not considered as TE.
 
    As such, this document does not introduce any additional security
@@ -949,7 +949,7 @@ Internet-Draft            TE Topology Profiles              October 2025
 
 
 
-Busi, et al.              Expires 20 April 2026                [Page 17]
+Busi, et al.              Expires 23 April 2026                [Page 17]
 
 Internet-Draft            TE Topology Profiles              October 2025
 
@@ -1005,7 +1005,7 @@ Informative References
 
 
 
-Busi, et al.              Expires 20 April 2026                [Page 18]
+Busi, et al.              Expires 23 April 2026                [Page 18]
 
 Internet-Draft            TE Topology Profiles              October 2025
 
@@ -1022,9 +1022,9 @@ Internet-Draft            TE Topology Profiles              October 2025
               Havel, O., Claise, B., de Dios, O. G., and T. Graf,
               "SIMAP: Concept, Requirements, and Use Cases", Work in
               Progress, Internet-Draft, draft-ietf-nmop-simap-concept-
-              06, 26 September 2025,
+              07, 18 October 2025,
               <https://datatracker.ietf.org/doc/html/draft-ietf-nmop-
-              simap-concept-06>.
+              simap-concept-07>.
 
    [I-D.ietf-teas-rfc3272bis]
               Farrel, A., "Overview and Principles of Internet Traffic
@@ -1061,7 +1061,7 @@ Contributors
 
 
 
-Busi, et al.              Expires 20 April 2026                [Page 19]
+Busi, et al.              Expires 23 April 2026                [Page 19]
 
 Internet-Draft            TE Topology Profiles              October 2025
 
@@ -1117,4 +1117,4 @@ Authors' Addresses
 
 
 
-Busi, et al.              Expires 20 April 2026                [Page 20]
+Busi, et al.              Expires 23 April 2026                [Page 20]
