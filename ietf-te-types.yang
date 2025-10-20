@@ -77,7 +77,7 @@ module ietf-te-types {
      (https://www.rfc-editor.org/info/rfcXXXX); see the RFC itself
      for full legal notices.";
 
-  revision 2025-01-24 {
+  revision 2025-10-17 {
     description
       "This revision adds the following new identities:
        - lsp-provisioning-error-reason;
@@ -3794,7 +3794,8 @@ module ietf-te-types {
       must "(not(../label-start/te-label/direction) and"
          + " not(te-label/direction))"
          + " or "
-         + "(../label-start/te-label/direction = te-label/direction)"
+         + "(../label-start/te-label/direction = "
+         + "te-label/direction)"
          + " or "
          + "(not(te-label/direction) and"
          + " (../label-start/te-label/direction = 'forward'))"
@@ -4013,7 +4014,20 @@ module ietf-te-types {
              The order of entries is defined by the user without
              relying on key values.";
         }
-        uses explicit-route-hop;
+        uses explicit-route-hop {
+          refine "type/numbered-node-hop/numbered-node-hop"
+               + "/hop-type" {
+            must '. = "strict"' {
+              description
+                "Loose hops can only be used for 'include' route
+                 objects.";
+              reference
+                "RFC 4874: Exclude Routes - Extension to Resource
+                          ReserVation Protocol-Traffic Engineering
+                          (RSVP-TE), Section 3.1";
+            }
+          }
+        }
       }
       list route-object-include-exclude {
         key "index";
@@ -4042,7 +4056,22 @@ module ietf-te-types {
              The order of entries is defined by the user without
              relying on key values.";
         }
-        uses explicit-route-hop-with-srlg;
+        uses explicit-route-hop-with-srlg {
+          refine "type/numbered-node-hop/numbered-node-hop"
+               + "/hop-type" {
+            must '(. = "strict") or '
+               + 'derived-from-or-self(../../explicit-route-usage,'
+               + '"te-types:route-include-object")' {
+              description
+                "Loose hops can only be used for 'include' route
+                 objects.";
+              reference
+                "RFC 4874: Exclude Routes - Extension to Resource
+                          ReserVation Protocol-Traffic Engineering
+                          (RSVP-TE), Section 3.1";
+            }
+          }
+        }
       }
     }
   }
