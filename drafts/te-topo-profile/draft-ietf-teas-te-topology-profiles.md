@@ -544,18 +544,6 @@ It is also worth noting that the supported profile may also depend on other attr
 
 Note: that this issue is also tracked in github as issue #161.
 
-## Applicability to non-TE use cases
-
-Extending the applicability of RFC8795 to non-TE use cases is important. However, it is desirable to avoid any debate about whether these use cases in section 2 are or are not TE.
-
-Note: that this issue is also tracked in github as issue #276.
-
-### Update UNI topology discovery use case
-
-{{uni-discovery}} points to individual drafts and does reflect the progress made since then. For example, the UNI draft was replaced by other drafts that then led to the SAP model {{?RFC9408}}, which covers both UNI and NNI.
-
-Note: that this issue is also tracked in github as issue #275.
-
 # Security Considerations {#security}
 
 This document provides only information about how the Topology
