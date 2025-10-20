@@ -124,7 +124,7 @@ The following profile of the YANG data model defined in {{!RFC8795}} can be used
 ~~~~
 {:#uni-discovery-tree title="UNI Topology"}
 
-Note: It would have been more straightforward to understand that the solution is generic
+Note: Understanding that the solution is generic would be more straightforward
 if the 'inter-domain-plug-id' leaf were defined
 under a container with a different name than 'te' or directly under the parent 'termination-point' data node.
 
@@ -206,7 +206,7 @@ administrative and operational state management:
 ~~~~
 {:#admin-oper-state-tree title="Generic Topology with admin and operational state"}
 
-Note: It would have been more straightforward to understand that the solution is generic
+Note: Understanding that the solution is generic would be more straightforward
 if the 'name', 'admin-status' and 'oper-status' leafs were defined
 under a container with a different name than 'te' (e.g., 'state-management') or directly under the parent data node (e.g., network).
 
@@ -260,7 +260,7 @@ to manage overlay/underlay network data:
 ~~~~
 {:#overlay-underlay-tree title="Generic Topology with overlay/underlay information"}
 
-Note: It would have been more straightforward to understand that the solution is generic
+Note: Understanding that the solution is generic would be more straightforward
 if the 'underlay-topology' container or the 'underlay' container were defined
 under a container with a different name than 'te' or directly under the parent 'node' or, respectively, 'link' data node.
 
@@ -322,7 +322,7 @@ modelling nodes with connectivity constraints:
 ~~~~
 {:#switching-limitations-tree title="Generic Topology with connectivity constraints"}
 
-Note: It would have been more straightforward to understand that the solution is generic
+Note: Understanding that the solution is generic would be more straightforward
 if the 'connectivity-matrices' container were defined
 under a container with a different name than 'te' or directly under the parent 'node' data node.
 
@@ -358,7 +358,15 @@ The switching limitations of the pseudonode, as defined in {{switching-limitatio
 
 It is worth noting that the directionality of the access point of a multipoint link overrides the switching limitations of the pseudonode. For example, even if the connectivity matrix of the psuedonode in {{mp-link-example}} indicates that connectivity is possible between TP A and TP B, the traffic entering the pseudonode from TP A cannot be transmitted by TP B since there is no outgoing link from TP B.
 
-Therefore, the connectivity matrix of a pseudonode modelling a point-to-multipoint unidirectional link, does not need to report that connectivity is only possible from the root TP to the leaf TPs but it can report that connectivity is possible by default between all the TPs of the node. The fact that the pseudonode is a point-to-multipoint unidirectional link can be understood by the fact that there is only one root TP, which can only receive traffic, and one or more leaf TPs, which can only transmit traffic.
+Therefore, the connectivity matrix of a pseudonode modelling a point-to-multipoint unidirectional link, does not need to report that connectivity is only possible from the root TP to the leaf TPs but it can report that connectivity is possible by default between all the TPs of the node.
+The pseudonode represents a point-to-multipoint unidirectional link, as indicated by a single root TP that can only receive traffic and one or more leaf TPs that can only transmit traffic.
+
+~~~~ ascii-art
+{::include ./figures/p2mp-link-example.txt}
+~~~~
+{:#p2mp-link-example title="Example of a pseudonode modelling an undirectional point-to-multipoint link"}
+
+For example, {{p2mp-link-example}} shows an example of a pseudonode representing an unidirectional point-to-multipoint link where the TP A is the root TP and TPs B and C are the two leaf TPs.
 
 # Technology-specific augmentations {#augmentations}
 
