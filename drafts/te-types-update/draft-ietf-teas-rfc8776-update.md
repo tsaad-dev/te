@@ -108,7 +108,7 @@ This document adds new common data types, identities, and groupings to both the 
 | te-packet-types | ietf-te-packet-types | RFCXXXX
 {: #tab-prefixes title="Prefixes and corresponding YANG modules"}
 
-> RFC Editor: Please replace XXXX through this document with the RFC number assigned to this document. Please remove this note.
+> RFC Editor: Please replace XXXX above with the RFC number assigned to this document. Please remove this note.
 
 ## Tree Diagrams
 
@@ -425,6 +425,8 @@ This document requests IANA to register the following YANG modules in the "YANG 
       reference: RFC XXXX
 ~~~~
 
+> RFC Editor: Please replace XXXX above with the RFC number assigned to this document. Please remove this note.
+
 # Security Considerations
 
 This section is modeled after the template described in Section 3.7
@@ -507,9 +509,7 @@ The following new identities have been added to the 'ietf-te-types' module:
 
 The following new data types have been added to the 'ietf-te-types' module:
 
-- path-type;
-
-- te-gen-node-id.
+- path-type.
 
 The following new groupings have been added to the 'ietf-te-types' module:
 
@@ -659,15 +659,15 @@ The following groupings, already defined in {{!RFC8776}}, have been updated in t
 
 The following identities, already defined in {{!RFC8776}}, have been obsoleted in the 'ietf-te-types' module for bug fixing:
 
-- of-minimize-agg-bandwidth-consumption;
+- of-minimize-agg-bandwidth-consumption (the 'svec-of-minimize-agg-bandwidth-consumption' identity should be used instead);
 
-- of-minimize-load-most-loaded-link;
+- of-minimize-load-most-loaded-link (the 'svec-of-minimize-load-most-loaded-link' identity should be used instead);
 
-- of-minimize-cost-path-set;
+- of-minimize-cost-path-set (the 'svec-of-minimize-cost-path-set' identity should be used instead);
 
-- lsp-protection-reroute-extra;
+- lsp-protection-reroute-extra (the 'restoration-scheme-rerouting' identity should be used instead);
 
-- lsp-protection-reroute.
+- lsp-protection-reroute (the 'restoration-scheme-rerouting' identity should be used instead).
 
 {: numbered="false"}
 
