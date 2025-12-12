@@ -83,8 +83,6 @@ This document introduces a collection of common data types derived from the buil
 "default" statements. This is due to the fact that they were already defined in {{?RFC8776}} and removing "default"
 statements is not a backward compatible change, as defined in {{Section 11 of !RFC7950}}.
 
-The YANG data model in this document conforms to the Network Management Datastore Architecture defined in {{!RFC8342}}.
-
 This document adds new common data types, identities, and groupings to both the "ietf-te-types" and the "ietf-te-packet-types" YANG modules and obsoletes {{?RFC8776}}. For further details, refer to {{changes-bis}}.
 
 ## Terminology
