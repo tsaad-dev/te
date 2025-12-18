@@ -193,14 +193,14 @@ te-tunnel-type:
 : A base identity for supported TE tunnel types as defined in {{!RFC3209}} and {{!RFC4875}}.
 
 lsp-encoding-types:
-: A base identity for supported LSP encoding types as defined in {{!RFC3471}}, {{!RFC4328}}, and {{!RFC6004}}.
+: A base identity for supported LSP encoding types as defined in {{!RFC3471}}, {{!RFC4328}}, and {{!RFC6004}}. These defined identities includes also technology-specific LSP encoding types for backward compatibility with {{?RFC8776}}.
 : Additional technology-specific LSP encoding types can be defined in specific technology-specific modules.
 
 lsp-protection-type:
 : A base identity for supported LSP protection types as defined in {{!RFC4872}} and {{!RFC4873}}.
 
 switching-capabilities:
-: A base identity for supported interface switching capabilities as defined in {{!RFC3471}}, {{!RFC6002}}, {{!RFC6004}}, {{!RFC7074}}, and {{!RFC7138}}.
+: A base identity for supported interface switching capabilities as defined in {{!RFC3471}}, {{!RFC6002}}, {{!RFC6004}}, {{!RFC7074}}, and {{!RFC7138}}. These defined identities includes also technology-specific interface switching capabilities for backward compatibility with {{?RFC8776}}.
 : Additional technology-specific interface switching capabilities can be defined in specific technology-specific modules.
 
 resource-affinities-type:
@@ -224,7 +224,7 @@ svec-objective-function-type:
 : A base  identity for supported SVEC objective functions as defined in {{!RFC5541}} and {{!RFC8685}}.
 
 svec-metric-type:
-: A base  identity for supported SVEC objective functions as defined in {{!RFC5541}}.
+: A base  identity for supported SVEC metric types as defined in {{!RFC5541}}.
 
 #### Path Computation Errors {#pc-error}
 
@@ -237,13 +237,13 @@ path-computation-error-no-topology:
 
 path-computation-error-no-dependent-server:
 : A base identity for indicating path computation error when one or more dependent path computation servers are unavailable.
-: The dependent path computation server could be a Backward-Recursive Path Computation (BRPC) downstream PCE or a child PCE.
+: The dependent path computation server could be a Backward-Recursive Path Computation (BRPC) downstream PCE, as defined in {{?RFC5441}}, or a child PCE, as defined in {{?RFC8685}}.
 
 The derived identities are defined in the "ietf-te-types" module, instead of an IANA-maintained module, because there are error reasons which are:
 
 1. applicable only to the TE YANG modules and not to PCEP environments (e.g., path-computation-error-no-topology);
 1. technology-specific (e.g., No RWA constraints met) which are better defined in technology-specific YANG modules;
-1. match more than one PCEP numbers in order to hide the details of the underlay PCE architecture (e.g., path-computation-error-no-dependent-server).
+1. match more than one PCEP number in order to hide the details of the underlay PCE architecture (e.g., path-computation-error-no-dependent-server).
 
 #### Protocol Origin {#protocol-origin}
 
@@ -285,7 +285,7 @@ te-path-disjointness:
 : A type representing the different resource disjointness options for a TE tunnel path as defined in {{!RFC4872}}.
 
 admin-groups:
-: A union type for a TE link's classic or extended administrative groups as defined in {{!RFC3630}}, {{!RFC5305}}, and {{!RFC7308}}.
+: A union type for a TE link's classic administrative groups, as defined in {{!RFC3630}} and {{!RFC5305}}, or extended administrative groups, as defined in {{!RFC7308}}.
 
 srlg:
 : A type representing the Shared Risk Link Group (SRLG) as defined in {{!RFC4203}} and {{!RFC5307}}.
@@ -294,7 +294,7 @@ te-metric:
 : A type representing the TE metric as defined in {{!RFC3785}}.
 
 te-recovery-status:
-: An enumerated type for the different statuses of a recovery action as defined in {{!RFC6378}} and {{?RFC4427}}.
+: An enumerated type for the different status of a recovery action as defined in {{!RFC6378}} and {{?RFC4427}}.
 
 te-link-access-type:
 : An enumerated type for the different TE link access types as defined in {{!RFC3630}}.
@@ -339,7 +339,7 @@ bc-model-type:
 : A base identity for supported Diffserv-TE Bandwidth Constraints Models as defined in {{?RFC4125}}, {{?RFC4126}}, and {{?RFC4127}}.
 
 bandwidth-profile-type:
-: A base identity for various bandwidth profiles specified in {{MEF_10.3}}, {{?RFC2697}} and {{?RFC2698}} that may be used to limit bandwidth utilization of packet flows (e.g., MPLS-TE LSPs).
+: A base identity for various bandwidth profiles, also known as traffic profiles in {{Section 2.3.2 of ?RFC2475}}, as specified in {{MEF_10.3}}, {{?RFC2697}} and {{?RFC2698}}, that may be used to specify the temporal properties of a packet stream (e.g., MPLS-TE LSPs).
 
 ### Data Types
 
