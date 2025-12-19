@@ -106,7 +106,7 @@ This document adds new common data types, identities, and groupings to both the 
 | te-packet-types | ietf-te-packet-types | RFCXXXX
 {: #tab-prefixes title="Prefixes and corresponding YANG modules"}
 
-> RFC Editor: Please replace XXXX through this document with the RFC number assigned to this document. Please remove this note.
+> RFC Editor: Please replace XXXX above with the RFC number assigned to this document. Please remove this note.
 
 ## Tree Diagrams
 
@@ -193,14 +193,14 @@ te-tunnel-type:
 : A base identity for supported TE tunnel types as defined in {{!RFC3209}} and {{!RFC4875}}.
 
 lsp-encoding-types:
-: A base identity for supported LSP encoding types as defined in {{!RFC3471}}, {{!RFC4328}}, and {{!RFC6004}}.
+: A base identity for supported LSP encoding types as defined in {{!RFC3471}}, {{!RFC4328}}, and {{!RFC6004}}. These defined identities includes also technology-specific LSP encoding types for backward compatibility with {{?RFC8776}}.
 : Additional technology-specific LSP encoding types can be defined in specific technology-specific modules.
 
 lsp-protection-type:
 : A base identity for supported LSP protection types as defined in {{!RFC4872}} and {{!RFC4873}}.
 
 switching-capabilities:
-: A base identity for supported interface switching capabilities as defined in {{!RFC3471}}, {{!RFC6002}}, {{!RFC6004}}, {{!RFC7074}}, and {{!RFC7138}}.
+: A base identity for supported interface switching capabilities as defined in {{!RFC3471}}, {{!RFC6002}}, {{!RFC6004}}, {{!RFC7074}}, and {{!RFC7138}}. These defined identities includes also technology-specific interface switching capabilities for backward compatibility with {{?RFC8776}}.
 : Additional technology-specific interface switching capabilities can be defined in specific technology-specific modules.
 
 resource-affinities-type:
@@ -224,7 +224,7 @@ svec-objective-function-type:
 : A base  identity for supported SVEC objective functions as defined in {{!RFC5541}} and {{!RFC8685}}.
 
 svec-metric-type:
-: A base  identity for supported SVEC objective functions as defined in {{!RFC5541}}.
+: A base  identity for supported SVEC metric types as defined in {{!RFC5541}}.
 
 #### Path Computation Errors {#pc-error}
 
@@ -237,22 +237,22 @@ path-computation-error-no-topology:
 
 path-computation-error-no-dependent-server:
 : A base identity for indicating path computation error when one or more dependent path computation servers are unavailable.
-: The dependent path computation server could be a Backward-Recursive Path Computation (BRPC) downstream PCE or a child PCE.
+: The dependent path computation server could be a Backward-Recursive Path Computation (BRPC) downstream PCE, as defined in {{?RFC5441}}, or a child PCE, as defined in {{?RFC8685}}.
 
 The derived identities are defined in the "ietf-te-types" module, instead of an IANA-maintained module, because there are error reasons which are:
 
 1. applicable only to the TE YANG modules and not to PCEP environments (e.g., path-computation-error-no-topology);
 1. technology-specific (e.g., No RWA constraints met) which are better defined in technology-specific YANG modules;
-1. match more than one PCEP numbers in order to hide the details of the underlay PCE architecture (e.g., path-computation-error-no-dependent-server).
+1. match more than one PCEP number in order to hide the details of the underlay PCE architecture (e.g., path-computation-error-no-dependent-server).
 
 #### Protocol Origin {#protocol-origin}
 
-The "ietf-te-types" module contains the YANG reusable identities for the type of protocol origin as defined in {{!RFC5440}} and {{!RFC9012}}.
+The protocol origin identifies the protocol or mechanism a controller uses to instantiate a TE tunnel.
+To model this, the "ietf-te-types" module provides a set of reusable YANG identities.
+In addition to identities for protocols like PCEP {{!RFC5440}} and BGP {{!RFC9012}}, the module defines the following identity for tunnels created via an Application Programmable Interface (API):
 
-It also defines the following additional YANG reusable identities for the type of protocol origin:
-
-protocol-origin-api:
-: A base identity to be used when the type of protocol origin is an Application Programmable Interface (API).
+protocol-origin-api: 
+: A YANG identity used when the TE tunnel is instantiated through an API.
 
 ### Data Types
 
@@ -285,7 +285,7 @@ te-path-disjointness:
 : A type representing the different resource disjointness options for a TE tunnel path as defined in {{!RFC4872}}.
 
 admin-groups:
-: A union type for a TE link's classic or extended administrative groups as defined in {{!RFC3630}}, {{!RFC5305}}, and {{!RFC7308}}.
+: A union type for a TE link's classic administrative groups, as defined in {{!RFC3630}} and {{!RFC5305}}, or extended administrative groups, as defined in {{!RFC7308}}.
 
 srlg:
 : A type representing the Shared Risk Link Group (SRLG) as defined in {{!RFC4203}} and {{!RFC5307}}.
@@ -294,7 +294,7 @@ te-metric:
 : A type representing the TE metric as defined in {{!RFC3785}}.
 
 te-recovery-status:
-: An enumerated type for the different statuses of a recovery action as defined in {{!RFC6378}} and {{?RFC4427}}.
+: An enumerated type for the different status of a recovery action as defined in {{!RFC6378}} and {{?RFC4427}}.
 
 te-link-access-type:
 : An enumerated type for the different TE link access types as defined in {{!RFC3630}}.
@@ -339,7 +339,7 @@ bc-model-type:
 : A base identity for supported Diffserv-TE Bandwidth Constraints Models as defined in {{?RFC4125}}, {{?RFC4126}}, and {{?RFC4127}}.
 
 bandwidth-profile-type:
-: A base identity for various bandwidth profiles specified in {{MEF_10.3}}, {{?RFC2697}} and {{?RFC2698}} that may be used to limit bandwidth utilization of packet flows (e.g., MPLS-TE LSPs).
+: A base identity for various bandwidth profiles, also known as traffic profiles in {{Section 2.3.2 of ?RFC2475}}, as specified in {{MEF_10.3}}, {{?RFC2697}} and {{?RFC2698}}, that may be used to specify the temporal properties of a packet stream (e.g., MPLS-TE LSPs).
 
 ### Data Types
 
@@ -381,7 +381,7 @@ In addition to {{!RFC6991}} and {{!RFC8294}}, this module references the followi
 {::include-fold ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2025-10-17.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2025-12-19.yang"}
 
 # Packet TE Types YANG Module {#pkt-yang-code}
 
@@ -391,7 +391,7 @@ The "ietf-te-packet-types" module imports from the "ietf-te-types" module define
 {::include-fold ../../ietf-te-packet-types.yang}
 ~~~~
 {: #fig-pkt-yang title="Packet TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2025-01-24.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2025-12-19.yang"}
 
 # IANA Considerations
 
@@ -422,6 +422,8 @@ This document requests IANA to register the following YANG modules in the "YANG 
       prefix:    te-packet-types
       reference: RFC XXXX
 ~~~~
+
+> RFC Editor: Please replace XXXX above with the RFC number assigned to this document. Please remove this note.
 
 # Security Considerations
 
@@ -505,9 +507,7 @@ The following new identities have been added to the 'ietf-te-types' module:
 
 The following new data types have been added to the 'ietf-te-types' module:
 
-- path-type;
-
-- te-gen-node-id.
+- path-type.
 
 The following new groupings have been added to the 'ietf-te-types' module:
 
@@ -657,15 +657,15 @@ The following groupings, already defined in {{!RFC8776}}, have been updated in t
 
 The following identities, already defined in {{!RFC8776}}, have been obsoleted in the 'ietf-te-types' module for bug fixing:
 
-- of-minimize-agg-bandwidth-consumption;
+- of-minimize-agg-bandwidth-consumption (the 'svec-of-minimize-agg-bandwidth-consumption' identity should be used instead);
 
-- of-minimize-load-most-loaded-link;
+- of-minimize-load-most-loaded-link (the 'svec-of-minimize-load-most-loaded-link' identity should be used instead);
 
-- of-minimize-cost-path-set;
+- of-minimize-cost-path-set (the 'svec-of-minimize-cost-path-set' identity should be used instead);
 
-- lsp-protection-reroute-extra;
+- lsp-protection-reroute-extra (the 'restoration-scheme-rerouting' identity should be used instead);
 
-- lsp-protection-reroute.
+- lsp-protection-reroute (the 'restoration-scheme-rerouting' identity should be used instead).
 
 {: numbered="false"}
 
