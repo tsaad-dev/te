@@ -247,12 +247,12 @@ The derived identities are defined in the "ietf-te-types" module, instead of an 
 
 #### Protocol Origin {#protocol-origin}
 
-The "ietf-te-types" module contains the YANG reusable identities for the type of protocol origin as defined in {{!RFC5440}} and {{!RFC9012}}.
+The protocol origin identifies the protocol or mechanism a controller uses to instantiate a TE tunnel.
+To model this, the "ietf-te-types" module provides a set of reusable YANG identities.
+In addition to identities for protocols like PCEP {{!RFC5440}} and BGP {{!RFC9012}}, the module defines the following identity for tunnels created via an Application Programmable Interface (API):
 
-It also defines the following additional YANG reusable identities for the type of protocol origin:
-
-protocol-origin-api:
-: A base identity to be used when the type of protocol origin is an Application Programmable Interface (API).
+protocol-origin-api: 
+: A YANG identity used when the TE tunnel is instantiated through an API.
 
 ### Data Types
 
