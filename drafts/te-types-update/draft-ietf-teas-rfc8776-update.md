@@ -54,6 +54,13 @@ normative:
     date: June 2020
     seriesinfo: ITU-T G.709
     target: https://www.itu.int/rec/T-REC-G.709
+  ISOIEC_9899:
+    title: Information Technology - Programming Languages - C 
+    author:
+      org: International Organization for Standardization (ISO) and International Electrotechnical Commission (IEC)
+    date: October 2024
+    seriesinfo: ISO/IEC 9899:2024
+    target: https://www.iso.org/standard/82075.html
 
 informative:
   MEF_10.3:
@@ -115,49 +122,40 @@ Tree diagrams used in this document follow the notation defined in {{?RFC8340}}.
 # Acronyms and Abbreviations
 
 APS:
-: Automatic Protection Switching
-
-DS-TE:
-: Differentiated Services Traffic Engineering
+: Automatic Protection Switching {{?RFC7271}}
 
 GMPLS:
 : Generalized Multiprotocol Label Switching
 
 LER:
-: Label Edge Router
+: Label Edge Router {{?RFC5921}}
 
 LSP:
-: Label Switched Path
+: Label Switched Path {{?RFC3031}}
 
 LSR:
-: Label Switching Router
+: Label Switching Router {{?RFC3031}}
 
 MPLS:
 : Multiprotocol Label Switching
 
 NBMA:
-: Non-Broadcast Multi-Access
+: Non-Broadcast Multi-Access {{?RFC2328}}
 
 PM:
-: Performance Metrics
+: Performance Metrics {{?RFC2330}}
 
 RSVP:
 : Resource Reservation Protocol
 
-SD:
-: Signal Degrade
-
-SF:
-: Signal Fail
-
 SRLG:
-: Shared Risk Link Group
+: Shared Risk Link Group {{?RFC4203}}
 
 TE:
 : Traffic Engineering
 
 WTR:
-: Wait-to-Restore
+: Wait-to-Restore {{?RFC6378}}
 
 # Overview {#overview}
 
@@ -208,7 +206,7 @@ resource-affinities-type:
 
 path-metric-type:
 : A base  identity for supported path metric types as defined in {{!RFC3630}}, {{!RFC3785}}, {{!RFC5440}}, {{!RFC7471}}, {{!RFC8233}}, {{!RFC8570}}, and {{?I-D.ietf-pce-sid-algo}}.
-: The unit of the path metric value is interpreted in the context of the path metric type. The derived identities SHOULD describe the unit and maximum value of the path metric types they define.
+: The unit of the path metric value is interpreted in the context of the path metric type. The derived identities MUST describe the unit and maximum value of the path metric types they define.
 : For example, the measurement unit is not applicable for the number of hops metric ('path-metric-hop'). Conversely, the bound of the 'path-metric-loss', defined in 'ietf-te-packet-types', is defined in multiples of the basic unit 0.000003% as described in {{!RFC7471}} and {{!RFC8570}}.
 
 lsp-provisioning-error-reason:
@@ -242,7 +240,7 @@ path-computation-error-no-dependent-server:
 The derived identities are defined in the "ietf-te-types" module, instead of an IANA-maintained module, because there are error reasons which are:
 
 1. applicable only to the TE YANG modules and not to PCEP environments (e.g., path-computation-error-no-topology);
-1. technology-specific (e.g., No RWA constraints met) which are better defined in technology-specific YANG modules;
+1. technology-specific which are better defined in technology-specific YANG modules;
 1. match more than one PCEP number in order to hide the details of the underlay PCE architecture (e.g., path-computation-error-no-dependent-server).
 
 #### Protocol Origin {#protocol-origin}
@@ -271,7 +269,7 @@ te-global-id:
 : A type representing the identifier that uniquely identifies an operator, which can be either a provider or a client. The definition of this type is taken from {{Section 3 of !RFC6370}} and {{Section 3 of !RFC5003}}. This attribute type is used solely to provide a globally unique context for TE topologies.
 
 te-node-id:
-: A type representing the identifier for a node in a TE topology. The identifier is represented either as 4-octet in dotted-quad notation or as 16-octet in full, mixed, shortened, or shortened-mixed IPv6 address notation.
+: A type representing the identifier for a node in a TE topology. The identifier is represented either as 4-octet in dotted-quad notation or as 16-octet in an {{!RFC5952}} IPv6 address notation.
 : This attribute MAY be mapped to the Router Address TLV described in {{Section 2.4.1 of !RFC3630}}, the TE Router ID described in {{Section 6.2 of !RFC6827}}, the Traffic Engineering Router ID TLV described in {{Section 4.3 of !RFC5305}}, or the TE Router ID TLV described in {{Section 3.2.1 of !RFC6119}}.
 : The reachability of such a TE node MAY be achieved by a mechanism such as that described in {{Section 6.2 of !RFC6827}}.
 
@@ -375,13 +373,13 @@ The "ietf-te-types" module imports the following modules:
 - "ietf-routing-types" as defined in {{!RFC8294}}
 
 In addition to {{!RFC6991}} and {{!RFC8294}}, this module references the following documents in defining the types and YANG groupings:
-{{?RFC9522}}, {{!RFC4090}}, {{!RFC4202}}, {{!RFC4328}}, {{!RFC4561}}, {{?RFC4657}}, {{?RFC4736}}, {{!RFC6004}}, {{!RFC6378}}, {{!RFC6511}}, {{!RFC7139}}, {{!RFC7271}}, {{!RFC7308}}, {{!RFC7551}}, {{!RFC7571}}, {{!RFC7579}}, and {{ITU-T_G.709}}.
+{{?RFC9522}}, {{!RFC4090}}, {{!RFC4202}}, {{!RFC4328}}, {{!RFC4561}}, {{?RFC4657}}, {{?RFC4736}}, {{!RFC6004}}, {{!RFC6378}}, {{!RFC6511}}, {{!RFC7139}}, {{!RFC7271}}, {{!RFC7308}}, {{!RFC7551}}, {{!RFC7571}}, {{!RFC7579}}, {{ITU-T_G.709}}, and {{ISOIEC_9899}}.
 
 ~~~~ yang
 {::include-fold ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2025-12-19.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2026-01-15.yang"}
 
 # Packet TE Types YANG Module {#pkt-yang-code}
 
