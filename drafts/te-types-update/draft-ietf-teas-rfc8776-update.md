@@ -85,6 +85,20 @@ statements is not a backward compatible change, as defined in {{Section 11 of !R
 
 This document adds new common data types, identities, and groupings to both the "ietf-te-types" and the "ietf-te-packet-types" YANG modules and obsoletes {{?RFC8776}}. For further details, refer to {{changes-bis}}.
 
+## Editorial Note (To be removed by the RFC Editor)
+
+   Note to the RFC Editor: This section is to be removed prior to
+   publication.
+
+   This document contains placeholder values that need to be replaced
+   with finalized values at the time of publication.  This note
+   summarizes all of the substitutions that are needed.
+
+   Please apply the following replacements:
+
+   *  XXXX --> the assigned RFC number for this I-D
+   *  2025-12-19 --> the actual date of the publication of this document
+
 ## Terminology
 
 {::boilerplate bcp14}
@@ -102,11 +116,9 @@ This document adds new common data types, identities, and groupings to both the 
 | yang            | ietf-yang-types      | {{Section 3 of !RFC6991}}
 | inet            | ietf-inet-types      | {{Section 4 of !RFC6991}}
 | rt-types        | ietf-routing-types   | {{!RFC8294}}
-| te-types        | ietf-te-types        | RFCXXXX
-| te-packet-types | ietf-te-packet-types | RFCXXXX
+| te-types        | ietf-te-types        | RFC XXXX
+| te-packet-types | ietf-te-packet-types | RFC XXXX
 {: #tab-prefixes title="Prefixes and corresponding YANG modules"}
-
-> RFC Editor: Please replace XXXX above with the RFC number assigned to this document. Please remove this note.
 
 ## Tree Diagrams
 
@@ -422,8 +434,6 @@ This document requests IANA to register the following YANG modules in the "YANG 
       prefix:    te-packet-types
       reference: RFC XXXX
 ~~~~
-
-> RFC Editor: Please replace XXXX above with the RFC number assigned to this document. Please remove this note.
 
 # Security Considerations
 
