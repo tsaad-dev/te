@@ -47,13 +47,6 @@ contributor:
     email: rgandhi@cisco.com
 
 normative:
-  ITU-T_G.709:
-    title: Interfaces for the optical transport network
-    author:
-      org: International Telecommunication Union
-    date: June 2020
-    seriesinfo: ITU-T G.709
-    target: https://www.itu.int/rec/T-REC-G.709
   ISOIEC_9899:
     title: Information Technology - Programming Languages - C 
     author:
@@ -111,6 +104,7 @@ Please apply the following replacements:
 - XXXX --> the assigned RFC number for this I-D
 - draft-ietf-pce-sid-algo-29, Sections 4.5.1 and 4.5.2 --> the draft version and section number as in the latest version of {{?I-D.ietf-pce-sid-algo}} at the time this document is published as an RFC
 - 2026-01-15 --> the actual date of the publication of this document
+- 2026-01-16 --> the actual date of the publication of this document
 
 ## Terminology
 
@@ -143,7 +137,7 @@ APS:
 : Automatic Protection Switching {{?RFC7271}}
 
 GMPLS:
-: Generalized Multiprotocol Label Switching
+: Generalized Multiprotocol Label Switching {{?RFC3945}}
 
 LER:
 : Label Edge Router {{?RFC5921}}
@@ -155,7 +149,7 @@ LSR:
 : Label Switching Router {{?RFC3031}}
 
 MPLS:
-: Multiprotocol Label Switching
+: Multiprotocol Label Switching {{?RFC3031}}
 
 NBMA:
 : Non-Broadcast Multi-Access {{?RFC2328}}
@@ -164,13 +158,13 @@ PM:
 : Performance Metrics {{?RFC2330}}
 
 RSVP:
-: Resource Reservation Protocol
+: Resource Reservation Protocol {{?RFC2205}}
 
 SRLG:
 : Shared Risk Link Group {{?RFC4203}}
 
 TE:
-: Traffic Engineering
+: Traffic Engineering {{?RFC9522}}
 
 WTR:
 : Wait-to-Restore {{?RFC6378}}
@@ -393,7 +387,7 @@ The "ietf-te-types" module imports the following modules:
 - "ietf-network" and "ietf-network-topology" as defined in {{!RFC8345}}
 
 In addition to {{!RFC9911}} and {{!RFC8294}}, this module references the following documents in defining the types and YANG groupings:
-{{?RFC9522}}, {{!RFC4090}}, {{!RFC4202}}, {{!RFC4328}}, {{!RFC4561}}, {{?RFC4657}}, {{?RFC4736}}, {{!RFC6004}}, {{!RFC6378}}, {{!RFC6511}}, {{!RFC7139}}, {{!RFC7271}}, {{!RFC7308}}, {{!RFC7551}}, {{!RFC7571}}, {{!RFC7579}}, {{ITU-T_G.709}}, and {{ISOIEC_9899}}.
+{{?RFC9522}}, {{!RFC4090}}, {{!RFC4202}}, {{!RFC4328}}, {{!RFC4561}}, {{?RFC4657}}, {{?RFC4736}}, {{!RFC6004}}, {{!RFC6378}}, {{!RFC6511}}, {{!RFC7139}}, {{!RFC7271}}, {{!RFC7308}}, {{!RFC7551}}, {{!RFC7571}}, {{!RFC7579}}, and {{ISOIEC_9899}}.
 
 ~~~~ yang
 {::include-fold ../../ietf-te-types.yang}
