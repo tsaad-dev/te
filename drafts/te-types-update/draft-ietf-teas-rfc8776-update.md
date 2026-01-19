@@ -175,7 +175,7 @@ This document defines two YANG modules for common TE types: "ietf-te-types" ({{t
 
 ## TE Types Module Contents
 
-The "ietf-te-types" module ({{te-yang-code}}) contains common TE types that are independent and agnostic of any specific technology or control-plane instance.
+The "ietf-te-types" module ({{te-yang-code}}) contains TE types that are commonly used across multiple TE technology-specific modules.
 
 ### Identities
 
