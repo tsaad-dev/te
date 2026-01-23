@@ -104,7 +104,7 @@ Please apply the following replacements:
 - XXXX --> the assigned RFC number for this I-D
 - draft-ietf-pce-sid-algo-29, Sections 4.5.1 and 4.5.2 --> the draft version and section number as in the latest version of {{?I-D.ietf-pce-sid-algo}} at the time this document is published as an RFC
 - 2026-01-15 --> the actual date of the publication of this document
-- 2026-01-16 --> the actual date of the publication of this document
+- 2026-01-23 --> the actual date of the publication of this document
 
 ## Terminology
 
@@ -393,7 +393,7 @@ In addition to {{!RFC9911}} and {{!RFC8294}}, this module references the followi
 {::include-fold ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2026-01-15.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2026-01-23.yang"}
 
 # Packet TE Types YANG Module {#pkt-yang-code}
 
