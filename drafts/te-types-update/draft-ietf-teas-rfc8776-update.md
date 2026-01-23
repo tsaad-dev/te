@@ -165,6 +165,8 @@ LER:
 LSP:
 : Label Switched Path {{?RFC3031}}
 
+> Note: in this document, "LSP" refers to a TE LSP or a TE path.
+
 LSR:
 : Label Switching Router {{?RFC3031}}
 
@@ -371,7 +373,7 @@ bc-model-type:
 bandwidth-profile-type:
 : A base identity for various bandwidth profiles, also known as traffic profiles in {{Section 2.3.2 of ?RFC2475}}, that may be used to specify the temporal properties of a packet stream (e.g., MPLS-TE LSPs), e.g., as specified in {{MEF_10.3}}, {{?RFC2697}} and {{?RFC2698}}.
 
-### Data TypesI
+### Data Types
 
 The "ietf-te-packet-types" module contains the following YANG reusable data type:
 
