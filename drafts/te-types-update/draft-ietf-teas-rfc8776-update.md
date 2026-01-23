@@ -106,6 +106,26 @@ Please apply the following replacements:
 - 2026-01-15 --> the actual date of the publication of this document
 - 2026-01-23 --> the actual date of the publication of this document
 
+### References to RFCs
+
+This document references a huge number of RFCs only by the RFC number which makes it really hard to follow.
+
+A preference has been expressed to replace the references with the RFC title in the text and just use RFC number as a reference.
+
+For example:
+
+In section 1 change:
+
+> Section 4.12 of {{?I-D.ietf-netmod-rfc8407bis}} and Section 4.13 of
+{{?I-D.ietf-netmod-rfc8407bis}}.
+
+to
+
+> Section 4.12 and Section 4.13 of YANG Data Models guidelines
+document {{?I-D.ietf-netmod-rfc8407bis}}.
+
+It is suggested that the RFC Editor and the tooling team identify a way to  expand the references as proposed in a programmatic way.
+
 ## Terminology
 
 {::boilerplate bcp14}
