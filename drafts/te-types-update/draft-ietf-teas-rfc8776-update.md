@@ -104,7 +104,7 @@ Please apply the following replacements:
 - XXXX --> the assigned RFC number for this I-D
 - draft-ietf-pce-sid-algo-29, Sections 4.5.1 and 4.5.2 --> the draft version and section number as in the latest version of {{?I-D.ietf-pce-sid-algo}} at the time this document is published as an RFC
 - 2026-01-15 --> the actual date of the publication of this document
-- 2026-01-23 --> the actual date of the publication of this document
+- 2026-02-06 --> the actual date of the publication of this document
 
 ### References to RFCs
 
@@ -342,7 +342,7 @@ te-label:
 : A  grouping that defines the generic TE label. The modeling structure allows augmentation for each technology. For unspecified technologies, "rt-types:generalized-label" is used.
 
 performance-metrics-attributes:
-: A  grouping that defines one-way and two-way measured Performance Metrics (PM) and indications of anomalies on links or the path as defined in {{!RFC7471}}, {{!RFC8570}}, and {{?RFC7823}}.
+: A  grouping that defines one-way and two-way measured Performance Metrics (PM) and indications of anomalies on links or the path as defined in {{!RFC7471}}, {{!RFC8570}}, {{?RFC7823}}, {{!RFC7679}} and {{!RFC2681}}.
 
 performance-metrics-throttle-container:
 : A  grouping that defines thresholds for advertisement suppression and measurement intervals.
@@ -415,7 +415,7 @@ In addition to {{!RFC9911}} and {{!RFC8294}}, this module references the followi
 {::include-fold ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2026-01-23.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2026-02-06.yang"}
 
 # Packet TE Types YANG Module {#pkt-yang-code}
 
