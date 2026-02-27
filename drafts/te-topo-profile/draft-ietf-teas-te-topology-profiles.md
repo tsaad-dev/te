@@ -593,7 +593,9 @@ Both plugtests have been attended by the majority of the MW vendors and proved a
 
 The results of these ETSI plugtests are reported in {{ETSI_MW-TEST-1}} and {{ETSI_MW-TEST-2}}, which also describe the different profiles of the TE topology model used for the MW topology model and for the Ethernet topology model.
 
-It is also worth noting that the use of the TE topology profile as the basis for MW technology-specific augmentations have been specified also in the MW topology model defined in {{?RFC9656}}.
+The use of the TE topology profile as the basis for MW technology-specific augmentations have been specified also in the MW topology model defined in {{?RFC9656}}.
+
+It is worth noting that MW technology is not a TE-centric technology and not even a switching technology, however the approach of profiling {{!RFC8795}} worked well to model the bandwdith of microwave links as well as the overlay/underlay relationship between the overlay Ethernet topology and the supporting underlay MW topology.
 
 # Open Issues {#open-issues}
 
