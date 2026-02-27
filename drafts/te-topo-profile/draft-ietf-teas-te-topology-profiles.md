@@ -52,6 +52,46 @@ contributor:
     org: Nokia
     email: sergio.belotti@nokia.com
 
+informative:
+  ACTN-TEST:
+    title: "ACTN Transport Multi-Vendor Interoperability Testing"
+    author:
+      -
+        name: Lei Wang
+      -
+        name: Yang Zhao
+      -
+        name: Aihua Guo
+      -
+        name: Igor Bryskin
+      -
+        name: Chris Janz
+      -
+        name: Yingxi Yaoi
+      -
+        name: Italo Busi
+      -
+        name: Young Lee
+      -
+        name: Sergio Belotti
+    date: March 2018
+    seriesinfo:
+      IEEE Communications Standards Magazine, vol. 2, no. 1, pp. 82-89
+      DOI 10.1109/MCOMSTD.2018.1700085
+    target: https://ieeexplore.ieee.org/document/8334928
+  ETSI_MW-TEST-1:
+    title: "1st mWT SDN Plugtests Event"
+    author:
+      org: European Telecommunications Standards Institute
+    date: January 2019
+    seriesinfo: ETSI Plugtests Test Plan V1.0 (2019-01)
+  ETSI_MW-TEST-2:
+    title: "2nd and 3rd mWT SDN Plugtests Event"
+    author:
+      org: European Telecommunications Standards Institute
+    date: November 2020
+    seriesinfo: ETSI Plugtests Test Plan V1.0 (2020-11)
+
 --- abstract
 
 This document describes how profiles of the 
@@ -97,7 +137,7 @@ However, the 'te' container in the context of {{!RFC8795}}, should be understood
 
 # Examples of generic profiles {#examples}
 
-## UNI Topology Discovery {#uni-discovery}
+## Multi-domain Links Discovery {#uni-discovery}
 
 The following profile of the Topology YANG data model, defined in {{!RFC8795}}, can be used to support the UNI Topology Discovery, or in general, inter-domain link discovery:
 
@@ -288,7 +328,7 @@ Each access point can have different directionality with respect to the multipoi
 - an access point of a multipoint link can be able only to receive traffic: this access point can be modelled as a TP (e.g., TP B in {{mp-link-example}}) with only one incoming link (e.g., Link 3 in {{mp-link-example}});
 - an access point of a multipoint link can be able only to transmit traffic: this access point can be modelled as a TP (e.g., TP C in {{mp-link-example}}) with only one outgoing link (e.g., Link 4 in {{mp-link-example}}).
 
-~~~~ ascii-art
+~~~~ aasvg
 {::include ./figures/mp-link-example.txt}
 ~~~~
 {:#mp-link-example title="Example of a pseudonode modelling a multipoint link"}
@@ -307,7 +347,7 @@ It is worth noting that the directionality of the access point of a multipoint l
 Therefore, the connectivity matrix of a pseudonode modelling a point-to-multipoint unidirectional link, does not need to report that connectivity is only possible from the root TP to the leaf TPs but it can report that connectivity is possible by default between all the TPs of the node.
 The pseudonode represents a point-to-multipoint unidirectional link, as indicated by a single root TP that can only receive traffic and one or more leaf TPs that can only transmit traffic.
 
-~~~~ ascii-art
+~~~~ aasvg
 {::include ./figures/p2mp-link-example.txt}
 ~~~~
 {:#p2mp-link-example title="Example of a pseudonode modelling an undirectional point-to-multipoint link"}
@@ -326,7 +366,7 @@ For example, {{p2mp-link-example}} shows an example of a pseudonode representing
    The first option is to define a technology-specific TE Topology Model
    which augments the TE Topology Model, as shown in {{te-augment-fig}}:
 
-~~~~
+~~~~ aasvg
                            +-------------------+
                            | Network Topology  |
                            +-------------------+
@@ -373,7 +413,7 @@ multiple inheritance capability, which is implicit in the network-
 types definition of {{!RFC8345}}, to allow using also the generic
 attributes defined in the TE Topology model:
 
-~~~~
+~~~~ aasvg
                     +-----------------------+
                     |    Network Topology   |
                     +-----------------------+
@@ -403,7 +443,7 @@ a technology-specific Network Topology Model which augments the
 Network Topology Model and to rely on the multiple inheritance
 capability, as shown in {{double-augment-fig}}:
 
-~~~~
+~~~~ aasvg
                     +-----------------------+
                     |    Network Topology   |
                     +-----------------------+
@@ -528,9 +568,36 @@ max-link-bandwidth can only be defined in the technology-specific TE
 Topology Model (Option 1 or Option 3). These attributes can be TE or
 non-TE and require the implementation of the te container.
 
+# Implementation Status {#implementations}
+
+Different profiles of the TE topology model, defined in {{!RFC8795}}, has been implemented and pubicly demonstrated.
+
+## ACTN multi-vendor interoperability tests
+
+A profile has been implmented and publicly demonstrated in the first multi-vendor interoperability test of the IETF-defined ACTN framework and YANG model standards perfmed in 2017 and involving Huawei and Nokia Shanghai Bell, organized by and conducted in the lab facility of China Mobile.
+
+This interoperability test covered also multi-layer, multi-domain topology auto-discovery, based on a work-in-progress version of the Internet-Draft which was then finalized and published as {{!RFC8795}}.
+
+The results of the results obtained in extensive ACTN interoperability tests are reported in {{ACTN-TEST}}.
+
+## ETSI Plugtests
+
+ETSI has held two millimetre Wave Transmission (mWT) SDN to test the northbound interface exposed by microwave (MW) network controllers:
+
+1. The first Plugtest has been held in Sophia Antipolis, France on 21 – 24 January 2019
+1. The second and third Plugtest have been merged and held in Sophia Antipolis, France on November 2020
+
+Both plugtests covered multi-layer and multi-domain topology discovery scenarios, based on a work-in-progress version of the Internet-Draft which was then finalized and published as {{!RFC8795}}.
+
+Both plugtests have been attended by the majority of the MW vendors and proved a good level of multi-vendor support.
+
+The results of these ETSI plugtests are reported in {{ETSI_MW-TEST-1}} and {{ETSI_MW-TEST-2}}, which also describe the different profiles of the TE topology model used for the MW topology model and for the Ethernet topology model.
+
+It is also worth noting that the use of the TE topology profile as the basis for MW technology-specific augmentations have been specified also in the MW topology model defined in {{?RFC9656}}.
+
 # Open Issues {#open-issues}
 
-## Implemented profiles {#implement}
+## Implemented profiles
 
 When a server implements a profile of the TE topology model, there is no standardized mechanism for the server to report to the client the subset of the model being implemented.
 
@@ -541,6 +608,14 @@ More investigation is instead required in case the TE topology profile is config
 
 It is also worth noting that the supported profile may also depend on other attributes
 (for example the network type), so the YANG deviation mechanism is not applicable to this scenario.
+
+It is worth noting that existing implementations of {{!RFC8795}}, including those reported in {{implementations}}, have described the implemented profiled by manually pruning the YANG tree generated fom the YANG module defined in {{!RFC8795}}.
+
+The pruned/profiled YANG trees were sufficient to the implementers to generate proper APIs.
+
+However, it is possible to use the YANG deviation statements to programmatically generate a pruned/profiled YANG tree.
+
+> Some investigations are on-going to see whether it is sufficient to define YANG deviations to document the pruned/profiled YANG trees to be implemented for a specific application or whether other existing tools can be leveraged to generate proper APIs.
 
 Note: that this issue is also tracked in github as issue #161.
 
