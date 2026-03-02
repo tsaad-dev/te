@@ -605,7 +605,7 @@ The results of the results obtained in extensive ACTN interoperability tests are
 
 ETSI has held two millimetre Wave Transmission (mWT) SDN to test the northbound interface exposed by microwave (MW) network controllers:
 
-1. The first Plugtest has been held in Sophia Antipolis, France on 21 – 24 January 2019
+1. The first Plugtest has been held in Sophia Antipolis, France on 21 - 24 January 2019
 1. The second and third Plugtest have been merged and held in Sophia Antipolis, France on November 2020
 
 Both plugtests covered multi-layer and multi-domain topology discovery scenarios, based on a work-in-progress version of the Internet-Draft which was then finalized and published as {{!RFC8795}}.
