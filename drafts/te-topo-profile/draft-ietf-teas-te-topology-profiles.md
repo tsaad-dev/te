@@ -85,12 +85,21 @@ informative:
       org: European Telecommunications Standards Institute
     date: January 2019
     seriesinfo: ETSI Plugtests Test Plan V1.0 (2019-01)
+    target: https://portal.etsi.org/Portals/0/TBpages/CTI/Docs/mWT_Plugtest1_TestPlan_v1.0.pdf
   ETSI_MW-TEST-2:
     title: "2nd and 3rd mWT SDN Plugtests Event"
     author:
       org: European Telecommunications Standards Institute
     date: November 2020
     seriesinfo: ETSI Plugtests Test Plan V1.0 (2020-11)
+    target: https://portal.etsi.org/Portals/0/TBpages/CTI/Docs/mWT_Plugtests2-3_TestPlan_v1_0.pdf
+  ETSI_MW-PROFILE:
+    title: "millimetre Wave Transmission (mWT); Definition of a Wireless Transport Profile for Standard SDN Northbound Interfaces"
+    author:
+      org: European Telecommunications Standards Institute
+    date: March 2022
+    seriesinfo: ETSI GS mWT 024 V1.1.1 (2022-03)
+    target: https://www.etsi.org/deliver/etsi_gs/mWT/001_099/024/01.01.01_60/gs_mWT024v010101p.pdf
 
 --- abstract
 
@@ -105,12 +114,24 @@ irrespective of whether they are TE-centric or not.
 
 Many network scenarios are being discussed in various IETF Working Groups (WGs) that are not classified as "Traffic Engineering" use cases but can be addressed by a profile (sub-set) of the Topology YANG data model, defined in {{!RFC8795}}.
 
-Traffic Engineering (TE) is defined in {{?I-D.ietf-teas-rfc3272bis}} as aspects of
+Traffic Engineering (TE) is defined in {{?RFC9522}} as aspects of
 Internet network engineering that deal with the issues of performance
 evaluation and performance optimization of operational IP networks.
 TE encompasses the application of technology and scientific
 principles to the measurement, characterization, modeling, and
 control of Internet traffic.
+
+According to section 1.2 of {{?RFC9522}}:
+
+> The key elements required in any TE solution are as follows:
+> 
+> 1. Policy
+> 1. Path steering
+> 1. Resource management
+> 
+> Some TE solutions rely on these elements to a lesser or greater extent. Debate remains about whether a solution can truly be called "TE" if it does not include all of these elements. For the sake of this document, we assert that all TE solutions must include some aspects of all of these elements. Other solutions can be classed as "partial TE" and also fall in scope of this document.
+
+As a consequence, the line between what is TE and what is not TE is quite blurred.
 
 The Topology YANG data model, defined in {{!RFC8795}}, augments the Network Topology YANG data model, defined in {{!RFC8345}}, with generic and technology-agnostic features that are not only applicable to TE-centric deployments, but also applicable to non-TE-centric yet TE-aware deployments.
 
@@ -593,9 +614,11 @@ Both plugtests have been attended by the majority of the MW vendors and proved a
 
 The results of these ETSI plugtests are reported in {{ETSI_MW-TEST-1}} and {{ETSI_MW-TEST-2}}, which also describe the different profiles of the TE topology model used for the MW topology model and for the Ethernet topology model.
 
+Based on the success of the plugtests, an ETSI Group Specification (GS) {{ETSI_MW-PROFILE}} has been published to document a common profile to be implemented at the northbound of MW network controllers.
+
 The use of the TE topology profile as the basis for MW technology-specific augmentations have been specified also in the MW topology model defined in {{?RFC9656}}.
 
-It is worth noting that MW technology is not a TE-centric technology and not even a switching technology, however the approach of profiling {{!RFC8795}} worked well to model the bandwdith of microwave links as well as the overlay/underlay relationship between the overlay Ethernet topology and the supporting underlay MW topology.
+It is worth noting that MW radio link technology is not a TE-centric technology and not even a switching technology: in MW networks, switching is performed at higher layers (e.g., Ethernet or IP) and modelled as overlay topologies on top of the MW radio link topology. The approach of profiling {{!RFC8795}} worked well to model the bandwdith of microwave links as well as the overlay/underlay relationship between the overlay Ethernet topology and the supporting underlay MW topology.
 
 # Open Issues {#open-issues}
 
@@ -640,6 +663,8 @@ This document requires no IANA actions.
 
 The authors would like to thank Vishnu Pavan Beeram, Daniele Ceccarelli, Jonas Ahlberg and Scott Mansfield 
 for providing useful suggestions for this draft.
+
+The authors would like to thank Leonica Macciotta for his support on the the section describing the ETSI MW plugtests.
 
 This document was prepared using kramdown.
 
