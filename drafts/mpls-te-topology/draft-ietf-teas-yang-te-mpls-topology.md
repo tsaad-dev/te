@@ -42,9 +42,9 @@ contributor:
     email: zhenghaomian@huawei.com
   -
     name: Vishnu Pavan Beeram
-    ins: V. Beeram
-    org: Juniper Networks
-    email: vbeeram@juniper.net
+    ins: V.P. Beeram
+    org: HPE
+    email: vishnupavan.ietf@gmail.com
   -
     name: Igor Bryskin
     org: Individual

@@ -39,8 +39,9 @@ author:
 contributor:
   -
     name: Vishnu Pavan Beeram
-    org: Juniper Networks
-    email: vbeeram@juniper.net
+    ins: V.P. Beeram
+    org: HPE
+    email: vishnupavan.ietf@gmail.com
   -
     name: Rakesh Gandhi
     org: Cisco Systems, Inc.
