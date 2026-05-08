@@ -67,7 +67,12 @@ informative:
 
 --- abstract
 
-This document defines a collection of common data types, identities, and groupings in YANG data modeling language. These derived common data types, identities and groupings are intended to be imported by other modules, e.g., those which model the Traffic Engineering (TE) configuration and state capabilities.
+This document defines a collection of commonly used Traffic Engineering
+(TE) specific data types, identities, and groupings in YANG data modeling
+language. These derived common data types, identities, and groupings are
+intended to be imported by other modules that model configuration and state
+for TE constructs, such as TE Topologies, TE Tunnels, TE Policies, TE
+Paths, TE Label Switched Paths (LSPs), and TE interfaces.
 
 This document obsoletes RFC 8776.
 
@@ -77,7 +82,16 @@ This document obsoletes RFC 8776.
 
 YANG {{!RFC6020}} {{!RFC7950}} is a data modeling language used to model configuration data, state data, Remote Procedure Calls, and notifications for network management protocols such as the Network Configuration Protocol (NETCONF) {{?RFC6241}} or RESTCONF {{?RFC8040}}. The YANG language supports a small set of built-in data types and provides mechanisms to derive other types from the built-in types.
 
-This document introduces a collection of common data types derived from the built-in YANG data types. The derived data types, identities, and groupings are mainly designed to be the common definitions applicable for modeling Traffic Engineering (TE) features in models defined outside of this document. Nevertheless, these common definitions can be used by any other module per the guidance in {{Sections 4.12 and 4.13 of ?I-D.ietf-netmod-rfc8407bis}}.
+This document introduces a collection of commonly used Traffic Engineering
+(TE) data types derived from the built-in YANG data types. The derived data
+types, identities, and groupings form common definitions applicable to
+modeling TE features in models defined outside of this document. These
+derived common data types, identities, and groupings are intended to be
+imported by other modules that model TE constructs, such as TE Topologies,
+TE Tunnels, TE Policies, TE Paths, TE Label Switched Paths (LSPs), and TE
+interfaces. Nevertheless, these common definitions can be used by any other
+module per the guidance in {{Sections 4.12 and 4.13 of ?I-D.ietf-netmod-rfc8407bis}}.
+An importing module is not required to use all the definitions provided by the types module.
 
 > Note: Some groupings defined in this document do not follow the guidelines of
 {{Section 4.13 of ?I-D.ietf-netmod-rfc8407bis}} not to include
