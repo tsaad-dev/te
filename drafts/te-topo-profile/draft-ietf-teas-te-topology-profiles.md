@@ -22,7 +22,7 @@ author:
     email: italo.busi@huawei.com
   -
     name: Xufeng Liu
-    org: Alef Edge
+    org: Individual
     email: xufeng.liu.ietf@gmail.com
   -
     name: Igor Bryskin

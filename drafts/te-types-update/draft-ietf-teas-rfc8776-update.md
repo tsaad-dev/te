@@ -25,7 +25,7 @@ author:
     email: aihuaguo.ietf@gmail.com
   -
     name: Xufeng Liu
-    org: Alef Edge
+    org: Individual
     email: xufeng.liu.ietf@gmail.com
   -
     name: Tarek Saad
