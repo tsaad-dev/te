@@ -422,8 +422,9 @@ The "ietf-te-types" module imports the following modules:
 
 - "ietf-network" and "ietf-network-topology" as defined in {{!RFC8345}}
 
-In addition to {{!RFC9911}} and {{!RFC8294}}, this module references the following documents in defining the types and YANG groupings:
+In addition to importing {{!RFC9911}} and {{!RFC8294}}, this module references the following documents in defining its types and groupings:
 {{?RFC9522}}, {{!RFC4090}}, {{!RFC4202}}, {{!RFC4328}}, {{!RFC4561}}, {{?RFC4657}}, {{?RFC4736}}, {{!RFC6004}}, {{!RFC6378}}, {{!RFC6511}}, {{!RFC7139}}, {{!RFC7271}}, {{!RFC7308}}, {{!RFC7551}}, {{!RFC7571}}, {{!RFC7579}}, and {{ISOIEC_9899}}.
+Importantly, even where the definition of a type or grouping references a technology-specific document, this does not preclude its use for other technologies.
 
 ~~~~ yang
 {::include-fold ../../ietf-te-types.yang}
