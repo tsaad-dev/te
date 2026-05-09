@@ -726,9 +726,10 @@ for their valuable input to the discussion
 about the process to follow to provide tiny updates to a YANG module already published as an RFC.
 
 The authors would like to thank
-Mohamed Boucadair
-and
-Sergio Belotti
+Mohamed Boucadair,
+Sergio Belotti,
+and,
+Adrian Farrel
 for their valuable comments and suggestions on this document.
 
 This document was prepared using kramdown.
