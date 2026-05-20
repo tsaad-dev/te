@@ -25,7 +25,7 @@ author:
     email: aihuaguo.ietf@gmail.com
   -
     name: Xufeng Liu
-    org: Alef Edge
+    org: Individual
     email: xufeng.liu.ietf@gmail.com
   -
     name: Tarek Saad
@@ -39,8 +39,9 @@ author:
 contributor:
   -
     name: Vishnu Pavan Beeram
-    org: Juniper Networks
-    email: vbeeram@juniper.net
+    ins: V.P. Beeram
+    org: HPE
+    email: vishnupavan.ietf@gmail.com
   -
     name: Rakesh Gandhi
     org: Cisco Systems, Inc.
@@ -66,7 +67,12 @@ informative:
 
 --- abstract
 
-This document defines a collection of common data types, identities, and groupings in YANG data modeling language. These derived common data types, identities and groupings are intended to be imported by other modules, e.g., those which model the Traffic Engineering (TE) configuration and state capabilities.
+This document defines a collection of commonly used Traffic Engineering
+(TE) specific data types, identities, and groupings in YANG data modeling
+language. These derived common data types, identities, and groupings are
+intended to be imported by other modules that model configuration and state
+for TE constructs, such as TE Topologies, TE Tunnels, TE Policies, TE
+Paths, TE Label Switched Paths (LSPs), and TE interfaces.
 
 This document obsoletes RFC 8776.
 
@@ -76,10 +82,19 @@ This document obsoletes RFC 8776.
 
 YANG {{!RFC6020}} {{!RFC7950}} is a data modeling language used to model configuration data, state data, Remote Procedure Calls, and notifications for network management protocols such as the Network Configuration Protocol (NETCONF) {{?RFC6241}} or RESTCONF {{?RFC8040}}. The YANG language supports a small set of built-in data types and provides mechanisms to derive other types from the built-in types.
 
-This document introduces a collection of common data types derived from the built-in YANG data types. The derived data types, identities, and groupings are mainly designed to be the common definitions applicable for modeling Traffic Engineering (TE) features in models defined outside of this document. Nevertheless, these common definitions can be used by any other module per the guidance in {{Sections 4.12 and 4.13 of ?I-D.ietf-netmod-rfc8407bis}}.
+This document introduces a collection of commonly used Traffic Engineering
+(TE) data types derived from the built-in YANG data types. The derived data
+types, identities, and groupings form common definitions applicable to
+modeling TE features in models defined outside of this document. These
+derived common data types, identities, and groupings are intended to be
+imported by other modules that model TE constructs, such as TE Topologies,
+TE Tunnels, TE Policies, TE Paths, TE Label Switched Paths (LSPs), and TE
+interfaces. Nevertheless, these common definitions can be used by any other
+module per the guidance in {{Sections 4.12 and 4.13 of ?RFC9907}}.
+An importing module is not required to use all the definitions provided by the types module.
 
 > Note: Some groupings defined in this document do not follow the guidelines of
-{{Section 4.13 of ?I-D.ietf-netmod-rfc8407bis}} not to include
+{{Section 4.13 of ?RFC9907}} not to include
 "default" statements. This is due to the fact that they were already defined in {{?RFC8776}} and removing "default"
 statements is not a backward compatible change, as defined in {{Section 11 of !RFC7950}}.
 
@@ -103,8 +118,7 @@ Please apply the following replacements:
 
 - XXXX --> the assigned RFC number for this I-D
 - draft-ietf-pce-sid-algo-29, Sections 4.5.1 and 4.5.2 --> the draft version and section number as in the latest version of {{?I-D.ietf-pce-sid-algo}} at the time this document is published as an RFC
-- 2026-01-15 --> the actual date of the publication of this document
-- 2026-02-06 --> the actual date of the publication of this document
+- 2026-05-08 --> the actual date of the publication of this document
 
 ### References to RFCs
 
@@ -116,13 +130,13 @@ For example:
 
 In section 1 change:
 
-> Section 4.12 of {{?I-D.ietf-netmod-rfc8407bis}} and Section 4.13 of
-{{?I-D.ietf-netmod-rfc8407bis}}.
+> Section 4.12 of {{?RFC9907}} and Section 4.13 of
+{{?RFC9907}}.
 
 to
 
 > Section 4.12 and Section 4.13 of YANG Data Models guidelines
-document {{?I-D.ietf-netmod-rfc8407bis}}.
+document {{?RFC9907}}.
 
 It is suggested that the RFC Editor and the tooling team identify a way to  expand the references as proposed in a programmatic way.
 
@@ -408,14 +422,15 @@ The "ietf-te-types" module imports the following modules:
 
 - "ietf-network" and "ietf-network-topology" as defined in {{!RFC8345}}
 
-In addition to {{!RFC9911}} and {{!RFC8294}}, this module references the following documents in defining the types and YANG groupings:
+In addition to importing {{!RFC9911}} and {{!RFC8294}}, this module references the following documents in defining its types and groupings:
 {{?RFC9522}}, {{!RFC4090}}, {{!RFC4202}}, {{!RFC4328}}, {{!RFC4561}}, {{?RFC4657}}, {{?RFC4736}}, {{!RFC6004}}, {{!RFC6378}}, {{!RFC6511}}, {{!RFC7139}}, {{!RFC7271}}, {{!RFC7308}}, {{!RFC7551}}, {{!RFC7571}}, {{!RFC7579}}, and {{ISOIEC_9899}}.
+Importantly, even where the definition of a type or grouping references a technology-specific document, this does not preclude its use for other technologies.
 
 ~~~~ yang
 {::include-fold ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2026-02-06.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2026-05-08.yang"}
 
 # Packet TE Types YANG Module {#pkt-yang-code}
 
@@ -429,7 +444,7 @@ The "ietf-te-packet-types" module imports the following modules:
 {::include-fold ../../ietf-te-packet-types.yang}
 ~~~~
 {: #fig-pkt-yang title="Packet TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2026-01-15.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2026-05-08.yang"}
 
 # IANA Considerations
 
@@ -464,7 +479,7 @@ This document requests IANA to register the following YANG modules in the "YANG 
 # Security Considerations
 
 This section is modeled after the template described in Section 3.7
-of {{?I-D.ietf-netmod-rfc8407bis}}.
+of {{?RFC9907}}.
 
 The "ietf-te-types" and the "ietf-te-packet-types" YANG modules define data models that are
 designed to be accessed via YANG-based management protocols, such as
@@ -711,9 +726,10 @@ for their valuable input to the discussion
 about the process to follow to provide tiny updates to a YANG module already published as an RFC.
 
 The authors would like to thank
-Mohamed Boucadair
-and
-Sergio Belotti
+Mohamed Boucadair,
+Sergio Belotti,
+and,
+Adrian Farrel
 for their valuable comments and suggestions on this document.
 
 This document was prepared using kramdown.
