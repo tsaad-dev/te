@@ -118,7 +118,7 @@ Please apply the following replacements:
 
 - XXXX --> the assigned RFC number for this I-D
 - draft-ietf-pce-sid-algo-29, Sections 4.5.1 and 4.5.2 --> the draft version and section number as in the latest version of {{?I-D.ietf-pce-sid-algo}} at the time this document is published as an RFC
-- 2026-05-08 --> the actual date of the publication of this document
+- 2026-06-11 --> the actual date of the publication of this document
 
 ### References to RFCs
 
