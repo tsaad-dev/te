@@ -48,22 +48,24 @@ contributor:
     email: rgandhi@cisco.com
 
 normative:
-  ISOIEC_9899:
-    title: Information Technology - Programming Languages - C 
+  ISO_IEC_9899_2024:
+    title: Information technology -- Programming languages -- C
     author:
-      org: International Organization for Standardization (ISO) and International Electrotechnical Commission (IEC)
-    date: October 2024
-    seriesinfo: ISO/IEC 9899:2024
+      org: International Organization for Standardization
+    date: 2024-10
+    seriesinfo:
+      ISO: ISO/IEC 9899:2024
     target: https://www.iso.org/standard/82075.html
 
 informative:
   MEF_10.3:
     title: Ethernet Services Attributes Phase 3
     author:
-      org: MEF
-    date: October 2013
-    seriesinfo: MEF 10.3
-    target: https://www.mef.net/Assets/Technical_Specifications/PDF/MEF_10.pdf
+      org: Metro Ethernet Forum
+    date: 2013-10
+    seriesinfo:
+      MEF: 10.3
+    target: https://www.mef.net/Assets/Technical_Specifications/PDF/MEF_10.3.pdf
 
 --- abstract
 
@@ -423,7 +425,7 @@ The "ietf-te-types" module imports the following modules:
 - "ietf-network" and "ietf-network-topology" as defined in {{!RFC8345}}
 
 In addition to importing {{!RFC9911}} and {{!RFC8294}}, this module references the following documents in defining its types and groupings:
-{{?RFC9522}}, {{!RFC4090}}, {{!RFC4202}}, {{!RFC4328}}, {{!RFC4561}}, {{?RFC4657}}, {{?RFC4736}}, {{!RFC6004}}, {{!RFC6378}}, {{!RFC6511}}, {{!RFC7139}}, {{!RFC7271}}, {{!RFC7308}}, {{!RFC7551}}, {{!RFC7571}}, {{!RFC7579}}, and {{ISOIEC_9899}}.
+{{?RFC9522}}, {{!RFC4090}}, {{!RFC4202}}, {{!RFC4328}}, {{!RFC4561}}, {{?RFC4657}}, {{?RFC4736}}, {{!RFC6004}}, {{!RFC6378}}, {{!RFC6511}}, {{!RFC7139}}, {{!RFC7271}}, {{!RFC7308}}, {{!RFC7551}}, {{!RFC7571}}, {{!RFC7579}}, and {{ISO_IEC_9899_2024}}.
 Importantly, even where the definition of a type or grouping references a technology-specific document, this does not preclude its use for other technologies.
 
 ~~~~ yang
