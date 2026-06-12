@@ -48,7 +48,7 @@ contributor:
     email: rgandhi@cisco.com
 
 normative:
-  ISO_IEC_9899_2024:
+  ISO_IEC_9899:
     title: Information technology -- Programming languages -- C
     author:
       org: International Organization for Standardization
@@ -419,14 +419,14 @@ The "ietf-te-types" module imports the following modules:
 - "ietf-network" and "ietf-network-topology" as defined in {{!RFC8345}}
 
 In addition to importing {{!RFC9911}} and {{!RFC8294}}, this module references the following documents in defining its types and groupings:
-{{?RFC9522}}, {{!RFC4090}}, {{!RFC4202}}, {{!RFC4328}}, {{!RFC4561}}, {{?RFC4657}}, {{?RFC4736}}, {{!RFC6004}}, {{!RFC6378}}, {{!RFC6511}}, {{!RFC7139}}, {{!RFC7271}}, {{!RFC7308}}, {{!RFC7551}}, {{!RFC7571}}, {{!RFC7579}}, and {{ISO_IEC_9899_2024}}.
+{{?RFC9522}}, {{!RFC4090}}, {{!RFC4202}}, {{!RFC4328}}, {{!RFC4561}}, {{?RFC4657}}, {{?RFC4736}}, {{!RFC6004}}, {{!RFC6378}}, {{!RFC6511}}, {{!RFC7139}}, {{!RFC7271}}, {{!RFC7308}}, {{!RFC7551}}, {{!RFC7571}}, {{!RFC7579}}, and {{ISO_IEC_9899}}.
 Importantly, even where the definition of a type or grouping references a technology-specific document, this does not preclude its use for other technologies.
 
 ~~~~ yang
 {::include-fold ../../ietf-te-types.yang}
 ~~~~
 {: #fig-te-yang title="TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-types@2026-05-08.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-types@2026-06-11.yang"}
 
 # Packet TE Types YANG Module {#pkt-yang-code}
 
@@ -440,7 +440,7 @@ The "ietf-te-packet-types" module imports the following modules:
 {::include-fold ../../ietf-te-packet-types.yang}
 ~~~~
 {: #fig-pkt-yang title="Packet TE Types YANG module"
-sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2026-05-08.yang"}
+sourcecode-markers="true" sourcecode-name="ietf-te-packet-types@2026-06-11.yang"}
 
 # IANA Considerations
 
