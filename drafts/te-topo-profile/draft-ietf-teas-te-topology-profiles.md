@@ -375,7 +375,8 @@ The pseudonode represents a point-to-multipoint unidirectional link, as indicate
 ~~~~ aasvg
 {::include ./figures/p2mp-link-example.txt}
 ~~~~
-{:#p2mp-link-example title="Example of a pseudonode modelling an undirectional point-to-multipoint link"}
+{:#p2mp-link-example
+title="Example of a pseudonode modelling an undirectional point&#x2011;to&#x2011;multipoint link"}
 
 For example, {{p2mp-link-example}} shows an example of a pseudonode representing an unidirectional point-to-multipoint link where the TP A is the root TP and TPs B and C are the two leaf TPs.
 
