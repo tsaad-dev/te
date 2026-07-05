@@ -158,7 +158,7 @@ However, the 'te' container in the context of {{!RFC8795}}, should be understood
 
 # Examples of generic profiles {#examples}
 
-## Multi-domain Links Discovery {#uni-discovery}
+## Multi-domain Links Discovery
 
 The following profile of the Topology YANG data model, defined in {{!RFC8795}}, can be used to support the inter-domain link discovery:
 
@@ -176,20 +176,20 @@ The following profile of the Topology YANG data model, defined in {{!RFC8795}}, 
 ~~~~
 {:#inter-domain-discovery-tree title="Inter-domain Link Discovery"}
 
-It is also worth noting that the inter-domain links can also be TE (e.g. an OTN UNI) or non-TE (e.g., an Ethernet UNI) as well as multi-function links, supporting both TE and non-TE technologies, such as the links, described in {{Section 4.4 of ?I-D.ietf-ccamp-transport-nbi-app-statement}}, which can be configured either OTN or Ethernet or SDH link.
+It is also worth noting that the inter-domain links can also be TE (e.g. an OTN link) or non-TE (e.g., an Ethernet link) as well as multi-function links, supporting both TE and non-TE technologies, such as the links, described in {{Section 4.4 of ?I-D.ietf-ccamp-transport-nbi-app-statement}}, which can be configured either OTN or Ethernet or SDH link.
 
-The profiled YANG data model shown in {{inter-domain-discovery-tree}} can also be used with technology-specific augmentations, as described in {{augmentations}}. Technology-specific augmentations can for example describe the capability of the TP to be configured as a UNI for the types of services supported by the UNI (e.g., L2VPN/L3VPN).
+The profiled YANG data model shown in {{inter-domain-discovery-tree}} can also be used with technology-specific augmentations, as described in {{augmentations}}. Technology-specific augmentations can for example describe the capability of the TP to be support different types of services (e.g., L2VPN/L3VPN).
 
 For example, in {{?I-D.ietf-ccamp-eth-client-te-topo-yang}},
 the eth-svc container is defined to
 represent the capabilities of the Termination Point (TP) to be
-configured as an Ethernet UNI, together with the Ethernet
+configured as an Ethernet link, together with the Ethernet
 classification and VLAN operations supported by that TP.
 
 The {{?I-D.ietf-ccamp-otn-topo-yang}} provides another example, where:
 
 -  the client-svc container is defined to represent the capabilities
-   of the TP to be configured as an transparent client UNI (e.g.,
+   of the TP to be configured as an transparent client TP (e.g.,
    STM-N, Fiber Channel or transparent Ethernet);
 
 -  the OTN technology-specific Link Termination Point (LTP)
@@ -202,8 +202,8 @@ The profiled YANG data model shown in {{inter-domain-discovery-tree}} does not r
 The advantages of using the profiled YANG data model shown in {{inter-domain-discovery-tree}}
 as a core network topology model is to have a common solutions for:
 
--  discovering UNIs as well as inter-domain NNI links, which is
-   applicable to any technology (TE or non TE) used at the UNI or
+-  discovering inter-domain links, which is
+   applicable to any technology (TE or non TE) used at the inter-domain links or
    within the network;
 
 -  modelling non TE inter-domain links, such as Ethernet, and TE inter-domain links such as OTN,
