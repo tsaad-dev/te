@@ -160,7 +160,7 @@ However, the 'te' container in the context of {{!RFC8795}}, should be understood
 
 ## Multi-domain Links Discovery {#uni-discovery}
 
-The following profile of the Topology YANG data model, defined in {{!RFC8795}}, can be used to support the UNI Topology Discovery, or in general, inter-domain link discovery:
+The following profile of the Topology YANG data model, defined in {{!RFC8795}}, can be used to support the inter-domain link discovery:
 
 ~~~~ ascii-art
    module: ietf-te-topology
@@ -174,11 +174,11 @@ The following profile of the Topology YANG data model, defined in {{!RFC8795}}, 
           +--rw inter-domain-plug-id?        binary
           +--ro oper-status?                 te-types:te-oper-status
 ~~~~
-{:#uni-discovery-tree title="UNI Topology"}
+{:#inter-domain-discovery-tree title="Inter-domain Link Discovery"}
 
-It is also worth noting that the UNI links can also be TE (e.g. an OTN UNI) or non-TE (e.g., an Ethernet UNI) as well as multi-function UNI links, supporting both TE and non-TE technologies, such as the UNI links, described in {{Section 4.4 of ?I-D.ietf-ccamp-transport-nbi-app-statement}}, which can be configured either OTN UNI or Ethernet UNI or SDH UNI.
+It is also worth noting that the inter-domain links can also be TE (e.g. an OTN UNI) or non-TE (e.g., an Ethernet UNI) as well as multi-function links, supporting both TE and non-TE technologies, such as the links, described in {{Section 4.4 of ?I-D.ietf-ccamp-transport-nbi-app-statement}}, which can be configured either OTN or Ethernet or SDH link.
 
-The UNI Topology profiled YANG data model shown in {{uni-discovery-tree}} can also be used with technology-specific UNI augmentations, as described in {{augmentations}}. Technology-specific augmentations can for example describe the capability of the TP to be configured as a UNI for the types of services supported by the UNI (e.g., L2VPN/L3VPN).
+The profiled YANG data model shown in {{inter-domain-discovery-tree}} can also be used with technology-specific augmentations, as described in {{augmentations}}. Technology-specific augmentations can for example describe the capability of the TP to be configured as a UNI for the types of services supported by the UNI (e.g., L2VPN/L3VPN).
 
 For example, in {{?I-D.ietf-ccamp-eth-client-te-topo-yang}},
 the eth-svc container is defined to
@@ -194,21 +194,21 @@ The {{?I-D.ietf-ccamp-otn-topo-yang}} provides another example, where:
 
 -  the OTN technology-specific Link Termination Point (LTP)
    augmentations are defined to represent the capabilities of the TP
-   to be configured as an OTN UNI, together with the information
-   about OTN label and bandwidth availability at the OTN UNI.
+   to be configured as an OTN link, together with the information
+   about OTN label and bandwidth availability at the OTN inter-domain link.
 
-Te UNI Topology profiled YANG data model shown in {{uni-discovery-tree}} does not require the network to be a TE network and, therefore, it could be used as a core network topology model to discover UNIs (or in general any external link) for TE and non-TE networks as well as multi-layer networks encompassing both TE and non-TE layers.
+The profiled YANG data model shown in {{inter-domain-discovery-tree}} does not require the network to be a TE network and, therefore, it could be used as a core network topology model to discover any inter-domain link for TE and non-TE networks as well as multi-layer networks encompassing both TE and non-TE layers.
 
-The advantages of using the UNI Topology profiled YANG data model shown in {{uni-discovery-tree}}
+The advantages of using the profiled YANG data model shown in {{inter-domain-discovery-tree}}
 as a core network topology model is to have a common solutions for:
 
 -  discovering UNIs as well as inter-domain NNI links, which is
    applicable to any technology (TE or non TE) used at the UNI or
    within the network;
 
--  modelling non TE UNIs such as Ethernet, and TE UNIs such as OTN,
-   as well as UNIs which can configured as TE or non-TE (e.g., being
-   configured as either Ethernet or OTN UNI).
+-  modelling non TE inter-domain links, such as Ethernet, and TE inter-domain links such as OTN,
+   as well as inter-domain links which can configured as TE or non-TE (e.g., being
+   configured as either Ethernet or OTN link).
 
 ## Administrative and Operational status management {#admin-oper-state}
 
@@ -345,6 +345,7 @@ between termination points across the nodes:
 According to {{Section 4.4.4 of !RFC8345}}, multipoint links can be "represented through pseudonodes (similar to IS-IS, for example)".
 
 Each access point can have different directionality with respect to the multipoint link, as shown in {{mp-link-example}}:
+
 - an access point of a multipoint link can be able to both transmit and receive traffic: this access point can be modelled as a TP (e.g., TP A in {{mp-link-example}}) terminating two links, one incoming link (e.g., Link 1 in {{mp-link-example}}) and one outgoing link (e.g., Link 2 in {{mp-link-example}});
 - an access point of a multipoint link can be able only to receive traffic: this access point can be modelled as a TP (e.g., TP B in {{mp-link-example}}) with only one incoming link (e.g., Link 3 in {{mp-link-example}});
 - an access point of a multipoint link can be able only to transmit traffic: this access point can be modelled as a TP (e.g., TP C in {{mp-link-example}}) with only one outgoing link (e.g., Link 4 in {{mp-link-example}}).
@@ -355,12 +356,15 @@ Each access point can have different directionality with respect to the multipoi
 {:#mp-link-example title="Example of a pseudonode modelling a multipoint link"}
 
 The switching limitations of the pseudonode, as defined in {{switching-limitations}}, provides sufficient information to identify the type of multipoint link:
+
 - in case of multipoint links, the connectivity matrix of the pseudnode, reports that connectivity is enabled by default between all the TPs of the node;
+
 - in case of point-to-multipoint links, the connectivity matrix of the pseudnode, reports that connectivity is possible only between the root TP and the leaf TPs
->>
-- if the point-to-multipoint link is bidirectional, the connectivity matrix of the pseudonodes reports that connectivity is possible from the root TP to the leaf TPs as well as from the leaf TPs to the root TP;
->>
-- the connectivity matrix of the psuedonode can also describe point-to-multipoint links with more than one root (also known as rooted-multipoint links), indicating also whether connectivity between root TPs is allowed or not;
+
+  - if the point-to-multipoint link is bidirectional, the connectivity matrix of the pseudonodes reports that connectivity is possible from the root TP to the leaf TPs as well as from the leaf TPs to the root TP;
+
+  - the connectivity matrix of the psuedonode can also describe point-to-multipoint links with more than one root (also known as rooted-multipoint links), indicating also whether connectivity between root TPs is allowed or not;
+
 - in case of hybrid multipoint links, as defined in {{?I-D.ietf-nmop-simap-concept}}, the connectivity matrix of the pseunode reports the list of TP pairs for which connectivity is allowed or not allowed.
 
 It is worth noting that the directionality of the access point of a multipoint link overrides the switching limitations of the pseudonode. For example, even if the connectivity matrix of the psuedonode in {{mp-link-example}} indicates that connectivity is possible between TP A and TP B, the traffic entering the pseudonode from TP A cannot be transmitted by TP B since there is no outgoing link from TP B.
@@ -371,7 +375,8 @@ The pseudonode represents a point-to-multipoint unidirectional link, as indicate
 ~~~~ aasvg
 {::include ./figures/p2mp-link-example.txt}
 ~~~~
-{:#p2mp-link-example title="Example of a pseudonode modelling an undirectional point-to-multipoint link"}
+{:#p2mp-link-example
+title="Example of a pseudonode modelling an undirectional point&#x2011;to&#x2011;multipoint link"}
 
 For example, {{p2mp-link-example}} shows an example of a pseudonode representing an unidirectional point-to-multipoint link where the TP A is the root TP and TPs B and C are the two leaf TPs.
 
@@ -619,30 +624,6 @@ Based on the success of the plugtests, an ETSI Group Specification (GS) {{ETSI_M
 The use of the TE topology profile as the basis for MW technology-specific augmentations have been specified also in the MW topology model defined in {{?RFC9656}}.
 
 It is worth noting that MW radio link technology is not a TE-centric technology and not even a switching technology: in MW networks, switching is performed at higher layers (e.g., Ethernet or IP) and modelled as overlay topologies on top of the MW radio link topology. The approach of profiling {{!RFC8795}} worked well to model the bandwdith of microwave links as well as the overlay/underlay relationship between the overlay Ethernet topology and the supporting underlay MW topology.
-
-# Open Issues {#open-issues}
-
-## Implemented profiles
-
-When a server implements a profile of the TE topology model, there is no standardized mechanism for the server to report to the client the subset of the model being implemented.
-
-This might not be an issue in case the TE topology profile is read by the the client because the server reports in the operational datastore only the leaves which have been implemented, as described
-in section 5.3 of {{!RFC8342}}.
-
-More investigation is instead required in case the TE topology profile is configured by the client, to  avoid that the client tries to write an attribute not used in the TE Topology profile implemented by the server.
-
-It is also worth noting that the supported profile may also depend on other attributes
-(for example the network type), so the YANG deviation mechanism is not applicable to this scenario.
-
-It is worth noting that existing implementations of {{!RFC8795}}, including those reported in {{implementations}}, have described the implemented profiled by manually pruning the YANG tree generated fom the YANG module defined in {{!RFC8795}}.
-
-The pruned/profiled YANG trees were sufficient to the implementers to generate proper APIs.
-
-However, it is possible to use the YANG deviation statements to programmatically generate a pruned/profiled YANG tree.
-
-> Some investigations are on-going to see whether it is sufficient to define YANG deviations to document the pruned/profiled YANG trees to be implemented for a specific application or whether other existing tools can be leveraged to generate proper APIs.
-
-Note: that this issue is also tracked in github as issue #161.
 
 # Security Considerations {#security}
 
